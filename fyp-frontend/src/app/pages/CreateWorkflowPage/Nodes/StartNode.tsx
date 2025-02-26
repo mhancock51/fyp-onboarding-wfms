@@ -7,7 +7,7 @@ export default function StartNode() {
 
   return (
     <div style={{backgroundColor: "#199c49", padding: "5px", border: "1px solid white", borderRadius: "25px", minWidth: "15em"}}>
-      <h1 style={{textAlign: "center"}}>Workflow Start</h1>
+      <h1 style={{textAlign: "center"}} className='text-sm'>Workflow Start</h1>
       <Handle type="source" position={Position.Bottom} id="a" />
       <Handle
         type="source"

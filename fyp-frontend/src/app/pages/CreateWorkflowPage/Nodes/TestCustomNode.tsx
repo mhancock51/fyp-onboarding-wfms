@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
+import { Trash, Trash2 } from 'lucide-react';
 import React, { useCallback } from 'react'
 
 export type CounterNode = Node<
@@ -21,13 +22,22 @@ export default function TestCustomNode(props: NodeProps<CounterNode>) {
   }, []);
   
   return (
-    <div style={{backgroundColor: "black", padding: "1em", border: "1px solid white", borderRadius: "10px", minWidth: "15em"}}>
+    <div style={{backgroundColor: "black", padding: "6px", border: "1px solid white", borderRadius: "10px", width: "15em"}}>
       <Handle type="target" position={Position.Top} />
       <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-        <label htmlFor="text" className='text-sm' style={{textAlign: "center"}}>{props.data.taskTitle}</label>
+        <div className='flex flex-row justify-between gap-8 items-center relative' style={{}}>
+          <label htmlFor="text" className='text-sm' style={{textAlign: "center", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "15em", overflow: "hidden"}}>{props.data.taskTitle}</label>
+          <Button variant="destructive" size="icon" className='rounded-2xl'><Trash2/></Button>
+        </div>
         <Separator/>
-        <label htmlFor="text" className='text-xs'>Description: [Task Description]</label>
-        <label htmlFor="text" className='text-xs'>Assignee: <Badge>{props.data.assignee}</Badge></label>        
+        <div className='flex flex-row gap-8'>
+          <label htmlFor="text" className='text-xs flex-4'>Description:</label>
+          <label htmlFor="text" className='text-xs flex-8'>[Task Description]</label>
+        </div>
+        <div className='flex flex-row gap-8'>
+          <label htmlFor="text" className='text-xs flex-4'>Assignee:</label>
+          <label htmlFor="text" className='text-xs flex-8'><Badge>{props.data.assignee}</Badge></label>
+        </div>             
       </div>
       <Handle type="source" position={Position.Bottom} id="a" />
       <Handle
