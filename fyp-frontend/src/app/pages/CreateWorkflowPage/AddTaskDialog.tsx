@@ -14,11 +14,11 @@ import { Label } from "@/components/ui/label";
 import WorkflowTask from "@/models/WorkflowTask";
 import React, { useState } from 'react'
 
-export default function AddTaskDialog(props: {open: boolean, onAdd: (task: WorkflowTask) => void}) {
+export default function AddTaskDialog(props: {open: boolean, onAdd: (task: WorkflowTask) => void, setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>}) {
   const [task, setTask] = useState<WorkflowTask>({ taskId: "", essential: false, assigneeUserId: ""});
 
   return (
-    <Dialog open={props.open}>
+    <Dialog open={props.open} onOpenChange={props.setOpenDialog}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Task</DialogTitle>

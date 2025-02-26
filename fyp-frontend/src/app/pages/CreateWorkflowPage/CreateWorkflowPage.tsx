@@ -61,7 +61,7 @@ export default function CreateWorkflowPage() {
     nodes.push({ id: START_NODE_ID, type: "startNode",  position: { x: 0, y: 0   }});
     // add nodes for each task
     workflowTemplate?.tasks.forEach((task: WorkflowTask, index: number) => {
-      const yPos = 75 + (175 * (index));    
+      const yPos = 75 + (150 * (index));    
       let node = { id: `${index}`, type: "customNode", position: { x: 0, y: yPos }, data: { index: index, taskTitle: `${task.taskId}`, assignee: task.assigneeUserId, deleteTask: () => { deleteTask(index)} }};
       nodes.push(node);
       // add edge to connect to previous node
@@ -69,7 +69,7 @@ export default function CreateWorkflowPage() {
       edges.push({ id: `e${previousNode.id}-${index}`, source: previousNode.id, target: `${index}`, markerEnd: ARROW_MARKER_END, style: { strokeWidth: 4, stroke: '#009DD8'} })
     });
     // add "add task" node
-    nodes.push({id: ADD_TASK_NODE_ID, type: "addTaskNode", position: { x: 0, y: nodes[nodes.length - 1].position.y + 175 }, data: { onClick: () => {setOpenDialog(true);}}});
+    nodes.push({id: ADD_TASK_NODE_ID, type: "addTaskNode", position: { x: 0, y: nodes[nodes.length - 1].position.y + 125 }, data: { onClick: () => {setOpenDialog(true);}}});
     // add connecting node
     let previousNode = nodes[nodes.length - 2]; 
     edges.push({ id: `e${previousNode.id}-${ADD_TASK_NODE_ID}`, source: previousNode.id, target: ADD_TASK_NODE_ID, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} });
@@ -117,9 +117,8 @@ export default function CreateWorkflowPage() {
           </Panel> */}
         </ReactFlow>        
       </div>
-      <Button style={{float: "right", marginTop: "8px"}} className='cursor-pointer'>Save Workflow</Button>
-      <Button style={{float: "right", marginTop: "8px"}} className='cursor-pointer' onClick={() => {setOpenDialog(!openDialog);}}>Open Dialog</Button>
-      <AddTaskDialog open={openDialog} onAdd={addTask}/>
+      <Button style={{float: "right", marginTop: "8px"}} className='cursor-pointer'>Save Workflow</Button>      
+      <AddTaskDialog open={openDialog} onAdd={addTask} setOpenDialog={setOpenDialog}/>
     </div>
   )
 }

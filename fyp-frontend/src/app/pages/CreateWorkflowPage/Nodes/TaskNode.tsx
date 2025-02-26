@@ -29,7 +29,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
       <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
         <div className='flex flex-row justify-between gap-8 items-center relative' style={{}}>
           <label htmlFor="text" className='text-sm' style={{textAlign: "center", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "15em", overflow: "hidden"}}>{props.data.taskTitle}</label>
-          <Button variant="destructive" size="icon" className='rounded-2xl' onClick={() => {props.data.deleteTask(props.data.index);}}><Trash2/></Button>
+          <Button variant="destructive" size="icon" className='rounded-2xl w-6 h-6' style={{position: "absolute", right: 0}} onClick={() => {props.data.deleteTask(props.data.index);}}><Trash2/></Button>
         </div>
         <Separator/>
         <div className='flex flex-row gap-8'>
