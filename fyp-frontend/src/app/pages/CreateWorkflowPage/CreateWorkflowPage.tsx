@@ -58,14 +58,15 @@ export default function CreateWorkflowPage() {
     const previousNodeId = nodes[nodes.length - 2].id;    
     const edgeA: any = { id: `e${previousNodeId}-${index}`, source: previousNodeId, target: `${index}`, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} };
     const edgeB: any = { id: `e${previousNodeId}-${index + 1}`, source: previousNodeId, target: `${index + 1}`, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} };
-    // const edgeB: any = { id: `e${index}-${endNodeId}`, source: `${index}`, target: endNodeId, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} };
+    const edgeC: any = { id: `e${index}-${endNodeId}`, source: `${index}`, target: endNodeId, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} };
+    const edgeD: any = { id: `e${index + 1}-${endNodeId}`, source: `${index + 1}`, target: endNodeId, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} };
 
-    setEdges((edges) => [...edges, ...[ edgeA, edgeB]]); 
+    setEdges((edges) => [...edges, ...[ edgeA, edgeB, edgeC, edgeD]]); 
 
     // move end node down
     setNodes((nodes: any[]) =>
       nodes.map((node) =>
-        node.id === '-1' ? { ...node, position: { x: 0, y: yPos + 175 } } : node
+        node.id === '-1' ? { ...node, position: { x: 0, y: yPos + 200 } } : node
       )
     );
   }
@@ -89,7 +90,7 @@ export default function CreateWorkflowPage() {
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  
           <Controls />
-          <Panel position="top-left" className='bg-white text-black p-6 flex flex-col gap-8 rounded-lg'>                
+          <Panel position="top-left" className='bg-white text-black p-6 flex flex-col gap-4 rounded-lg'>                
             Toolbox
             <Button className='bg-blue-400' onClick={addTaskToWorkflow}>Add Task to Workflow</Button>            
             <Button className='bg-blue-400' onClick={addTwoTasksToWorkflow}>Add 2 Tasks to Workflow</Button>            
