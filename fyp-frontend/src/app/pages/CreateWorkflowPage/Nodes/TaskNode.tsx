@@ -3,18 +3,20 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
-import { Trash, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import React, { useCallback } from 'react'
 
-export type CounterNode = Node<
+export type TaskNode = Node<
   {
+    index: number;
     taskTitle: number;
     assignee: number;
+    deleteTask: (index: number) => void;
   },
   'counter'
 >;
 
-export default function TestCustomNode(props: NodeProps<CounterNode>) {
+export default function TaskNode(props: NodeProps<TaskNode>) {
   const handleStyle = {};
 
   const onChange = useCallback((evt: { target: { value: any; }; }) => {
@@ -27,7 +29,7 @@ export default function TestCustomNode(props: NodeProps<CounterNode>) {
       <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
         <div className='flex flex-row justify-between gap-8 items-center relative' style={{}}>
           <label htmlFor="text" className='text-sm' style={{textAlign: "center", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "15em", overflow: "hidden"}}>{props.data.taskTitle}</label>
-          <Button variant="destructive" size="icon" className='rounded-2xl'><Trash2/></Button>
+          <Button variant="destructive" size="icon" className='rounded-2xl' onClick={() => {props.data.deleteTask(props.data.index);}}><Trash2/></Button>
         </div>
         <Separator/>
         <div className='flex flex-row gap-8'>
