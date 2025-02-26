@@ -39,8 +39,8 @@ export function AppSidebar(props: Props) {
     <Sidebar collapsible="icon" className="cursor-pointer">
       <SidebarHeader onClick={() => { navigate("/");}}>
         <SidebarGroupLabel style={{fontSize: "1.5em", textAlign: "center", margin: "auto"}}>{props.organisationName}</SidebarGroupLabel>
+        <SidebarSeparator/>
       </SidebarHeader>
-      <SidebarSeparator/>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
