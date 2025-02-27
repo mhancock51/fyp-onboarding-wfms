@@ -37,7 +37,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             }
             else
             {
-                return base.AddAsync(entity);
+                base.AddAsync(entity);
             }
 
         }
