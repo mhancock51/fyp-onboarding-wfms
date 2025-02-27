@@ -20,10 +20,11 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IOrganisationAdminLinkRepository _organisationAdminLinkRepository;
         private readonly IAccountRepository _accountRepository;
 
-        public OrganisationLogic(IOrganisationRepository organisationRepository, IOrganisationAdminLinkRepository organisationAdminLinkRepository)
+        public OrganisationLogic(IOrganisationRepository organisationRepository, IOrganisationAdminLinkRepository organisationAdminLinkRepository, IAccountRepository accountRepository)
         {
             _organisationRepository = organisationRepository;
             _organisationAdminLinkRepository = organisationAdminLinkRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId)

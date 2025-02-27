@@ -30,7 +30,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             // assign guid
             Guid guid = Guid.NewGuid();
 
-            var keyProp = typeof(TEntity).GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(Key))).First();
+            var keyProp = typeof(TEntity).GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.KeyAttribute))).First();
             if (keyProp != null && keyProp.CanWrite)
             {
                 keyProp.SetValue(entity, Convert.ChangeType(guid.ToString(), keyProp.PropertyType), null);

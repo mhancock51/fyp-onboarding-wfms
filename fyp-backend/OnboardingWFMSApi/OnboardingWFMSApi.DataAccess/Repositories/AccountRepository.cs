@@ -21,8 +21,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public override async Task<AccountTable> GetById(string id)
         {
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(e => e.AccountId == id);
-            return account;
+            return await _dbContext.Accounts.FirstOrDefaultAsync(e => e.AccountId == id);            
         }
     }
 }
