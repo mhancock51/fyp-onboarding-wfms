@@ -12,13 +12,16 @@ namespace OnboardingWFMSApi.DataModels.Tables
     public class AccountTable
     {
         [Key]
-        public string Id { get; set; }
+        public string AccountId { get; set; }
         public string DisplayName { get; set; }
         public string EmailAddress { get; set; }
         public string HashedPassword { get; set; }
         public bool IsOnboarder { get; set; }
         public bool IsAdmin { get; set; }
+        [ForeignKey(nameof(DepartmentTable.DepartmentId))]
         public string DepartmentId { get; set; }
+        [ForeignKey(nameof(OrganisationTable.OrganisationId))]
         public string OrganisationId { get; set; }
+        public string AccountStatus { get; set; }
     }
 }
