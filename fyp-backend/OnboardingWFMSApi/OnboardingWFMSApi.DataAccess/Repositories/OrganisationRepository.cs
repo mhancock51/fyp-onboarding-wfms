@@ -10,13 +10,18 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IOrganisationRepository : IRepository<OrganisationTable>
     {
-
     }
 
     public class OrganisationRepository : BaseRepository<OrganisationTable>, IOrganisationRepository
     {
         public OrganisationRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
+        }
+
+        public override async Task<bool> ExistsById(string id)
+        {
+            var org = await _dbContext.Organisations.FirstOrDefaultAsync(i => i.OrganisationId == id);
+            return org != null ? true : false;
         }
 
         public override async Task<OrganisationTable> GetById(string id)

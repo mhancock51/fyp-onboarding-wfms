@@ -10,7 +10,8 @@ CREATE TABLE account (
     IsOnboarder TINYINT(1) NOT NULL,
     IsAdmin TINYINT(1) NOT NULL,
     DepartmentId VARCHAR(255),
-    OrganisationId VARCHAR(255)
+    OrganisationId VARCHAR(255),
+    AccountStatus VARCHAR(255)
 );
 
 CREATE TABLE organisation (
@@ -25,6 +26,8 @@ CREATE TABLE organisationAdminLink (
 );
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
+INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
+INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('onboarder','Onboarder');
 
 ALTER TABLE organisationAdminLink 
 ADD CONSTRAINT fk_orgAdminLink_organisation FOREIGN KEY (OrganisationId) REFERENCES organisation(OrganisationId);

@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IDepartmentRepository : IRepository<DepartmentTable>
     {
-
     }
 
     public class DepartmentRepository : BaseRepository<DepartmentTable>, IDepartmentRepository
@@ -21,6 +21,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public override async Task AddAsync(DepartmentTable entity)
         {            
             await base.AddAsync(entity);
+        }
+
+        public override async Task<bool> ExistsById(string id)
+        {
+            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id) != null ? true : false;
         }
     }
 }

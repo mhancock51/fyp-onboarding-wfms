@@ -19,6 +19,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
+builder.Services.AddScoped<IAccountLogic, AccountLogic>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

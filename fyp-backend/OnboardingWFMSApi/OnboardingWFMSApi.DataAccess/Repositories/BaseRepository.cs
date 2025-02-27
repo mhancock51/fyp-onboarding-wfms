@@ -14,6 +14,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public Task DeleteAsync(TEntity entity);
         public Task UpdateAsync(TEntity entity);
         public Task<TEntity> GetById(string id);
+        public Task<bool> ExistsById(string id);
     }
 
     public class BaseRepository<TEntity> : IRepository<TEntity>
@@ -55,6 +56,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         }
 
         public virtual async Task<TEntity> GetById(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> ExistsById(string id)
         {
             throw new NotImplementedException();
         }

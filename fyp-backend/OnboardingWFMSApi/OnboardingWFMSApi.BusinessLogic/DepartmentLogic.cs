@@ -11,7 +11,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IDepartmentLogic
     {
-        Task<HTTPResponse<string, string>> CreateDepartment(string name);
+        public Task<HTTPResponse<string, string>> CreateDepartment(string name);        
     }
 
     public class DepartmentLogic : IDepartmentLogic
@@ -27,6 +27,6 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             await _departmentRepository.AddAsync(new DepartmentTable() { DisplayName = name });
             return new HTTPResponse<string, string> { Success = true, HttpCode = 200, Data = "Created department" };
-        }
+        }        
     }
 }

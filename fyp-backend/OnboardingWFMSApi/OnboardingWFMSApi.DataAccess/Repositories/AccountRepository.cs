@@ -10,7 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IAccountRepository : IRepository<AccountTable>
     {
-        
+        public Task<AccountTable> GetByEmailAddress(string emailAddress);   
     }
 
     public class AccountRepository : BaseRepository<AccountTable>, IAccountRepository
@@ -19,9 +19,32 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
         }
 
+        public async Task<AccountTable> GetByEmailAddress(string emailAddress)
+        {
+            return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.EmailAddress == emailAddress);
+        }
+
         public override async Task<AccountTable> GetById(string id)
         {
             return await _dbContext.Accounts.FirstOrDefaultAsync(e => e.AccountId == id);            
+        }
+
+        public override async Task<bool> ExistsById(string id)
+        {
+            return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.AccountId == id) != null ? true : false;
+        }
+
+        public override async Task AddAsync(AccountTable entity)
+        {
+            // ensure no duplicate email address
+            if (await GetByEmailAddress(entity.EmailAddress) != null)
+            {
+                throw new Exception("Account with email address already exists");
+            }
+            else
+            {
+                base.AddAsync(entity);
+            }
         }
     }
 }
