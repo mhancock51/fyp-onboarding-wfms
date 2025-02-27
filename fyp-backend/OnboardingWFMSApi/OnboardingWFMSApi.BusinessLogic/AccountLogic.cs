@@ -101,6 +101,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             account.HashedPassword = hashedPassword;
             account.AccountStatus  = REGISTERED_STATUS;
 
+            // if first account, make admin
+            if (await _accountRepository.GetNumberOfAccounts() == 0)
+            {
+                account.IsAdmin = true;
+            }
+
             try
             {
                 await _accountRepository.UpdateAsync(account);

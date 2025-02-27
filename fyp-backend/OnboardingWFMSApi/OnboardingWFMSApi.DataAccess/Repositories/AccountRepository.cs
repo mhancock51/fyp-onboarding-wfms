@@ -10,7 +10,8 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IAccountRepository : IRepository<AccountTable>
     {
-        public Task<AccountTable> GetByEmailAddress(string emailAddress);   
+        public Task<AccountTable> GetByEmailAddress(string emailAddress);
+        public Task<int> GetNumberOfAccounts();
     }
 
     public class AccountRepository : BaseRepository<AccountTable>, IAccountRepository
@@ -45,6 +46,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             {
                 base.AddAsync(entity);
             }
+        }
+
+        public async Task<int> GetNumberOfAccounts()
+        {
+            return _dbContext.Accounts.Count();
         }
     }
 }
