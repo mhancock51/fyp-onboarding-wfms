@@ -74,8 +74,15 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> CreateOrganisation(string name)
         {
-            await _organisationRepository.AddAsync(new OrganisationTable(){Name = name });
-            return new HTTPResponse<string, string>() { Success = true, Data = "Created organisation", HttpCode = 200 };
+            try
+            {
+                await _organisationRepository.AddAsync(new OrganisationTable(){Name = name });
+                return new HTTPResponse<string, string>() { Success = true, Data = "Created organisation", HttpCode = 200 };
+            }
+            catch (Exception ex)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Couldn't create organisation", HttpCode = 500 };
+            }
         }
     }
 }

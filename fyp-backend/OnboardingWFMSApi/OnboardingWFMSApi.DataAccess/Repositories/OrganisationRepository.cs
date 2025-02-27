@@ -28,5 +28,18 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
             return await _dbContext.Organisations.FirstOrDefaultAsync(i => i.OrganisationId == id);
         }
+
+        public override async Task AddAsync(OrganisationTable entity)
+        {
+            if (_dbContext.Organisations.Count() > 0)
+            {
+                throw new Exception("Only one organisation can exist");
+            }
+            else
+            {
+                return base.AddAsync(entity);
+            }
+
+        }
     }
 }
