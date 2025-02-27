@@ -18,10 +18,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
         }
 
-        public override Task AddAsync(OrganisationTable entity)
-        {
-            entity.OrganisationId = GenerateRandomId();
-            return base.AddAsync(entity);
-        }
+        public 
     }
 }

@@ -8,6 +8,7 @@ namespace OnboardingWFMSApi.DataModels
 {
     public class ServerResponse<T, TError>
     {
+
         public bool Success { get; set; }
 
         public T Data { get; set; }

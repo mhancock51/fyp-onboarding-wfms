@@ -18,6 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         private readonly IOrganisationRepository _organisationRepository;
         private readonly IOrganisationAdminLinkRepository _organisationAdminLinkRepository;
+        private readonly IAccountRepository _accountRepository;
 
         public OrganisationLogic(IOrganisationRepository organisationRepository, IOrganisationAdminLinkRepository organisationAdminLinkRepository)
         {
@@ -26,10 +27,41 @@ namespace OnboardingWFMSApi.BusinessLogic
         }
 
         public async Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId)
-        {
-            try
+        {            
+
+            // check organisation exists
+            var organisation = await _organisationRepository.GetById(organisationId);
+            if (organisation == null)
             {
-                await _organisationAdminLinkRepository.AddAsync(new OrganisationAdminLinkTable() { AccountId = accountId, OrganisationId = accountId });
+                return new HTTPResponse<string, string>() { Success = false, Error = "Organisation doesn't exist", HttpCode = 400 };
+            }
+            
+            // check account exists
+            var account = await _accountRepository.GetById(accountId);
+            if (account == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Account doesn't exist", HttpCode = 400 };
+            }
+
+            // check if account is associated with organisation
+            if (account.OrganisationId != organisationId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Account isn't associated with organisation", HttpCode = 400 };
+            }      
+            
+            // check account isn't onboarder
+            if (account.IsOnboarder)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Account is an onboarder", HttpCode = 400 };
+            }
+
+            try
+            {                
+                await _organisationAdminLinkRepository.AddAsync(new OrganisationAdminLinkTable() { AccountId = accountId, OrganisationId = organisationId });
+                // set account to admin
+                account.IsAdmin = true;
+                await _accountRepository.UpdateAsync(account);
+
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Assigned admin" };
             }
             catch (Exception ex) 

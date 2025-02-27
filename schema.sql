@@ -24,7 +24,7 @@ CREATE TABLE organisationAdminLink (
     AccountId VARCHAR(255)
 );
 
-INSERT INTO `onboarding-wfms-db`.`account` (`AccountId`, `DisplayName`, `EmailAddress`, `HashedPassword`, `IsOnboarder`, `IsAdmin`, `DepartmentId`) VALUES ('admin_user', 'Admin', 'admin@test.com', 'hash', '0', '1', 'dp_1');
+INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 
 ALTER TABLE organisationAdminLink 
 ADD CONSTRAINT fk_orgAdminLink_organisation FOREIGN KEY (OrganisationId) REFERENCES organisation(OrganisationId);

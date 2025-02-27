@@ -19,8 +19,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         }
 
         public override async Task AddAsync(DepartmentTable entity)
-        {
-            entity.DepartmentId = GenerateRandomId();
+        {            
             await base.AddAsync(entity);
         }
     }

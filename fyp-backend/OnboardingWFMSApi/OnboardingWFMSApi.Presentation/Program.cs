@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IOrganisationRepository, OrganisationRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IOrganisationAdminLinkRepository, OrganisationAdminLinkRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();

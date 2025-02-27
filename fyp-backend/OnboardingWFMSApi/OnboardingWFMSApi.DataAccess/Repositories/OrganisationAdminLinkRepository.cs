@@ -26,8 +26,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
                 throw new Exception("Organisation already has admin");
             }
             else
-            {
-                entity.Id = GenerateRandomId();
+            {                
                 return base.AddAsync(entity);
             }
         }
