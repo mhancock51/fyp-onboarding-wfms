@@ -48,11 +48,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public virtual async Task DeleteAsync(TEntity entity)
         {
             var result = _dbContext.Remove(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public virtual async Task UpdateAsync(TEntity entity)
         {
             var result = _dbContext.Update(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public virtual async Task<TEntity> GetById(string id)

@@ -11,12 +11,14 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IAccountLogic
     {
-        public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId);        
+        public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId);
+        public Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword);
     }
 
     public class AccountLogic : IAccountLogic
     {
         public const string INVITED_STATUS = "invited";
+        public const string REGISTERED_STATUS = "registered";
 
         private readonly IAccountRepository _accountRepository;
         private readonly IDepartmentRepository _departmentRepository;
@@ -71,6 +73,42 @@ namespace OnboardingWFMSApi.BusinessLogic
             catch (Exception ex)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to invite user" };
+            }
+
+        }
+
+        public async Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword)
+        {
+
+            // check account exists and status is set to invite
+            var account = await _accountRepository.GetByEmailAddress(emailAddress);
+            if (account == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Account doesn't exist", HttpCode = 400 };
+            }            
+            if (account.AccountStatus != INVITED_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Account is already registered", HttpCode = 400 };
+            }
+
+            // check hashed passwords match
+            if (hashedPassword != hashedConfirmationPassword)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Confirmation password doesn't match password", HttpCode = 400 };
+            }
+            
+            // update record
+            account.HashedPassword = hashedPassword;
+            account.AccountStatus  = REGISTERED_STATUS;
+
+            try
+            {
+                await _accountRepository.UpdateAsync(account);
+                return new HTTPResponse<string, string>() { Success = true, Data = "Registered user", HttpCode = 200 };
+            }
+            catch (Exception ex)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = "Failed to register user", HttpCode = 500 };
             }
 
         }
