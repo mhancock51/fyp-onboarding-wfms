@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -22,6 +23,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
     public class AuthLogic : IAuthLogic
     {
+        private readonly ILogger<AuthLogic> _logger;
         private readonly IAccountRepository _accountRepository;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
@@ -30,8 +32,9 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly string _audience;
         private readonly double _tokenLifespan;
 
-        public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper)
+        public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper, ILogger<AuthLogic> logger)
         {
+            _logger = logger;
             _accountRepository = accountRepository;
             _configuration = configuration;
             _mapper = mapper;
@@ -84,6 +87,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             var authenticatedAccount = _mapper.Map<AuthenticatedAccountDTO>(account);
             authenticatedAccount.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
+            _logger.LogInformation($"Authenticated user with email address: {account.EmailAddress}");
+
             return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = true, HttpCode = 200, Data = authenticatedAccount };
         }
 
@@ -95,7 +100,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 new Claim(ClaimTypes.NameIdentifier, account.AccountId),
             };
-
 
             var token = new JwtSecurityToken(
                 issuer: _issuer,
