@@ -13,6 +13,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         public Task<HTTPResponse<string, string>> CreateOrganisation(string name);
         public Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId);
+        public Task<HTTPResponse<OrganisationTable, string>> GetOrganisation();
     }
     public class OrganisationLogic : IOrganisationLogic
     {
@@ -29,7 +30,6 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId)
         {            
-
             // check organisation exists
             var organisation = await _organisationRepository.GetById(organisationId);
             if (organisation == null)
@@ -82,6 +82,20 @@ namespace OnboardingWFMSApi.BusinessLogic
             catch (Exception ex)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Couldn't create organisation", HttpCode = 500 };
+            }
+        }
+
+        public async Task<HTTPResponse<OrganisationTable, string>> GetOrganisation()
+        {
+            var orgs = await _organisationRepository.GetAll();
+            if (orgs.Count == 0)
+            {
+                return new HTTPResponse<OrganisationTable, string>() { Success = false, HttpCode = 400, Error = "No organisation exists" };
+            }
+            else
+            {
+                var org = orgs.First();
+                return new HTTPResponse<OrganisationTable, string>() { Success = true, HttpCode = 200, Data = org };
             }
         }
     }

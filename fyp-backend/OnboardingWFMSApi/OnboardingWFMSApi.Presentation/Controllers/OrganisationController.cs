@@ -30,5 +30,12 @@ namespace OnboardingWFMSApi.Presentation
             var result = await _organisationLogic.AssignAdminToOrganisation(organisationId, adminAccountId);
             return StatusCode(result.HttpCode, result);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrganisation()
+        {
+            var result = await _organisationLogic.GetOrganisation();
+            return StatusCode(result.HttpCode, result);
+        }
     }
 }
