@@ -10,6 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IOrganisationRepository : IRepository<OrganisationTable>
     {
+        public Task<int> GetNumberOfOrganisations();
     }
 
     public class OrganisationRepository : BaseRepository<OrganisationTable>, IOrganisationRepository
@@ -40,6 +41,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
                 base.AddAsync(entity);
             }
 
+        }
+
+        public async Task<int> GetNumberOfOrganisations()
+        {
+            return _dbContext.Organisations.Count();
         }
     }
 }

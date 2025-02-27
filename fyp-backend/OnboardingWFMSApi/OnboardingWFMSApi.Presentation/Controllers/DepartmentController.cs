@@ -14,10 +14,22 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _departmentLogic = departmentLogic;
         }
 
-        [HttpGet("create")]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateDepartment(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest();
+            }
+
             var result = await _departmentLogic.CreateDepartment(name);
+            return StatusCode(result.HttpCode, result);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllDepartments()
+        {
+            var result = await _departmentLogic.GetAllDepartments();
             return StatusCode(result.HttpCode, result);
         }
     }

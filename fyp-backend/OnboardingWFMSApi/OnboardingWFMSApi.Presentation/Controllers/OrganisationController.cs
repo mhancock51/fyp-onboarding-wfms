@@ -5,13 +5,13 @@ namespace OnboardingWFMSApi.Presentation
 {
     [ApiController]
     [Route("api/organisation")]
-    public class DepartmentController : ControllerBase
+    public class OrganisationController : ControllerBase
     {
 
-        private readonly ILogger<DepartmentController> _logger;
+        private readonly ILogger<OrganisationController> _logger;
         private readonly IOrganisationLogic _organisationLogic;
 
-        public DepartmentController(ILogger<DepartmentController> logger, IOrganisationLogic organisationLogic)
+        public OrganisationController(ILogger<OrganisationController> logger, IOrganisationLogic organisationLogic)
         {
             _logger = logger;
             _organisationLogic = organisationLogic;

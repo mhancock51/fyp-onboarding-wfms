@@ -15,9 +15,10 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public Task UpdateAsync(TEntity entity);
         public Task<TEntity> GetById(string id);
         public Task<bool> ExistsById(string id);
+        public Task<List<TEntity>> GetAll();
     }
 
-    public class BaseRepository<TEntity> : IRepository<TEntity>
+    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         protected readonly ApplicationDbContext _dbContext;
 
@@ -30,11 +31,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
             // assign guid
             Guid guid = Guid.NewGuid();
+            var guidStr = guid.ToString();
 
             var keyProp = typeof(TEntity).GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.KeyAttribute))).First();
             if (keyProp != null && keyProp.CanWrite)
             {
-                keyProp.SetValue(entity, Convert.ChangeType(guid.ToString(), keyProp.PropertyType), null);
+                keyProp.SetValue(entity, Convert.ChangeType(guidStr, keyProp.PropertyType), null);
             }
             else
             {
@@ -65,6 +67,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public virtual async Task<bool> ExistsById(string id)
         {
             throw new NotImplementedException();
+        }
+
+        public virtual async Task<List<TEntity>> GetAll()
+        {
+            return _dbContext.Set<TEntity>().ToList();
         }
     }
 }
