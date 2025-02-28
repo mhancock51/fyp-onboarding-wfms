@@ -16,18 +16,18 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(string emailAddress, string hashedPassword)
+        public async Task<IActionResult> Login(string emailAddress, string password)
         {
             if (string.IsNullOrEmpty(emailAddress))
             {
                 return BadRequest();
             }
-            if (string.IsNullOrEmpty(hashedPassword))
+            if (string.IsNullOrEmpty(password))
             {
                 return BadRequest();
-            }
+            }            
 
-            var result = await _authLogic.LoginUser(emailAddress, hashedPassword);
+            var result = await _authLogic.LoginUser(emailAddress, password);
             return StatusCode(result.HttpCode, result);
         }
 

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IAuthLogic
     {
-        public Task<HTTPResponse<AuthenticatedAccountDTO, string>> LoginUser(string email, string hashedPassword);
+        public Task<HTTPResponse<AuthenticatedAccountDTO, string>> LoginUser(string email, string password);
     }
 
     public class AuthLogic : IAuthLogic
@@ -31,6 +32,21 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly SymmetricSecurityKey _key;
         private readonly string _audience;
         private readonly double _tokenLifespan;
+
+        public static byte[] GetHash(string inputString)
+        {
+            using (HashAlgorithm algorithm = SHA256.Create())
+                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+        }
+
+        public static string GetHashString(string inputString)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in GetHash(inputString))
+                sb.Append(b.ToString("X2"));
+
+            return sb.ToString();
+        }
 
         public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper, ILogger<AuthLogic> logger)
         {
@@ -63,8 +79,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<AuthenticatedAccountDTO, string>> LoginUser(string email, string hashedPassword)
+        public async Task<HTTPResponse<AuthenticatedAccountDTO, string>> LoginUser(string email, string password)
         {
+            // hash password
+            password = GetHashString(password);
+            
             // check account exists and is registered
             var account = await _accountRepository.GetByEmailAddress(email);
             if (account == null)
@@ -77,7 +96,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // check hashed passwords match
-            if (account.HashedPassword != hashedPassword)
+            if (account.HashedPassword != password)
             {
                 return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Incorrect password" };
             }

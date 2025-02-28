@@ -7,6 +7,7 @@ import CreateWorkflowPage from './app/pages/CreateWorkflowPage/CreateWorkflowPag
 
 import '@xyflow/react/dist/style.css';
 import LoginPage from './app/pages/LoginPage/LoginPage';
+import { Toaster } from 'sonner';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/login" element={<LoginPage/>}/>
         </Routes>
       </Router>    
+      <Toaster /> 
     </ThemeProvider>    
   )
 }
