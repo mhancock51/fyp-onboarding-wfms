@@ -17,9 +17,7 @@ export const appSlice = createSlice({
     reducers: {
         SET_USER: (state, action: PayloadAction<AuthenticatedUser | null>) => {
             state.user = action.payload;            
-            if (state.user !== null) {
-                saveUserToLocalStorage(state.user);
-            }
+            saveUserToLocalStorage(state.user);            
         }
     }
 });
@@ -30,14 +28,14 @@ export const {
 
 export default appSlice.reducer;
 
-function saveUserToLocalStorage(user: AuthenticatedUser) {
-    const jsonStr = JSON.stringify(user);
+function saveUserToLocalStorage(user: AuthenticatedUser | null) {
+    const jsonStr = JSON.stringify(user ?? "");
     localStorage.setItem(USER_DATA_STORAGE_KEY, jsonStr);
 }
 
 function loadUserFromLocalStorage(): AuthenticatedUser | null {
     const jsonStr = localStorage.getItem(USER_DATA_STORAGE_KEY);
-    if (jsonStr === null) return null
+    if (jsonStr === null) return null;
 
     return JSON.parse(jsonStr);
 }

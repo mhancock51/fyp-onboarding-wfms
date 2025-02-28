@@ -5,10 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@radix-ui/react-dropdown-menu'
 import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_USER } from '@/features/appSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { RootState } from '@/store';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
@@ -18,6 +19,8 @@ export default function LoginPage() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const user = useSelector((state: RootState) => state.app.user);
 
   async function Login() {
     setLoading(true);
@@ -37,6 +40,12 @@ export default function LoginPage() {
       setLoading(false);
     });
   }
+
+  useEffect(() => {
+    if (user !== null) {      
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div style={{width: "100vw"}}>

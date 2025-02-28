@@ -12,19 +12,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useEffect } from 'react';
 import Api from './api';
+import Utils from './util';
 
 function App() {
-  const user = useSelector((state: RootState) => state.app.user);
-
-  function safelyRedirectToLoginPage() {
-    if (!isCurrentLocationLoginPage()) {
-      document.location.href = "/login";     
-    }
-  }
-
-  function isCurrentLocationLoginPage() {
-    return document.location.href.split("/").at(-1) === "login";
-  }
+  const user = useSelector((state: RootState) => state.app.user);    
 
   /** Test validity of token by sending it to the API server and checking the response */
   function testValidityOfToken() {
@@ -34,15 +25,9 @@ function App() {
     })
     .catch((error) => {
       console.log("Invalid token, redirecting to login page");
-      safelyRedirectToLoginPage();       
+      Utils.safelyRedirectToLoginPage();       
     })
   }
-
-  useEffect(() => {
-    if (user === null) {      
-      safelyRedirectToLoginPage()
-    }
-  }, [user]);
 
   useEffect(() => {
     void testValidityOfToken();
@@ -59,7 +44,7 @@ function App() {
             <Route path="/workflows-create" element={<CreateWorkflowPage/>} />            
             <Route path="/settings" element={<div><h1>Settings</h1></div>} />
           </Route>
-          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/login" element={<LoginPage/>}/>          
         </Routes>
       </Router>    
       <Toaster /> 

@@ -22,6 +22,7 @@ export default function SidebarUser(props: Props) {
 
   function logOutUser() {
     dispatch(SET_USER(null));
+    navigate("/login");
   }
 
   return (
