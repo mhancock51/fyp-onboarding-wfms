@@ -69,7 +69,7 @@ export function AppSidebar(props: Props) {
         <SidebarUser user={{
           name: user?.displayName ?? "",
           email: user?.emailAddress ?? "",
-          department: user?.departmentId ?? ""         
+          department: user?.departmentName ?? ""         
         }}/>
       </SidebarFooter>
     </Sidebar>

@@ -25,13 +25,15 @@ namespace OnboardingWFMSApi.BusinessLogic
     public class AuthLogic : IAuthLogic
     {
         private readonly ILogger<AuthLogic> _logger;
-        private readonly IAccountRepository _accountRepository;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly string _issuer;
         private readonly SymmetricSecurityKey _key;
         private readonly string _audience;
         private readonly double _tokenLifespan;
+
+        private readonly IAccountRepository _accountRepository;
+        private readonly IDepartmentRepository _departmentRepository;
 
         public static byte[] GetHash(string inputString)
         {
@@ -48,7 +50,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             return sb.ToString();
         }
 
-        public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper, ILogger<AuthLogic> logger)
+        public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper, ILogger<AuthLogic> logger, 
+            IDepartmentRepository departmentRepository)
         {
             _logger = logger;
             _accountRepository = accountRepository;
@@ -60,7 +63,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("JWT Issuer not set!");
             }
-            string keyStr = _configuration["Auth:Key"] ?? "";            
+            string keyStr = _configuration["Auth:Key"] ?? "";
             if (string.IsNullOrEmpty(keyStr))
             {
                 throw new Exception("JWT Key not set!");
@@ -77,6 +80,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("JWT Token Lifespan not set!");
             }
+
+            _departmentRepository = departmentRepository;
         }
 
         public async Task<HTTPResponse<AuthenticatedAccountDTO, string>> LoginUser(string email, string password)
@@ -103,12 +108,22 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // generate token 
             var token = GenerateTokenFromAccount(account);
-            var authenticatedAccount = _mapper.Map<AuthenticatedAccountDTO>(account);
-            authenticatedAccount.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+            var authenticatedAccount = await GetAuthenticatedAccountDTO(account, token);            
 
             _logger.LogInformation($"Authenticated user with email address: {account.EmailAddress}");
 
             return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = true, HttpCode = 200, Data = authenticatedAccount };
+        }
+
+        private async Task<AuthenticatedAccountDTO> GetAuthenticatedAccountDTO(AccountTable account, JwtSecurityToken token)
+        {
+            var authenticatedAccount = _mapper.Map<AuthenticatedAccountDTO>(account);
+            authenticatedAccount.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+
+            var department = await _departmentRepository.GetById(account.DepartmentId);
+            authenticatedAccount.DepartmentName = department.DisplayName;
+
+            return authenticatedAccount;
         }
 
         private JwtSecurityToken GenerateTokenFromAccount(AccountTable account)

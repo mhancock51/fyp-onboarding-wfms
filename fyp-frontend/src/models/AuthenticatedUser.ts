@@ -5,6 +5,7 @@ export default interface AuthenticatedUser {
     isOnboarder: string;
     isAdmin: string;
     departmentId: string;
+    departmentName: string;
     organisationId: string;
     accountStatus: string;
     jwtToken: string;
