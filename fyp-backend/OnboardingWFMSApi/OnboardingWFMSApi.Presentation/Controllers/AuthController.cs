@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using System.Security.Claims;
 
@@ -31,6 +32,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             return StatusCode(result.HttpCode, result);
         }
 
+        [Authorize]
         [HttpGet("test")]
         public async Task<IActionResult> TestToken()
         {
