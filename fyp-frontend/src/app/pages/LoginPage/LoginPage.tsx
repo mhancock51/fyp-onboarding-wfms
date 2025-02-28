@@ -20,8 +20,6 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const user = useSelector((state: RootState) => state.app.user);
-
   async function Login() {
     setLoading(true);
     await Api.fetchLogin(email, password)
@@ -40,12 +38,6 @@ export default function LoginPage() {
       setLoading(false);
     });
   }
-
-  useEffect(() => {
-    if (user !== null) {      
-      navigate("/");
-    }
-  }, []);
 
   return (
     <div style={{width: "100vw"}}>
