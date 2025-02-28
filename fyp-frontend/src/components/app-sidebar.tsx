@@ -14,6 +14,8 @@ import {
 import { ClipboardList, Home, Route, Settings } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store"
    
 const items = [
   {
@@ -35,6 +37,10 @@ interface Props {
 export function AppSidebar(props: Props) {
   const navigate = useNavigate();
 
+  const user = useSelector((state: RootState) => state.app.user);
+
+  console.log(user);  
+
   return (
     <Sidebar collapsible="icon" className="cursor-pointer">
       <SidebarHeader onClick={() => { navigate("/");}}>
@@ -48,7 +54,7 @@ export function AppSidebar(props: Props) {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <a onClick={() => {navigate(item.url)}}>
                       <item.icon />
                       <span>{item.title}</span>
                     </a>
@@ -61,9 +67,9 @@ export function AppSidebar(props: Props) {
       </SidebarContent>
       <SidebarFooter style={{padding: 0}}>
         <SidebarUser user={{
-          name: "John Doe",
-          email: "jdoe@enterprise.com",
-          department: "IT Department"         
+          name: user?.displayName ?? "",
+          email: user?.emailAddress ?? "",
+          department: user?.departmentId ?? ""         
         }}/>
       </SidebarFooter>
     </Sidebar>
