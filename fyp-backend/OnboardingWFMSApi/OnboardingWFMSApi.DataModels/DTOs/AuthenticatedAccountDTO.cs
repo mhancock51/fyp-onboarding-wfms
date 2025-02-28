@@ -14,7 +14,8 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         public bool IsOnboarder { get; set; }
         public bool IsAdmin { get; set; }
         public string DepartmentId { get; set; }
-        public string OrganisationId { get; set; }
+        public string DepartmentName { get; set; }
+        public string OrganisationId { get; set; }        
         public string AccountStatus { get; set; }
         public string JwtToken { get; set; }
     }

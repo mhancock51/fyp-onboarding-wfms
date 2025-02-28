@@ -27,5 +27,10 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
             return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id) != null ? true : false;
         }
+
+        public override async Task<DepartmentTable> GetById(string id)
+        {
+            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id);            
+        }
     }
 }

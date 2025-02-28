@@ -77,8 +77,12 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         }
 
-        public async Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword)
+        public async Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string password, string confirmationPassword)
         {
+            // hash both passwords
+            password = AuthLogic.GetHashString(password);
+            confirmationPassword = AuthLogic.GetHashString(confirmationPassword);
+
 
             // check account exists and status is set to invite
             var account = await _accountRepository.GetByEmailAddress(emailAddress);
@@ -92,13 +96,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // check hashed passwords match
-            if (hashedPassword != hashedConfirmationPassword)
+            if (password != confirmationPassword)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Confirmation password doesn't match password", HttpCode = 400 };
             }
             
             // update record
-            account.HashedPassword = hashedPassword;
+            account.HashedPassword = password;
             account.AccountStatus  = REGISTERED_STATUS;
 
             // if first account, make admin
