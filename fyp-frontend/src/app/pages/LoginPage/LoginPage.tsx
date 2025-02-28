@@ -28,7 +28,7 @@ export default function LoginPage() {
         // successful login
         const authUser: AuthenticatedUser = response.data.data as AuthenticatedUser;
         dispatch(SET_USER(authUser));        
-        toast("Successfully logged in", { duration: 1000, onAutoClose: () => {navigate("/");}});
+        toast("Successfully logged in", { duration: 600, onAutoClose: () => {navigate("/");}});
       }
     })
     .catch((error) => {

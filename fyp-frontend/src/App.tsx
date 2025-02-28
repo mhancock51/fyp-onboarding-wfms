@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import Layout from './app/layout';
 import { ThemeProvider } from './components/theme-provider';
 import WorkflowsPage from './app/pages/WorkflowsPage';
@@ -8,8 +8,19 @@ import CreateWorkflowPage from './app/pages/CreateWorkflowPage/CreateWorkflowPag
 import '@xyflow/react/dist/style.css';
 import LoginPage from './app/pages/LoginPage/LoginPage';
 import { Toaster } from 'sonner';
+import { useSelector } from 'react-redux';
+import { RootState } from './store';
+import { useEffect } from 'react';
 
 function App() {
+  const user = useSelector((state: RootState) => state.app.user);
+
+  useEffect(() => {
+    if (user === null && document.location.href.split("/").at(-1) !== "login") {      
+      document.location.href = "/login";
+    }
+  }, [user]);
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Router>
