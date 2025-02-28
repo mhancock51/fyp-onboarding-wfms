@@ -11,15 +11,42 @@ import { Toaster } from 'sonner';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useEffect } from 'react';
+import Api from './api';
 
 function App() {
   const user = useSelector((state: RootState) => state.app.user);
 
+  function safelyRedirectToLoginPage() {
+    if (!isCurrentLocationLoginPage()) {
+      document.location.href = "/login";     
+    }
+  }
+
+  function isCurrentLocationLoginPage() {
+    return document.location.href.split("/").at(-1) === "login";
+  }
+
+  /** Test validity of token by sending it to the API server and checking the response */
+  function testValidityOfToken() {
+    Api.testTokenValidity()
+    .then((response) => {
+      console.log("Token checked, still valid!");      
+    })
+    .catch((error) => {
+      console.log("Invalid token, redirecting to login page");
+      safelyRedirectToLoginPage();       
+    })
+  }
+
   useEffect(() => {
-    if (user === null && document.location.href.split("/").at(-1) !== "login") {      
-      document.location.href = "/login";
+    if (user === null) {      
+      safelyRedirectToLoginPage()
     }
   }, [user]);
+
+  useEffect(() => {
+    void testValidityOfToken();
+  }, []);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
