@@ -7,15 +7,36 @@ import CreateWorkflowPage from './app/pages/CreateWorkflowPage/CreateWorkflowPag
 
 import '@xyflow/react/dist/style.css';
 import LoginPage from './app/pages/LoginPage/LoginPage';
-import { Toaster } from 'sonner';
-import { useSelector } from 'react-redux';
+import { toast, Toaster } from 'sonner';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useEffect } from 'react';
 import Api from './api';
 import Utils from './util';
+import AuthenticatedUser from './models/AuthenticatedUser';
+import { SET_USER } from './features/appSlice';
 
 function App() {
   const user = useSelector((state: RootState) => state.app.user);    
+  const dispatch = useDispatch();
+
+  async function relogin(email: string, password: string) {
+    await Api.fetchLogin(email, password)
+    .then((response) => {
+      if (response.status === 200) {
+        // successful login
+        console.log("Successfully relogged in");
+        const authUser: AuthenticatedUser = response.data.data as AuthenticatedUser;
+        dispatch(SET_USER(authUser));        
+        toast(`Welcome back ${authUser.displayName}! (successfully relogged in)`);
+      }
+    })
+    .catch((error) => {
+      // failed to relog
+      dispatch(SET_USER(null));
+      toast("Failed to re login, redirector to login page", { duration: 1000, onAutoClose: () => { Utils.safelyRedirectToLoginPage();}})
+    })
+  }
 
   /** Test validity of token by sending it to the API server and checking the response */
   function testValidityOfToken() {
@@ -25,16 +46,27 @@ function App() {
     })
     .catch((error) => {
       console.log("Invalid token, redirecting to login page");
-      Utils.safelyRedirectToLoginPage();       
+      // check if login details have been saved
+      var loginDetails = Utils.loadLoginDetailsFromLocalStorage();    
+      if (loginDetails === null) {
+        Utils.safelyRedirectToLoginPage();       
+      }
+      else {
+        // login with details
+        void relogin(loginDetails.email, loginDetails.password);
+      }
+
     })
   }
 
   useEffect(() => {
-    void testValidityOfToken();
+    if (!Utils.isCurrentLocationLoginPage()) {
+      void testValidityOfToken();
+    }    
   }, []);
 
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Router>
         <Routes>
           <Route element={<Layout/>}>

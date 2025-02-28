@@ -10,10 +10,14 @@ import { SET_USER } from '@/features/appSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { RootState } from '@/store';
+import { Checkbox } from '@/components/ui/checkbox';
+import Utils from '@/util';
+import { CheckedState } from '@radix-ui/react-checkbox';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -30,6 +34,10 @@ export default function LoginPage() {
         const authUser: AuthenticatedUser = response.data.data as AuthenticatedUser;
         dispatch(SET_USER(authUser));        
         toast("Successfully logged in", { duration: 600, onAutoClose: () => {navigate("/");}});
+        if (rememberMe) {
+          // save email and password
+          Utils.saveLoginDetailsToLocalStorage(email, password);
+        }
       }
     })
     .catch((error) => {
@@ -47,33 +55,40 @@ export default function LoginPage() {
         <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription className='flex flex-col gap-4'>
-          Enter your email below to login to your account
+          Enter your email below to login to your account          
           <span style={{color: "red", textAlign: "center"}}>{loading ? "loading..." : ""}</span>
         </CardDescription>
         </CardHeader>
         <CardContent>
-        <div>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label>Email</Label>
-              <Input type="email" placeholder="m@example.com" value={email} required onChange={(event: any) => {setEmail(event.target.value);}}/>
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label>Password</Label>
+          <div>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label>Email</Label>
+                <Input type="email" placeholder="m@example.com" value={email} required onChange={(event: any) => {setEmail(event.target.value);}}/>
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label>Password</Label>
+                </div>
+                <Input type="password" value={password} required onChange={(event: any) => {setPassword(event.target.value);}}/>
                 <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                   Forgot your password?
                 </a>
               </div>
-              <Input type="password" value={password} required onChange={(event: any) => {setPassword(event.target.value);}}/>
+              <div className="gap-2 flex flex-row items-center">
+                <label
+                  htmlFor="remember-me"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-6"
+                >Remember me?</label>
+                <Checkbox id="remember-me" onCheckedChange={(checkState: CheckedState) => {setRememberMe(checkState as boolean);}}/>
+              </div>
+              <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {void Login();}}>Login</Button>
             </div>
-            <Button type="submit" disabled={loading} className="w-full" onClick={() => {void Login();}}>Login</Button>
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <a href="#" className="underline underline-offset-4">Sign up</a>
+            </div>
           </div>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <a href="#" className="underline underline-offset-4">Sign up</a>
-          </div>
-        </div>
         </CardContent>
       </Card>
       </div>

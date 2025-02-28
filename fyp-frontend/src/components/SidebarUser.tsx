@@ -5,6 +5,7 @@ import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
 import { SET_USER } from '@/features/appSlice'
+import Utils from '@/util'
 
 interface Props {
   user: {
@@ -22,6 +23,7 @@ export default function SidebarUser(props: Props) {
 
   function logOutUser() {
     dispatch(SET_USER(null));
+    Utils.clearLoginDetailsInLocalStorage();
     navigate("/login");
   }
 
