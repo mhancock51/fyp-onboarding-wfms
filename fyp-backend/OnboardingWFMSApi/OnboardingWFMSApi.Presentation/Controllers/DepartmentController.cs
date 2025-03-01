@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
@@ -26,6 +27,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             return StatusCode(result.HttpCode, result);
         }
 
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllDepartments()
         {

@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Layout from './app/layout';
 import { ThemeProvider } from './components/theme-provider';
 import WorkflowsPage from './app/pages/WorkflowsPage';
@@ -16,7 +16,8 @@ import Utils from './util';
 import AuthenticatedUser from './models/AuthenticatedUser';
 import { SET_USER } from './features/appSlice';
 
-function App() {
+function App() {  
+
   const user = useSelector((state: RootState) => state.app.user);    
   const dispatch = useDispatch();
 
@@ -69,16 +70,18 @@ function App() {
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Router>
         <Routes>
-          <Route element={<Layout/>}>
+          <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>
             <Route path="/" element={<div><h1>Test</h1></div>} />
             <Route path="/tasks" element={<div><h1>Tasks</h1></div>} />
             <Route path="/workflows" element={<WorkflowsPage/>} />
             <Route path="/workflows-create" element={<CreateWorkflowPage/>} />            
             <Route path="/settings" element={<div><h1>Settings</h1></div>} />
+            {/* only allow client to access these paths if admin */}
+            {/* <Route path="/invite" element={user?.isAdmin ? <InviteUser/> : <Navigate to={"/"} />}/> */}
           </Route>
           <Route path="/login" element={<LoginPage/>}/>          
         </Routes>
-      </Router>    
+      </Router>         
       <Toaster /> 
     </ThemeProvider>    
   )

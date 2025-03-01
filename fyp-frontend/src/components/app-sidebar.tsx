@@ -11,13 +11,16 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { ClipboardList, Home, Route, Settings } from "lucide-react"
+import { Building, ClipboardList, Home, Route, Settings, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
+import { SetStateAction, useState } from "react"
+import InviteUserDialog from "@/app/dialogs/InviteUserDialog"
+import { SET_OPEN_INVITE_DIALOG } from "@/features/appSlice"
    
-const items = [
+const mainItems = [
   {
     title: "My Tasks",
     url: "/tasks",
@@ -28,7 +31,7 @@ const items = [
     url: "/workflows",
     icon: Route,
   },
-]
+];
 
 interface Props {
   organisationName: string;
@@ -39,39 +42,80 @@ export function AppSidebar(props: Props) {
 
   const user = useSelector((state: RootState) => state.app.user);
 
-  console.log(user);  
+  const dispatch = useDispatch();
+
+  const adminItems = [
+    {
+      title: "Invite User",
+      onClickAction: () => { dispatch(SET_OPEN_INVITE_DIALOG(true)); },
+      icon: UserPlus
+    },
+    {
+      title: "Departments",
+      onClickAction: () => {},
+      icon: Users
+    },
+    {
+      title: "Organisation",
+      onClickAction: () => {},
+      icon: Building
+    }
+  ]
 
   return (
-    <Sidebar collapsible="icon" className="cursor-pointer">
-      <SidebarHeader onClick={() => { navigate("/");}}>
-        <SidebarGroupLabel style={{fontSize: "1.5em", textAlign: "center", margin: "auto"}}>{props.organisationName}</SidebarGroupLabel>
-        <SidebarSeparator/>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a onClick={() => {navigate(item.url)}}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter style={{padding: 0}}>
-        <SidebarUser user={{
-          name: user?.displayName ?? "",
-          email: user?.emailAddress ?? "",
-          department: user?.departmentName ?? ""         
-        }}/>
-      </SidebarFooter>
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" className="cursor-pointer">
+        <SidebarHeader onClick={() => { navigate("/");}}>
+          <SidebarGroupLabel style={{fontSize: "1.5em", textAlign: "center", margin: "auto"}}>{props.organisationName}</SidebarGroupLabel>
+          <SidebarSeparator/>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Main</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {mainItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a onClick={() => {navigate(item.url)}}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          {
+            user?.isAdmin &&
+            <SidebarGroup>
+              <SidebarGroupLabel>Admin</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {adminItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <a onClick={item.onClickAction}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          }
+        </SidebarContent>
+        <SidebarFooter style={{padding: 0}}>
+          <SidebarUser user={{
+            name: user?.displayName ?? "",
+            email: user?.emailAddress ?? "",
+            department: user?.departmentName ?? ""         
+          }}/>
+        </SidebarFooter>
+      </Sidebar>      
+    </>
   )
 }

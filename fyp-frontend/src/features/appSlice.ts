@@ -4,11 +4,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 const USER_DATA_STORAGE_KEY = "USER_DATA";
 
 export interface AppState {
-    user: AuthenticatedUser | null;  
+    user: AuthenticatedUser | null;
+    openInviteDialog: boolean;
 }
 
 const initialState: AppState = {
-    user: loadUserFromLocalStorage()
+    user: loadUserFromLocalStorage(),
+    openInviteDialog: false
 }
 
 export const appSlice = createSlice({
@@ -18,12 +20,15 @@ export const appSlice = createSlice({
         SET_USER: (state, action: PayloadAction<AuthenticatedUser | null>) => {
             state.user = action.payload;            
             saveUserToLocalStorage(state.user);            
-        }
+        },
+        SET_OPEN_INVITE_DIALOG: (state, action: PayloadAction<boolean>) => {
+            state.openInviteDialog = action.payload;
+        } 
     }
 });
 
 export const {
-    SET_USER
+    SET_USER, SET_OPEN_INVITE_DIALOG
 } = appSlice.actions;
 
 export default appSlice.reducer;

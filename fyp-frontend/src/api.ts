@@ -15,6 +15,9 @@ const Api = {
   },
   testTokenValidity: async() => {
     return AuthInstance.get(`${ROUTE_URL}/auth/test`);
+  },
+  fetchDepartments: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/department/all`);    
   }
 }
 
