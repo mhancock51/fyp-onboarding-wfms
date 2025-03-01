@@ -1,3 +1,4 @@
+import Api from "@/api";
 import DepartmentLookup from "@/components/DepartmentLookup";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,16 +13,50 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import WorkflowTask from "@/models/WorkflowTask";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (open: boolean) => void}) {
   const [onboarder, setOnboarder] = useState<boolean>(false);
 
+  const [departmentId, setDepartmentId] = useState<string>("");
+  const [displayName, setDisplayName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  async function inviteUser() {
+    setLoading(true);
+    Api.inviteUser(displayName, email, onboarder, departmentId)
+    .then((response) => {
+      setLoading(false);
+      toast(`Successfully invited ${displayName}!`, { duration: 600, onAutoClose: () => {
+        closeAndClear();
+      }})
+    })
+    .catch((error) => {
+      setLoading(false);
+      const errorMessage = error.response.data.error;
+      if (errorMessage === undefined) {
+        toast.error(`Failed to invite user`);
+      }
+      else {
+        toast.error(`Failed to invite user: ${errorMessage}`);
+      }
+    })
+  }
+
+  function closeAndClear() {
+    setOnboarder(false);
+    setDepartmentId("");
+    setDisplayName("");
+    setEmail("");
+    props.setOpenDialog(false);
+  }
+
   return (
-    <Dialog open={props.open} onOpenChange={props.setOpenDialog}>
+    <Dialog open={props.open} onOpenChange={closeAndClear}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Invite user</DialogTitle>
@@ -32,21 +67,22 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Display Name</Label>
-            <Input className="col-span-3" value={""} onChange={(event: any) => {}} />
+            <Input className="col-span-3" value={displayName} onChange={(event: any) => {setDisplayName(event.target.value);}} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Email Address</Label>
-            <Input className="col-span-3" value={""} onChange={(event: any) => {}} />
+            <Input className="col-span-3" value={email} onChange={(event: any) => {setEmail(event.target.value);}} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Department</Label>
-            <DepartmentLookup/>           
+            <DepartmentLookup setDepartmentId={setDepartmentId}/>           
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Onboarder?</Label>
             <Checkbox className="col-span-3" checked={onboarder} onCheckedChange={(state: CheckedState) => {setOnboarder(state as boolean)}}/>              
-          </div>
+          </div>          
           {
+            /* Only display if "is onboarder" is selected */
             onboarder &&
             <div>
               <DialogDescription >
@@ -72,7 +108,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
           }
         </div>
         <DialogFooter>
-          <Button type="submit">Invite Employee</Button>
+          <Button type="submit" onClick={inviteUser}>Invite Employee</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

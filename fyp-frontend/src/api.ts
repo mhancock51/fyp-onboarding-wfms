@@ -18,6 +18,17 @@ const Api = {
   },
   fetchDepartments: async() => {
     return AuthInstance.get(`${ROUTE_URL}/department/all`);    
+  },
+  inviteUser: async(displayName: string, email: string, isOnboarder: boolean, departmentId: string) => {
+    console.log(displayName, email, isOnboarder, departmentId);
+    return AuthInstance.post(`${ROUTE_URL}/account/invite`, null, {
+      params: {
+        displayName:  displayName,
+        emailAddress: email,
+        isOnboarder:  isOnboarder,
+        departmentId: departmentId
+      }
+    });
   }
 }
 

@@ -19,15 +19,15 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         {
             if (string.IsNullOrEmpty(displayName))
             {
-                return BadRequest();
+                return BadRequest("Please enter a display name");
             }
             if (string.IsNullOrEmpty(emailAddress)) 
             {
-                return BadRequest();
+                return BadRequest("Please enter an email address");
             }
             if (string.IsNullOrEmpty(departmentId))
             {
-                return BadRequest();
+                return BadRequest("Please select a department");
             }
 
             // TODO make organisation ID derived from user context

@@ -6,11 +6,16 @@ import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Plus } from 'lucide-react';
 
-export default function DepartmentLookup() {
+interface Props {
+  setDepartmentId: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function DepartmentLookup(props: Props) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);  
 
   async function fetchAllDepartments() {
+    setLoading(true);
     Api.fetchDepartments()
     .then((response) => {
       setDepartments(response.data.data as Department[]);
@@ -18,6 +23,7 @@ export default function DepartmentLookup() {
     })
     .catch((error) => {
       toast.error("Failed to load departments");
+      setLoading(false);
     });
   }
 
@@ -27,19 +33,28 @@ export default function DepartmentLookup() {
 
   return (
     <div className='flex flex-row gap-2'>
-      <Select>
+      <Select onValueChange={(value: string) => {props.setDepartmentId(value);}}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select a department" />
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Departments</SelectLabel>
-            {
-              departments.map((department, index) => (
-                <SelectItem key={index} value={department.departmentId}>{department.displayName}</SelectItem>
-              ))
-            }          
-          </SelectGroup>
+          {
+            !loading &&
+            <SelectGroup>
+              <SelectLabel>Departments</SelectLabel>
+              {
+                departments.map((department, index) => (
+                  <SelectItem key={index} value={department.departmentId}>{department.displayName}</SelectItem>
+                ))
+              }          
+            </SelectGroup>
+          }
+          {
+            loading &&
+            <SelectGroup>
+              <SelectLabel>Loading departments</SelectLabel>
+            </SelectGroup>
+          }
         </SelectContent>
       </Select> 
       <Button variant={"outline"}><Plus/></Button>
