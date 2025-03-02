@@ -6,13 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\OnboardingWFMSApi.DataAccess\OnboardingWFMSApi.DataAccess.csproj" />
-    <ProjectReference Include="..\OnboardingWFMSApi.DataModels\OnboardingWFMSApi.DataModels.csproj" />
-  </ItemGroup>
-
 </Project>

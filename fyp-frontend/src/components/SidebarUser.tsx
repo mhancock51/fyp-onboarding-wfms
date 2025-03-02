@@ -3,9 +3,6 @@ import { ChevronsUpDown, LogOut, Settings } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu'
 import { useNavigate } from 'react-router'
-import { useDispatch } from 'react-redux'
-import { SET_USER } from '@/features/appSlice'
-import Utils from '@/util'
 
 interface Props {
   user: {
@@ -18,14 +15,6 @@ interface Props {
 export default function SidebarUser(props: Props) {
   const { isMobile } = useSidebar()
   const navigate = useNavigate();
-
-  const dispatch = useDispatch();
-
-  function logOutUser() {
-    dispatch(SET_USER(null));
-    Utils.clearLoginDetailsInLocalStorage();
-    navigate("/login");
-  }
 
   return (
     <SidebarMenu>
@@ -63,7 +52,7 @@ export default function SidebarUser(props: Props) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem style={{cursor: "pointer"}} onClick={logOutUser}>
+            <DropdownMenuItem style={{cursor: "pointer"}}>
               <LogOut />
               Log out
             </DropdownMenuItem>
