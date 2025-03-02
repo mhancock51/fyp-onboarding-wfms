@@ -4,12 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InvitedAccount from '@/models/InvitedAccount';
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(0);
@@ -62,6 +64,14 @@ export default function RegisterPage() {
     })
   }
 
+  useEffect(() => {
+    const email = searchParams.get("emailAddress");
+    if (email) {
+      setEmail(email);
+    }
+
+  }, []);
+
   return (
     <div className='center-canvas'>
       <div className='m-auto w-96' >
@@ -86,7 +96,7 @@ export default function RegisterPage() {
             <>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
-                  <Label >Email</Label>
+                  <Label>Email</Label>
                   <Input required type="email" placeholder="m@example.com" value={email} onChange={(event: any) => {setEmail(event.target.value);}}/>
                 </div>
                 <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={fetchInvitedAccount}>Next</Button>
