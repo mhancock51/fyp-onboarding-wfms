@@ -52,6 +52,22 @@ const Api = {
         name: dptName
       }
     });
+  },
+  getInvitedAccount: async(emailAddress: string) => {
+    return AuthInstance.get(`${ROUTE_URL}/account/get-invited-account`, {
+      params: {
+        emailAddress: emailAddress
+      }
+    });
+  },
+  registerAccount: async(emailAddress: string, password: string, confirmationPassword: string) => {
+    return AuthInstance.post(`${ROUTE_URL}/account/register`, null, {
+      params: {
+        emailAddress: emailAddress,
+        password: password,
+        confirmationPassword: confirmationPassword
+      }
+    });
   }
 }
 

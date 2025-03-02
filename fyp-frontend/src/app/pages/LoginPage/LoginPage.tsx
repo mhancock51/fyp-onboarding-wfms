@@ -48,8 +48,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{width: "100vw"}}>
-      <h1 className='text-3xl m-3' style={{textAlign: "center"}}>BoardFlow</h1>
+    <div className='center-canvas'>
       <div className='m-auto w-96'>
       <Card>
         <CardHeader>
@@ -86,7 +85,7 @@ export default function LoginPage() {
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">Sign up</a>
+              <a href="/register" className="underline underline-offset-4">Sign up</a>
             </div>
           </div>
         </CardContent>
