@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { store } from './store';
+import Utils from './util';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -7,7 +8,23 @@ AuthInstance.interceptors.request.use((config: any) => {
   const token = store.getState().app.user?.jwtToken;
   config.headers.Authorization = `Bearer ${token}`;
   return config
-})
+});
+AuthInstance.interceptors.response.use(
+  (config: AxiosResponse) => {    
+    return config;
+  }, 
+  async(error: any) => {
+    const statusCode = error.response.status;
+    // if statusCode is 401 try to relogin
+    if (statusCode === 401) {
+      // attempt to relog
+      await Utils.relogin();
+    }
+    
+    // Do something with request error
+    return Promise.reject(error);
+  }
+);
 
 const Api = {
   fetchLogin: async(emailAddress: string, password: string) => {
@@ -19,8 +36,7 @@ const Api = {
   fetchDepartments: async() => {
     return AuthInstance.get(`${ROUTE_URL}/department/all`);    
   },
-  inviteUser: async(displayName: string, email: string, isOnboarder: boolean, departmentId: string) => {
-    console.log(displayName, email, isOnboarder, departmentId);
+  inviteUser: async(displayName: string, email: string, isOnboarder: boolean, departmentId: string) => {    
     return AuthInstance.post(`${ROUTE_URL}/account/invite`, null, {
       params: {
         displayName:  displayName,
