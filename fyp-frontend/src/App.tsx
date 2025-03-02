@@ -16,6 +16,7 @@ import Utils from './util';
 import AuthenticatedUser from './models/AuthenticatedUser';
 import { SET_USER } from './features/appSlice';
 import { Button } from './components/ui/button';
+import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 
 function App() {  
 
@@ -36,7 +37,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (!Utils.isCurrentLocationLoginPage()) {
+    if (!Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
       void testValidityOfToken();
     }    
   }, []);
@@ -54,7 +55,8 @@ function App() {
             {/* only allow client to access these paths if admin */}
             {/* <Route path="/invite" element={user?.isAdmin ? <InviteUser/> : <Navigate to={"/"} />}/> */}
           </Route>
-          <Route path="/login" element={<LoginPage/>}/>          
+          <Route path="/login" element={user === null ? <LoginPage/> : <Navigate to={"/"}/>}/>          
+          <Route path='/register' element={user === null ? <RegisterPage/> : <Navigate to={"/"}/>}/>
         </Routes>
       </Router>         
       <Toaster /> 

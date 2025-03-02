@@ -16,6 +16,9 @@ const Utils = {
   isCurrentLocationLoginPage: () => {
     return document.location.href.split("/").at(-1) === "login";
   },
+  isCurrentLocationRegisterPage: () => {
+    return document.location.href.split("/").at(-1) === "register";
+  },
   saveLoginDetailsToLocalStorage: (email: string, password: string) => {
     localStorage.setItem(EMAIL_STORAGE_KEY, email);
     localStorage.setItem(PASSWORD_STORAGE_KEY, password);
