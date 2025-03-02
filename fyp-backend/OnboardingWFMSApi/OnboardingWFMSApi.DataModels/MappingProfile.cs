@@ -14,6 +14,7 @@ namespace OnboardingWFMSApi.DataModels
         public MappingProfile() 
         {
             CreateMap<AccountTable, AuthenticatedAccountDTO>();
+            CreateMap<AccountTable, InvitedAccountDTO>();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.DataModels;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
 {
@@ -19,15 +20,15 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         {
             if (string.IsNullOrEmpty(displayName))
             {
-                return BadRequest();
+                return BadRequest("Please enter a display name");
             }
             if (string.IsNullOrEmpty(emailAddress)) 
             {
-                return BadRequest();
+                return BadRequest("Please enter an email address");
             }
             if (string.IsNullOrEmpty(departmentId))
             {
-                return BadRequest();
+                return BadRequest("Please select a department");
             }
 
             // TODO make organisation ID derived from user context
@@ -36,23 +37,38 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword)
+        public async Task<IActionResult> RegisterUser(string emailAddress, string password, string confirmationPassword)
         {
             if (string.IsNullOrEmpty(emailAddress))
             {
                 return BadRequest();
             }
-            if (string.IsNullOrEmpty(hashedPassword))
+            if (string.IsNullOrEmpty(password))
             {
                 return BadRequest();
             }
-            if (string.IsNullOrEmpty(hashedConfirmationPassword))
+            if (string.IsNullOrEmpty(confirmationPassword))
             {
                 return BadRequest();
             }
 
-            var result = await _accountLogic.RegisterUser(emailAddress, hashedPassword, hashedConfirmationPassword);
+            var result = await _accountLogic.RegisterUser(emailAddress, password, confirmationPassword);
             return StatusCode(result.HttpCode, result);
+        }
+
+        [HttpGet("get-invited-account")]
+        public async Task<IActionResult> GetInvitedAccount(string emailAddress)
+        {
+            if (string.IsNullOrEmpty(emailAddress))
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Email address must be provided" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _accountLogic.GetInvitedAccount(emailAddress);
+                return StatusCode(response.HttpCode, response);
+            }
         }
     }
 }

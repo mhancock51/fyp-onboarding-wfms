@@ -1,5 +1,7 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories;
+﻿using AutoMapper;
+using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId);
         public Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword);
+        public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
     }
 
     public class AccountLogic : IAccountLogic
@@ -23,12 +26,35 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IAccountRepository _accountRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IOrganisationRepository _organisationRepository;
+        private readonly IMapper _mapper;
 
-        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository)
+        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _departmentRepository = departmentRepository;
             _organisationRepository = organisationRepository;
+            _mapper = mapper;
+        }
+
+        public async Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress)
+        {
+            var account = await _accountRepository.GetByEmailAddress(emailAddress);
+            if (account == null || account.AccountStatus != INVITED_STATUS)
+            {
+                return new HTTPResponse<InvitedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Invited account doesn't exist" };
+            }
+            else
+            {
+                // create DTO
+                InvitedAccountDTO invitedAccount = _mapper.Map<InvitedAccountDTO>(account);
+                DepartmentTable department = await _departmentRepository.GetById(account.DepartmentId);
+                invitedAccount.DepartmentName = department.DisplayName;
+
+                OrganisationTable organisation = await _organisationRepository.GetById(invitedAccount.OrganisationId);
+                invitedAccount.OrganisationName = organisation.Name;
+
+                return new HTTPResponse<InvitedAccountDTO, string>() { Success = true, HttpCode = 200, Data = invitedAccount };
+            }
         }
 
         public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId)

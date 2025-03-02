@@ -19,7 +19,7 @@ export default function AddTaskDialog(props: {open: boolean, onAdd: (task: Workf
 
   return (
     <Dialog open={props.open} onOpenChange={props.setOpenDialog}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add Task</DialogTitle>
           <DialogDescription>
