@@ -26,6 +26,13 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> CreateDepartment(string name)
         {
+            // check department with same name doesn't exist
+            var existingDepartment = await _departmentRepository.GetDepartmentByName(name);
+            if (existingDepartment != null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Department with the same name exists" };
+            }
+
             await _departmentRepository.AddAsync(new DepartmentTable() { DisplayName = name });
             return new HTTPResponse<string, string> { Success = true, HttpCode = 200, Data = "Created department" };
         }

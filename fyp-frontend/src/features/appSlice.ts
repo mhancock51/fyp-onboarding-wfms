@@ -6,11 +6,13 @@ const USER_DATA_STORAGE_KEY = "USER_DATA";
 export interface AppState {
     user: AuthenticatedUser | null;
     openInviteDialog: boolean;
+    openCreateDepartmentDialog: boolean;
 }
 
 const initialState: AppState = {
     user: loadUserFromLocalStorage(),
-    openInviteDialog: false
+    openInviteDialog: false,
+    openCreateDepartmentDialog: false
 }
 
 export const appSlice = createSlice({
@@ -23,12 +25,15 @@ export const appSlice = createSlice({
         },
         SET_OPEN_INVITE_DIALOG: (state, action: PayloadAction<boolean>) => {
             state.openInviteDialog = action.payload;
-        } 
+        },
+        SET_OPEN_CREATE_DPT_DIALOG: (state, action: PayloadAction<boolean>) => {
+            state.openCreateDepartmentDialog = action.payload;
+        }
     }
 });
 
 export const {
-    SET_USER, SET_OPEN_INVITE_DIALOG
+    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG
 } = appSlice.actions;
 
 export default appSlice.reducer;

@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SetStateAction, useState } from "react"
 import InviteUserDialog from "@/app/dialogs/InviteUserDialog"
-import { SET_OPEN_INVITE_DIALOG } from "@/features/appSlice"
+import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_INVITE_DIALOG } from "@/features/appSlice"
    
 const mainItems = [
   {
@@ -52,7 +52,7 @@ export function AppSidebar(props: Props) {
     },
     {
       title: "Departments",
-      onClickAction: () => {},
+      onClickAction: () => { dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); },
       icon: Users
     },
     {

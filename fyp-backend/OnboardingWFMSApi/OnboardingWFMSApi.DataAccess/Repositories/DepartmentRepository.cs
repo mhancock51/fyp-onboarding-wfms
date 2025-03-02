@@ -10,6 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IDepartmentRepository : IRepository<DepartmentTable>
     {
+        public Task<DepartmentTable> GetDepartmentByName(string name);
     }
 
     public class DepartmentRepository : BaseRepository<DepartmentTable>, IDepartmentRepository
@@ -31,6 +32,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public override async Task<DepartmentTable> GetById(string id)
         {
             return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id);            
+        }
+
+        public async Task<DepartmentTable> GetDepartmentByName(string name)
+        {
+            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DisplayName.ToLower() == name);
         }
     }
 }

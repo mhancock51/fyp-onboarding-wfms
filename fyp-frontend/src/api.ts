@@ -29,6 +29,13 @@ const Api = {
         departmentId: departmentId
       }
     });
+  },
+  createDepartment: async(dptName: string) => {
+    return AuthInstance.post(`${ROUTE_URL}/department/create`, null, {
+      params: {
+        name: dptName
+      }
+    });
   }
 }
 
