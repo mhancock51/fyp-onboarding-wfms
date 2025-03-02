@@ -13,6 +13,7 @@ import { RootState } from '@/store';
 import { Checkbox } from '@/components/ui/checkbox';
 import Utils from '@/util';
 import { CheckedState } from '@radix-ui/react-checkbox';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
@@ -81,7 +82,12 @@ export default function LoginPage() {
                 >Remember me?</label>
                 <Checkbox id="remember-me" onCheckedChange={(checkState: CheckedState) => {setRememberMe(checkState as boolean);}}/>
               </div>
-              <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {void Login();}}>Login</Button>
+              <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {void Login();}}>
+                {
+                  loading && <Spinner className="text-white text-sm"/>
+                }
+                Login
+              </Button>
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}

@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +28,19 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
   const [loading, setLoading] = useState<boolean>(false);
 
   async function inviteUser() {
+    if (displayName === "") {
+      toast.warning("Please enter display name");
+      return;
+    }
+    if (email === "") {
+      toast.warning("Please enter an email address");
+      return;
+    }
+    if (departmentId === "") {
+      toast.warning("Please select a department");
+      return;
+    }
+
     setLoading(true);
     Api.inviteUser(displayName, email, onboarder, departmentId)
     .then((response) => {
@@ -108,7 +122,12 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
           }
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={inviteUser}>Invite Employee</Button>
+          <Button type="submit" disabled={loading} onClick={inviteUser}>
+            {
+              loading && <Spinner className="text-white text-sm"/>
+            }
+            Invite Employee
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

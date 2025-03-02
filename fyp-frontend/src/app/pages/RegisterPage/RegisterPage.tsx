@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import InvitedAccount from '@/models/InvitedAccount';
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -46,11 +47,12 @@ export default function RegisterPage() {
   async function registerAccount() {
     if (step !== 2) return;
     setLoading(true);
+
     Api.registerAccount(email, password, confirmationPassword)
     .then((response) => {
       console.log(response);
       setLoading(false);
-      toast("Successfully registered user", { duration: 1000, onAutoClose: () => { navigate("/login");}});
+      toast("Successfully registered user", { duration: 1500, onAutoClose: () => { navigate("/login");}});
     })
     .catch((error) => {
       setLoading(false);
@@ -99,7 +101,12 @@ export default function RegisterPage() {
                   <Label>Email</Label>
                   <Input required type="email" placeholder="m@example.com" value={email} onChange={(event: any) => {setEmail(event.target.value);}}/>
                 </div>
-                <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={fetchInvitedAccount}>Next</Button>
+                <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={fetchInvitedAccount}>
+                  {
+                    loading && <Spinner className="text-white text-sm"/>
+                  }
+                  Next
+                </Button>
               </div>
               <div className="mt-4 text-center text-sm">
                 Already have an account?{" "}
@@ -122,7 +129,9 @@ export default function RegisterPage() {
                 <Label className='flex-4'>Organisation</Label>
                 <Label className='font-normal'>{invitedAccount?.organisationName}</Label>
               </div>
-              <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {setStep(2)}}>Confirm</Button>
+              <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {setStep(2)}}>
+                Confirm
+              </Button>
             </div>
           }
           {
@@ -138,7 +147,12 @@ export default function RegisterPage() {
                 </div>
                 <Input type="password" value={confirmationPassword} required onChange={(event: any) => {setConfirmationPassword(event.target.value);}}/>
               </div>
-              <Button type="submit" disabled={loading || confirmationPassword !== password || password === ""} className="w-full flex-6s" onClick={registerAccount}>Register</Button>
+              <Button type="submit" disabled={loading || confirmationPassword !== password || password === ""} className="w-full flex-6s" onClick={registerAccount}>
+                {
+                  loading && <Spinner className="text-white text-sm"/>
+                } 
+                Register
+              </Button>
             </div>
           }
         </CardContent>
