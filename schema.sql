@@ -64,6 +64,15 @@ CREATE TABLE checklisttasktemplate (
     Items JSON
 );
 
+CREATE TABLE taskinstance (
+    TaskInstanceId VARCHAR(255) PRIMARY KEY,
+    AssigneeAccountId VARCHAR(255),
+    AssignerAccountId VARCHAR(255),
+    TaskTemplateId VARCHAR(255),
+    CreationTimestamp DATETIME,
+    Status VARCHAR(255)
+);
+
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -107,4 +116,14 @@ ALTER TABLE checklisttasktemplate
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
 
 
+ALTER TABLE taskinstance
+    ADD CONSTRAINT fk_task_instance_assignee_account_id
+    FOREIGN KEY (AssigneeAccountId) REFERENCES account(AccountId);
 
+ALTER TABLE taskinstance
+    ADD CONSTRAINT fk_task_instance_assigner_account_id
+    FOREIGN KEY (AssignerAccountId) REFERENCES account(AccountId);
+
+ALTER TABLE taskinstance
+    ADD CONSTRAINT fk_task_instance_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
