@@ -30,11 +30,20 @@ export default function MyTasksPage() {
     {
       taskInstanceId: '2',
       taskType: 'Document upload',
-      taskName: 'Do something else',
+      taskName: 'Upload some signed document',
       workflowName: 'Onboard Jeff',
       status: 'closed',
       dueIn: 7,
-      description: 'Do something else really cool'
+      description: 'Upload something really cool'
+    },
+    {
+      taskInstanceId: '3s',
+      taskType: 'Read document',
+      taskName: 'Read some cool document',
+      workflowName: 'Onboard Jeff',
+      status: 'open',
+      dueIn: 7,
+      description: 'Read something really cool'
     }
   ]
 
