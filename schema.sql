@@ -58,7 +58,11 @@ CREATE TABLE readdocumenttasktemplate (
     PRIMARY KEY (Id)
 );
 
-
+CREATE TABLE checklisttasktemplate (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskTemplateId VARCHAR(255),
+    Items JSON
+);
 
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
@@ -97,6 +101,10 @@ REFERENCES tasktemplate (TaskTemplateId);
 ALTER TABLE readdocumenttasktemplate 
 ADD CONSTRAINT fk_readdocumenttasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
 REFERENCES tasktemplate (TaskTemplateId);
+
+ALTER TABLE checklisttasktemplate
+    ADD CONSTRAINT fk_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
 
 
 

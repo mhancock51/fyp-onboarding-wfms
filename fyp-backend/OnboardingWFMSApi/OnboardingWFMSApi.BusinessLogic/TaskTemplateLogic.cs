@@ -24,20 +24,25 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";
         const string READ_DOCUMENT_TASK_TYPE_ID = "read-document";
+        const string CHECKLIST_TAKE_TYPE_ID = "checklist";
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
+        private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
         private readonly IMapper _mapper;
 
-        public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper, 
-            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository)
+        public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
+            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository, 
+            IChecklistTaskTemplateRepository checklistTaskTemplateRepository
+        )
         {
+            _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
             _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
-            _mapper = mapper;
             _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
+            _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload)
@@ -79,6 +84,19 @@ namespace OnboardingWFMSApi.BusinessLogic
                         await _readDocumentTaskTemplateRepository.AddAsync(readDocumentData);
                     }
                     break;
+                case CHECKLIST_TAKE_TYPE_ID:
+                    var checklistData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(payload.TaskTypeData.ToString());
+                    checklistData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    if (checklistData == null)
+                    {
+                        return invalidTaskDataResponse;
+                    }
+                    else
+                    {
+                        // insert data into checklist task table
+                        await _checklistTaskTemplateRepository.AddAsync(checklistData);
+                    }
+                    break;
                 default:
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task type" };
             }
@@ -89,7 +107,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates()
         {
             List<TaskTemplate> taskTemplates = _mapper.Map<List<TaskTemplate>>(await _taskTemplateRepository.GetAll());
-            // TODO implement getting task type specific data, i.e. checklist items, upload file type, etc
+            for (int i = 0; i < taskTemplates.Count; i++)
+            {
+                var response = await GetTaskTemplateById(taskTemplates[i].TaskTemplateId);
+                if (response.Success)
+                {
+                    taskTemplates[i] = response.Data;
+                }
+            }            
             return new HTTPResponse<List<TaskTemplate>, string>() { Success = true, HttpCode = 200, Data = taskTemplates };
         }
 
@@ -110,6 +135,9 @@ namespace OnboardingWFMSApi.BusinessLogic
                         break;
                     case READ_DOCUMENT_TASK_TYPE_ID:
                         taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        break;
+                    case CHECKLIST_TAKE_TYPE_ID:
+                        taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
                         break;
                     default:
                         throw new InvalidOperationException("Invalid task type associated with task template");
