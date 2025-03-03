@@ -1,55 +1,29 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
-import ListedTaskInstance from '@/models/ListedTaskInstance'
+import TaskInstance from '@/models/TaskInstance'
 import { FileUp, ListTodo, StickyNote } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
+import Api from '@/api'
 
 export default function MyTasksPage() {
-  const TASKS: ListedTaskInstance[] = [
-    {
-      taskInstanceId: '0',
-      taskType: 'Checklist',
-      taskName: 'Do something soon',
-      workflowName: 'Onboard Jeff',
-      status: 'open',
-      dueIn: 1,
-      description: 'Do something really cool soon!'
-    },
-    {
-      taskInstanceId: '1',
-      taskType: 'Checklist',
-      taskName: 'Do something',
-      workflowName: 'Onboard Jeff',
-      status: 'open',
-      dueIn: 3,
-      description: 'Do something really cool'
-    },
-    {
-      taskInstanceId: '2',
-      taskType: 'Document upload',
-      taskName: 'Upload some signed document',
-      workflowName: 'Onboard Jeff',
-      status: 'closed',
-      dueIn: 7,
-      description: 'Upload something really cool'
-    },
-    {
-      taskInstanceId: '3s',
-      taskType: 'Read document',
-      taskName: 'Read some cool document',
-      workflowName: 'Onboard Jeff',
-      status: 'open',
-      dueIn: 7,
-      description: 'Read something really cool'
-    }
-  ]
 
-  const [tasks, setTasks] = useState<ListedTaskInstance[]>(TASKS);
-  const [currentTask, setCurrentTask] = useState<ListedTaskInstance | null>(null);
+  const [tasks, setTasks] = useState<TaskInstance[]>([]);
+  const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
   const [open, setOpen] = useState<boolean>(false);
+
+  async function fetchTaskInstances() {
+    Api.fetchAssignedTaskInstance()
+    .then((response) => {
+      console.log(response);
+      setTasks(response.data.data as TaskInstance[]);
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+  }
 
   function dueInColor(dueIn: number) {
     if (dueIn < 3) {
@@ -62,6 +36,10 @@ export default function MyTasksPage() {
       return "bg-green-600";
     }
   }  
+
+  useEffect(() => {
+    void fetchTaskInstances();
+  }, []);
 
   return (
     <div className='m-4 flex flex-col gap-4'>
