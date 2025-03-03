@@ -24,7 +24,9 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 builder.Services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
 builder.Services.AddScoped<ITaskTemplateRepository, TaskTemplateRepository>();
+
 builder.Services.AddScoped<IFileUploadTaskTemplateRepository, FileUploadTaskTemplateRepository>();
+builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTaskTemplateRepository>();
 
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();

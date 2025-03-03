@@ -22,17 +22,22 @@ namespace OnboardingWFMSApi.BusinessLogic
 
     public class TaskTemplateLogic : ITaskTemplateLogic
     {
-        const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";        
+        const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";
+        const string READ_DOCUMENT_TASK_TYPE_ID = "read-document";
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
+        private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
+
         private readonly IMapper _mapper;
 
-        public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper, IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository)
+        public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper, 
+            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository)
         {
             _taskTemplateRepository = taskTemplateRepository;
             _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
             _mapper = mapper;
+            _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload)
@@ -42,20 +47,36 @@ namespace OnboardingWFMSApi.BusinessLogic
             var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { CreatorAccountId = payload.CreatorAccountId, Name = payload.Name, Description = payload.Description, DateCreated = DateTime.Now, TaskTypeId = payload.TaskTypeId });
 
             // make sure task type data can be cast to its type
-            
-            switch(payload.TaskTypeId)
+
+            HTTPResponse<string, string> invalidTaskDataResponse = new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task data" };
+
+
+            switch (payload.TaskTypeId)
             {
                 case UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    var data = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    data.TaskTemplateId = taskTemplate.TaskTemplateId;
-                    if (data == null)
+                    var uploadDocumentData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(payload.TaskTypeData.ToString());
+                    uploadDocumentData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    if (uploadDocumentData == null)
                     {
-                        return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task data" };
+                        return invalidTaskDataResponse;
                     }
                     else
                     {
                         // insert data into file upload table
-                        await _fileUploadTaskTemplateRepository.AddAsync(data);
+                        await _fileUploadTaskTemplateRepository.AddAsync(uploadDocumentData);
+                    }
+                    break;
+                case READ_DOCUMENT_TASK_TYPE_ID:
+                    var readDocumentData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(payload.TaskTypeData.ToString());
+                    readDocumentData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    if (readDocumentData == null)
+                    {
+                        return invalidTaskDataResponse;
+                    }
+                    else
+                    {
+                        // insert data into read document table
+                        await _readDocumentTaskTemplateRepository.AddAsync(readDocumentData);
                     }
                     break;
                 default:
@@ -86,6 +107,9 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     case UPLOAD_DOCUMENT_TASK_TYPE_ID:
                         taskTemplate.TaskTypeData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        break;
+                    case READ_DOCUMENT_TASK_TYPE_ID:
+                        taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
                         break;
                     default:
                         throw new InvalidOperationException("Invalid task type associated with task template");

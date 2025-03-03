@@ -49,6 +49,15 @@ CREATE TABLE fileuploadtasktemplate (
     PRIMARY KEY (Id)
 );
 
+CREATE TABLE readdocumenttasktemplate (
+    Id VARCHAR(255) NOT NULL,
+    TaskTemplateId VARCHAR(255) NOT NULL,
+    DocumentName VARCHAR(255) NOT NULL,
+    DocumentUrl VARCHAR(2083) NOT NULL,
+    CheckBoxLabel VARCHAR(255) NOT NULL,
+    PRIMARY KEY (Id)
+);
+
 
 
 
@@ -83,6 +92,10 @@ REFERENCES tasktype (TaskTypeId);
 
 ALTER TABLE fileuploadtasktemplate 
 ADD CONSTRAINT fk_fileuploadtasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
+REFERENCES tasktemplate (TaskTemplateId);
+
+ALTER TABLE readdocumenttasktemplate 
+ADD CONSTRAINT fk_readdocumenttasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
 REFERENCES tasktemplate (TaskTemplateId);
 
 
