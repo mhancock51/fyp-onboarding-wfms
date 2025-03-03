@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OnboardingWFMSApi.DataModels.Tables
+{
+    [Table("tasktemplate")]
+    public class TaskTemplateTable
+    {
+        [Key]
+        public string TaskTemplateId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        [ForeignKey(nameof(AccountTable.AccountId))]
+        public string CreatorAccountId { get; set; }
+        public DateTime DateCreated { get; set; }
+        [ForeignKey(nameof(TaskTypeTable.TaskTypeId))]
+        public string TaskTypeId { get; set; }
+    }
+}

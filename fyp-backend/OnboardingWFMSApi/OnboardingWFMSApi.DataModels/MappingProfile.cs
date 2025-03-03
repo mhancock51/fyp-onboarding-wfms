@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using OnboardingWFMSApi.DataModels.DTOs;
+using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace OnboardingWFMSApi.DataModels
         {
             CreateMap<AccountTable, AuthenticatedAccountDTO>();
             CreateMap<AccountTable, InvitedAccountDTO>();
+            CreateMap<TaskTemplateTable, TaskTemplate>();
         }
     }
 }
