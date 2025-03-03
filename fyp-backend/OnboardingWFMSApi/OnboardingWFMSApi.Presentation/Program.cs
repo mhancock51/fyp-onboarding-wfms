@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using System;
 using System.Text;
@@ -21,10 +22,15 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IOrganisationAdminLinkRepository, OrganisationAdminLinkRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
+builder.Services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
+builder.Services.AddScoped<ITaskTemplateRepository, TaskTemplateRepository>();
+builder.Services.AddScoped<IFileUploadTaskTemplateRepository, FileUploadTaskTemplateRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
 builder.Services.AddScoped<IAuthLogic, AuthLogic>();
+builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
