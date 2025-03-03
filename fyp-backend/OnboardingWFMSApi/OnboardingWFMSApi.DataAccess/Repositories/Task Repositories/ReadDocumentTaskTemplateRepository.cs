@@ -20,12 +20,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 
         public override async Task<ReadDocumentTaskTemplateTable> GetById(string id)
         {
-            return await _dbContext.readDocumentTaskTemplates.FirstAsync(i => i.Id == id);            
+            return await _dbContext.readDocumentTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
         }
 
         public async Task<ReadDocumentTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId)
         {
-            return await _dbContext.readDocumentTaskTemplates.FirstAsync(i => i.TaskTemplateId == taskTemplateId);            
+            return await _dbContext.readDocumentTaskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == taskTemplateId);            
         }
     }
 

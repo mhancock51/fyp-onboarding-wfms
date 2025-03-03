@@ -19,7 +19,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 
         public override async Task<TaskTemplateTable> GetById(string id)
         {
-            return await _dbContext.taskTemplates.FirstAsync(i => i.TaskTemplateId == id);
+            return await _dbContext.taskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == id);
         }
     }
 

@@ -20,12 +20,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 
         public async Task<FileUploadTaskTemplateTable> GetByTaskTemplateId(string id)
         {
-            return await _dbContext.fileUploadTaskTemplates.FirstAsync(i => i.TaskTemplateId == id);
+            return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == id);
         }
 
         public override async Task<FileUploadTaskTemplateTable> GetById(string id)
         {
-            return await _dbContext.fileUploadTaskTemplates.FirstAsync(i => i.Id == id);            
+            return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
         }
     }
 
