@@ -29,11 +29,14 @@ builder.Services.AddScoped<IFileUploadTaskTemplateRepository, FileUploadTaskTemp
 builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTaskTemplateRepository>();
 builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTemplateRepository>();
 
+builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
 builder.Services.AddScoped<IAuthLogic, AuthLogic>();
 builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
+builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
