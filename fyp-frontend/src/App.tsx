@@ -17,6 +17,7 @@ import AuthenticatedUser from './models/AuthenticatedUser';
 import { SET_USER } from './features/appSlice';
 import { Button } from './components/ui/button';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
+import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
 
 function App() {  
 
@@ -48,7 +49,7 @@ function App() {
         <Routes>
           <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>
             <Route path="/" element={<div><h1>Test</h1><Button onClick={testValidityOfToken}>Test API</Button></div>} />
-            <Route path="/tasks" element={<div><h1>Tasks</h1></div>} />
+            <Route path="/tasks" element={<MyTasksPage/>} />
             <Route path="/workflows" element={<WorkflowsPage/>} />
             <Route path="/workflows-create" element={<CreateWorkflowPage/>} />            
             <Route path="/settings" element={<div><h1>Settings</h1></div>} />

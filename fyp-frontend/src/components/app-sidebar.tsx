@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Building, ClipboardList, Home, Route, Settings, UserPlus, Users } from "lucide-react"
+import { Building, ClipboardList, Home, ListTodo, Route, Settings, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
@@ -19,6 +19,7 @@ import { RootState } from "@/store"
 import { SetStateAction, useState } from "react"
 import InviteUserDialog from "@/app/dialogs/InviteUserDialog"
 import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_INVITE_DIALOG } from "@/features/appSlice"
+import { title } from "process"
    
 const mainItems = [
   {
@@ -45,6 +46,16 @@ export function AppSidebar(props: Props) {
   const dispatch = useDispatch();
 
   const adminItems = [
+    {
+      title: "Create a Task",
+      onClickAction: () => {},
+      icon: ListTodo
+    },
+    {
+      title: "Create a Workflow Template",
+      onClickAction: () => {},
+      icon: Route
+    },
     {
       title: "Invite User",
       onClickAction: () => { dispatch(SET_OPEN_INVITE_DIALOG(true)); },

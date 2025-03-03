@@ -15,7 +15,7 @@ export default function layout() {
   return (
     <SidebarProvider>
       <AppSidebar organisationName={"Ibcos"} />
-      <main style={{padding: "8px"}}>
+      <main style={{padding: "8px", width: "100%"}}>
         {/* <SidebarTrigger /> */}
         <Outlet />
       </main>
