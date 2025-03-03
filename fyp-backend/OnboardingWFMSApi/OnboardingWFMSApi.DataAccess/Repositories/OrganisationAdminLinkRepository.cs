@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {            
         }
 
-        public override Task AddAsync(OrganisationAdminLinkTable entity)
+        public override Task<OrganisationAdminLinkTable> AddAsync(OrganisationAdminLinkTable entity)
         {
             // only allow one admin
             if (_dbContext.OrganisationAdmins.FirstOrDefault(i => i.OrganisationId == entity.OrganisationId) != null)

@@ -19,11 +19,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
         }
 
-        public override async Task AddAsync(DepartmentTable entity)
-        {            
-            await base.AddAsync(entity);
-        }
-
         public override async Task<bool> ExistsById(string id)
         {
             return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id) != null ? true : false;
