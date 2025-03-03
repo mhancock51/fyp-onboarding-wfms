@@ -60,10 +60,10 @@ export default function MyTasksPage() {
               tasks.map((task, index) => (
                 <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
                   <TableCell>
-                    {task.taskName}
+                    {task.template.name}
                   </TableCell>
                   <TableCell width={"175px"}>                    
-                    <TaskTypeBadge taskType={task.taskType}/>
+                    <TaskTypeBadge taskType={task.template.taskTypeId}/>
                   </TableCell>
                   <TableCell width={"100px"}>
                     <Badge className='mx-2 rounded-full text-white bg-blue-500 items-center p-2' style={{minWidth: "90px"}}>
@@ -71,17 +71,17 @@ export default function MyTasksPage() {
                     </Badge>
                   </TableCell>
                   <TableCell width={"50px"}>
-                    <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(task.dueIn)}`}>
-                      {task.dueIn} days
+                    <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
+                      -1 days
                     </Badge>
                   </TableCell>
                   <TableCell width={"100px"}>
                     <Badge className='mx-2 py-2 px-4 rounded-full'>
-                      {task.workflowName}
+                      [WORKFLOW NAME]
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {task.description}
+                    {task.template.description}
                   </TableCell>
                 </TableRow>
               ))
