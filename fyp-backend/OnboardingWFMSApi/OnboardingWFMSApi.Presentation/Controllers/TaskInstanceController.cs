@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System.Security.Claims;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
@@ -41,7 +42,24 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 var response = await _taskInstanceLogic.GetUsersAssignedTask(userIdClaim.Value);
                 return StatusCode(response.HttpCode, response);
             }
+        }
 
+        [Authorize]
+        [HttpPost("update-task-state/checklist")]
+        public async Task<IActionResult> UpdateChecklistInstanceState([FromBody] UpdateInstanceStateChecklistPayload payload)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var userIdClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _taskInstanceLogic.UpdateChecklistInstanceState(payload, userIdClaim.Value);
+                return StatusCode(response.HttpCode, response);
+            }            
         }
     }
 }
