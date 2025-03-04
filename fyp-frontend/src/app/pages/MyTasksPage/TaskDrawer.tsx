@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
 import { FileUploadTaskTemplate } from '@/models/FileUploadTaskTemplate';
 import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
+import { ChecklistTaskInstance } from '@/models/ChecklistTaskInstance';
 
 interface Props {
   open: boolean;
@@ -17,6 +18,14 @@ interface Props {
 }
 
 export default function TaskDrawer(props: Props) {
+  function areAllTasksComplete(taskStatuses: boolean[]) {
+    let allCompleted = true;
+    taskStatuses.forEach((status) => {
+      allCompleted = false;
+    })
+    return allCompleted
+  }
+
   return (
     <Drawer direction='right' onClose={() => {props.setOpen(false);}} open={props.open}>
       <DrawerContent className="max-w-[600px] w-full p-2"> {/* Override max width */}
@@ -40,11 +49,14 @@ export default function TaskDrawer(props: Props) {
               {
                 (props.task.template.taskTypeData as ChecklistTaskTemplate).items.map((item, index) => (
                   <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
-                    <Checkbox/>
-                    <Label className='font-normal'>{item}</Label>
+                    <Checkbox checked={(props.task?.instanceData as ChecklistTaskInstance).itemCompletionStatuses[index]}/>
+                    <Label className='font-normal'>{item}</Label>                    
                   </div>
                 ))
               }
+              <Button disabled={!areAllTasksComplete((props.task?.instanceData as ChecklistTaskInstance).itemCompletionStatuses)}>
+                Complete Task
+              </Button>              
             </div>
           }
           {
