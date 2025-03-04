@@ -77,6 +77,13 @@ const Api = {
       taskInstanceId: taskInstanceId,
       itemCompletionStatuses: itemStatuses
     })
+  },
+  completeTask: async(taskInstanceId: string) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/complete`, null, {
+      params: {
+        taskInstanceId : taskInstanceId
+      }
+    });
   }
 }
 

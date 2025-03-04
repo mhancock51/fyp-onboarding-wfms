@@ -11,15 +11,33 @@ import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
 import ChecklistTask from './ChecklistTask';
 import { ChecklistTaskInstance } from '@/models/ChecklistTaskInstance';
 import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
+import { useState } from 'react';
+import Api from '@/api';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  task: TaskInstance | null;
+  task: TaskInstance;
   fetchTaskInstances: () => Promise<void>;
 }
 
 export default function TaskDrawer(props: Props) {  
+  const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
+
+  async function completeTask() {
+    if (!canCompleteTask) return;
+    await Api.completeTask(props.task.taskInstanceId)
+    .then((response) => {
+      console.log(response);
+      toast("Successfully completed task");
+    })
+    .catch((error) => {
+      toast.error("Failed to complete task");
+      console.error(error);
+    })
+  }
+
   return (
     <Drawer direction='right' onClose={() => {props.setOpen(false);}} open={props.open}>
       <DrawerContent className="max-w-[600px] w-full p-2"> {/* Override max width */}
@@ -44,6 +62,7 @@ export default function TaskDrawer(props: Props) {
               checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
               checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
               fetchTaskInstances={props.fetchTaskInstances}
+              setCanCompleteTask={setCanCompleteTask}
             />
           }
           {
@@ -70,6 +89,9 @@ export default function TaskDrawer(props: Props) {
           }
           </>
         }
+        <Button disabled={!canCompleteTask} onClick={completeTask}>
+          Complete Task
+        </Button>
         <DrawerFooter>
           <Button variant={"outline"}>Flag an issue with this task</Button>
           <Button variant={"outline"}>See discussions about this task</Button>

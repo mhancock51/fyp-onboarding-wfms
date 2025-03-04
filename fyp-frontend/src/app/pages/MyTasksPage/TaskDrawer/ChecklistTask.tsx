@@ -13,6 +13,7 @@ interface Props {
   checklistInstance: ChecklistTaskInstance;
   checklistTemplate: ChecklistTaskTemplate;
   fetchTaskInstances: () => Promise<void>;
+  setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function ChecklistTask(props: Props) {
@@ -37,6 +38,12 @@ export default function ChecklistTask(props: Props) {
     await Api.updateChecklistTaskState(props.taskInstanceId, checklistState.itemCompletionStatuses)
     .then((response) => {
       toast("Successfully updated checklist task's state");
+      if (areAllTasksComplete(checklistState.itemCompletionStatuses)) {
+        props.setCanCompleteTask(true);
+      }
+      else {
+        props.setCanCompleteTask(false);
+      }
       void props.fetchTaskInstances();
     })
     .catch((error) => {
@@ -74,10 +81,7 @@ export default function ChecklistTask(props: Props) {
             <Label className='font-normal cursor-pointer'>{item}</Label>                    
           </div>
         ))
-      }
-      <Button disabled={!areAllTasksComplete(checklistState.itemCompletionStatuses)} className='rounded-full'>
-        Complete Task
-      </Button>              
+      }          
     </div>
   )
 }

@@ -109,7 +109,10 @@ export default function MyTasksPage() {
           </Table>
         }
       </div>
-      <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
+      {
+        currentTask !== null &&
+        <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
+      }
     </div>
   )
 }
