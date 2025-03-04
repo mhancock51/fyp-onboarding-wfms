@@ -7,21 +7,27 @@ import React, { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
 import Api from '@/api'
+import { toast } from 'sonner'
+import { Spinner } from '@/components/ui/spinner'
+import NoResults from '@/components/NoResults'
 
 export default function MyTasksPage() {
 
   const [tasks, setTasks] = useState<TaskInstance[]>([]);
   const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function fetchTaskInstances() {
+    setLoading(true);
     Api.fetchAssignedTaskInstance()
     .then((response) => {
-      console.log(response);
+      setLoading(false);
       setTasks(response.data.data as TaskInstance[]);
     })
     .catch((error) => {
-      console.error(error);
+      setLoading(false);
+      toast.error("Failed to load assigned taks");      
     })
   }
 
@@ -46,48 +52,62 @@ export default function MyTasksPage() {
       <div className='rounded-3xl bg-sidebar p-8' >
         <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
         <Separator/>
-        <Table className='text-base'>
-          <TableHeader>
-            <TableCell style={{textAlign: "center"}}>Name    </TableCell>
-            <TableCell style={{textAlign: "center"}}>Type    </TableCell>
-            <TableCell style={{textAlign: "center"}}>Status  </TableCell>
-            <TableCell style={{textAlign: "center"}}>Due  </TableCell>
-            <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
-            <TableCell style={{textAlign: "center"}}>Description</TableCell>
-          </TableHeader> 
-          <TableBody>
-            {
-              tasks.map((task, index) => (
-                <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
-                  <TableCell>
-                    {task.template.name}
-                  </TableCell>
-                  <TableCell width={"175px"}>                    
-                    <TaskTypeBadge taskType={task.template.taskTypeId}/>
-                  </TableCell>
-                  <TableCell width={"100px"}>
-                    <Badge className='mx-2 rounded-full text-white bg-blue-500 items-center p-2' style={{minWidth: "90px"}}>
-                      {task.status.toUpperCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell width={"50px"}>
-                    <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
-                      -1 days
-                    </Badge>
-                  </TableCell>
-                  <TableCell width={"100px"}>
-                    <Badge className='mx-2 py-2 px-4 rounded-full'>
-                      [WORKFLOW NAME]
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {task.template.description}
-                  </TableCell>
-                </TableRow>
-              ))
-            }        
-          </TableBody>
-        </Table>
+        {
+          loading &&
+          <div className='flex flex-row justify-center p-4 gap-2'>
+            <Spinner/>
+            <h1>Loading tasks...</h1>
+          </div>
+        }
+        {
+          !loading && tasks.length == 0 &&
+          <NoResults text='No tasks could be found'/>                    
+        }
+        {
+          !loading && tasks.length > 0 &&
+          <Table className='text-base'>
+            <TableHeader>
+              <TableCell style={{textAlign: "center"}}>Name    </TableCell>
+              <TableCell style={{textAlign: "center"}}>Type    </TableCell>
+              <TableCell style={{textAlign: "center"}}>Status  </TableCell>
+              <TableCell style={{textAlign: "center"}}>Due  </TableCell>
+              <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
+              <TableCell style={{textAlign: "center"}}>Description</TableCell>
+            </TableHeader> 
+            <TableBody>
+              {
+                tasks.map((task, index) => (
+                  <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
+                    <TableCell>
+                      {task.template.name}
+                    </TableCell>
+                    <TableCell width={"175px"}>                    
+                      <TaskTypeBadge taskType={task.template.taskTypeId}/>
+                    </TableCell>
+                    <TableCell width={"100px"}>
+                      <Badge className='mx-2 rounded-full text-white bg-blue-500 items-center p-2' style={{minWidth: "90px"}}>
+                        {task.status.toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell width={"50px"}>
+                      <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
+                        -1 days
+                      </Badge>
+                    </TableCell>
+                    <TableCell width={"100px"}>
+                      <Badge className='mx-2 py-2 px-4 rounded-full'>
+                        [WORKFLOW NAME]
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {task.template.description}
+                    </TableCell>
+                  </TableRow>
+                ))
+              }        
+            </TableBody>
+          </Table>
+        }
       </div>
       <TaskDrawer open={open} setOpen={setOpen} task={currentTask}/>
     </div>

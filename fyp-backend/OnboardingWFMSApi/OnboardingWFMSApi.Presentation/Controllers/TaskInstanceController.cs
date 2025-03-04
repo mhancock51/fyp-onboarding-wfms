@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
 using System.Security.Claims;
 
@@ -28,9 +29,19 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         [HttpGet("get-assigned")]
         public async Task<IActionResult> GetAssigned(string accountId)
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;            
-            var response = await _taskInstanceLogic.GetUsersAssignedTask(accountId);
-            return StatusCode(response.HttpCode, response);
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var userIdClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _taskInstanceLogic.GetUsersAssignedTask(userIdClaim.Value);
+                return StatusCode(response.HttpCode, response);
+            }
+
         }
     }
 }
