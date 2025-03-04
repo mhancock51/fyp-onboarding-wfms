@@ -26,12 +26,13 @@ export default function TaskDrawer(props: Props) {
   const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
 
   async function completeTask() {
-    if (!canCompleteTask) return;
-    console.log("test:", props.task)
+    if (!canCompleteTask) return;    
     await Api.completeTask(props.task.id)
     .then((response) => {
       console.log(response);
       toast("Successfully completed task");
+      void props.fetchTaskInstances();
+      props.setOpen(false);
     })
     .catch((error) => {
       toast.error("Failed to complete task");
@@ -64,6 +65,7 @@ export default function TaskDrawer(props: Props) {
               checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
               fetchTaskInstances={props.fetchTaskInstances}
               setCanCompleteTask={setCanCompleteTask}
+              taskStatus={props.task.status}
             />
           }
           {
@@ -90,7 +92,7 @@ export default function TaskDrawer(props: Props) {
           }
           </>
         }
-        <Button disabled={!canCompleteTask} onClick={completeTask}>
+        <Button className='rounded-full mx-2 p-2' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
           Complete Task
         </Button>
         <DrawerFooter>

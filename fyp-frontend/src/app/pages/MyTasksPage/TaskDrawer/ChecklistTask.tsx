@@ -14,6 +14,7 @@ interface Props {
   checklistTemplate: ChecklistTaskTemplate;
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
+  taskStatus: string;
 }
 
 export default function ChecklistTask(props: Props) {
@@ -52,6 +53,7 @@ export default function ChecklistTask(props: Props) {
   }
 
   function updateChecklistItem(index: number, value: boolean) {
+    if (props.taskStatus !== "open") return;
     // update checklist item's state through hook
     setChecklistState((prevState) => ({ 
       ...prevState, 
@@ -59,15 +61,16 @@ export default function ChecklistTask(props: Props) {
       itemCompletionStatuses: prevState.itemCompletionStatuses.map((status, i) => (i === index ? value : status))
     }));
   } 
+  
 
   useEffect(() => {
     setChecklistState(props.checklistInstance);
   }, [props.checklistInstance]);
 
   useEffect(() => {
+    props.setCanCompleteTask(areAllTasksComplete(checklistState.itemCompletionStatuses));
     if (checklistState.id === "") return;
     if (checklistState.itemCompletionStatuses == props.checklistInstance.itemCompletionStatuses) return;
-    props.setCanCompleteTask(areAllTasksComplete(checklistState.itemCompletionStatuses));
     void updateChecklistStatus(checklistState);
   }, [checklistState.itemCompletionStatuses]);
 
@@ -78,7 +81,7 @@ export default function ChecklistTask(props: Props) {
           <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center cursor-pointer' 
             onClick={() => { updateChecklistItem(index, !checklistState?.itemCompletionStatuses[index])}}
           >
-            <Checkbox className='cursor-pointer' checked={checklistState?.itemCompletionStatuses[index]} onCheckedChange={(checked: CheckedState) => {updateChecklistItem(index, checked as boolean)}}/>
+            <Checkbox className='cursor-pointer' checked={checklistState?.itemCompletionStatuses[index]} onCheckedChange={(checked: CheckedState) => { updateChecklistItem(index, checked as boolean)}}/>
             <Label className='font-normal cursor-pointer'>{item}</Label>                    
           </div>
         ))

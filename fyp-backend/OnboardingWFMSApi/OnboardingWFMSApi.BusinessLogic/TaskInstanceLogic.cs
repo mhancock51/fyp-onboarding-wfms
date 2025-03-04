@@ -218,6 +218,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // TODO implement logic to notify correct users
             // TODO implement logic to call function in workflow to assign next task
+            // TODO implement logging of event for workflow
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
         }
