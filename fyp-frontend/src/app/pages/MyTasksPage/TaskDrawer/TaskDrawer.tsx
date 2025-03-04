@@ -16,6 +16,7 @@ interface Props {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   task: TaskInstance | null;
+  fetchTaskInstances: () => Promise<void>;
 }
 
 export default function TaskDrawer(props: Props) {  
@@ -41,7 +42,9 @@ export default function TaskDrawer(props: Props) {
             <ChecklistTask 
               taskInstanceId={props.task.taskInstanceId} 
               checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
-              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} />
+              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances}
+            />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === "upload-document" &&

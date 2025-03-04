@@ -8,7 +8,14 @@ import { CheckedState } from '@radix-ui/react-checkbox'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-export default function ChecklistTask(props: {taskInstanceId: string, checklistInstance: ChecklistTaskInstance, checklistTemplate: ChecklistTaskTemplate}) {
+interface Props {
+  taskInstanceId: string;
+  checklistInstance: ChecklistTaskInstance;
+  checklistTemplate: ChecklistTaskTemplate;
+  fetchTaskInstances: () => Promise<void>;
+}
+
+export default function ChecklistTask(props: Props) {
   const DEFAULT_STATE: ChecklistTaskInstance = {
     id: '',
     taskInstanceId: '',
@@ -30,6 +37,7 @@ export default function ChecklistTask(props: {taskInstanceId: string, checklistI
     await Api.updateChecklistTaskState(props.taskInstanceId, checklistState.itemCompletionStatuses)
     .then((response) => {
       toast("Successfully updated checklist task's state");
+      void props.fetchTaskInstances();
     })
     .catch((error) => {
       toast("Failed to update checklist task's state");
@@ -59,13 +67,15 @@ export default function ChecklistTask(props: {taskInstanceId: string, checklistI
     <div className='flex flex-col gap-2 p-2'>
       {
         props.checklistTemplate.items.map((item, index) => (
-          <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
-            <Checkbox checked={checklistState?.itemCompletionStatuses[index]} onCheckedChange={(checked: CheckedState) => {updateChecklistItem(index, checked as boolean)}}/>
-            <Label className='font-normal'>{item}</Label>                    
+          <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center cursor-pointer' 
+            onClick={() => { updateChecklistItem(index, !checklistState?.itemCompletionStatuses[index])}}
+          >
+            <Checkbox className='cursor-pointer' checked={checklistState?.itemCompletionStatuses[index]} onCheckedChange={(checked: CheckedState) => {updateChecklistItem(index, checked as boolean)}}/>
+            <Label className='font-normal cursor-pointer'>{item}</Label>                    
           </div>
         ))
       }
-      <Button disabled={!areAllTasksComplete(checklistState.itemCompletionStatuses)}>
+      <Button disabled={!areAllTasksComplete(checklistState.itemCompletionStatuses)} className='rounded-full'>
         Complete Task
       </Button>              
     </div>

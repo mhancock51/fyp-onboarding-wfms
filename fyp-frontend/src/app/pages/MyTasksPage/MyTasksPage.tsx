@@ -2,7 +2,6 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
 import TaskInstance from '@/models/TaskInstance'
-import { FileUp, ListTodo, StickyNote } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
@@ -110,7 +109,7 @@ export default function MyTasksPage() {
           </Table>
         }
       </div>
-      <TaskDrawer open={open} setOpen={setOpen} task={currentTask}/>
+      <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
     </div>
   )
 }
