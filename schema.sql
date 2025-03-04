@@ -73,6 +73,11 @@ CREATE TABLE taskinstance (
     Status VARCHAR(255)
 );
 
+CREATE TABLE checklisttaskinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    ItemCompletionStatuses JSON
+);
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -127,3 +132,7 @@ ALTER TABLE taskinstance
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+
+ALTER TABLE checklisttaskinstance
+    ADD CONSTRAINT fk_checklist_instance_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
