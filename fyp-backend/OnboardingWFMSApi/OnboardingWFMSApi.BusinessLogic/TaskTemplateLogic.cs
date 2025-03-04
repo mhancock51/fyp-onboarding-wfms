@@ -4,6 +4,7 @@ using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +23,10 @@ namespace OnboardingWFMSApi.BusinessLogic
 
     public class TaskTemplateLogic : ITaskTemplateLogic
     {
-        const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";
-        const string READ_DOCUMENT_TASK_TYPE_ID = "read-document";
-        const string CHECKLIST_TAKE_TYPE_ID = "checklist";
+        // TODO: separate these const from this class, put in constants class
+        public const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";
+        public const string READ_DOCUMENT_TASK_TYPE_ID = "read-document";
+        public const string CHECKLIST_TASK_TYPE_ID = "checklist";
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
@@ -84,7 +86,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                         await _readDocumentTaskTemplateRepository.AddAsync(readDocumentData);
                     }
                     break;
-                case CHECKLIST_TAKE_TYPE_ID:
+                case CHECKLIST_TASK_TYPE_ID:
                     var checklistData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(payload.TaskTypeData.ToString());
                     checklistData.TaskTemplateId = taskTemplate.TaskTemplateId;
                     if (checklistData == null)
@@ -136,7 +138,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     case READ_DOCUMENT_TASK_TYPE_ID:
                         taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
                         break;
-                    case CHECKLIST_TAKE_TYPE_ID:
+                    case CHECKLIST_TASK_TYPE_ID:
                         taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
                         break;
                     default:

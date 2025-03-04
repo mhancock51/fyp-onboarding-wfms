@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,17 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
     public interface IChecklistTaskInstanceRepository : IRepository<ChecklistTaskInstanceTable>
     {
-
+        public Task<ChecklistTaskInstanceTable> GetByTaskInstanceId(string taskInstanceId);
     }
     public class ChecklistTaskInstanceRepository : BaseRepository<ChecklistTaskInstanceTable>, IChecklistTaskInstanceRepository
     {
         public ChecklistTaskInstanceRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
+        }
+
+        public async Task<ChecklistTaskInstanceTable> GetByTaskInstanceId(string taskInstanceId)
+        {
+            return await _dbContext.checklistTaskInstances.FirstOrDefaultAsync(i => i.TaskInstanceId == taskInstanceId);
         }
     }
 
