@@ -21,10 +21,12 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<TaskInstance, string>> GetTaskInstance(string tasksInstanceId);
 
         public Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
     }
     public class TaskInstanceLogic : ITaskInstanceLogic
     {
         private string OPEN_TASK_STATUS = "open";
+        private string COMPLETED_TASK_STATUS = "complete";
 
         private readonly IMapper _mapper;
         private readonly ITaskTemplateLogic _taskTemplateLogic;
@@ -168,6 +170,75 @@ namespace OnboardingWFMSApi.BusinessLogic
             await _checklistTaskInstanceRepository.UpdateAsync(checklistInstance);
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Message = "Successfully updated state" };
+        }
+
+        public async Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId)
+        {
+            // check task instance exists and isn't already complete
+            var response = await GetTaskInstance(taskInstanceId);
+            if (!response.Success || response.Data == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
+            }
+            var taskInstance = response.Data;
+            if (taskInstance.Status == COMPLETED_TASK_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is already completed" };
+            }            
+            // check account is assigned to task instance
+            if (taskInstance.AssigneeAccountId != accountId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have access to update this resource" }; 
+            }
+            bool isComplete = false;
+            // make sure task meets conditions to be complete
+            switch(taskInstance.template.TaskTypeId)
+            {
+                case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
+                    isComplete = IsChecklistTaskComplete(taskInstance);
+                    break;
+                case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
+                    // TODO implement completeness check
+                    break;
+                case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
+                    // TODO implement completeness check
+                    break;
+                default:
+                    throw new Exception("Task template isn't associated with a valid task type id");
+            }            
+
+            if (!isComplete)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task can't be completed yet" };
+            }
+            
+            // mark task instance as complete
+            taskInstance.Status = COMPLETED_TASK_STATUS;
+            await _taskInstanceRepository.UpdateAsync(taskInstance);
+
+            // TODO implement logic to notify correct users
+            // TODO implement logic to call function in workflow to assign next task
+
+            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
+        }
+
+        private bool IsChecklistTaskComplete(TaskInstance taskInstance)
+        {
+            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID)
+            {
+                throw new Exception("Task is not a checklist task");
+            }
+
+            // ensure all checklist items are complete
+            var checklistInstanceData = (taskInstance.InstanceData as ChecklistTaskInstanceTable);
+            foreach(var itemStatus in checklistInstanceData.ItemCompletionStatuses)
+            {
+                if (itemStatus == false)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
