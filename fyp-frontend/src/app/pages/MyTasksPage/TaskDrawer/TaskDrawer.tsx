@@ -1,15 +1,16 @@
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import TaskInstance from '@/models/TaskInstance'
-import TaskTypeBadge from './TaskTypeBadge';
+import TaskTypeBadge from '../TaskTypeBadge';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
 import { FileUploadTaskTemplate } from '@/models/FileUploadTaskTemplate';
 import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
+import ChecklistTask from './ChecklistTask';
 import { ChecklistTaskInstance } from '@/models/ChecklistTaskInstance';
+import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
 
 interface Props {
   open: boolean;
@@ -17,15 +18,7 @@ interface Props {
   task: TaskInstance | null;
 }
 
-export default function TaskDrawer(props: Props) {
-  function areAllTasksComplete(taskStatuses: boolean[]) {
-    let allCompleted = true;
-    taskStatuses.forEach((status) => {
-      allCompleted = false;
-    })
-    return allCompleted
-  }
-
+export default function TaskDrawer(props: Props) {  
   return (
     <Drawer direction='right' onClose={() => {props.setOpen(false);}} open={props.open}>
       <DrawerContent className="max-w-[600px] w-full p-2"> {/* Override max width */}
@@ -45,19 +38,10 @@ export default function TaskDrawer(props: Props) {
           </DrawerHeader>
           {
             props.task.template.taskTypeId.toLowerCase() === "checklist" &&
-            <div className='flex flex-col gap-2 p-2'>
-              {
-                (props.task.template.taskTypeData as ChecklistTaskTemplate).items.map((item, index) => (
-                  <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
-                    <Checkbox checked={(props.task?.instanceData as ChecklistTaskInstance).itemCompletionStatuses[index]}/>
-                    <Label className='font-normal'>{item}</Label>                    
-                  </div>
-                ))
-              }
-              <Button disabled={!areAllTasksComplete((props.task?.instanceData as ChecklistTaskInstance).itemCompletionStatuses)}>
-                Complete Task
-              </Button>              
-            </div>
+            <ChecklistTask 
+              taskInstanceId={props.task.taskInstanceId} 
+              checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
+              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === "upload-document" &&

@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import TaskInstance from '@/models/TaskInstance'
 import { FileUp, ListTodo, StickyNote } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import TaskDrawer from './TaskDrawer'
+import TaskDrawer from './TaskDrawer/TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
 import Api from '@/api'
 import { toast } from 'sonner'
@@ -22,6 +22,7 @@ export default function MyTasksPage() {
     setLoading(true);
     Api.fetchAssignedTaskInstance()
     .then((response) => {
+      console.log(response);
       setLoading(false);
       setTasks(response.data.data as TaskInstance[]);
     })
