@@ -1,5 +1,5 @@
 export default interface AuthenticatedUser {
-    accountId: string;
+    id: string;
     displayName: string;
     emailAddress: string;
     isOnboarder: string;

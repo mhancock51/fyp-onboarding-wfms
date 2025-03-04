@@ -27,7 +27,8 @@ export default function TaskDrawer(props: Props) {
 
   async function completeTask() {
     if (!canCompleteTask) return;
-    await Api.completeTask(props.task.taskInstanceId)
+    console.log("test:", props.task)
+    await Api.completeTask(props.task.id)
     .then((response) => {
       console.log(response);
       toast("Successfully completed task");
@@ -58,7 +59,7 @@ export default function TaskDrawer(props: Props) {
           {
             props.task.template.taskTypeId.toLowerCase() === "checklist" &&
             <ChecklistTask 
-              taskInstanceId={props.task.taskInstanceId} 
+              taskInstanceId={props.task.id} 
               checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
               checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
               fetchTaskInstances={props.fetchTaskInstances}

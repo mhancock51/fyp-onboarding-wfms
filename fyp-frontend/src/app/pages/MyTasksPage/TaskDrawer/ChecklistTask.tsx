@@ -67,6 +67,7 @@ export default function ChecklistTask(props: Props) {
   useEffect(() => {
     if (checklistState.id === "") return;
     if (checklistState.itemCompletionStatuses == props.checklistInstance.itemCompletionStatuses) return;
+    props.setCanCompleteTask(areAllTasksComplete(checklistState.itemCompletionStatuses));
     void updateChecklistStatus(checklistState);
   }, [checklistState.itemCompletionStatuses]);
 

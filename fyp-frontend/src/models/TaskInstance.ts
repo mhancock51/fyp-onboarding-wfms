@@ -2,7 +2,7 @@ import { ChecklistTaskInstance } from "./ChecklistTaskInstance";
 import TaskTemplate from "./TaskTemplate";
 
 export default interface TaskInstance {
-    taskInstanceId: string;
+    id: string;
     assigneeAccountId: string;
     assignerAccountId: string;
     taskTemplateId: string;
