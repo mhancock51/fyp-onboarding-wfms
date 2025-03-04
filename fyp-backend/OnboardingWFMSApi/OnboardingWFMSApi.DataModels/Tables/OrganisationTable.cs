@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("organisation")]
-    public class OrganisationTable
+    public class OrganisationTable : ITableEntity
     {
+     
         [Key]
-        public string OrganisationId { get; set; }
+        [Column("OrganisationId")]
+        public string Id { get; set; }
         public string Name { get; set; }        
     }
 }

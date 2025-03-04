@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("fileuploadtasktemplate")]
-    public class FileUploadTaskTemplateTable
+    public class FileUploadTaskTemplateTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
-        [ForeignKey(nameof(TaskTemplateTable.TaskTemplateId))]
+        [ForeignKey(nameof(TaskTemplateTable.Id))]
         public string TaskTemplateId { get; set; }
         public string SupportedDocumentType { get; set; }
         public string DocumentName { get; set; }

@@ -70,7 +70,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
                     var checklistItems = (taskTemplate.TaskTypeData as ChecklistTaskTemplateTable).Items;
-                    await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.TaskInstanceId });
+                    await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.Id });
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
                     // TODO
@@ -91,7 +91,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             for (var i = 0; i < taskInstances.Count; i++)
             {
                 // add template and task type instance data
-                var response = await GetTaskInstance(taskInstances[i].TaskInstanceId);
+                var response = await GetTaskInstance(taskInstances[i].Id);
                 if (response.Success)
                 {
                     taskInstances[i] = response.Data;
@@ -126,7 +126,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             switch(taskInstance.template.TaskTypeId)
             {
                 case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
-                    taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);
+                    taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
                     taskInstance.InstanceData = null;
@@ -165,7 +165,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // update state
-            var checklistInstance = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);
+            var checklistInstance = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
             checklistInstance.ItemCompletionStatuses = payload.ItemCompletionStatuses;
             await _checklistTaskInstanceRepository.UpdateAsync(checklistInstance);
 

@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("checklisttaskinstance")]
-    public class ChecklistTaskInstanceTable
+    public class ChecklistTaskInstanceTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
-        [ForeignKey(nameof(TaskInstanceTable.TaskInstanceId))]
+        [ForeignKey(nameof(TaskInstanceTable.Id))]
         public string TaskInstanceId { get; set; }
         /// <summary>
         /// bool value represent the completion status of the checklist item at the same index in the task template        

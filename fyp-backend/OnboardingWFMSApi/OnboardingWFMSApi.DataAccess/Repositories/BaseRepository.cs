@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using OnboardingWFMSApi.DataModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,9 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public Task<List<TEntity>> GetAll();
     }
 
-    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class
+    
+
+    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class, ITableEntity
     {
         protected readonly ApplicationDbContext _dbContext;
 
@@ -56,7 +59,19 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public virtual async Task UpdateAsync(TEntity entity)
         {
-            var result = _dbContext.Update(entity);
+            // prevent duplicate tracking
+            var existingEntity = _dbContext.Set<TEntity>().Local
+            .FirstOrDefault(e => e == entity || e.Id == entity.Id); // Assuming 'Id' is the primary key
+
+            if (existingEntity != null)
+            {
+                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+            }
+            else
+            {
+                _dbContext.Update(entity);
+            }
+
             await _dbContext.SaveChangesAsync();
         }
 

@@ -21,12 +21,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public override async Task<bool> ExistsById(string id)
         {
-            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id) != null ? true : false;
+            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.Id == id) != null ? true : false;
         }
 
         public override async Task<DepartmentTable> GetById(string id)
         {
-            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.DepartmentId == id);            
+            return await _dbContext.Departments.FirstOrDefaultAsync(i => i.Id == id);            
         }
 
         public async Task<DepartmentTable> GetDepartmentByName(string name)

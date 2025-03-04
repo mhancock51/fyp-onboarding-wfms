@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("taskinstance")]
-    public class TaskInstanceTable
+    public class TaskInstanceTable : ITableEntity
     {
         [Key]
-        public string TaskInstanceId { get; set; }
-        [ForeignKey(nameof(AccountTable.AccountId))]
+        [Column("TaskInstanceId")]
+        public string Id { get; set; }
+        [ForeignKey(nameof(AccountTable.Id))]
         public string AssigneeAccountId { get; set; }
-        [ForeignKey(nameof(AccountTable.AccountId))]
+        [ForeignKey(nameof(AccountTable.Id))]
         public string AssignerAccountId { get; set; }
-        [ForeignKey(nameof(TaskTemplateTable.TaskTemplateId))]
+        [ForeignKey(nameof(TaskTemplateTable.Id))]
         public string TaskTemplateId { get; set; }
         public DateTime CreationTimestamp { get; set; }
         public string Status { get; set; }

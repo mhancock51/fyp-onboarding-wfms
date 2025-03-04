@@ -21,13 +21,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public override async Task<bool> ExistsById(string id)
         {
-            var org = await _dbContext.Organisations.FirstOrDefaultAsync(i => i.OrganisationId == id);
+            var org = await _dbContext.Organisations.FirstOrDefaultAsync(i => i.Id == id);
             return org != null ? true : false;
         }
 
         public override async Task<OrganisationTable> GetById(string id)
         {
-            return await _dbContext.Organisations.FirstOrDefaultAsync(i => i.OrganisationId == id);
+            return await _dbContext.Organisations.FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public override async Task<OrganisationTable> AddAsync(OrganisationTable entity)

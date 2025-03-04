@@ -9,10 +9,11 @@ using System.ComponentModel.DataAnnotations;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("department")]
-    public class DepartmentTable
+    public class DepartmentTable : ITableEntity
     {
         [Key]
-        public string DepartmentId { get; set; }
+        [Column("DepartmentId")]
+        public string Id { get; set; }
         public string DisplayName { get; set; }
 
     }

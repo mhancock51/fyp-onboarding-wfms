@@ -27,12 +27,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public override async Task<AccountTable> GetById(string id)
         {
-            return await _dbContext.Accounts.FirstOrDefaultAsync(e => e.AccountId == id);            
+            return await _dbContext.Accounts.FirstOrDefaultAsync(e => e.Id == id);            
         }
 
         public override async Task<bool> ExistsById(string id)
         {
-            return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.AccountId == id) != null ? true : false;
+            return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.Id == id) != null ? true : false;
         }
 
         public override async Task<AccountTable> AddAsync(AccountTable entity)

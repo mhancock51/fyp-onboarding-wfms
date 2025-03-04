@@ -62,7 +62,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 case UPLOAD_DOCUMENT_TASK_TYPE_ID:
                     var uploadDocumentData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    uploadDocumentData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    uploadDocumentData.TaskTemplateId = taskTemplate.Id;
                     if (uploadDocumentData == null)
                     {
                         return invalidTaskDataResponse;
@@ -75,7 +75,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     break;
                 case READ_DOCUMENT_TASK_TYPE_ID:
                     var readDocumentData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    readDocumentData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    readDocumentData.TaskTemplateId = taskTemplate.Id;
                     if (readDocumentData == null)
                     {
                         return invalidTaskDataResponse;
@@ -88,7 +88,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     break;
                 case CHECKLIST_TASK_TYPE_ID:
                     var checklistData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    checklistData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    checklistData.TaskTemplateId = taskTemplate.Id;
                     if (checklistData == null)
                     {
                         return invalidTaskDataResponse;
@@ -111,7 +111,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             List<TaskTemplate> taskTemplates = _mapper.Map<List<TaskTemplate>>(await _taskTemplateRepository.GetAll());
             for (int i = 0; i < taskTemplates.Count; i++)
             {
-                var response = await GetTaskTemplateById(taskTemplates[i].TaskTemplateId);
+                var response = await GetTaskTemplateById(taskTemplates[i].Id);
                 if (response.Success)
                 {
                     taskTemplates[i] = response.Data;
@@ -133,13 +133,13 @@ namespace OnboardingWFMSApi.BusinessLogic
                 switch(taskTemplate.TaskTypeId)
                 {
                     case UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        taskTemplate.TaskTypeData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
                         break;
                     case READ_DOCUMENT_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
                         break;
                     case CHECKLIST_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
                         break;
                     default:
                         throw new InvalidOperationException("Invalid task type associated with task template");

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("organisationAdminLink")]
-    public class OrganisationAdminLinkTable
+    public class OrganisationAdminLinkTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
-        [ForeignKey(nameof(OrganisationTable.OrganisationId))]
+        [ForeignKey(nameof(OrganisationTable.Id))]
         public string OrganisationId { get; set; }
-        [ForeignKey(nameof(AccountTable.AccountId))]
+        [ForeignKey(nameof(AccountTable.Id))]
         public string AccountId { get; set; }
     }
 }

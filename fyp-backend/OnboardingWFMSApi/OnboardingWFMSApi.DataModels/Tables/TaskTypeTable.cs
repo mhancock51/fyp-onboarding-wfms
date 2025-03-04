@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("tasktype")]
-    public class TaskTypeTable
+    public class TaskTypeTable : ITableEntity
     {
         [Key]
-        public string TaskTypeId { get; set; }
+        [Column("TaskTypeId")]
+        public string Id { get; set; }
         public string TaskName { get; set; }
     }
 }
