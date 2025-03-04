@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;

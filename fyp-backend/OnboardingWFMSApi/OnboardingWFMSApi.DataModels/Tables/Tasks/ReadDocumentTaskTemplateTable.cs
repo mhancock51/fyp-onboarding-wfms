@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.DataModels.Tables
+namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("readdocumenttasktemplate")]
     public class ReadDocumentTaskTemplateTable
     {
         [Key]
-        public string Id {  get; set; }
+        public string Id { get; set; }
         [ForeignKey(nameof(TaskTemplateTable.TaskTemplateId))]
         public string TaskTemplateId { get; set; }
         public string DocumentName { get; set; }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.DataModels.Tables
+namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("checklisttasktemplate")]
     public class ChecklistTaskTemplateTable
