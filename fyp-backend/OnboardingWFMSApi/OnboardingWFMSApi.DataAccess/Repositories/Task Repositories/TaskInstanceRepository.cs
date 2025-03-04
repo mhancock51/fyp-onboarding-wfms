@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public async Task<List<TaskInstanceTable>> GetUsersTaskInstances(string accountId)
         {
             return _dbContext.taskInstances.Where(i => i.AssigneeAccountId == accountId).ToList();
+        }
+
+        public override async Task<TaskInstanceTable> GetById(string id)
+        {
+            return await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.TaskInstanceId == id);            
         }
     }
 

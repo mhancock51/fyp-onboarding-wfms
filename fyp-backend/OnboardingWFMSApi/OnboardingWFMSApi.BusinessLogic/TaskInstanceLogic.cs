@@ -58,13 +58,15 @@ namespace OnboardingWFMSApi.BusinessLogic
             var taskInstance = await _taskInstanceRepository.AddAsync(instance);
 
             // load template
-            var taskTemplate = await _taskTemplateRepository.GetById(instance.TaskTemplateId);           
+            var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId); ;
+            var taskTemplate = response.Data;
             // create instance of task type data
             // i.e. checklist task -> create row in ChecklistTaskInstance repo
             switch(taskTemplate.TaskTypeId)
             {
                 case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
-                    await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = [], TaskInstanceId = taskInstance.TaskInstanceId });
+                    var checklistItems = (taskTemplate.TaskTypeData as ChecklistTaskTemplateTable).Items;
+                    await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.TaskInstanceId });
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
                     // TODO

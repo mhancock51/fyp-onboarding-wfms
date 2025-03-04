@@ -31,6 +31,8 @@ builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTempla
 
 builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 
+builder.Services.AddScoped<IChecklistTaskInstanceRepository, ChecklistTaskInstanceRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
