@@ -1,19 +1,31 @@
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
-import ListedTaskInstance from '@/models/ListedTaskInstance'
+import TaskInstance from '@/models/TaskInstance'
 import TaskTypeBadge from './TaskTypeBadge';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
+import { FileUploadTaskTemplate } from '@/models/FileUploadTaskTemplate';
+import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
+import { ChecklistTaskInstance } from '@/models/ChecklistTaskInstance';
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  task: ListedTaskInstance | null;
+  task: TaskInstance | null;
 }
 
 export default function TaskDrawer(props: Props) {
+  function areAllTasksComplete(taskStatuses: boolean[]) {
+    let allCompleted = true;
+    taskStatuses.forEach((status) => {
+      allCompleted = false;
+    })
+    return allCompleted
+  }
+
   return (
     <Drawer direction='right' onClose={() => {props.setOpen(false);}} open={props.open}>
       <DrawerContent className="max-w-[600px] w-full p-2"> {/* Override max width */}
@@ -21,52 +33,51 @@ export default function TaskDrawer(props: Props) {
           props.task !== null &&
           <>
           <DrawerHeader className='p-2'>
-            <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.taskName}</DrawerTitle>
+            <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
             <div className='flex flex-row justify-center' style={{gap: "2px"}}>
-              <TaskTypeBadge taskType={props.task.taskType}/>
+              <TaskTypeBadge taskType={props.task.template.taskTypeId}/>
               <Badge className='mx-2 py-2 px-4 rounded-full'>
-                {props.task.workflowName}
+                [WORKFLOW NAME]
               </Badge>
             </div>
             <Separator/>            
-            <DrawerDescription>{props.task.description}</DrawerDescription>
+            <DrawerDescription>{props.task.template.description}</DrawerDescription>
           </DrawerHeader>
           {
-            props.task.taskType.toLowerCase() === "checklist" &&
+            props.task.template.taskTypeId.toLowerCase() === "checklist" &&
             <div className='flex flex-col gap-2 p-2'>
-              <div className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
-                <Checkbox/>
-                <Label className='font-normal'>Task 1</Label>
-              </div>
-              <div className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
-                <Checkbox/>
-                <Label className='font-normal'>Task 2</Label>
-              </div>
-              <div className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
-                <Checkbox/>
-                <Label className='font-normal'>Task 3</Label>
-              </div>
+              {
+                (props.task.template.taskTypeData as ChecklistTaskTemplate).items.map((item, index) => (
+                  <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center'>
+                    <Checkbox checked={(props.task?.instanceData as ChecklistTaskInstance).itemCompletionStatuses[index]}/>
+                    <Label className='font-normal'>{item}</Label>                    
+                  </div>
+                ))
+              }
+              <Button disabled={!areAllTasksComplete((props.task?.instanceData as ChecklistTaskInstance).itemCompletionStatuses)}>
+                Complete Task
+              </Button>              
             </div>
           }
           {
-            props.task.taskType.toLowerCase() === "document upload" &&
+            props.task.template.taskTypeId.toLowerCase() === "upload-document" &&
             <div className='flex flex-col gap-2 p-2 item-center justify-center'>
               <div className='flex flex-col gap-2 item-center justify-center mx-auto'>
-                <Label>Supported document types: .pdf</Label>
+                <Label>Supported document types: {(props.task.template.taskTypeData as FileUploadTaskTemplate).supportedDocumentType}</Label>
               </div>
               <form className='mx-auto flex flex-col gap-2 w-100' onSubmit={(event: any) => {event.preventDefault(); alert("File uploaded!");}}>
-                <input type='file' className='bg-gray-100 p-2 rounded-full cursor-pointer' required accept='.pdf'/>
+                <input type='file' className='bg-gray-100 p-2 rounded-full cursor-pointer' required accept={(props.task.template.taskTypeData as FileUploadTaskTemplate).supportedDocumentType}/>
                 <Button type='submit'>Upload Document</Button>
               </form>
             </div>
           }
           {
-            props.task.taskType.toLowerCase() === "read document" &&
+            props.task.template.taskTypeId.toLowerCase() === "read-document" &&
             <div className='flex flex-col gap-2 p-2'>
-              <Button>Read Document</Button>
+              <Button onClick={() => {window.open((props.task?.template.taskTypeData as ReadDocumentTaskTemplate).documentUrl, '_blank')}}>Read Document</Button>
               <div className='flex flex-row gap-2 mx-auto'>
                 <Checkbox/>
-                <Label>I have read and agreed to terms</Label>
+                <Label>{(props.task.template.taskTypeData as ReadDocumentTaskTemplate).checkBoxLabel}</Label>
               </div>
             </div>
           }

@@ -68,6 +68,10 @@ const Api = {
         confirmationPassword: confirmationPassword
       }
     });
+  },
+  fetchAssignedTaskInstance: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/task/instances/get-assigned?accountId=477430cf-bb2b-4936-bf40-ee6779a95e25`);
+    
   }
 }
 

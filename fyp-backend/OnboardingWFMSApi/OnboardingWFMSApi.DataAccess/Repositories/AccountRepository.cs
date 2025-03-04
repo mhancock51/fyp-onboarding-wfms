@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.AccountId == id) != null ? true : false;
         }
 
-        public override async Task AddAsync(AccountTable entity)
+        public override async Task<AccountTable> AddAsync(AccountTable entity)
         {
             // ensure no duplicate email address
             if (await GetByEmailAddress(entity.EmailAddress) != null)
@@ -44,7 +44,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             }
             else
             {
-                await base.AddAsync(entity);
+                return await base.AddAsync(entity);
             }
         }
 

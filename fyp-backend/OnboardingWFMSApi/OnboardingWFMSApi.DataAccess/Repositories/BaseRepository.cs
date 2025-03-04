@@ -10,7 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IRepository<TEntity>
     {
-        public Task AddAsync(TEntity entity);
+        public Task<TEntity> AddAsync(TEntity entity);
         public Task DeleteAsync(TEntity entity);
         public Task UpdateAsync(TEntity entity);
         public Task<TEntity> GetById(string id);
@@ -27,7 +27,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             _dbContext = dbContext;    
         }
 
-        public virtual async Task AddAsync(TEntity entity)
+        public virtual async Task<TEntity> AddAsync(TEntity entity)
         {
             // assign guid
             Guid guid = Guid.NewGuid();
@@ -45,6 +45,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
             var result = await _dbContext.AddAsync(entity);
             await _dbContext.SaveChangesAsync();
+            return result.Entity;
         }
 
         public virtual async Task DeleteAsync(TEntity entity)

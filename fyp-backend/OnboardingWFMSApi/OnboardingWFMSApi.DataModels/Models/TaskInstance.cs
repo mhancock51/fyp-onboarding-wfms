@@ -1,0 +1,15 @@
+﻿using OnboardingWFMSApi.DataModels.Tables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OnboardingWFMSApi.DataModels.Models
+{
+    public class TaskInstance : TaskInstanceTable
+    {
+        public TaskTemplate template { get; set; }
+        public object InstanceData { get; set; }
+    }
+}
