@@ -1,4 +1,5 @@
 import { ChecklistTaskInstance } from "./ChecklistTaskInstance";
+import ReadDocumentTaskInstance from "./ReadDocumentTaskInstance";
 import TaskTemplate from "./TaskTemplate";
 
 export default interface TaskInstance {
@@ -9,5 +10,5 @@ export default interface TaskInstance {
     creationTimestamp: string;
     status: string;
     template: TaskTemplate;
-    instanceData: ChecklistTaskInstance | null;
+    instanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | null;
 }

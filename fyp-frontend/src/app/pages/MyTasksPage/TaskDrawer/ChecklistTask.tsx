@@ -70,6 +70,7 @@ export default function ChecklistTask(props: Props) {
   useEffect(() => {
     props.setCanCompleteTask(areAllTasksComplete(checklistState.itemCompletionStatuses));
     if (checklistState.id === "") return;
+    // exit if state is the same as when loaded
     if (checklistState.itemCompletionStatuses == props.checklistInstance.itemCompletionStatuses) return;
     void updateChecklistStatus(checklistState);
   }, [checklistState.itemCompletionStatuses]);

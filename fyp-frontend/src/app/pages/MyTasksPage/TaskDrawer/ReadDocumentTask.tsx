@@ -1,14 +1,17 @@
+import Api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import ReadDocumentTaskInstance from '@/models/ReadDocumentTaskInstance';
 import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Link } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner';
 
 interface Props {
   taskInstanceId: string;
-  readDocumentInstance: any;
+  readDocumentInstance: ReadDocumentTaskInstance;
   readDocumentTemplate: ReadDocumentTaskTemplate;
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,23 +19,67 @@ interface Props {
 }
 
 export default function ReadDocumentTask(props: Props) {
-  const [read, setRead] = useState<boolean>(false);
-  const [linkClicked, setLinkClicked] = useState<boolean>(false);
+  const DEFAULT_STATE: ReadDocumentTaskInstance = {
+    id: '',
+    taskInstanceId: '',
+    checkboxChecked: false,
+    linkClicked: false
+  }
+  const [readDocState, setReadDocState] = useState<ReadDocumentTaskInstance>(DEFAULT_STATE);  
 
-  useEffect(() => {
-    props.setCanCompleteTask(read);
-  }, [read]);
-
+  async function updateReadDocStatus(readDocState: ReadDocumentTaskInstance) {
+    await Api.updateReadDocTaskState(props.taskInstanceId, readDocState.checkboxChecked, readDocState.linkClicked)
+    .then((response) => {
+      toast("Successfully updated checklist task's state");
+      if (readDocState.linkClicked && readDocState.checkboxChecked) {
+        props.setCanCompleteTask(true);
+      }
+      else {
+        props.setCanCompleteTask(false);
+      }
+      void props.fetchTaskInstances();
+    })
+    .catch((error) => {
+      toast("Failed to update checklist task's state");
+    })
+  }
+  
+  function updateCheckboxState(value: boolean) {
+    setReadDocState((prevState) => ({
+      ...prevState, 
+      checkboxChecked: value
+    }));
+  }
+  
+  function updateLinkClickedStateOnClick() {
+    setReadDocState((prevState) => ({
+      ...prevState, 
+      linkClicked: true
+    }));
+  }
+  
   function redirectToDocumentLink() {
     window.open(props.readDocumentTemplate.documentUrl, '_blank');
-    setLinkClicked(true);
+    updateLinkClickedStateOnClick();
   }
 
+  useEffect(() => {
+    setReadDocState(props.readDocumentInstance);
+  }, [props.readDocumentInstance]);
+
+  useEffect(() => {
+    props.setCanCompleteTask(readDocState.linkClicked && readDocState.checkboxChecked);
+    if (readDocState.id === "") return;
+    // exit if state is the same as when loaded
+    if (readDocState.linkClicked === props.readDocumentInstance.linkClicked && readDocState.checkboxChecked === props.readDocumentInstance.linkClicked) return;
+    void updateReadDocStatus(readDocState);
+  }, [readDocState.linkClicked, readDocState.checkboxChecked]);
+  
   return (
     <div className='flex flex-col gap-2 p-2'>
       <Button onClick={redirectToDocumentLink}>Read Document <Link/></Button>
       <div className='flex flex-row gap-2 mx-auto'>
-        <Checkbox disabled={!linkClicked} checked={read} onCheckedChange={(checked: CheckedState) => { setRead(checked as boolean);}}/>
+        <Checkbox disabled={!readDocState.linkClicked} checked={readDocState.checkboxChecked} onCheckedChange={(checked: CheckedState) => { updateCheckboxState(checked as boolean);}}/>
         <Label>{props.readDocumentTemplate.checkBoxLabel}</Label>
       </div>  
     </div>  

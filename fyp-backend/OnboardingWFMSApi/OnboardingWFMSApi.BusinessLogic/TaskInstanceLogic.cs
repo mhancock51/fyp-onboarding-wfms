@@ -21,6 +21,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<TaskInstance, string>> GetTaskInstance(string tasksInstanceId);
 
         public Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId);
+
         public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
     }
     public class TaskInstanceLogic : ITaskInstanceLogic
@@ -134,10 +136,10 @@ namespace OnboardingWFMSApi.BusinessLogic
                     taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
+                    taskInstance.InstanceData = null;
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = null;
+                    taskInstance.InstanceData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
             }
             return new HTTPResponse<TaskInstance, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
@@ -162,6 +164,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
             }
 
+            // VALIDATE STATE
             // check that checklist status length is correct
             var taskItems = (taskInstance.template.TaskTypeData as ChecklistTaskTemplateTable).Items;
             if (payload.ItemCompletionStatuses.Length != taskItems.Length)
@@ -173,6 +176,36 @@ namespace OnboardingWFMSApi.BusinessLogic
             var checklistInstance = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
             checklistInstance.ItemCompletionStatuses = payload.ItemCompletionStatuses;
             await _checklistTaskInstanceRepository.UpdateAsync(checklistInstance);
+
+            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Message = "Successfully updated state" };
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId)
+        {
+            // check task is a checklist task
+            var response = await GetTaskInstance(payload.TaskInstanceId);
+            if (!response.Success || response.Data == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
+            }
+            var taskInstance = response.Data;
+            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a read document task" };
+            }
+            // check user is assigned to task instance
+            if (taskInstance.AssigneeAccountId != accountId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
+            }
+
+            // VALIDATE STATE
+
+            // update state
+            var readDocInstance = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
+            readDocInstance.LinkClicked = payload.LinkClicked;
+            readDocInstance.CheckboxChecked = payload.CheckboxChecked;
+            await _readDocumentTaskInstanceRepository.UpdateAsync(readDocInstance);
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Message = "Successfully updated state" };
         }

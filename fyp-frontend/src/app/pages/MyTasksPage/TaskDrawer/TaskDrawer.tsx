@@ -15,6 +15,7 @@ import { SetStateAction, useState } from 'react';
 import Api from '@/api';
 import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
+import ReadDocumentTaskInstance from '@/models/ReadDocumentTaskInstance';
 
 interface Props {
   open: boolean;
@@ -85,7 +86,7 @@ export default function TaskDrawer(props: Props) {
             props.task.template.taskTypeId.toLowerCase() === "read-document" &&
             <ReadDocumentTask 
               taskInstanceId={props.task.id} 
-              readDocumentInstance={props.task.instanceData} 
+              readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
               readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
               fetchTaskInstances={props.fetchTaskInstances} 
               setCanCompleteTask={setCanCompleteTask} 

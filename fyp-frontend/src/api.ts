@@ -78,6 +78,13 @@ const Api = {
       itemCompletionStatuses: itemStatuses
     })
   },
+  updateReadDocTaskState: async(taskInstanceId: string, checkboxChecked: boolean, linkClicked: boolean) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/read-doc`, {
+      taskInstanceId: taskInstanceId,
+      checkboxChecked: checkboxChecked,
+      linkClicked: linkClicked
+    });
+  },
   completeTask: async(taskInstanceId: string) => {
     return AuthInstance.post(`${ROUTE_URL}/task/instances/complete`, null, {
       params: {
