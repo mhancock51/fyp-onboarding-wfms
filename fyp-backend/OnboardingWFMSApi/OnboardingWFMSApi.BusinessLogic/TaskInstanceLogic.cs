@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -56,6 +57,21 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
         {
+            var serverErrorResponse = new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to create instance of task" };
+
+            if (string.IsNullOrEmpty(payload.AssignerAccountId))
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please choose an assigner" };
+            }
+            if (string.IsNullOrEmpty(payload.AssigneeAccountId))
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please choose an assignee" };
+            }
+            if (string.IsNullOrEmpty(payload.TaskTemplateId))
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please choose an assignee" };
+            }
+
             var instance = new TaskInstanceTable()
             {
                 AssigneeAccountId = payload.AssigneeAccountId,
@@ -64,32 +80,51 @@ namespace OnboardingWFMSApi.BusinessLogic
                 CreationTimestamp = DateTime.Now,
                 Status = OPEN_TASK_STATUS
             };
-            var taskInstance = await _taskInstanceRepository.AddAsync(instance);
-
-            // load template
-            var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId); ;
-            var taskTemplate = response.Data;
-            // create instance of task type data
-            // i.e. checklist task -> create row in ChecklistTaskInstance repo
-
-            // TODO implement logic to rollback if either task instance of task type data instance failed to be inserted
-            switch(taskTemplate.TaskTypeId)
+            TaskInstanceTable taskInstance = null;
+            TaskTemplate taskTemplate = null;
+            try
             {
-                case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
-                    var checklistItems = (taskTemplate.TaskTypeData as ChecklistTaskTemplateTable).Items;
-                    await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.Id });
-                    break;
-                case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                    await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstance.Id });
-                    break;                    
-                case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    // TODO
-                    break;
-                default:
-                    throw new Exception("Tasks template has an invalid task type");
-            }            
+                taskInstance = await _taskInstanceRepository.AddAsync(instance);
+                if (taskInstance == null)
+                {
+                    return serverErrorResponse;
+                }
+                // load template
+                var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId); ;
+                taskTemplate = response.Data;
+                // create instance of task type data
+                // i.e. checklist task -> create row in ChecklistTaskInstance repo
+            }
+            catch (Exception ex)
+            {
+                return serverErrorResponse;
+            }
 
-            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created task instance" };
+            try
+            {
+                switch(taskTemplate.TaskTypeId)
+                {
+                    case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
+                        var checklistItems = (taskTemplate.TaskTypeData as ChecklistTaskTemplateTable).Items;
+                        await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.Id });
+                        break;
+                    case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
+                        await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstance.Id });
+                        break;                    
+                    case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
+                        // TODO
+                        break;
+                    default:
+                        throw new Exception("Tasks template has an invalid task type");
+                }            
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created task instance" };
+            }
+            catch (Exception ex)
+            {
+                // rollback task instance creation
+                await _taskInstanceRepository.DeleteAsync(taskInstance);
+                return serverErrorResponse;
+            }
         }
 
         public async Task<HTTPResponse<List<TaskInstance>, string>> GetUsersAssignedTask(string accountId)
