@@ -12,6 +12,7 @@ import NoResults from '@/components/NoResults'
 import { useDispatch } from 'react-redux'
 import { SET_TASK_TYPES } from '@/features/appSlice'
 import TaskType from '@/models/tasks/taskType'
+import TaskStatusBadge from './TaskStatusBadge'
 
 export default function MyTasksPage() {
   const dispatcher = useDispatch(); 
@@ -107,9 +108,7 @@ export default function MyTasksPage() {
                       <TaskTypeBadge taskTypeId={task.template.taskTypeId}/>
                     </TableCell>
                     <TableCell width={"100px"}>
-                      <Badge className='mx-2 rounded-full text-white bg-blue-500 items-center p-2' style={{minWidth: "90px"}}>
-                        {task.status.toUpperCase()}
-                      </Badge>
+                      <TaskStatusBadge status={task.status}/>
                     </TableCell>
                     <TableCell width={"50px"}>
                       <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
