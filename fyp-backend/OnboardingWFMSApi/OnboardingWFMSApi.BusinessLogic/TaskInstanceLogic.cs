@@ -36,9 +36,11 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IAccountRepository _accountRepository;
 
         private readonly IChecklistTaskInstanceRepository _checklistTaskInstanceRepository;
+        private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
 
-        public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic, IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
-            IChecklistTaskInstanceRepository checklistTaskInstanceRepository
+        public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
+            IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
+            IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository
         )
         {
             _taskInstanceRepository = taskInstanceRepository;
@@ -47,6 +49,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _accountRepository = accountRepository;
             _checklistTaskInstanceRepository = checklistTaskInstanceRepository;
             _taskTemplateRepository = taskTemplateRepository;
+            _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -66,6 +69,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             var taskTemplate = response.Data;
             // create instance of task type data
             // i.e. checklist task -> create row in ChecklistTaskInstance repo
+
+            // TODO implement logic to rollback if either task instance of task type data instance failed to be inserted
             switch(taskTemplate.TaskTypeId)
             {
                 case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
@@ -73,8 +78,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                     await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.Id });
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                    // TODO
-                    break;
+                    await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstance.Id });
+                    break;                    
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
                     // TODO
                     break;
@@ -129,7 +134,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = null;
+                    taskInstance.InstanceData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
                     taskInstance.InstanceData = null;
@@ -198,7 +203,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     isComplete = IsChecklistTaskComplete(taskInstance);
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                    // TODO implement completeness check
+                    isComplete = IsReadDocumentTaskComplete(taskInstance);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
                     // TODO implement completeness check
@@ -221,6 +226,25 @@ namespace OnboardingWFMSApi.BusinessLogic
             // TODO implement logging of event for workflow
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
+        }
+
+        private bool IsReadDocumentTaskComplete(TaskInstance taskInstance)
+        {
+            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID)
+            {
+                throw new Exception("Task is not a read document task");
+            }
+
+            // ensure document has been opened and checkbox has been checked
+            var readDocInstanceData = (taskInstance.InstanceData as ReadDocumentTaskInstanceTable);
+            if (readDocInstanceData.CheckboxChecked && readDocInstanceData.LinkClicked)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private bool IsChecklistTaskComplete(TaskInstance taskInstance)
