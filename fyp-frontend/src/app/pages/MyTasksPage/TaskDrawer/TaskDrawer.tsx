@@ -16,6 +16,7 @@ import Api from '@/api';
 import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
 import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
+import TaskStatusBadge from '../TaskStatusBadge';
 
 interface Props {
   open: boolean;
@@ -55,6 +56,7 @@ export default function TaskDrawer(props: Props) {
               <Badge className='mx-2 py-2 px-4 rounded-full'>
                 [WORKFLOW NAME]
               </Badge>
+              <TaskStatusBadge status={props.task.status}/>
             </div>
             <Separator/>            
             <DrawerDescription>{props.task.template.description}</DrawerDescription>
