@@ -1,21 +1,21 @@
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
-import TaskInstance from '@/models/TaskInstance'
+import TaskInstance from '@/models/tasks/TaskInstance'
 import TaskTypeBadge from '../TaskTypeBadge';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { FileUploadTaskTemplate } from '@/models/FileUploadTaskTemplate';
-import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
+import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
+import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
 import ChecklistTask from './ChecklistTask';
-import { ChecklistTaskInstance } from '@/models/ChecklistTaskInstance';
-import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
+import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import { SetStateAction, useState } from 'react';
 import Api from '@/api';
 import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
-import ReadDocumentTaskInstance from '@/models/ReadDocumentTaskInstance';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 
 interface Props {
   open: boolean;

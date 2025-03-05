@@ -2,8 +2,8 @@ import Api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import ReadDocumentTaskInstance from '@/models/ReadDocumentTaskInstance';
-import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
+import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Link } from 'lucide-react';
 import React, { useEffect, useState } from 'react'

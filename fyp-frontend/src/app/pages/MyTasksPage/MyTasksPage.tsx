@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
-import TaskInstance from '@/models/TaskInstance'
+import TaskInstance from '@/models/tasks/TaskInstance'
 import React, { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
