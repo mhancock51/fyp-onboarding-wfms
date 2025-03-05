@@ -13,8 +13,6 @@ import { RootState } from './store';
 import { useEffect, useState } from 'react';
 import Api from './api';
 import Utils from './util';
-import AuthenticatedUser from './models/AuthenticatedUser';
-import { SET_USER } from './features/appSlice';
 import { Button } from './components/ui/button';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
@@ -22,15 +20,15 @@ import { Spinner } from './components/ui/spinner';
 
 function App() {  
 
-  const user = useSelector((state: RootState) => state.app.user);    
+  const user = useSelector((state: RootState) => state.app.user);     
 
   const [loading, setLoading] = useState<boolean>(false);
 
   /** Test validity of token by sending it to the API server and checking the response */
-  function testValidityOfToken() {
+  async function testValidityOfToken() {
     setLoading(true);
-    Api.testTokenValidity()
-    .then((response) => {
+    await Api.testTokenValidity()
+    .then(async(response) => {      
       setLoading(false);
       console.log("Token checked, still valid!");      
     })
@@ -40,12 +38,12 @@ function App() {
       await Utils.relogin();
       setLoading(false);
     })
-  }
+  }  
 
   useEffect(() => {
     if (!Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
       void testValidityOfToken();
-    }    
+    }        
   }, []);
 
   return (

@@ -1,4 +1,5 @@
 import AuthenticatedUser from "@/models/AuthenticatedUser";
+import TaskType from "@/models/tasks/taskType";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const USER_DATA_STORAGE_KEY = "USER_DATA";
@@ -7,12 +8,14 @@ export interface AppState {
     user: AuthenticatedUser | null;
     openInviteDialog: boolean;
     openCreateDepartmentDialog: boolean;
+    taskTypes: TaskType[];
 }
 
 const initialState: AppState = {
     user: loadUserFromLocalStorage(),
     openInviteDialog: false,
-    openCreateDepartmentDialog: false
+    openCreateDepartmentDialog: false,
+    taskTypes: []
 }
 
 export const appSlice = createSlice({
@@ -28,12 +31,15 @@ export const appSlice = createSlice({
         },
         SET_OPEN_CREATE_DPT_DIALOG: (state, action: PayloadAction<boolean>) => {
             state.openCreateDepartmentDialog = action.payload;
+        },
+        SET_TASK_TYPES: (state, action: PayloadAction<TaskType[]>) => {
+            state.taskTypes = action.payload;
         }
     }
 });
 
 export const {
-    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG
+    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES
 } = appSlice.actions;
 
 export default appSlice.reducer;

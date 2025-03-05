@@ -91,6 +91,9 @@ const Api = {
         taskInstanceId : taskInstanceId
       }
     });
+  },
+  fetchTaskTypes: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
   }
 }
 

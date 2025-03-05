@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels.Payloads;
 
@@ -33,6 +34,14 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         public async Task<IActionResult> GetTaskTemplate(string id)
         {
             var response = await _taskTemplateLogic.GetTaskTemplateById(id);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize]
+        [HttpGet("task-types")]
+        public async Task<IActionResult> GetAllTaskTypes()
+        {
+            var response = await _taskTemplateLogic.GetAllTaskTypes();
             return StatusCode(response.HttpCode, response);
         }
     }

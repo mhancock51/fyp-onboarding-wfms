@@ -16,6 +16,7 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<DepartmentTable> Departments { get; set; }
         public DbSet<OrganisationAdminLinkTable> OrganisationAdmins { get; set; }
         // Everything task related:
+        public DbSet<TaskTypeTable> taskTypes{ get; set; }
         public DbSet<TaskTemplateTable> taskTemplates { get; set; }
         public DbSet<FileUploadTaskTemplateTable> fileUploadTaskTemplates { get; set; }
         public DbSet<ReadDocumentTaskTemplateTable> readDocumentTaskTemplates { get; set; }

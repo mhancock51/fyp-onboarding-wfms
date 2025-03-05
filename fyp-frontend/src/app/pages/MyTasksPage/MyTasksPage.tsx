@@ -9,8 +9,12 @@ import Api from '@/api'
 import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
 import NoResults from '@/components/NoResults'
+import { useDispatch } from 'react-redux'
+import { SET_TASK_TYPES } from '@/features/appSlice'
+import TaskType from '@/models/tasks/taskType'
 
 export default function MyTasksPage() {
+  const dispatcher = useDispatch(); 
 
   const [tasks, setTasks] = useState<TaskInstance[]>([]);
   const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
@@ -31,6 +35,23 @@ export default function MyTasksPage() {
     })
   }
 
+  // fetch task types
+  async function fetchTaskTypes() {
+    setLoading(true);
+    await Api.fetchTaskTypes()
+    .then((response) => {      
+      toast("Successfully loaded task types");
+      const taskTypes = response.data.data as TaskType[];
+      dispatcher(SET_TASK_TYPES(taskTypes));
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("ERRROR:", error);
+      toast.error("Failed to load task types");
+      setLoading(false);    
+    })
+  }
+
   function dueInColor(dueIn: number) {
     if (dueIn < 3) {
       return "bg-red-600";
@@ -44,6 +65,7 @@ export default function MyTasksPage() {
   }  
 
   useEffect(() => {
+    void fetchTaskTypes();
     void fetchTaskInstances();
   }, []);
 
@@ -82,7 +104,7 @@ export default function MyTasksPage() {
                       {task.template.name}
                     </TableCell>
                     <TableCell width={"175px"}>                    
-                      <TaskTypeBadge taskType={task.template.taskTypeId}/>
+                      <TaskTypeBadge taskTypeId={task.template.taskTypeId}/>
                     </TableCell>
                     <TableCell width={"100px"}>
                       <Badge className='mx-2 rounded-full text-white bg-blue-500 items-center p-2' style={{minWidth: "90px"}}>

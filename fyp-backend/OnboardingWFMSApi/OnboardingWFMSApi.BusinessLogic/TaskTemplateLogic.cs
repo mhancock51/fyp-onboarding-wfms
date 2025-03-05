@@ -19,6 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates();
         public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload);
         public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
+        public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
     }
 
     public class TaskTemplateLogic : ITaskTemplateLogic
@@ -33,18 +34,20 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
+        private readonly ITaskTypeRepository _taskTypeRepository;
+
         private readonly IMapper _mapper;
 
         public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
-            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository, 
-            IChecklistTaskTemplateRepository checklistTaskTemplateRepository
-        )
+            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository,
+            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ITaskTypeRepository taskTypeRepository)
         {
             _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
             _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
             _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
             _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
+            _taskTypeRepository = taskTypeRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload)
@@ -118,6 +121,12 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }            
             return new HTTPResponse<List<TaskTemplate>, string>() { Success = true, HttpCode = 200, Data = taskTemplates };
+        }
+
+        public async Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes()
+        {            
+            var taskTypes = _mapper.Map<List<TaskType>>(await _taskTypeRepository.GetAll());
+            return new HTTPResponse<List<TaskType>, string>() { Success = true, Data = taskTypes, HttpCode = 200 };            
         }
 
         public async Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id)
