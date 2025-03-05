@@ -158,6 +158,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a checklist task" };
             }
+            // ensure task is open
+            if (taskInstance.Status != OPEN_TASK_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
+            }
+
             // check user is assigned to task instance
             if (taskInstance.AssigneeAccountId != accountId)
             {
@@ -193,6 +199,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a read document task" };
             }
+            // ensure task is open
+            if (taskInstance.Status != OPEN_TASK_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
+            }
             // check user is assigned to task instance
             if (taskInstance.AssigneeAccountId != accountId)
             {
@@ -219,9 +230,9 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
             }
             var taskInstance = response.Data;
-            if (taskInstance.Status == COMPLETED_TASK_STATUS)
+            if (taskInstance.Status != OPEN_TASK_STATUS)
             {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is already completed" };
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task isn't open" };
             }            
             // check account is assigned to task instance
             if (taskInstance.AssigneeAccountId != accountId)
