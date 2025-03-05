@@ -11,9 +11,10 @@ import { ReadDocumentTaskTemplate } from '@/models/ReadDocumentTaskTemplate';
 import ChecklistTask from './ChecklistTask';
 import { ChecklistTaskInstance } from '@/models/ChecklistTaskInstance';
 import { ChecklistTaskTemplate } from '@/models/ChecklistTaskTemplate';
-import { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import Api from '@/api';
 import { toast } from 'sonner';
+import ReadDocumentTask from './ReadDocumentTask';
 
 interface Props {
   open: boolean;
@@ -82,13 +83,13 @@ export default function TaskDrawer(props: Props) {
           }
           {
             props.task.template.taskTypeId.toLowerCase() === "read-document" &&
-            <div className='flex flex-col gap-2 p-2'>
-              <Button onClick={() => {window.open((props.task?.template.taskTypeData as ReadDocumentTaskTemplate).documentUrl, '_blank')}}>Read Document</Button>
-              <div className='flex flex-row gap-2 mx-auto'>
-                <Checkbox/>
-                <Label>{(props.task.template.taskTypeData as ReadDocumentTaskTemplate).checkBoxLabel}</Label>
-              </div>
-            </div>
+            <ReadDocumentTask 
+              taskInstanceId={props.task.id} 
+              readDocumentInstance={props.task.instanceData} 
+              readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
           }
           </>
         }
