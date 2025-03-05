@@ -70,8 +70,30 @@ const Api = {
     });
   },
   fetchAssignedTaskInstance: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/task/instances/get-assigned?accountId=477430cf-bb2b-4936-bf40-ee6779a95e25`);
-    
+    return AuthInstance.get(`${ROUTE_URL}/task/instances/get-assigned?accountId=477430cf-bb2b-4936-bf40-ee6779a95e25`); 
+  },
+  updateChecklistTaskState: async(taskInstanceId: string, itemStatuses: boolean[]) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/checklist`, {
+      taskInstanceId: taskInstanceId,
+      itemCompletionStatuses: itemStatuses
+    })
+  },
+  updateReadDocTaskState: async(taskInstanceId: string, checkboxChecked: boolean, linkClicked: boolean) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/read-doc`, {
+      taskInstanceId: taskInstanceId,
+      checkboxChecked: checkboxChecked,
+      linkClicked: linkClicked
+    });
+  },
+  completeTask: async(taskInstanceId: string) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/complete`, null, {
+      params: {
+        taskInstanceId : taskInstanceId
+      }
+    });
+  },
+  fetchTaskTypes: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
   }
 }
 

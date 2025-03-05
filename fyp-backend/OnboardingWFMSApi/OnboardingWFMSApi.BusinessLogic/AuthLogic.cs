@@ -132,7 +132,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, account.AccountId),
+                new Claim(ClaimTypes.NameIdentifier, account.Id),
             };
 
             var token = new JwtSecurityToken(

@@ -79,6 +79,15 @@ CREATE TABLE checklisttaskinstance (
     ItemCompletionStatuses JSON
 );
 
+CREATE TABLE readdocumenttaskinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    CheckboxChecked BOOLEAN,
+    LinkClicked BOOLEAN
+);
+
+
+
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('onboarder','Onboarder');
@@ -136,3 +145,7 @@ ALTER TABLE taskinstance
 ALTER TABLE checklisttaskinstance
     ADD CONSTRAINT fk_checklist_instance_task_instance_id
     FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
+
+ALTER TABLE readdocumenttaskinstance
+    ADD CONSTRAINT fk_readdoc_instance_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);    

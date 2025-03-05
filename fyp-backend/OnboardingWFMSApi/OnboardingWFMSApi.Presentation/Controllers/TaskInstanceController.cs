@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System.Security.Claims;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
@@ -27,21 +28,69 @@ namespace OnboardingWFMSApi.Presentation.Controllers
 
         [Authorize]
         [HttpGet("get-assigned")]
-        public async Task<IActionResult> GetAssigned(string accountId)
+        public async Task<IActionResult> GetAssigned()
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-            var userIdClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
             {
                 var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
                 return StatusCode(response.HttpCode, response);
             }
             else
             {
-                var response = await _taskInstanceLogic.GetUsersAssignedTask(userIdClaim.Value);
+                var response = await _taskInstanceLogic.GetUsersAssignedTask(accountId);
                 return StatusCode(response.HttpCode, response);
             }
+        }
 
+        [Authorize]
+        [HttpPost("update-task-state/checklist")]
+        public async Task<IActionResult> UpdateChecklistInstanceState([FromBody] UpdateInstanceStateChecklistPayload payload)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _taskInstanceLogic.UpdateChecklistInstanceState(payload, accountId);
+                return StatusCode(response.HttpCode, response);
+            }            
+        }
+
+        [Authorize]
+        [HttpPost("update-task-state/read-doc")]
+        public async Task<IActionResult> UpdateReadDocInstanceState([FromBody] UpdateInstanceStateReadDocPayload payload)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _taskInstanceLogic.UpdateReadDocumentInstanceState(payload, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
+
+        [HttpPost("complete")]
+        public async Task<IActionResult> CompleteInstance(string taskInstanceId)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _taskInstanceLogic.CompleteTaskInstance(taskInstanceId, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
         }
     }
 }

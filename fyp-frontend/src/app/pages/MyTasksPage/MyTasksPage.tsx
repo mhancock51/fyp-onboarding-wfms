@@ -1,17 +1,20 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
-import TaskInstance from '@/models/TaskInstance'
-import { FileUp, ListTodo, StickyNote } from 'lucide-react'
+import TaskInstance from '@/models/tasks/TaskInstance'
 import React, { useEffect, useState } from 'react'
-import TaskDrawer from './TaskDrawer'
+import TaskDrawer from './TaskDrawer/TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
 import Api from '@/api'
 import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
 import NoResults from '@/components/NoResults'
+import { useDispatch } from 'react-redux'
+import { SET_TASK_TYPES } from '@/features/appSlice'
+import TaskType from '@/models/tasks/taskType'
 
 export default function MyTasksPage() {
+  const dispatcher = useDispatch(); 
 
   const [tasks, setTasks] = useState<TaskInstance[]>([]);
   const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
@@ -22,12 +25,30 @@ export default function MyTasksPage() {
     setLoading(true);
     Api.fetchAssignedTaskInstance()
     .then((response) => {
+      console.log(response);
       setLoading(false);
       setTasks(response.data.data as TaskInstance[]);
     })
     .catch((error) => {
       setLoading(false);
       toast.error("Failed to load assigned taks");      
+    })
+  }
+
+  // fetch task types
+  async function fetchTaskTypes() {
+    setLoading(true);
+    await Api.fetchTaskTypes()
+    .then((response) => {      
+      toast("Successfully loaded task types");
+      const taskTypes = response.data.data as TaskType[];
+      dispatcher(SET_TASK_TYPES(taskTypes));
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("ERRROR:", error);
+      toast.error("Failed to load task types");
+      setLoading(false);    
     })
   }
 
@@ -44,6 +65,7 @@ export default function MyTasksPage() {
   }  
 
   useEffect(() => {
+    void fetchTaskTypes();
     void fetchTaskInstances();
   }, []);
 
@@ -82,7 +104,7 @@ export default function MyTasksPage() {
                       {task.template.name}
                     </TableCell>
                     <TableCell width={"175px"}>                    
-                      <TaskTypeBadge taskType={task.template.taskTypeId}/>
+                      <TaskTypeBadge taskTypeId={task.template.taskTypeId}/>
                     </TableCell>
                     <TableCell width={"100px"}>
                       <Badge className='mx-2 rounded-full text-white bg-blue-500 items-center p-2' style={{minWidth: "90px"}}>
@@ -109,7 +131,10 @@ export default function MyTasksPage() {
           </Table>
         }
       </div>
-      <TaskDrawer open={open} setOpen={setOpen} task={currentTask}/>
+      {
+        currentTask !== null &&
+        <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
+      }
     </div>
   )
 }

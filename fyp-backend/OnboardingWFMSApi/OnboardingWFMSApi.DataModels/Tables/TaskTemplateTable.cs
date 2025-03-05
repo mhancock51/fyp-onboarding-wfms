@@ -9,16 +9,17 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("tasktemplate")]
-    public class TaskTemplateTable
+    public class TaskTemplateTable : ITableEntity
     {
         [Key]
-        public string TaskTemplateId { get; set; }
+        [Column("TaskTemplateId")]
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        [ForeignKey(nameof(AccountTable.AccountId))]
+        [ForeignKey(nameof(AccountTable.Id))]
         public string CreatorAccountId { get; set; }
         public DateTime DateCreated { get; set; }
-        [ForeignKey(nameof(TaskTypeTable.TaskTypeId))]
+        [ForeignKey(nameof(TaskTypeTable.Id))]
         public string TaskTypeId { get; set; }
     }
 }

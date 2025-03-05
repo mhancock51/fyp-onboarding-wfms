@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("checklisttasktemplate")]
-    public class ChecklistTaskTemplateTable
+    public class ChecklistTaskTemplateTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
-        [ForeignKey(nameof(TaskTemplateTable.TaskTemplateId))]
+        [ForeignKey(nameof(TaskTemplateTable.Id))]
         public string TaskTemplateId { get; set; }
         public string[] Items { get; set; }
     }

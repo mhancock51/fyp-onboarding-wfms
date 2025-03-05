@@ -44,7 +44,7 @@ export default function DepartmentLookup(props: Props) {
               <SelectLabel>Departments</SelectLabel>
               {
                 departments.map((department, index) => (
-                  <SelectItem key={index} value={department.departmentId}>{department.displayName}</SelectItem>
+                  <SelectItem key={index} value={department.id}>{department.displayName}</SelectItem>
                 ))
               }          
             </SelectGroup>

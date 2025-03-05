@@ -3,7 +3,7 @@ import { FileUploadTaskTemplate } from "./FileUploadTaskTemplate";
 import { ReadDocumentTaskTemplate } from "./ReadDocumentTaskTemplate";
 
 export default interface TaskTemplate {
-    taskTemplateId: string;
+    id: string;
     name: string;
     description: string;
     creatorAccountId: string;

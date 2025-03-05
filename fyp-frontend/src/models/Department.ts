@@ -1,4 +1,4 @@
 export default interface Department {
-    departmentId: string;
+    id: string;
     displayName: string;
 }

@@ -19,6 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates();
         public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload);
         public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
+        public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
     }
 
     public class TaskTemplateLogic : ITaskTemplateLogic
@@ -33,18 +34,20 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
+        private readonly ITaskTypeRepository _taskTypeRepository;
+
         private readonly IMapper _mapper;
 
         public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
-            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository, 
-            IChecklistTaskTemplateRepository checklistTaskTemplateRepository
-        )
+            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository,
+            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ITaskTypeRepository taskTypeRepository)
         {
             _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
             _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
             _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
             _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
+            _taskTypeRepository = taskTypeRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload)
@@ -62,7 +65,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 case UPLOAD_DOCUMENT_TASK_TYPE_ID:
                     var uploadDocumentData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    uploadDocumentData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    uploadDocumentData.TaskTemplateId = taskTemplate.Id;
                     if (uploadDocumentData == null)
                     {
                         return invalidTaskDataResponse;
@@ -75,7 +78,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     break;
                 case READ_DOCUMENT_TASK_TYPE_ID:
                     var readDocumentData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    readDocumentData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    readDocumentData.TaskTemplateId = taskTemplate.Id;
                     if (readDocumentData == null)
                     {
                         return invalidTaskDataResponse;
@@ -88,7 +91,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     break;
                 case CHECKLIST_TASK_TYPE_ID:
                     var checklistData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    checklistData.TaskTemplateId = taskTemplate.TaskTemplateId;
+                    checklistData.TaskTemplateId = taskTemplate.Id;
                     if (checklistData == null)
                     {
                         return invalidTaskDataResponse;
@@ -111,13 +114,19 @@ namespace OnboardingWFMSApi.BusinessLogic
             List<TaskTemplate> taskTemplates = _mapper.Map<List<TaskTemplate>>(await _taskTemplateRepository.GetAll());
             for (int i = 0; i < taskTemplates.Count; i++)
             {
-                var response = await GetTaskTemplateById(taskTemplates[i].TaskTemplateId);
+                var response = await GetTaskTemplateById(taskTemplates[i].Id);
                 if (response.Success)
                 {
                     taskTemplates[i] = response.Data;
                 }
             }            
             return new HTTPResponse<List<TaskTemplate>, string>() { Success = true, HttpCode = 200, Data = taskTemplates };
+        }
+
+        public async Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes()
+        {            
+            var taskTypes = _mapper.Map<List<TaskType>>(await _taskTypeRepository.GetAll());
+            return new HTTPResponse<List<TaskType>, string>() { Success = true, Data = taskTypes, HttpCode = 200 };            
         }
 
         public async Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id)
@@ -133,13 +142,13 @@ namespace OnboardingWFMSApi.BusinessLogic
                 switch(taskTemplate.TaskTypeId)
                 {
                     case UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        taskTemplate.TaskTypeData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
                         break;
                     case READ_DOCUMENT_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
                         break;
                     case CHECKLIST_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.TaskTemplateId);
+                        taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
                         break;
                     default:
                         throw new InvalidOperationException("Invalid task type associated with task template");

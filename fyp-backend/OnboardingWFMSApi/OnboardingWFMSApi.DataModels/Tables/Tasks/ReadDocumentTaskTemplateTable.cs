@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("readdocumenttasktemplate")]
-    public class ReadDocumentTaskTemplateTable
+    public class ReadDocumentTaskTemplateTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
-        [ForeignKey(nameof(TaskTemplateTable.TaskTemplateId))]
+        [ForeignKey(nameof(TaskTemplateTable.Id))]
         public string TaskTemplateId { get; set; }
         public string DocumentName { get; set; }
         public string DocumentUrl { get; set; }
