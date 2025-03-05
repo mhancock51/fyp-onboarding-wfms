@@ -22,6 +22,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         {
             return await _dbContext.checklistTaskInstances.FirstOrDefaultAsync(i => i.TaskInstanceId == taskInstanceId);
         }
+
+        public override async Task<ChecklistTaskInstanceTable> AddAsync(ChecklistTaskInstanceTable entity)
+        {
+            // DELETE ME
+            throw new Exception("TEEST");
+        }
     }
 
 }
