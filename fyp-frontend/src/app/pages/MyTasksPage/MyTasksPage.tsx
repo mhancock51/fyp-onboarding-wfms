@@ -58,7 +58,7 @@ export default function MyTasksPage() {
         <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
         <Separator/>
         {
-          loading &&
+          loading && tasks.length === 0 &&
           <div className='flex flex-row justify-center p-4 gap-2'>
             <Spinner/>
             <h1>Loading tasks...</h1>
