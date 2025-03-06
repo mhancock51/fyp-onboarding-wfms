@@ -1,0 +1,222 @@
+import Api from '@/api';
+import TaskTypeLookup from '@/components/TaskTypeLookup';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import TaskType from '@/models/tasks/taskType';
+import { DialogDescription } from '@radix-ui/react-dialog';
+import { Trash2 } from 'lucide-react';
+import React, { useState } from 'react'
+import { toast } from 'sonner';
+
+interface Props {
+  open: boolean;
+  setOpenDialog: (open: boolean) => void;
+}
+
+export default function CreateTaskTemplateDialog(props: Props) {
+  const [step, setStep] = useState<number>(0);
+  const [taskType, setTaskType] = useState<TaskType | null>(null);
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  const [taskTypeData, setTaskTypeData] = useState<any | null>(null);
+  
+  const [loading, setLoading] = useState<boolean>(false);
+
+
+  function closeAndClear() {
+    setName("");
+    setDescription("");
+    setTaskType(null);
+    setTaskTypeData(null);
+    setStep(0);
+    props.setOpenDialog(false);
+  }
+
+  function updateTaskTypeData(data: any) {
+    setTaskTypeData(data);
+    setStep(2);
+  }
+
+  async function createTaskTemplate() {
+    setLoading(true);
+    await Api.createTaskTemplate(name, description, taskType?.id ?? "", taskTypeData)
+    .then((response) => {
+      setLoading(false);
+      toast("Successfully created task");
+      closeAndClear();
+    })
+    .catch((error) => {
+      console.error(error);
+      setLoading(false);
+      const errorMessage = error.response.data.error;
+      if (errorMessage === undefined) {
+        toast.error(`Failed to create task template`);
+      }
+      else {
+        toast.error(`Failed to create task template: ${errorMessage}`);
+      }    
+    })
+  }
+
+  return (
+    <Dialog open={props.open} onOpenChange={closeAndClear}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Create a Task Template</DialogTitle> 
+          {
+            step === 2 &&
+            <DialogDescription>Confirm task details</DialogDescription>
+          }         
+        </DialogHeader>
+        {
+          step === 0 &&
+          <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); setStep(1);}}>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Name</Label>
+              <Input required className="col-span-3" value={name} onChange={(event: any) => { setName(event.target.value);}} />
+            </div>   
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Description</Label>
+              <Textarea required className="col-span-3" value={description} onChange={(event: any) => { setDescription(event.target.value);}} />
+            </div>  
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Task Type</Label>
+              <TaskTypeLookup setTaskType={setTaskType}/>
+            </div>       
+            <DialogFooter>
+              <Button type="submit">Next</Button>
+            </DialogFooter>
+          </form>
+        }
+        {
+          step === 1 && taskType?.id === "checklist" &&
+          <ChecklistTemplateCreationForm updateTaskTypeData={updateTaskTypeData}/>
+        }
+        {
+          step === 1 && taskType?.id === "read-document" &&
+          <ReadDocumentTemplateCreationForm updateTaskTypeData={updateTaskTypeData}/>
+        }
+        {
+          step === 2 &&
+          <form className="grid gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); void createTaskTemplate();}}>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Name</Label>
+              <Label  className="col-span-3">{name}</Label>
+            </div>   
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Description</Label>
+              <Label className="col-span-3">{description}</Label>
+            </div>  
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Task Type</Label>
+              <Label className="col-span-3">{taskType?.taskName}</Label>
+            </div>  
+            <DialogFooter>
+              <Button type="submit">Create Task Template</Button>
+            </DialogFooter>
+          </form>
+        }
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void;}) {
+  const [items, setItems] = useState<string[]>([""]);
+
+  function submitChecklist() {
+    if (items.length === 0) {
+      toast("Please add a checklist item");
+      return;
+    }
+    var data = {
+      Items: items,
+      Id: "abc",
+      TaskTemplateId: "abc"
+    }
+    props.updateTaskTypeData(data);
+  }
+
+  function addEmptyItem() {
+    setItems((prevState) => ([
+      ...items, ""
+    ]));
+  }
+
+  function deleteItem(index: number) {
+    setItems((prevState) => (prevState.filter((_, i) => (i !== index))))
+  }
+
+  function updateItem(item: string, index: number) {
+    var updatedItems = [...items];
+    updatedItems[index] = item;
+    setItems(updatedItems);
+  }
+
+  return (
+    <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitChecklist();}}>
+      <div className='max-h-150 overflow-y-auto grid grid-col gap-4'>
+        {
+          items.map((item, index) => (
+            <div className='flex flex-row justify-between items-center'>
+              <Input required placeholder='Enter description of task...' className="col-span-3" value={item} onChange={(event: any) => {updateItem(event.target.value, index);}}/>
+              <Button className='my-1 mx-2' onClick={() => {deleteItem(index);}} variant={"destructive"}><Trash2/></Button>
+            </div>
+          ))
+        }
+      </div>
+      <div className="grid grid-row items-center gap-4">
+        <Button onClick={addEmptyItem}>Add Item</Button>
+      </div>
+      <DialogFooter>
+        <Button type="submit">Next</Button>
+      </DialogFooter>
+    </form>
+  )
+}
+
+function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void;}) {
+  const [documentLink, setDocumentLink] = useState<string>("");
+  const [documentName, setDocumentName] = useState<string>("");
+  const [checkboxLabel, setCheckboxLabel] =  useState<string>("");;
+
+  function submitReadDocTask() {
+    if (documentLink === "") return;
+    if (checkboxLabel === "") return;
+
+    const data = {
+      Id: "abc",
+      TaskTemplateId: "abc",
+      DocumentName: documentName,
+      DocumentUrl: documentLink,
+      CheckBoxLabel: checkboxLabel
+    }
+    props.updateTaskTypeData(data);
+  }
+
+  return (
+    <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitReadDocTask();}}>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Document Link</Label>
+        <Input required className="col-span-3" value={documentLink} onChange={(event: any) => {setDocumentLink(event.target.value);}}/>
+      </div>  
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Document Name</Label>
+        <Input required className="col-span-3" value={documentName} onChange={(event: any) => {setDocumentName(event.target.value);}}/>
+      </div>  
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Checkbox Label</Label>
+        <Input required className="col-span-3" placeholder='e.g. I have read coding guidelines...'
+          value={checkboxLabel} onChange={(event: any) => {setCheckboxLabel(event.target.value);}}
+        />
+      </div> 
+      <DialogFooter>
+        <Button type="submit">Next</Button>
+      </DialogFooter> 
+    </form>
+  )
+}

@@ -36,23 +36,6 @@ export default function MyTasksPage() {
     })
   }
 
-  // fetch task types
-  async function fetchTaskTypes() {
-    setLoading(true);
-    await Api.fetchTaskTypes()
-    .then((response) => {      
-      toast("Successfully loaded task types");
-      const taskTypes = response.data.data as TaskType[];
-      dispatcher(SET_TASK_TYPES(taskTypes));
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error("ERRROR:", error);
-      toast.error("Failed to load task types");
-      setLoading(false);    
-    })
-  }
-
   function dueInColor(dueIn: number) {
     if (dueIn < 3) {
       return "bg-red-600";
@@ -66,7 +49,6 @@ export default function MyTasksPage() {
   }  
 
   useEffect(() => {
-    void fetchTaskTypes();
     void fetchTaskInstances();
   }, []);
 
@@ -76,7 +58,7 @@ export default function MyTasksPage() {
         <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
         <Separator/>
         {
-          loading &&
+          loading && tasks.length === 0 &&
           <div className='flex flex-row justify-center p-4 gap-2'>
             <Spinner/>
             <h1>Loading tasks...</h1>

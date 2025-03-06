@@ -8,6 +8,7 @@ export interface AppState {
     user: AuthenticatedUser | null;
     openInviteDialog: boolean;
     openCreateDepartmentDialog: boolean;
+    openCreateTaskTemplateDialog: boolean;
     taskTypes: TaskType[];
 }
 
@@ -15,6 +16,7 @@ const initialState: AppState = {
     user: loadUserFromLocalStorage(),
     openInviteDialog: false,
     openCreateDepartmentDialog: false,
+    openCreateTaskTemplateDialog: false,
     taskTypes: []
 }
 
@@ -32,6 +34,9 @@ export const appSlice = createSlice({
         SET_OPEN_CREATE_DPT_DIALOG: (state, action: PayloadAction<boolean>) => {
             state.openCreateDepartmentDialog = action.payload;
         },
+        SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG: (state, action: PayloadAction<boolean>) => {
+            state.openCreateTaskTemplateDialog = action.payload;
+        }, 
         SET_TASK_TYPES: (state, action: PayloadAction<TaskType[]>) => {
             state.taskTypes = action.payload;
         }
@@ -39,7 +44,7 @@ export const appSlice = createSlice({
 });
 
 export const {
-    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES
+    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG
 } = appSlice.actions;
 
 export default appSlice.reducer;

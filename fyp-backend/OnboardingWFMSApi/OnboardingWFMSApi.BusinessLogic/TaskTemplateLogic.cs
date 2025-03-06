@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     public interface ITaskTemplateLogic
     {
         public Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates();
-        public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload);
+        public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId);
         public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
         public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
     }
@@ -50,11 +50,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             _taskTypeRepository = taskTypeRepository;
         }
 
-        public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload)
+        public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId)
         {
             // check task type is valid            
 
-            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { CreatorAccountId = payload.CreatorAccountId, Name = payload.Name, Description = payload.Description, DateCreated = DateTime.Now, TaskTypeId = payload.TaskTypeId });
+            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { CreatorAccountId = accountId, Name = payload.Name, Description = payload.Description, DateCreated = DateTime.Now, TaskTypeId = payload.TaskTypeId });
 
             // make sure task type data can be cast to its type
 

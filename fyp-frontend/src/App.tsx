@@ -9,7 +9,7 @@ import '@xyflow/react/dist/style.css';
 import LoginPage from './app/pages/LoginPage/LoginPage';
 import { toast, Toaster } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './store';
+import { RootState, store } from './store';
 import { useEffect, useState } from 'react';
 import Api from './api';
 import Utils from './util';
@@ -17,12 +17,18 @@ import { Button } from './components/ui/button';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
 import { Spinner } from './components/ui/spinner';
+import { SET_TASK_TYPES } from './features/appSlice';
+import TaskType from './models/tasks/taskType';
 
 function App() {  
 
-  const user = useSelector((state: RootState) => state.app.user);     
+  const user = useSelector((state: RootState) => state.app.user);  
+  const taskTypes = useSelector((state: RootState) => state.app.taskTypes);
+  
+  const dispatcher = useDispatch(); 
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [validated, setValidated] = useState<boolean>(false);
 
   /** Test validity of token by sending it to the API server and checking the response */
   async function testValidityOfToken() {
@@ -30,21 +36,48 @@ function App() {
     await Api.testTokenValidity()
     .then(async(response) => {      
       setLoading(false);
-      console.log("Token checked, still valid!");      
+      console.log("Token checked, still valid!");    
+      setValidated(true);  
     })
     .catch(async(error) => {
       console.log("Invalid token, redirecting to login page");
       // check if login details have been saved
       await Utils.relogin();
+      setValidated(true);
       setLoading(false);
     })
   }  
+
+  // fetch task types
+  async function fetchTaskTypes() {
+    if (taskTypes.length !== 0) return;
+
+    setLoading(true);
+    await Api.fetchTaskTypes()
+    .then((response) => {      
+      toast("Successfully loaded task types");
+      const taskTypes = response.data.data as TaskType[];
+      dispatcher(SET_TASK_TYPES(taskTypes));
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("ERRROR:", error);
+      toast.error("Failed to load task types");
+      setLoading(false);    
+    })
+  }
 
   useEffect(() => {
     if (!Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
       void testValidityOfToken();
     }        
   }, []);
+
+  useEffect(() => {
+    if (validated) {
+      void fetchTaskTypes();
+    }
+  }, [validated]);
 
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">    
