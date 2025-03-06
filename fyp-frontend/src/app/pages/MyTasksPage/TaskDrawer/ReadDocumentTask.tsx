@@ -77,7 +77,7 @@ export default function ReadDocumentTask(props: Props) {
   
   return (
     <div className='flex flex-col gap-2 p-2'>
-      <Button disabled={props.taskStatus !== "open"} onClick={redirectToDocumentLink}>Read Document <Link/></Button>
+      <Button disabled={props.taskStatus !== "open"} onClick={redirectToDocumentLink}>{props.readDocumentTemplate.documentName} <Link/></Button>
       <div className='flex flex-row gap-2 mx-auto'>
         <Checkbox disabled={!readDocState.linkClicked || props.taskStatus !== "open"} checked={readDocState.checkboxChecked} onCheckedChange={(checked: CheckedState) => { updateCheckboxState(checked as boolean);}}/>
         <Label>{props.readDocumentTemplate.checkBoxLabel}</Label>

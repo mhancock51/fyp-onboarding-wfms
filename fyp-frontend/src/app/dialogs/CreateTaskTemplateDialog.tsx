@@ -191,7 +191,7 @@ function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: an
     const data = {
       Id: "abc",
       TaskTemplateId: "abc",
-      DocumentName: "",
+      DocumentName: documentName,
       DocumentUrl: documentLink,
       CheckBoxLabel: checkboxLabel
     }
