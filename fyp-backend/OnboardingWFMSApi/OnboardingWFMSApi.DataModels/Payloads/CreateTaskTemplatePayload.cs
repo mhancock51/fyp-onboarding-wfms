@@ -12,7 +12,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string CreatorAccountId { get; set; }
         public string TaskTypeId { get; set; }
         public object TaskTypeData { get; set; }
     }

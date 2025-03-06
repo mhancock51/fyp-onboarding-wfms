@@ -94,6 +94,14 @@ const Api = {
   },
   fetchTaskTypes: async() => {
     return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
+  },
+  createTaskTemplate: async(name: string, description: string, taskTypeId: string, taskData: any) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/templates/create`, {
+      Name: name,
+      Description: description,
+      TaskTypeId: taskTypeId,
+      TaskTypeData: taskData
+    })
   }
 }
 
