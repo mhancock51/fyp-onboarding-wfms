@@ -18,7 +18,7 @@ interface Props {
 
 export default function CreateTaskTemplateDialog(props: Props) {
   const [step, setStep] = useState<number>(0);
-  const [taskTypeId, setTaskTypeId] = useState<string>("");
+  const [taskType, setTaskType] = useState<TaskType | null>(null);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
@@ -30,7 +30,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
   function closeAndClear() {
     setName("");
     setDescription("");
-    setTaskTypeId("");
+    setTaskType(null);
     setTaskTypeData(null);
     setStep(0);
     props.setOpenDialog(false);
@@ -43,7 +43,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
 
   async function createTaskTemplate() {
     setLoading(true);
-    await Api.createTaskTemplate(name, description, taskTypeId, taskTypeData)
+    await Api.createTaskTemplate(name, description, taskType?.id ?? "", taskTypeData)
     .then((response) => {
       setLoading(false);
       toast("Successfully created task");
@@ -85,7 +85,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
             </div>  
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Task Type</Label>
-              <TaskTypeLookup setTaskTypeId={setTaskTypeId}/>
+              <TaskTypeLookup setTaskType={setTaskType}/>
             </div>       
             <DialogFooter>
               <Button type="submit">Next</Button>
@@ -93,8 +93,12 @@ export default function CreateTaskTemplateDialog(props: Props) {
           </form>
         }
         {
-          step === 1 && taskTypeId === "checklist" &&
+          step === 1 && taskType?.id === "checklist" &&
           <ChecklistTemplateCreationForm updateTaskTypeData={updateTaskTypeData}/>
+        }
+        {
+          step === 1 && taskType?.id === "read-document" &&
+          <ReadDocumentTemplateCreationForm updateTaskTypeData={updateTaskTypeData}/>
         }
         {
           step === 2 &&
@@ -109,7 +113,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
             </div>  
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Task Type</Label>
-              <Label className="col-span-3">{taskTypeId}</Label>
+              <Label className="col-span-3">{taskType?.taskName}</Label>
             </div>  
             <DialogFooter>
               <Button type="submit">Create Task Template</Button>
@@ -171,6 +175,48 @@ function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) 
       <DialogFooter>
         <Button type="submit">Next</Button>
       </DialogFooter>
+    </form>
+  )
+}
+
+function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void;}) {
+  const [documentLink, setDocumentLink] = useState<string>("");
+  const [documentName, setDocumentName] = useState<string>("");
+  const [checkboxLabel, setCheckboxLabel] =  useState<string>("");;
+
+  function submitReadDocTask() {
+    if (documentLink === "") return;
+    if (checkboxLabel === "") return;
+
+    const data = {
+      Id: "abc",
+      TaskTemplateId: "abc",
+      DocumentName: "",
+      DocumentUrl: documentLink,
+      CheckBoxLabel: checkboxLabel
+    }
+    props.updateTaskTypeData(data);
+  }
+
+  return (
+    <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitReadDocTask();}}>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Document Link</Label>
+        <Input required className="col-span-3" value={documentLink} onChange={(event: any) => {setDocumentLink(event.target.value);}}/>
+      </div>  
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Document Name</Label>
+        <Input required className="col-span-3" value={documentName} onChange={(event: any) => {setDocumentName(event.target.value);}}/>
+      </div>  
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Checkbox Label</Label>
+        <Input required className="col-span-3" placeholder='e.g. I have read coding guidelines...'
+          value={checkboxLabel} onChange={(event: any) => {setCheckboxLabel(event.target.value);}}
+        />
+      </div> 
+      <DialogFooter>
+        <Button type="submit">Next</Button>
+      </DialogFooter> 
     </form>
   )
 }
