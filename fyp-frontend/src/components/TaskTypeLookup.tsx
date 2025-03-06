@@ -50,7 +50,6 @@ export default function TaskTypeLookup(props: Props) {
           }
         </SelectContent>
       </Select> 
-      <Button variant={"outline"}><Plus/></Button>
     </div>
   )
 }

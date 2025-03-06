@@ -36,23 +36,6 @@ export default function MyTasksPage() {
     })
   }
 
-  // fetch task types
-  async function fetchTaskTypes() {
-    setLoading(true);
-    await Api.fetchTaskTypes()
-    .then((response) => {      
-      toast("Successfully loaded task types");
-      const taskTypes = response.data.data as TaskType[];
-      dispatcher(SET_TASK_TYPES(taskTypes));
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error("ERRROR:", error);
-      toast.error("Failed to load task types");
-      setLoading(false);    
-    })
-  }
-
   function dueInColor(dueIn: number) {
     if (dueIn < 3) {
       return "bg-red-600";
@@ -66,7 +49,6 @@ export default function MyTasksPage() {
   }  
 
   useEffect(() => {
-    void fetchTaskTypes();
     void fetchTaskInstances();
   }, []);
 
