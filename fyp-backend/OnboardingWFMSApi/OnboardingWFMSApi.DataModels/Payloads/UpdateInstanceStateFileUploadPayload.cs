@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataModels.Payloads
 {
-    public class UploadDocumentPayload
+    public class UpdateInstanceStateFileUploadPayload
     {
-        public required string TaskInstanceId {  get; set; }
-        public required string WorkflowId {  get; set; }
+        public string TaskInstanceId { get; set; }
         public required IFormFile File { get; set; }
     }
 }

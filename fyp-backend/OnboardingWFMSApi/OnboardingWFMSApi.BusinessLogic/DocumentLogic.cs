@@ -13,7 +13,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IDocumentLogic
     {
-        public Task<HTTPResponse<string, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
+        public Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
     }
     public class DocumentLogic : IDocumentLogic
     {
@@ -26,11 +26,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             _taskInstanceLogic = taskInstanceLogic;
         }
 
-        public async Task<HTTPResponse<string, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
+        public async Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
         {
             // check task instance exists and is open
             var response = await _taskInstanceLogic.GetTaskInstance(payload.TaskInstanceId);
-            if (response.Success == false || response.Data == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
+            if (response.Success == false || response.Data == null) return new HTTPResponse<DocumentTable, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
             // check task instance is an "upload doc" task
 
 
@@ -46,16 +46,16 @@ namespace OnboardingWFMSApi.BusinessLogic
                     TaskInstanceId = "",
                     CreatorId = accountId,
                     WorkflowInstanceId = "",
-                    FileExtension = Path.GetExtension(payload.file.FileName),
+                    FileExtension = Path.GetExtension(payload.File.FileName),
                     UploadTimestamp = DateTime.Now,
                     FileName = "file"
                 };
                 await _documentRepository.AddAsync(document);
-                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully uploaded document" };
+                return new HTTPResponse<DocumentTable, string>() { Success = true, HttpCode = 200, Data = document };
             }
             catch (Exception ex)
             {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
+                return new HTTPResponse<DocumentTable, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
             }
 
             // TODO: update task instance to mark as complete and update metadata
