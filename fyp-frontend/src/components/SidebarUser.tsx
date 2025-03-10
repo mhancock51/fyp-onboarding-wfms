@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
 import { SET_USER } from '@/features/appSlice'
 import Utils from '@/util'
+import ThemeToggle from './ThemeToggle'
 
 interface Props {
   user: {
@@ -60,6 +61,9 @@ export default function SidebarUser(props: Props) {
             <DropdownMenuGroup>
               <DropdownMenuItem style={{cursor: "pointer"}} onClick={() => {navigate("/settings");}}>
                 <Settings/> Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem style={{cursor: "pointer"}} onClick={() => {navigate("/settings");}}>
+                <ThemeToggle/>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

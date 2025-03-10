@@ -17,6 +17,8 @@ import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
 import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 import TaskStatusBadge from '../TaskStatusBadge';
+import UploadDocumentTask from './UploadDocumentTask';
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
 
 interface Props {
   open: boolean;
@@ -74,15 +76,13 @@ export default function TaskDrawer(props: Props) {
           }
           {
             props.task.template.taskTypeId.toLowerCase() === "upload-document" &&
-            <div className='flex flex-col gap-2 p-2 item-center justify-center'>
-              <div className='flex flex-col gap-2 item-center justify-center mx-auto'>
-                <Label>Supported document types: {(props.task.template.taskTypeData as FileUploadTaskTemplate).supportedDocumentType}</Label>
-              </div>
-              <form className='mx-auto flex flex-col gap-2 w-100' onSubmit={(event: any) => {event.preventDefault(); alert("File uploaded!");}}>
-                <input type='file' className='bg-gray-100 p-2 rounded-full cursor-pointer' required accept={(props.task.template.taskTypeData as FileUploadTaskTemplate).supportedDocumentType}/>
-                <Button type='submit'>Upload Document</Button>
-              </form>
-            </div>
+            <UploadDocumentTask 
+              taskInstanceId={props.task.id} 
+              fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
+              fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
           }
           {
             props.task.template.taskTypeId.toLowerCase() === "read-document" &&

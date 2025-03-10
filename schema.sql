@@ -86,6 +86,23 @@ CREATE TABLE readdocumenttaskinstance (
     LinkClicked BOOLEAN
 );
 
+CREATE TABLE document (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    CreatorId VARCHAR(255),
+    WorkflowInstanceId VARCHAR(255),
+    DocumentData LONGBLOB,
+    FileExtension VARCHAR(50),
+    UploadTimestamp DATETIME,
+    FileName VARCHAR(255)
+);
+
+CREATE TABLE fileuploadtaskinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    DocumentId VARCHAR(255),
+    UploadedTimestamp DATETIME
+);
 
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
@@ -149,3 +166,19 @@ ALTER TABLE checklisttaskinstance
 ALTER TABLE readdocumenttaskinstance
     ADD CONSTRAINT fk_readdoc_instance_task_instance_id
     FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);    
+
+ALTER TABLE document
+    ADD CONSTRAINT fk_document_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
+
+ALTER TABLE document
+    ADD CONSTRAINT fk_document_creator_id
+    FOREIGN KEY (CreatorId) REFERENCES account(AccountId);
+
+ALTER TABLE fileuploadtaskinstance
+    ADD CONSTRAINT fk_file_upload_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
+
+ALTER TABLE fileuploadtaskinstance
+    ADD CONSTRAINT fk_file_upload_document_id
+    FOREIGN KEY (DocumentId) REFERENCES document(Id);

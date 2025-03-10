@@ -85,6 +85,16 @@ const Api = {
       linkClicked: linkClicked
     });
   },
+  updateUploadDocTaskState: async(taskInstanceId: string, fileData: File) => {
+    const formData = new FormData();
+    formData.append("file", fileData);
+    formData.append("taskInstanceId", taskInstanceId);
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/upload-doc`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  },
   completeTask: async(taskInstanceId: string) => {
     return AuthInstance.post(`${ROUTE_URL}/task/instances/complete`, null, {
       params: {
@@ -102,6 +112,12 @@ const Api = {
       TaskTypeId: taskTypeId,
       TaskTypeData: taskData
     })
+  },
+  fetchDocument: async(documentId: string) => {
+    window.open(`${ROUTE_URL}/document?documentId=${documentId}`, '_blank');
+  },
+  fetchDocumentData: async(documentId: string) => {
+    return AuthInstance.get(`${ROUTE_URL}/document/data?documentId=${documentId}`);
   }
 }
 

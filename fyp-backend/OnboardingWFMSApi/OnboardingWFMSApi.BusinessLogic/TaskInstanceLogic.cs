@@ -23,6 +23,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId);
         public Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> UpdateFileUploadInstanceState(UpdateInstanceStateFileUploadPayload payload, string accountId);
 
         public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
     }
@@ -33,6 +34,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IMapper _mapper;
         private readonly ITaskTemplateLogic _taskTemplateLogic;
+        private readonly IDocumentLogic _documentLogic;
 
         private readonly ITaskInstanceRepository _taskInstanceRepository;
         private readonly ITaskTemplateRepository _taskTemplateRepository;
@@ -40,10 +42,12 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IChecklistTaskInstanceRepository _checklistTaskInstanceRepository;
         private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
+        private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
-            IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository
+            IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository, 
+            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository
         )
         {
             _taskInstanceRepository = taskInstanceRepository;
@@ -53,6 +57,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             _checklistTaskInstanceRepository = checklistTaskInstanceRepository;
             _taskTemplateRepository = taskTemplateRepository;
             _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
+            _documentLogic = documentLogic;
+            _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -112,7 +118,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                         await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstance.Id });
                         break;                    
                     case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                        // TODO
+                        await _uploadTaskInstanceRepository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstance.Id, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
                         break;
                     default:
                         throw new Exception("Tasks template has an invalid task type");
@@ -171,7 +177,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = null;
+                    taskInstance.InstanceData = await _uploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
                     taskInstance.InstanceData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
@@ -256,6 +262,71 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Message = "Successfully updated state" };
         }
 
+        public async Task<HTTPResponse<string, string>> UpdateFileUploadInstanceState(UpdateInstanceStateFileUploadPayload payload, string accountId)
+        {
+            // check task is a "file upload" task
+            var response = await GetTaskInstance(payload.TaskInstanceId);
+            if (!response.Success || response.Data == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
+            }
+            var taskInstance = response.Data;
+            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a read document task" };
+            }
+            // ensure task is open
+            if (taskInstance.Status != OPEN_TASK_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
+            }
+            // check user is assigned to task instance
+            if (taskInstance.AssigneeAccountId != accountId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
+            }
+
+            // validate state           
+            // ensure file contains data
+            if (payload.File == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Document was not uploaded" };
+            }
+            // ensure file extension is valid
+            var taskTypeTemplateData = taskInstance.template.TaskTypeData as FileUploadTaskTemplateTable;               
+            var fileExtension = Path.GetExtension(payload.File.FileName);
+            if (!taskTypeTemplateData.SupportedDocumentType.Split(";").Contains(fileExtension))
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid file extension" };
+            }
+
+            // attempt to upload document            
+            var result = await _documentLogic.UploadDocument(
+                new UploadDocumentPayload()
+                {
+                    TaskInstanceId = taskInstance.Id,
+                    WorkflowId = "---",
+                    File = payload.File
+                },
+                accountId
+            );
+            if (!result.Success)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
+            }
+            else
+            {
+                var document = result.Data;
+                var uploadDocInstance = await _uploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
+                uploadDocInstance.DocumentId = document.Id;
+                uploadDocInstance.TaskInstanceId = taskInstance.Id;
+                uploadDocInstance.UploadedTimestamp = DateTime.UtcNow;
+
+                await _uploadTaskInstanceRepository.UpdateAsync(uploadDocInstance);
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully upload document" };
+            }                      
+        }
+
         public async Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId)
         {
             // check task instance exists and isn't already complete
@@ -285,7 +356,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     isComplete = IsReadDocumentTaskComplete(taskInstance);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    // TODO implement completeness check
+                    isComplete = IsUploadDocumentTaskComplete(taskInstance);
                     break;
                 default:
                     throw new Exception("Task template isn't associated with a valid task type id");
@@ -305,6 +376,26 @@ namespace OnboardingWFMSApi.BusinessLogic
             // TODO implement logging of event for workflow
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
+        }
+
+        private bool IsUploadDocumentTaskComplete(TaskInstance taskInstance)
+        {
+            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID)
+            {
+                throw new Exception("Task is not an upload document task");
+            }
+            // ensure document has been uploaded
+            var uploadDocInstanceData = (taskInstance.InstanceData as FileUploadTaskInstanceTable);
+            if (uploadDocInstanceData.DocumentId == "")
+            {
+                return false;
+            }
+            if (uploadDocInstanceData.UploadedTimestamp == DateTime.MinValue)
+            {
+                return false;
+            }
+            return true;
+
         }
 
         private bool IsReadDocumentTaskComplete(TaskInstance taskInstance)
@@ -344,6 +435,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             return true;
         }
+
+        
     }
 
 }

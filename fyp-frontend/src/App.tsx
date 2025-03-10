@@ -80,7 +80,7 @@ function App() {
   }, [validated]);
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">    
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>    
       {
         loading ? (
           <div className='flex flex-col justify-center my-auto' style={{minHeight: "100vh"}}>
