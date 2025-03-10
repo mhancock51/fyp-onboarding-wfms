@@ -26,7 +26,7 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<ChecklistTaskInstanceTable> checklistTaskInstances { get; set; }
         public DbSet<ReadDocumentTaskInstanceTable> readDocumentTaskInstances { get; set; }
 
-
+        public DbSet<DocumentTable> documents { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     }
 }
