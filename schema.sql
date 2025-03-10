@@ -96,6 +96,13 @@ CREATE TABLE document (
     UploadTimestamp DATETIME
 );
 
+CREATE TABLE fileuploadtaskinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    DocumentId VARCHAR(255),
+    UploadedTimestamp DATETIME
+);
+
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -166,3 +173,11 @@ ALTER TABLE document
 ALTER TABLE document
     ADD CONSTRAINT fk_document_creator_id
     FOREIGN KEY (CreatorId) REFERENCES account(AccountId);
+
+ALTER TABLE fileuploadtaskinstance
+    ADD CONSTRAINT fk_file_upload_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
+
+ALTER TABLE fileuploadtaskinstance
+    ADD CONSTRAINT fk_file_upload__document_id
+    FOREIGN KEY (DocumentId) REFERENCES document(Id);

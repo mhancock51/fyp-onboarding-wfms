@@ -33,6 +33,7 @@ builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 
 builder.Services.AddScoped<IChecklistTaskInstanceRepository, ChecklistTaskInstanceRepository>();
 builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTaskInstanceRepository>();
+builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
