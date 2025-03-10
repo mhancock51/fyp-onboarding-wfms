@@ -86,9 +86,13 @@ const Api = {
     });
   },
   updateUploadDocTaskState: async(taskInstanceId: string, fileData: File) => {
-    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/upload-doc`, {
-      taskInstanceId: taskInstanceId,
-      file: fileData
+    const formData = new FormData();
+    formData.append("file", fileData);
+    formData.append("taskInstanceId", taskInstanceId);
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/upload-doc`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     })
   },
   completeTask: async(taskInstanceId: string) => {

@@ -36,6 +36,7 @@ export default function UploadDocumentTask(props: Props) {
     await Api.updateUploadDocTaskState(props.taskInstanceId, file)
     .then((response) => {
       toast("Uploaded document");
+      props.setCanCompleteTask(true);
     })
     .catch((error) => {
       toast.error("Failed to upload document");
@@ -52,14 +53,14 @@ export default function UploadDocumentTask(props: Props) {
         <Label>Supported document types: {props.fileUploadTemplate.supportedDocumentType}</Label>
       </div>
       {
-        fileUploadState.uploadedTimestamp === "" && props.taskStatus === "open" &&
+        props.taskStatus === "open" &&
         <form className='mx-auto flex flex-col gap-2 w-100' onSubmit={async(event: any) => {event.preventDefault(); await handleFormSubmission()}}>
           <input type='file' className='bg-gray-100 p-2 rounded-full cursor-pointer' required accept={props.fileUploadTemplate.supportedDocumentType} onChange={handleFileInputChange}/>
           <Button type='submit'>Upload Document</Button>
         </form>
       }
       {
-        (fileUploadState.uploadedTimestamp !== "" || props.taskStatus !== "open") &&
+        props.taskStatus !== "open" &&
         <span>File uploaded at {fileUploadState.uploadedTimestamp}</span>
       }
     </div>

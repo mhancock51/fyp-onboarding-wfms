@@ -118,7 +118,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                         await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstance.Id });
                         break;                    
                     case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                        // TODO
+                        await _uploadTaskInstanceRepository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstance.Id, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
                         break;
                     default:
                         throw new Exception("Tasks template has an invalid task type");
@@ -293,7 +293,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Document was not uploaded" };
             }
             // ensure file extension is valid
-            var taskTypeTemplateData = taskInstance.template.TaskTypeData as FileUploadTaskTemplate;               
+            var taskTypeTemplateData = taskInstance.template.TaskTypeData as FileUploadTaskTemplateTable;               
             var fileExtension = Path.GetExtension(payload.File.FileName);
             if (!taskTypeTemplateData.SupportedDocumentType.Split(";").Contains(fileExtension))
             {
@@ -317,12 +317,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             else
             {
                 var document = result.Data;
-                await _uploadTaskInstanceRepository.AddAsync(new FileUploadTaskInstanceTable()
-                {
-                    DocumentId = document.Id,
-                    TaskInstanceId = taskInstance.Id,
-                    UploadedTimestamp = DateTime.UtcNow,
-                });
+                var uploadDocInstance = await _uploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
+                uploadDocInstance.DocumentId = document.Id;
+                uploadDocInstance.TaskInstanceId = taskInstance.Id;
+                uploadDocInstance.UploadedTimestamp = DateTime.UtcNow;
+
+                await _uploadTaskInstanceRepository.UpdateAsync(uploadDocInstance);
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully upload document" };
             }                      
         }

@@ -93,7 +93,8 @@ CREATE TABLE document (
     WorkflowInstanceId VARCHAR(255),
     DocumentData LONGBLOB,
     FileExtension VARCHAR(50),
-    UploadTimestamp DATETIME
+    UploadTimestamp DATETIME,
+    FileName VARCHAR(255)
 );
 
 CREATE TABLE fileuploadtaskinstance (

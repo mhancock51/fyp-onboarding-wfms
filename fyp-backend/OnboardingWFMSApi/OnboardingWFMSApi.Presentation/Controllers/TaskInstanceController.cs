@@ -79,7 +79,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
 
         [Authorize]
         [HttpPost("update-task-state/upload-doc")]
-        public async Task<IActionResult> UpdateUploadDocInstanceState([FromBody] UpdateInstanceStateFileUploadPayload payload)
+        public async Task<IActionResult> UpdateUploadDocInstanceState([FromForm] UpdateInstanceStateFileUploadPayload payload)
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
             if (accountId == "")

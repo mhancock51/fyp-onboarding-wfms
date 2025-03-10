@@ -24,6 +24,15 @@ namespace OnboardingWFMSApi.BusinessLogic
             _documentRepository = documentRepository;
         }
 
+        public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
         public async Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
         {            
             // check task instance is an "upload doc" task
@@ -38,12 +47,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 var document = new DocumentTable()
                 {
-                    TaskInstanceId = "",
+                    TaskInstanceId = payload.TaskInstanceId,
                     CreatorId = accountId,
                     WorkflowInstanceId = "",
                     FileExtension = Path.GetExtension(payload.File.FileName),
                     UploadTimestamp = DateTime.Now,
-                    FileName = "file"
+                    FileName = "file",
+                    DocumentData = await ConvertIFormFileToByteArray(payload.File)
                 };
                 await _documentRepository.AddAsync(document);
                 return new HTTPResponse<DocumentTable, string>() { Success = true, HttpCode = 200, Data = document };
