@@ -118,6 +118,9 @@ const Api = {
   },
   fetchDocumentData: async(documentId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/data?documentId=${documentId}`);
+  },
+  fetchAllTaskTemplates: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/task/templates/all`);
   }
 }
 
