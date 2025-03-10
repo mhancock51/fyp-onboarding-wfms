@@ -34,12 +34,15 @@ builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 builder.Services.AddScoped<IChecklistTaskInstanceRepository, ChecklistTaskInstanceRepository>();
 builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTaskInstanceRepository>();
 
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
 builder.Services.AddScoped<IAuthLogic, AuthLogic>();
 builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
 builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
+builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
