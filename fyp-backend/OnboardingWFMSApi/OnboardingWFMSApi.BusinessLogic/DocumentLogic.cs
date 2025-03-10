@@ -18,19 +18,14 @@ namespace OnboardingWFMSApi.BusinessLogic
     public class DocumentLogic : IDocumentLogic
     {
         private readonly IDocumentRepository _documentRepository;
-        private readonly ITaskInstanceLogic _taskInstanceLogic;
 
-        public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceLogic taskInstanceLogic)
+        public DocumentLogic(IDocumentRepository documentRepository)
         {
             _documentRepository = documentRepository;
-            _taskInstanceLogic = taskInstanceLogic;
         }
 
         public async Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
-        {
-            // check task instance exists and is open
-            var response = await _taskInstanceLogic.GetTaskInstance(payload.TaskInstanceId);
-            if (response.Success == false || response.Data == null) return new HTTPResponse<DocumentTable, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
+        {            
             // check task instance is an "upload doc" task
 
 
