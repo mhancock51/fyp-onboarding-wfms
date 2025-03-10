@@ -179,5 +179,5 @@ ALTER TABLE fileuploadtaskinstance
     FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
 
 ALTER TABLE fileuploadtaskinstance
-    ADD CONSTRAINT fk_file_upload__document_id
+    ADD CONSTRAINT fk_file_upload_document_id
     FOREIGN KEY (DocumentId) REFERENCES document(Id);
