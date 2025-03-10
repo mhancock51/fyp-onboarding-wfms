@@ -154,6 +154,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                         throw new InvalidOperationException("Invalid task type associated with task template");
                 }
             }
+            taskTemplate.taskType = _mapper.Map<TaskType>(await _taskTypeRepository.GetById(taskTemplate.TaskTypeId));
+
             return new HTTPResponse<TaskTemplate, string>() { Success = true, Data = taskTemplate, HttpCode = 200 };
         }
     }
