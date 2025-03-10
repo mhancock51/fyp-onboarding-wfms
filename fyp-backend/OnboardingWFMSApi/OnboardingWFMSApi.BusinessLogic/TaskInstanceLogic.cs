@@ -306,7 +306,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     TaskInstanceId = taskInstance.Id,
                     WorkflowId = "---",
-                    File = payload.File
+                    File = payload.File,
+                    DocumentName = taskTypeTemplateData.DocumentName,
                 },
                 accountId
             );

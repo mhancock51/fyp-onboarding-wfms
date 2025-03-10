@@ -50,6 +50,8 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // check contents of file
             // check file extension matches onces allow in task template
+
+            // TODO ensure document with same name isn't assigned to this workflow or task instance already
             try
             {
                 var document = new DocumentTable()
@@ -59,7 +61,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     WorkflowInstanceId = "",
                     FileExtension = Path.GetExtension(payload.File.FileName),
                     UploadTimestamp = DateTime.Now,
-                    FileName = "file",
+                    FileName = payload.DocumentName,
                     DocumentData = await ConvertIFormFileToByteArray(payload.File)
                 };
                 await _documentRepository.AddAsync(document);
