@@ -42,8 +42,7 @@ function App() {
     .catch(async(error) => {
       console.log("Invalid token, redirecting to login page");
       // check if login details have been saved
-      await Utils.relogin();
-      setValidated(true);
+      await Utils.relogin();      
       setLoading(false);
     })
   }  
