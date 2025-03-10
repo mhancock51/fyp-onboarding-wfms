@@ -112,6 +112,9 @@ const Api = {
       TaskTypeId: taskTypeId,
       TaskTypeData: taskData
     })
+  },
+  fetchDocument: async(documentId: string) => {
+    window.open(`${ROUTE_URL}/document?documentId=${documentId}`, '_blank');
   }
 }
 

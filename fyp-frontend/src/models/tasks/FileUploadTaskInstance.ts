@@ -2,5 +2,5 @@ export default interface FileUploadTaskInstance {
   id: string;
   taskInstanceId: string;
   documentId: string;
-  uploadedTimestamp: string | null;
+  uploadedTimestamp: string;
 }

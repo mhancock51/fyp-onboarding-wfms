@@ -4,6 +4,7 @@ using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
 using System.Security.Claims;
 
+
 namespace OnboardingWFMSApi.Presentation.Controllers
 {
     [ApiController]
@@ -29,6 +30,23 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             else
             {
                 var response = await _documentLogic.UploadDocument(payload, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetDocument(string documentId)
+        {
+            // TODO implement security - i.e. only people assigned to workflow can access resources from the workflow
+            var response = await _documentLogic.GetDocument(documentId);
+            if (response.Success)
+            {
+                string fileName = response.Data.FileName + response.Data.FileExtension;
+                return File(response.Data.DocumentData, $"application/{response.Data.FileExtension.Replace(".", "")}", fileName);
+            }
+            else
+            {
                 return StatusCode(response.HttpCode, response);
             }
         }

@@ -14,6 +14,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     public interface IDocumentLogic
     {
         public Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
+        public Task<HTTPResponse<DocumentTable, string>> GetDocument(string documentId);
     }
     public class DocumentLogic : IDocumentLogic
     {
@@ -31,6 +32,12 @@ namespace OnboardingWFMSApi.BusinessLogic
                 await file.CopyToAsync(memoryStream);
                 return memoryStream.ToArray();
             }
+        }
+
+        public async Task<HTTPResponse<DocumentTable, string>> GetDocument(string documentId)
+        {
+            var doc = await _documentRepository.GetById(documentId);
+            return new HTTPResponse<DocumentTable, string>() { Success = true, HttpCode = 200, Data = doc };
         }
 
         public async Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId)

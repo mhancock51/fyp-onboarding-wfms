@@ -177,7 +177,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = null;
+                    taskInstance.InstanceData = await _uploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
                     break;
                 case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
                     taskInstance.InstanceData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
@@ -356,7 +356,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     isComplete = IsReadDocumentTaskComplete(taskInstance);
                     break;
                 case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    // TODO implement completeness check
+                    isComplete = IsUploadDocumentTaskComplete(taskInstance);
                     break;
                 default:
                     throw new Exception("Task template isn't associated with a valid task type id");
@@ -376,6 +376,26 @@ namespace OnboardingWFMSApi.BusinessLogic
             // TODO implement logging of event for workflow
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
+        }
+
+        private bool IsUploadDocumentTaskComplete(TaskInstance taskInstance)
+        {
+            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID)
+            {
+                throw new Exception("Task is not an upload document task");
+            }
+            // ensure document has been uploaded
+            var uploadDocInstanceData = (taskInstance.InstanceData as FileUploadTaskInstanceTable);
+            if (uploadDocInstanceData.DocumentId == "")
+            {
+                return false;
+            }
+            if (uploadDocInstanceData.UploadedTimestamp == DateTime.MinValue)
+            {
+                return false;
+            }
+            return true;
+
         }
 
         private bool IsReadDocumentTaskComplete(TaskInstance taskInstance)
