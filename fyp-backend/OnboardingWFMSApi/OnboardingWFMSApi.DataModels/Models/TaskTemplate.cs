@@ -10,5 +10,6 @@ namespace OnboardingWFMSApi.DataModels.Models
     public class TaskTemplate : TaskTemplateTable
     {
         public object TaskTypeData { get; set; }
+        public TaskType taskType { get; set; }
     }
 }

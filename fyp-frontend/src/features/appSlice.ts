@@ -9,6 +9,7 @@ export interface AppState {
     openInviteDialog: boolean;
     openCreateDepartmentDialog: boolean;
     openCreateTaskTemplateDialog: boolean;
+    openTaskTemplatesListDialog: boolean;
     taskTypes: TaskType[];
 }
 
@@ -17,6 +18,7 @@ const initialState: AppState = {
     openInviteDialog: false,
     openCreateDepartmentDialog: false,
     openCreateTaskTemplateDialog: false,
+    openTaskTemplatesListDialog: false,
     taskTypes: []
 }
 
@@ -37,14 +39,18 @@ export const appSlice = createSlice({
         SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG: (state, action: PayloadAction<boolean>) => {
             state.openCreateTaskTemplateDialog = action.payload;
         }, 
+        SET_OPEN_TASK_TEMPLATES_LIST_DIALOG: (state, action: PayloadAction<boolean>) => {
+            state.openTaskTemplatesListDialog = action.payload;
+        },
         SET_TASK_TYPES: (state, action: PayloadAction<TaskType[]>) => {
             state.taskTypes = action.payload;
-        }
+        },
     }
 });
 
 export const {
-    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG
+    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
+    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG
 } = appSlice.actions;
 
 export default appSlice.reducer;

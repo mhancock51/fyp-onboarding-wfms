@@ -1,4 +1,5 @@
 import Api from '@/api';
+import { MultiSelect } from '@/components/multi-select';
 import TaskTypeLookup from '@/components/TaskTypeLookup';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -85,7 +86,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
             </div>  
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Task Type</Label>
-              <TaskTypeLookup setTaskType={setTaskType}/>
+              <TaskTypeLookup setTaskType={setTaskType} value={taskType?.id}/>
             </div>       
             <DialogFooter>
               <Button type="submit">Next</Button>
@@ -94,11 +95,24 @@ export default function CreateTaskTemplateDialog(props: Props) {
         }
         {
           step === 1 && taskType?.id === "checklist" &&
-          <ChecklistTemplateCreationForm updateTaskTypeData={updateTaskTypeData}/>
+          <ChecklistTemplateCreationForm 
+            updateTaskTypeData={updateTaskTypeData}
+            backButtonClick={() => { setStep(0)}}
+          />
         }
         {
           step === 1 && taskType?.id === "read-document" &&
-          <ReadDocumentTemplateCreationForm updateTaskTypeData={updateTaskTypeData}/>
+          <ReadDocumentTemplateCreationForm 
+            updateTaskTypeData={updateTaskTypeData}
+            backButtonClick={() => {setStep(0)}}            
+          />
+        }
+        {
+          step === 1 && taskType?.id === "upload-document" &&
+          <UploadDocumentTemplateCreationForm 
+            updateTaskTypeData={updateTaskTypeData} 
+            backButtonClick={() => {setStep(0)}}     
+          />
         }
         {
           step === 2 &&
@@ -125,7 +139,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
   )
 }
 
-function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void;}) {
+function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
 
   function submitChecklist() {
@@ -173,13 +187,14 @@ function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) 
         <Button onClick={addEmptyItem}>Add Item</Button>
       </div>
       <DialogFooter>
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
         <Button type="submit">Next</Button>
       </DialogFooter>
     </form>
   )
 }
 
-function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void;}) {
+function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [documentLink, setDocumentLink] = useState<string>("");
   const [documentName, setDocumentName] = useState<string>("");
   const [checkboxLabel, setCheckboxLabel] =  useState<string>("");;
@@ -215,6 +230,53 @@ function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: an
         />
       </div> 
       <DialogFooter>
+      <Button type='button' onClick={props.backButtonClick}>Back</Button>
+        <Button type="submit">Next</Button>
+      </DialogFooter> 
+    </form>
+  )
+}
+
+function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+  const [documentName, setDocumentName] = useState<string>("");
+  const [fileExtensions, setFileExtensions] = useState<string[]>([]);
+
+  function submitUploadDocTask() {
+    if (fileExtensions.length === 0) {
+      toast.warning("Please select at least one file extension");
+      return;
+    }
+    const data = {
+      Id: "abc",
+      TaskTemplateId: "abc",
+      SupportedDocumentType: fileExtensions.join(";"),
+      DocumentName: documentName      
+    }
+    props.updateTaskTypeData(data);
+  }
+
+  return (
+    <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitUploadDocTask();}}>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Document Name</Label>
+        <Input required className="col-span-3" value={documentName} onChange={(event: any) => {setDocumentName(event.target.value);}}/>
+      </div>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Support Document Types</Label>
+        <MultiSelect           
+          className='w-100'
+          variant={"inverted"}
+          options={[
+            { label: ".pdf", value: ".pdf"},
+            { label: ".png", value: ".png"},
+            { label: ".jpeg", value: ".jpeg"},
+            { label: ".docx", value: ".odt"}
+          ]} 
+          onValueChange={(value: string[]) => { setFileExtensions(value);}}
+        />        
+      </div>
+      <DialogFooter className='flex flex-row justify-between'> 
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
         <Button type="submit">Next</Button>
       </DialogFooter> 
     </form>

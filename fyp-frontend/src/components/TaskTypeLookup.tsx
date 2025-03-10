@@ -8,6 +8,7 @@ import { Plus } from 'lucide-react';
 
 interface Props {
   setTaskType: React.Dispatch<React.SetStateAction<TaskType | null>>;
+  value?: string;
 }
 
 export default function TaskTypeLookup(props: Props) {
@@ -26,7 +27,7 @@ export default function TaskTypeLookup(props: Props) {
 
   return (
     <div className='flex flex-row gap-2'>
-      <Select required onValueChange={(value: string) => {props.setTaskType(taskTypes.find(i => i.id === value) ?? null);}}>
+      <Select required value={props.value ?? ""} onValueChange={(value: string) => {props.setTaskType(taskTypes.find(i => i.id === value) ?? null);}}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select a task type" />
         </SelectTrigger>

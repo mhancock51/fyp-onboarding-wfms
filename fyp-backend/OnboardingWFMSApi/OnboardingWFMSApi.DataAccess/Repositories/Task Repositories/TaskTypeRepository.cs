@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
     {
         public TaskTypeRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
+        }
+
+        public override async Task<TaskTypeTable> GetById(string id)
+        {
+            return await _dbContext.taskTypes.FirstOrDefaultAsync(i => i.Id == id);
         }
     }
 
