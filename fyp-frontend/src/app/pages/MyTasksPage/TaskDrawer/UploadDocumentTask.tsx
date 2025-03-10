@@ -5,6 +5,7 @@ import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
+import DocumentLinkBadge from '../DocumentLinkBadge';
 
 interface Props {
   taskInstanceId: string;
@@ -45,6 +46,9 @@ export default function UploadDocumentTask(props: Props) {
 
   useEffect(() => {
     setFileUploadState(props.fileUploadInstance);
+    if (props.fileUploadInstance.documentId !== "") {
+      props.setCanCompleteTask(true);
+    }
   }, [props.fileUploadInstance]);
 
   return (
@@ -52,6 +56,13 @@ export default function UploadDocumentTask(props: Props) {
       <div className='flex flex-col gap-2 item-center justify-center mx-auto'>
         <Label>Supported document types: {props.fileUploadTemplate.supportedDocumentType}</Label>
       </div>
+      {
+        fileUploadState.documentId !== "" &&
+        <div className='flex flex-row gap-2 items-centers'>
+          <span>Uploaded file IDs:</span>
+          <DocumentLinkBadge documentId={fileUploadState.documentId}/>          
+        </div>
+      }
       {
         props.taskStatus === "open" &&
         <form className='mx-auto flex flex-col gap-2 w-100' onSubmit={async(event: any) => {event.preventDefault(); await handleFormSubmission()}}>
@@ -61,7 +72,7 @@ export default function UploadDocumentTask(props: Props) {
       }
       {
         props.taskStatus !== "open" &&
-        <span>File uploaded at {fileUploadState.uploadedTimestamp}</span>
+        <span>File uploaded at {new Date(fileUploadState.uploadedTimestamp).toLocaleString()}</span>
       }
     </div>
   )

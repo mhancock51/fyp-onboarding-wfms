@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
@@ -33,8 +34,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 return StatusCode(response.HttpCode, response);
             }
         }
-
-
+        
         [HttpGet]
         public async Task<IActionResult> GetDocument(string documentId)
         {
@@ -49,6 +49,13 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             {
                 return StatusCode(response.HttpCode, response);
             }
+        }
+
+        [HttpGet("data")]
+        public async Task<IActionResult> GetDocumentData(string documentId)
+        {
+            var response = await _documentLogic.GetDocument(documentId);
+            return StatusCode(response.HttpCode, response);
         }
     }
 }
