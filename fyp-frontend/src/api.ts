@@ -85,6 +85,12 @@ const Api = {
       linkClicked: linkClicked
     });
   },
+  updateUploadDocTaskState: async(taskInstanceId: string, fileData: File) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/upload-doc`, {
+      taskInstanceId: taskInstanceId,
+      file: fileData
+    })
+  },
   completeTask: async(taskInstanceId: string) => {
     return AuthInstance.post(`${ROUTE_URL}/task/instances/complete`, null, {
       params: {

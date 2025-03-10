@@ -83,7 +83,7 @@ export default function MyTasksPage() {
               {
                 tasks.map((task, index) => (
                   <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
-                    <TableCell>
+                    <TableCell style={{maxWidth: "150px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                       {task.template.name}
                     </TableCell>
                     <TableCell width={"175px"}>                    
@@ -102,7 +102,7 @@ export default function MyTasksPage() {
                         [WORKFLOW NAME]
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                       {task.template.description}
                     </TableCell>
                   </TableRow>
