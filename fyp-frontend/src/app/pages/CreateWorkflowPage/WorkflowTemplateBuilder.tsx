@@ -76,7 +76,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
             deleteTask: () => { removeWorkflowNode(task.id) },
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
-            assignee: task.assignee.displayName
+            assignee: task.assignee.displayName,
+            taskDependencies: task.taskDependencies
           } 
         };
         nodes.push(taskNode);
@@ -119,7 +120,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
           deleteTask: () => { removeWorkflowNode(task.id) },
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
-          assignee: task.assignee.displayName
+          assignee: task.assignee.displayName,
+          taskDependencies: task.taskDependencies
         } 
       };
       nodes.push(taskNode);
@@ -152,7 +154,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     setEdges(edges);
   }
 
-  function addWorkflowNode(taskId: string, assignee: AccountDirectory, type: "preflow" | "mainflow") {
+  function addWorkflowNode(taskId: string, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], type: "preflow" | "mainflow") {
     const taskTemplate = props.taskTemplates.find(i => i.id === taskId);
     if (taskTemplate == null) {
       return
@@ -160,7 +162,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
     const node: WorkflowTemplateNode = {
       id: crypto.randomUUID(),
       taskTemplate: taskTemplate,
-      assignee: assignee
+      assignee: assignee,
+      taskDependencies: taskDependencies
     };
     switch(type) {
       case "preflow":
@@ -206,8 +209,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
     setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
   }
 
-  function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory) {
-    addWorkflowNode(taskTemplate.id, assingee, selectedSection);
+  function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[]) {
+    addWorkflowNode(taskTemplate.id, assingee, taskDependencies, selectedSection);
   }
 
   useEffect(() => {    
@@ -233,7 +236,10 @@ export default function WorkflowTemplateBuilder(props: Props) {
       <div className='flex flex-row gap-4 justify-center'>
         <Button onClick={() => {setOpen(true);}}>Add Task</Button>      
       </div>
-      <AddTaskToWorkflowDialog open={open} setOpen={setOpen} onAddTask={addTaskToWorkflow} isOnboardingWorkflow={props.isOnboardingWorkflow}/>
+      <AddTaskToWorkflowDialog open={open} setOpen={setOpen} onAddTask={addTaskToWorkflow} 
+        isOnboardingWorkflow={props.isOnboardingWorkflow}
+        existingTaskNodes={preflowTasks.concat(mainflowTasks)}
+      />
     </div>
   )
 }

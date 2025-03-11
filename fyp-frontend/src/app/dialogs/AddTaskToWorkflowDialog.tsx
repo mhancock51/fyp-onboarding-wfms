@@ -1,4 +1,5 @@
 import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
+import { MultiSelect } from '@/components/multi-select';
 import TaskTemplatesTable from '@/components/Tables/TaskTemplatesTable';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,14 +9,17 @@ import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Label } from '@/components/ui/label';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
+import WorkflowTask from '@/models/WorkflowTask';
+import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
 import React, { SetStateAction, useState } from 'react'
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>
-  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory) => void;
+  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[]) => void;
   isOnboardingWorkflow: boolean;
+  existingTaskNodes: WorkflowTemplateNode[];
 }
 
 export default function AddTaskToWorkflowDialog(props: Props) {
@@ -37,18 +41,20 @@ export default function AddTaskToWorkflowDialog(props: Props) {
   const [step, setStep] = useState<number>(0);
   const [taskTemplate, setTaskTemplate] = useState<TaskTemplate | null>(null);
   const [assignee, setAssignee] = useState<AccountDirectory | null>(null);
+  const [taskNodeDependencies, setTaskNodeDependencies] = useState<WorkflowTemplateNode[]>([]);
  
   function closeAndClear() {
     setStep(0);
     setTaskTemplate(null);
     setAssignee(null);
+    setTaskNodeDependencies([]);
     props.setOpen(false);
   }
 
   function addTaskToWorkflow() {
     if (taskTemplate === null) return;
     if (assignee === null) return;
-    props.onAddTask(taskTemplate, assignee);
+    props.onAddTask(taskTemplate, assignee, taskNodeDependencies);
     closeAndClear();
   }
 
@@ -85,6 +91,22 @@ export default function AddTaskToWorkflowDialog(props: Props) {
               </HoverCard>              
               <Checkbox/>
             </div>  
+            <div className="grid grid-cols-2 gap-4">
+              <HoverCard>
+                <HoverCardTrigger>
+                  <Label>Task Dependencies</Label>
+                </HoverCardTrigger>
+                <HoverCardContent>
+                  <Card className='w-75 text-xs p-1.5' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                    Select the tasks that must be completed before this task can be started
+                  </Card>
+                </HoverCardContent>
+              </HoverCard>
+              <MultiSelect 
+                options={props.existingTaskNodes.map((node) => ({ label: node.taskTemplate.name, value: node.id}))} 
+                onValueChange={(taskIds: string[]) => { setTaskNodeDependencies(props.existingTaskNodes.filter(i => taskIds.includes(i.id))) }}
+              />
+            </div>
             <DialogFooter>
               <Button type='button' onClick={() => {setStep(0);}}>Back</Button>
               <Button type='submit'>Add to Workflow</Button>
