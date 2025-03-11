@@ -9,6 +9,7 @@ import WorkflowTask from '@/models/WorkflowTask';
 import AddTaskNode from './Nodes/AddTaskNode';
 import AddTaskDialog from './AddTaskDialog';
 import InviteUserNode from './Nodes/InviteUserNode';
+import WorkflowTemplateBuilder from './WorkflowTemplateBuilder';
 
 export default function CreateWorkflowPage() {
   const START_NODE_ID = "-1";
@@ -100,32 +101,36 @@ export default function CreateWorkflowPage() {
     renderWorkflow();
   }, [workflowTemplate]);
 
+  // return (
+  //   <div>
+  //     <div className='m-4'>
+  //       <h1 className='text-lg bold'>{workflowTemplate?.name}</h1>
+  //       <span>{workflowTemplate?.description}</span>
+  //     </div>
+  //     <div style={{ width: '1500px', height: '700px', margin: "auto"}}>
+  //       <ReactFlow
+  //         nodes={nodes}
+  //         edges={edges}
+  //         nodeTypes={nodeTypes}
+  //         // onNodesChange={onNodesChange}
+  //         // onEdgesChange={onEdgesChange}
+  //         // onConnect={onConnect}
+  //         defaultViewport={{x: 650, y: 200, zoom: 0.75}}
+  //       >
+  //         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  
+  //         <Controls />
+  //         {/* <Panel position="top-left" className='bg-white text-black p-6 flex flex-col gap-4 rounded-lg'>                
+  //           Toolbox
+  //           <Button className='bg-blue-400' onClick={addTask}>Add Task to Workflow</Button>                                             
+  //         </Panel> */}
+  //       </ReactFlow>        
+  //     </div>
+  //     <Button style={{float: "right", marginTop: "8px"}} className='cursor-pointer'>Save Workflow</Button>      
+  //     <AddTaskDialog open={openDialog} onAdd={addTask} setOpenDialog={setOpenDialog}/>
+  //   </div>
+  // )
+
   return (
-    <div>
-      <div className='m-4'>
-        <h1 className='text-lg bold'>{workflowTemplate?.name}</h1>
-        <span>{workflowTemplate?.description}</span>
-      </div>
-      <div style={{ width: '1500px', height: '700px', margin: "auto"}}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          // onNodesChange={onNodesChange}
-          // onEdgesChange={onEdgesChange}
-          // onConnect={onConnect}
-          defaultViewport={{x: 650, y: 200, zoom: 0.75}}
-        >
-          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  
-          <Controls />
-          {/* <Panel position="top-left" className='bg-white text-black p-6 flex flex-col gap-4 rounded-lg'>                
-            Toolbox
-            <Button className='bg-blue-400' onClick={addTask}>Add Task to Workflow</Button>                                             
-          </Panel> */}
-        </ReactFlow>        
-      </div>
-      <Button style={{float: "right", marginTop: "8px"}} className='cursor-pointer'>Save Workflow</Button>      
-      <AddTaskDialog open={openDialog} onAdd={addTask} setOpenDialog={setOpenDialog}/>
-    </div>
+    <WorkflowTemplateBuilder/>
   )
 }
