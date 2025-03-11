@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("nodetaskdependency")]
-    public class NodeTaskDependency : ITableEntity
+    public class NodeTaskDependencyTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
-        [ForeignKey(nameof(WorkflowTemplateNode.Id))]
+        [ForeignKey(nameof(WorkflowTemplateNodeTable.Id))]
         public string NodeId { get; set; }
-        [ForeignKey(nameof(WorkflowTemplateNode.Id))]
+        [ForeignKey(nameof(WorkflowTemplateNodeTable.Id))]
         public string DependencyNodeId { get; set; }
     }
 }

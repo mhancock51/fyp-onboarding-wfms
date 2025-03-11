@@ -37,6 +37,10 @@ builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInst
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
+builder.Services.AddScoped<IWorkflowTemplateRepository, WorkflowTemplateRepository>();
+builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNodeRepository>();
+builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("workflowtemplatenode")]
-    public class WorkflowTemplateNode : ITableEntity
+    public class WorkflowTemplateNodeTable : ITableEntity
     {
         [Key]
         public string Id { get; set; }
