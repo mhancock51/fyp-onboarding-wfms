@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels;
 
@@ -69,6 +70,14 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 var response = await _accountLogic.GetInvitedAccount(emailAddress);
                 return StatusCode(response.HttpCode, response);
             }
+        }
+
+        [Authorize]
+        [HttpGet("directory")]
+        public async Task<IActionResult> GetDirectory()
+        {
+            var response = await _accountLogic.GetDirectoryOfAllRegisteredAccounts();
+            return StatusCode(response.HttpCode, response);
         }
     }
 }

@@ -121,6 +121,9 @@ const Api = {
   },
   fetchAllTaskTemplates: async() => {
     return AuthInstance.get(`${ROUTE_URL}/task/templates/all`);
+  },
+  fetchAccountsDirectory: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/account/directory`);
   }
 }
 

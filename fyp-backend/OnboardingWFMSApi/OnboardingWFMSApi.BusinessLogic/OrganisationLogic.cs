@@ -88,7 +88,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<OrganisationTable, string>> GetOrganisation()
         {
             var orgs = await _organisationRepository.GetAll();
-            if (orgs.Count == 0)
+            if (orgs.Count() == 0)
             {
                 return new HTTPResponse<OrganisationTable, string>() { Success = false, HttpCode = 400, Error = "No organisation exists" };
             }

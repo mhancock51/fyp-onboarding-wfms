@@ -1,19 +1,27 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
-import { Trash2 } from 'lucide-react';
-import React, { useCallback } from 'react'
+import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import React, { useCallback, useState } from 'react'
+import TaskTypeBadge from '../../MyTasksPage/TaskTypeBadge';
 
 export type TaskNode = Node<
-  {
-    index: number;
-    taskTitle: number;
-    assignee: number;
-    deleteTask: (index: number) => void;
-  },
-  'counter'
+  {    
+    taskTitle: string;
+    description: string;
+    assignee: string;
+    taskDependencies: WorkflowTemplateNode[];
+    taskTypeId: string;
+    deleteTask: () => void;
+    moveTaskUp: () => void;
+    moveTaskDown: () => void;
+  }
 >;
 
 export default function TaskNode(props: NodeProps<TaskNode>) {
@@ -22,32 +30,61 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   const onChange = useCallback((evt: { target: { value: any; }; }) => {
     console.log(evt.target.value);
   }, []);
+
+  const [openPopover, setOpenPopover] = useState<boolean>(false);
   
   return (
-    <div style={{backgroundColor: "black", padding: "6px", border: "1px solid white", borderRadius: "10px", width: "15em"}}>
-      <Handle type="target" position={Position.Top} />
-      <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-        <div className='flex flex-row justify-between gap-8 items-center relative' style={{}}>
-          <label htmlFor="text" className='text-sm' style={{textAlign: "center", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "15em", overflow: "hidden"}}>{props.data.taskTitle}</label>
-          <Button variant="destructive" size="icon" className='rounded-2xl w-6 h-6' style={{position: "absolute", right: 0}} onClick={() => {props.data.deleteTask(props.data.index);}}><Trash2/></Button>
+    <Popover open={openPopover} onOpenChange={setOpenPopover}>
+      <PopoverTrigger asChild>
+        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", width: "20em",
+          boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
+        }} onClick={() => {setOpenPopover(true)}}>
+          <Handle type="target" position={Position.Top} />
+          <div className='flex flex-col justify-start'>
+            <div className='flex flex-row justify-between gap-8 items-center w-full'>
+              <label htmlFor="text" className='text-sm w-full' style={{textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>{props.data.taskTitle}</label>              
+            </div>
+            <Separator/>
+            <div className='flex flex-row gap-2 py-1'>
+              <Badge className='rounded-full'>{props.data.assignee}</Badge>
+              {
+                props.data.taskDependencies.length > 0 &&
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Badge className='rounded-full'>{props.data.taskDependencies.length} Dependencies</Badge>
+                  </HoverCardTrigger> 
+                  <HoverCardContent className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                    <div className='flex flex-col gap-1 text-sm'>
+                      <Label>{props.data.taskDependencies.length > 0 ? "Dependencies" : "Dependency"}</Label>
+                      <Separator/>
+                    {
+                      props.data.taskDependencies.map((dependency, index) => (
+                        <Label key={index} className='text-xs cursor-pointer'>{dependency.taskTemplate.name}</Label>
+                      ))
+                    }
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              }             
+              <TaskTypeBadge taskTypeId={props.data.taskTypeId}/>
+            </div>
+          </div>
+          <Handle type="source" position={Position.Bottom} id="a" />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id="b"
+            style={handleStyle}
+          />
         </div>
-        <Separator/>
-        <div className='flex flex-row gap-8'>
-          <label htmlFor="text" className='text-xs flex-4'>Description:</label>
-          <label htmlFor="text" className='text-xs flex-8'>[Task Description]</label>
-        </div>
-        <div className='flex flex-row gap-8'>
-          <label htmlFor="text" className='text-xs flex-4'>Assignee:</label>
-          <label htmlFor="text" className='text-xs flex-8'><Badge>{props.data.assignee}</Badge></label>
-        </div>             
-      </div>
-      <Handle type="source" position={Position.Bottom} id="a" />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="b"
-        style={handleStyle}
-      />
-    </div>
+      </PopoverTrigger>
+      <PopoverContent side="right" className='rounded-full w-[40px] p-0 py-2'>
+        <div className='flex flex-col gap-2 w-full justify-center items-center'>
+          <ChevronUp className='cursor-pointer hover:text-blue-700' onClick={() => {props.data.moveTaskUp(); setOpenPopover(false);}}/>
+          <ChevronDown className='cursor-pointer hover:text-blue-700' onClick={() => {props.data.moveTaskDown(); setOpenPopover(false);}}/>
+          <Trash2 className='cursor-pointer hover:text-destructive' onClick={() => {props.data.deleteTask(); setOpenPopover(false);}}/>
+        </div>        
+      </PopoverContent>
+    </Popover>
   );
 }
