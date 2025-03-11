@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,18 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
 {
     public interface IWorkflowTemplateRepository : IRepository<WorkflowTemplateTable>
     {
-
+        public Task<WorkflowTemplateTable> GetWorkflowTemplateByName(string name);
     }
 
     public class WorkflowTemplateRepository : BaseRepository<WorkflowTemplateTable>, IWorkflowTemplateRepository
     {
         public WorkflowTemplateRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
+        }
+
+        public async Task<WorkflowTemplateTable> GetWorkflowTemplateByName(string name)
+        {
+            return await _dbContext.workflowTemplates.FirstOrDefaultAsync(i => i.Name == name);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
     {
         public WorkflowTemplateNodeRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-        }
+        }        
     }
 }

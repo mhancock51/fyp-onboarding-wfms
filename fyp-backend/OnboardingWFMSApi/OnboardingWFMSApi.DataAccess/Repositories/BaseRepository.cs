@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public Task<TEntity> GetById(string id);
         public Task<bool> ExistsById(string id);
         public Task<List<TEntity>> GetAll();
+        public Task<List<TEntity>> AddManyAsync(List<TEntity> entities);
     }
 
     
@@ -88,6 +91,20 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public virtual async Task<List<TEntity>> GetAll()
         {
             return _dbContext.Set<TEntity>().ToList();
+        }
+
+        public virtual async Task<List<TEntity>> AddManyAsync(List<TEntity> entities)
+        {
+            var savedEntities = new List<TEntity>();
+            foreach (var entity in entities)
+            {
+                var result = await _dbContext.AddAsync(entity);
+                savedEntities.Add(result.Entity);
+            }
+            var rows = await _dbContext.SaveChangesAsync();
+            if (rows != entities.Count) throw new Exception("Failed to save records correctly");
+            // return all new entities
+            return savedEntities;
         }
     }
 }
