@@ -74,6 +74,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
             taskTitle: task.taskTemplate.name,
             description: task.taskTemplate.description,
             deleteTask: () => { removeWorkflowNode(task.id) },
+            moveTaskUp: () => { moveNodeUp(index, "preflow");},
+            moveTaskDown: () => { moveNodeDown(index, "preflow");},
             assignee: task.assignee.displayName
           } 
         };
@@ -115,6 +117,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
           taskTitle: task.taskTemplate.name,
           description: task.taskTemplate.description,
           deleteTask: () => { removeWorkflowNode(task.id) },
+          moveTaskUp: () => { moveNodeUp(index, "mainflow");},
+          moveTaskDown: () => { moveNodeDown(index, "mainflow");},
           assignee: task.assignee.displayName
         } 
       };
@@ -167,6 +171,32 @@ export default function WorkflowTemplateBuilder(props: Props) {
         break;
       default:
         return;
+    }
+  }
+
+  function moveItemBack<T,>(list: T[], index: number, direction: -1 | 1): T[] {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= list.length) return list; // Prevent out-of-bounds
+    const newList = [...list];
+    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]]; // Swap items
+    return newList;
+  };
+
+  function moveNodeUp(index: number, section: "preflow" | "mainflow") {    
+    if (section === "preflow" && index > 0) {
+      setPreflowTasks((prevState) => moveItemBack(prevState, index, -1));      
+    }
+    else if(section === "mainflow" && index > 0) {
+      setMainflowTasks((prevState) => moveItemBack(prevState, index, -1));
+    }
+  }
+
+  function moveNodeDown(index: number, section: "preflow" | "mainflow") {    
+    if (section === "preflow") {
+      setPreflowTasks((prevState) => moveItemBack(prevState, index, 1));      
+    }
+    else if(section === "mainflow") {
+      setMainflowTasks((prevState) => moveItemBack(prevState, index, 1));
     }
   }
 
