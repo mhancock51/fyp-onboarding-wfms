@@ -69,7 +69,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
           <form className='flex flex-col gap-2 w-full' onSubmit={(event: any) => { event.preventDefault(); addTaskToWorkflow();}}>
             <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right">Task Assignee</Label>
-              <AccountDirectoryLookup setAccount={setAssignee} additionalAccounts={TEMPLATED_ACCOUNTS}/>              
+              <AccountDirectoryLookup setAccount={setAssignee} additionalAccounts={TEMPLATED_ACCOUNTS}/>                     
             </div>  
             <div className="grid grid-cols-2 gap-4">
               <HoverCard>
@@ -82,7 +82,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                   </Card>                                
                 </HoverCardContent>
               </HoverCard>              
-              <Checkbox required/>
+              <Checkbox/>
             </div>  
             <DialogFooter>
               <Button type='button' onClick={() => {setStep(0);}}>Back</Button>

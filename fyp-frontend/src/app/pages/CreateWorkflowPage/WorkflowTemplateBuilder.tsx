@@ -21,6 +21,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   const START_WORKFLOW_NODE_ID = "start_workflow";
   const END_WORKFLOW_NODE_ID = "end_workflow";  
   const MAINFLOW_TRIGGERING_TASK_NODE_ID = "mainflow_triggering_task_id";
+  const ADD_TASK_NODE_ID = "add_task_node_id";
 
   const ARROW_MARKER_END = {type: MarkerType.ArrowClosed, width: 10, height: 10, color: 'var(--foreground)' };
 
@@ -38,6 +39,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
 
   const [open, setOpen] = useState<boolean>(false);
+  const [selectedSection, setSelectedSection] = useState<"preflow" | "mainflow">("preflow");
 
 
   function createEdge(prevNode: Node, node: Node) {
@@ -63,7 +65,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     preflowTasks.forEach((task, index) => {
       // add task node
       const prevNode = nodes[nodes.length - 1]
-      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 150); 
+      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
       const taskNode: Node = {
         id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
@@ -77,9 +79,20 @@ export default function WorkflowTemplateBuilder(props: Props) {
       // add edge between node and previous node
       edges.push(createEdge(prevNode, taskNode));
     });
+    // add button node to append a task
+    prevNode = nodes[nodes.length - 1]    
+    let addTaskNode: Node = {
+      id: `preflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
+      data: {
+        onClick: () => {setSelectedSection("preflow"); setOpen(true);}
+      }
+    }
+    nodes.push(addTaskNode);
+    edges.push(createEdge(prevNode, addTaskNode));
+
     // add mainflow triggering task node
     var prevNode = nodes[nodes.length - 1]
-    var nodeYPosition = prevNode.position.y + 150; 
+    var nodeYPosition = prevNode.position.y + 100; 
     const triggeringTaskNode: Node = {
       id: MAINFLOW_TRIGGERING_TASK_NODE_ID,
       type: "inviteUserNode", position: { x: 0, y: nodeYPosition},
@@ -92,7 +105,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     mainflowTasks.forEach((task, index) => {
       // add task node
       const prevNode = nodes[nodes.length - 1]
-      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 150); 
+      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
@@ -106,9 +119,19 @@ export default function WorkflowTemplateBuilder(props: Props) {
       // add edge between node and previous node
       edges.push(createEdge(prevNode, taskNode));
     })
+    // add button node to append a task
+    prevNode = nodes[nodes.length - 1]    
+    addTaskNode = {
+      id: `mainflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
+      data: {
+        onClick: () => {setSelectedSection("mainflow"); setOpen(true);}
+      }
+    }
+    nodes.push(addTaskNode);
+    edges.push(createEdge(prevNode, addTaskNode));
     // add end of workflow node
     prevNode = nodes[nodes.length - 1]
-    nodeYPosition = prevNode.position.y + 150; 
+    nodeYPosition = prevNode.position.y + 100; 
     const endWorkflowNode: Node = {
       id: END_WORKFLOW_NODE_ID,
       type: "endNode", position: { x: 0, y: nodeYPosition},
@@ -151,7 +174,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   }
 
   function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory) {
-    addWorkflowNode(taskTemplate.id, assingee, "preflow");
+    addWorkflowNode(taskTemplate.id, assingee, selectedSection);
   }
 
   useEffect(() => {    

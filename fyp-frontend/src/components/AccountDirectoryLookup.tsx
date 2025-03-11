@@ -29,8 +29,15 @@ export default function AccountDirectoryLookup(props: Props) {
     void fetchAccountsDirectory();
   }, []);
 
+  function handleValueChange(value: string) {
+    var account = accountsDirectory.concat(props.additionalAccounts).find(i => i.id === value);
+    if (account !== undefined) {
+      props.setAccount(account);
+    }
+  }
+
   return (
-    <Select onValueChange={(value: string) => {props.setAccount(accountsDirectory.find(i => i.id === value) ?? null);}} >
+    <Select onValueChange={(value: string) => {handleValueChange(value)}}>
       <SelectTrigger>
         <SelectValue placeholder="Select an Account" />
       </SelectTrigger>
