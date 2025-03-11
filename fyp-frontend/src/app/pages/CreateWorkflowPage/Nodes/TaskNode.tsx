@@ -9,7 +9,8 @@ import React, { useCallback } from 'react'
 export type TaskNode = Node<
   {
     index: number;
-    taskTitle: number;
+    taskTitle: string;
+    description: string;
     assignee: number;
     deleteTask: (index: number) => void;
   },
@@ -34,7 +35,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
         <Separator/>
         <div className='flex flex-row gap-8'>
           <label htmlFor="text" className='text-xs flex-4'>Description:</label>
-          <label htmlFor="text" className='text-xs flex-8'>[Task Description]</label>
+          <label htmlFor="text" className='text-xs flex-8' style={{overflowY: "hidden", textOverflow: "ellipsis", height: "3em"}}>{props.data.description}</label>
         </div>
         <div className='flex flex-row gap-8'>
           <label htmlFor="text" className='text-xs flex-4'>Assignee:</label>

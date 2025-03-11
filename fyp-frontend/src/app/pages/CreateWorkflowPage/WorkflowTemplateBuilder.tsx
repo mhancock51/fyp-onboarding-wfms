@@ -78,6 +78,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
         id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
           taskTitle: task.taskTemplate.name,
+          description: task.taskTemplate.description,
           deleteTask: () => { removeWorkflowNode(task.id) }
         } 
       };
@@ -105,6 +106,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
           taskTitle: task.taskTemplate.name,
+          description: task.taskTemplate.description,
           deleteTask: () => { removeWorkflowNode(task.id) }
         } 
       };
@@ -129,7 +131,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   }
 
   function addWorkflowNode(taskId: string, type: "preflow" | "mainflow") {
-    const taskTemplate = props.taskTemplates.find(i => i.id === taskId);;
+    const taskTemplate = props.taskTemplates.find(i => i.id === taskId);
     if (taskTemplate == null) {
       return
     }
@@ -152,7 +154,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   function removeWorkflowNode(id: string) {
     // attempt to find node in preflow tasks
     setPreflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
-    setMainflowTasks((prevState) => (prevState.filter(i => i.id !== i.id)));
+    setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
   }
 
   useEffect(() => {    
