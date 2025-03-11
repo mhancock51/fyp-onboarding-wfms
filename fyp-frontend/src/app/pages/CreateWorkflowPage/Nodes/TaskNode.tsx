@@ -9,6 +9,7 @@ import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
+import TaskTypeBadge from '../../MyTasksPage/TaskTypeBadge';
 
 export type TaskNode = Node<
   {    
@@ -16,6 +17,7 @@ export type TaskNode = Node<
     description: string;
     assignee: string;
     taskDependencies: WorkflowTemplateNode[];
+    taskTypeId: string;
     deleteTask: () => void;
     moveTaskUp: () => void;
     moveTaskDown: () => void;
@@ -34,7 +36,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   return (
     <Popover open={openPopover} onOpenChange={setOpenPopover}>
       <PopoverTrigger asChild>
-        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", width: "15em",
+        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", width: "20em",
           boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
         }} onClick={() => {setOpenPopover(true)}}>
           <Handle type="target" position={Position.Top} />
@@ -44,12 +46,12 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             </div>
             <Separator/>
             <div className='flex flex-row gap-2 py-1'>
-              <Badge>{props.data.assignee}</Badge>
+              <Badge className='rounded-full'>{props.data.assignee}</Badge>
               {
                 props.data.taskDependencies.length > 0 &&
                 <HoverCard>
                   <HoverCardTrigger>
-                    <Badge>{props.data.taskDependencies.length} Dependencies</Badge>
+                    <Badge className='rounded-full'>{props.data.taskDependencies.length} Dependencies</Badge>
                   </HoverCardTrigger> 
                   <HoverCardContent className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
                     <div className='flex flex-col gap-1 text-sm'>
@@ -64,6 +66,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
                   </HoverCardContent>
                 </HoverCard>
               }             
+              <TaskTypeBadge taskTypeId={props.data.taskTypeId}/>
             </div>
           </div>
           <Handle type="source" position={Position.Bottom} id="a" />

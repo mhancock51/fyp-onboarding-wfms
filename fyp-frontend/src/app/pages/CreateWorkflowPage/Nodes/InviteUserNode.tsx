@@ -10,7 +10,7 @@ export default function InviteUserNode() {
       <Handle type="target" position={Position.Top} />
       <div className='flex flex-row gap-2 items-center justify-center' style={{color: "oklch(0.546 0.245 262.881)"}}>
         <Mail/>
-        <h1 className='text-sm font-bold'>Jeff Invited</h1>
+        <h1 className='text-sm font-bold'>Onboarder Invited</h1>
       </div>
       <Handle type="source" position={Position.Bottom} id="a" />
       <Handle
