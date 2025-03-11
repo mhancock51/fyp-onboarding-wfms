@@ -9,7 +9,7 @@ namespace OnboardingWFMSApi.DataModels.DTOs
     public class AccountDirectoryDTO
     {
         public string DisplayName { get; set; }
-        public string AccountId { get; set; }
+        public string Id { get; set; }
         public string DepartmentId { get; set; }
         public string DepartmentName { get; set; }
     }

@@ -8,7 +8,7 @@ namespace OnboardingWFMSApi.DataModels.DTOs
 {
     public class AuthenticatedAccountDTO
     {
-        public string AccountId { get; set; }
+        public string Id { get; set; }
         public string DisplayName { get; set; }
         public string EmailAddress { get; set; }
         public bool IsOnboarder { get; set; }
