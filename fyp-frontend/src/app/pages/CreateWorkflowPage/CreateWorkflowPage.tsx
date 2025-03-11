@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { addEdge, Background, BackgroundVariant, Controls, MarkerType, Panel, ReactFlow, useEdgesState, useNodesState, Node, Edge } from '@xyflow/react';
-import './CreateWorkflowPage.css';
 import TaskNode from './Nodes/TaskNode';
 import StartNode from './Nodes/StartNode';
 import EndNode from './Nodes/EndNode';
@@ -9,13 +8,15 @@ import WorkflowTemplate from '@/models/WorkflowTemplate';
 import WorkflowTask from '@/models/WorkflowTask';
 import AddTaskNode from './Nodes/AddTaskNode';
 import AddTaskDialog from './AddTaskDialog';
+import InviteUserNode from './Nodes/InviteUserNode';
 
 export default function CreateWorkflowPage() {
   const START_NODE_ID = "-1";
   const END_NODE_ID = "-2";
   const ADD_TASK_NODE_ID = "-3";
+  const INVITE_USER_NODE_ID = "-4";
 
-  const ARROW_MARKER_END = {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' };
+  const ARROW_MARKER_END = {type: MarkerType.ArrowClosed, width: 10, height: 10, color: 'var(--foreground)' };
 
   const DEFAULT_WORKFLOW_TEMPLATE: WorkflowTemplate = {
     name: 'My Workflow',
@@ -48,7 +49,7 @@ export default function CreateWorkflowPage() {
     [setEdges],
   );
 
-  const nodeTypes = useMemo(() => ({ customNode: TaskNode, startNode: StartNode, endNode: EndNode, addTaskNode: AddTaskNode }), []);
+  const nodeTypes = useMemo(() => ({ customNode: TaskNode, startNode: StartNode, endNode: EndNode, addTaskNode: AddTaskNode, inviteUserNode: InviteUserNode }), []);
 
   function deleteTask(taskIndex: number) {
     setWorkflowTemplate((workflow) => ({ ...workflow, tasks: workflow.tasks.filter((_, index) => index !== taskIndex)}));
@@ -66,19 +67,25 @@ export default function CreateWorkflowPage() {
       nodes.push(node);
       // add edge to connect to previous node
       const previousNode = nodes[nodes.length - 2];      
-      edges.push({ id: `e${previousNode.id}-${index}`, source: previousNode.id, target: `${index}`, markerEnd: ARROW_MARKER_END, style: { strokeWidth: 4, stroke: '#009DD8'} })
+      edges.push({ id: `e${previousNode.id}-${index}`, source: previousNode.id, target: `${index}`, markerEnd: ARROW_MARKER_END, style: { strokeWidth: 4, stroke: 'var(--foreground)'} })
     });
+    // add "invite user" node
+    nodes.push({
+      id: INVITE_USER_NODE_ID, type: "inviteUserNode",
+      position: { x: 0, y: nodes[nodes.length - 1].position.y + 125},      
+    })
+
     // add "add task" node
     nodes.push({id: ADD_TASK_NODE_ID, type: "addTaskNode", position: { x: 0, y: nodes[nodes.length - 1].position.y + 125 }, data: { onClick: () => {setOpenDialog(true);}}});
     // add connecting node
     let previousNode = nodes[nodes.length - 2]; 
-    edges.push({ id: `e${previousNode.id}-${ADD_TASK_NODE_ID}`, source: previousNode.id, target: ADD_TASK_NODE_ID, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} });
+    edges.push({ id: `e${previousNode.id}-${ADD_TASK_NODE_ID}`, source: previousNode.id, target: ADD_TASK_NODE_ID, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: 'var(--foreground)' }, style: { strokeWidth: 4, stroke: 'var(--foreground)'} });
 
     // add end node    
     nodes.push({ id: END_NODE_ID, type: "endNode",  position: { x: 0, y: nodes[nodes.length - 1].position.y + 75 }});
     // add edge to connect to end node
     previousNode = nodes[nodes.length - 2];      
-    edges.push({ id: `e${previousNode.id}-${END_NODE_ID}`, source: previousNode.id, target: `${END_NODE_ID}`, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: '#009DD8' }, style: { strokeWidth: 4, stroke: '#009DD8'} })
+    edges.push({ id: `e${previousNode.id}-${END_NODE_ID}`, source: previousNode.id, target: `${END_NODE_ID}`, markerEnd: {type: MarkerType.ArrowClosed, width: 10, height: 10, color: 'var(--foreground)' }, style: { strokeWidth: 4, stroke: 'var(--foreground)'} })
 
     setNodes(nodes);
     setEdges(edges);

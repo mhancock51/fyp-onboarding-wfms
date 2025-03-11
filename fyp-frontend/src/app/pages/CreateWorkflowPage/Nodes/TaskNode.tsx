@@ -24,7 +24,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   }, []);
   
   return (
-    <div style={{backgroundColor: "black", padding: "6px", border: "1px solid white", borderRadius: "10px", width: "15em"}}>
+    <div className='p-3' style={{color: "var(--foreground)", backgroundColor: "var(--background)", border: "1px solid var(--foreground)", borderRadius: "10px", width: "15em"}}>
       <Handle type="target" position={Position.Top} />
       <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
         <div className='flex flex-row justify-between gap-8 items-center relative' style={{}}>

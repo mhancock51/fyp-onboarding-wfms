@@ -92,10 +92,9 @@ function App() {
           <Router>
             <Routes>
               <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>
-                <Route path="/" element={<div><h1>Test</h1><Button onClick={testValidityOfToken}>Test API</Button></div>} />
-                <Route path="/tasks" element={<MyTasksPage/>} />
+                <Route path="/" element={<MyTasksPage/>}/>                
                 <Route path="/workflows" element={<WorkflowsPage/>} />
-                <Route path="/workflows-create" element={<CreateWorkflowPage/>} />            
+                <Route path="/create-workflow" element={<CreateWorkflowPage/>} />            
                 <Route path="/settings" element={<div><h1>Settings</h1></div>} />
                 {/* only allow client to access these paths if admin */}
                 {/* <Route path="/invite" element={user?.isAdmin ? <InviteUser/> : <Navigate to={"/"} />}/> */}

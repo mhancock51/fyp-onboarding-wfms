@@ -62,7 +62,7 @@ export default function SidebarUser(props: Props) {
               <DropdownMenuItem style={{cursor: "pointer"}} onClick={() => {navigate("/settings");}}>
                 <Settings/> Settings
               </DropdownMenuItem>
-              <DropdownMenuItem style={{cursor: "pointer"}} onClick={() => {navigate("/settings");}}>
+              <DropdownMenuItem style={{cursor: "pointer"}}>
                 <ThemeToggle/>
               </DropdownMenuItem>
             </DropdownMenuGroup>

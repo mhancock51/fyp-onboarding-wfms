@@ -62,7 +62,7 @@ export default function TaskTemplatesListDialog(props: Props) {
               taskTemplates.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row.name}</TableCell>
-                  <TableCell className='p-2'>
+                  <TableCell className='p-3'>
                     <TaskTypeBadge taskTypeId={row.taskTypeId}/>                  
                   </TableCell>
                   <TableCell>{new Date(row.dateCreated).toLocaleString()}</TableCell>

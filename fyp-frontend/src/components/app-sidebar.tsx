@@ -24,7 +24,7 @@ import { title } from "process"
 const mainItems = [
   {
     title: "My Tasks",
-    url: "/tasks",
+    url: "",
     icon: ClipboardList,
   },
   {
@@ -52,8 +52,8 @@ export function AppSidebar(props: Props) {
       icon: ListTodo
     },
     {
-      title: "Create a Workflow Template",
-      onClickAction: () => {},
+      title: "Create Workflow Template",
+      onClickAction: () => { navigate("/create-workflow")},
       icon: Route
     },
     {

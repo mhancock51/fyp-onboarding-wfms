@@ -46,12 +46,12 @@ export default function TaskDrawer(props: Props) {
   }
 
   return (
-    <Drawer direction='right' onClose={() => {props.setOpen(false);}} open={props.open}>
+    <Drawer direction='right'  onClose={() => {props.setOpen(false);}} open={props.open}>
       <DrawerContent className="max-w-[600px] w-full p-2"> {/* Override max width */}
         {
           props.task !== null &&
           <>
-          <DrawerHeader className='p-2'>
+          <DrawerHeader className='p-3'>
             <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
             <div className='flex flex-row justify-center' style={{gap: "2px"}}>
               <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
