@@ -13,6 +13,7 @@ import AccountDirectory from '@/models/AccountDirectory';
 
 interface Props {
   taskTemplates: TaskTemplate[];
+  isOnboardingWorkflow: boolean;
 }
 
 export default function WorkflowTemplateBuilder(props: Props) {  
@@ -61,46 +62,48 @@ export default function WorkflowTemplateBuilder(props: Props) {
       data: {}
     }
     nodes.push(startNode);  
-    // render preflow tasks
-    preflowTasks.forEach((task, index) => {
-      // add task node
-      const prevNode = nodes[nodes.length - 1]
-      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
-      const taskNode: Node = {
-        id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
+    if (props.isOnboardingWorkflow) {
+      // render preflow tasks (preboarding tasks)
+      preflowTasks.forEach((task, index) => {
+        // add task node
+        const prevNode = nodes[nodes.length - 1]
+        const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
+        const taskNode: Node = {
+          id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
+          data: {
+            taskTitle: task.taskTemplate.name,
+            description: task.taskTemplate.description,
+            deleteTask: () => { removeWorkflowNode(task.id) },
+            assignee: task.assignee.displayName
+          } 
+        };
+        nodes.push(taskNode);
+        // add edge between node and previous node
+        edges.push(createEdge(prevNode, taskNode));
+      });
+      // add button node to append a task
+      prevNode = nodes[nodes.length - 1]    
+      let addTaskNode: Node = {
+        id: `preflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
         data: {
-          taskTitle: task.taskTemplate.name,
-          description: task.taskTemplate.description,
-          deleteTask: () => { removeWorkflowNode(task.id) },
-          assignee: task.assignee.displayName
-        } 
-      };
-      nodes.push(taskNode);
-      // add edge between node and previous node
-      edges.push(createEdge(prevNode, taskNode));
-    });
-    // add button node to append a task
-    prevNode = nodes[nodes.length - 1]    
-    let addTaskNode: Node = {
-      id: `preflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
-      data: {
-        onClick: () => {setSelectedSection("preflow"); setOpen(true);}
+          onClick: () => {setSelectedSection("preflow"); setOpen(true);}
+        }
       }
+      nodes.push(addTaskNode);
+      edges.push(createEdge(prevNode, addTaskNode));
+      // add mainflow triggering task node
+      var prevNode = nodes[nodes.length - 1]
+      var nodeYPosition = prevNode.position.y + 100; 
+      const triggeringTaskNode: Node = {
+        id: MAINFLOW_TRIGGERING_TASK_NODE_ID,
+        type: "inviteUserNode", position: { x: 0, y: nodeYPosition},
+        data: {}
+      }
+      nodes.push(triggeringTaskNode);
+      // add edge
+      edges.push(createEdge(prevNode, triggeringTaskNode));
     }
-    nodes.push(addTaskNode);
-    edges.push(createEdge(prevNode, addTaskNode));
 
-    // add mainflow triggering task node
-    var prevNode = nodes[nodes.length - 1]
-    var nodeYPosition = prevNode.position.y + 100; 
-    const triggeringTaskNode: Node = {
-      id: MAINFLOW_TRIGGERING_TASK_NODE_ID,
-      type: "inviteUserNode", position: { x: 0, y: nodeYPosition},
-      data: {}
-    }
-    nodes.push(triggeringTaskNode);
-    // add edge
-    edges.push(createEdge(prevNode, triggeringTaskNode));
     // render mainflow tasks
     mainflowTasks.forEach((task, index) => {
       // add task node
@@ -121,7 +124,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     })
     // add button node to append a task
     prevNode = nodes[nodes.length - 1]    
-    addTaskNode = {
+    var addTaskNode = {
       id: `mainflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
       data: {
         onClick: () => {setSelectedSection("mainflow"); setOpen(true);}
@@ -179,7 +182,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   useEffect(() => {    
     renderWorkflowNodes();
-  }, [preflowTasks, mainflowTasks]);
+  }, [preflowTasks, mainflowTasks, props.isOnboardingWorkflow]);
 
   return (
     <div className='flex flex-col gap-4'>
@@ -200,7 +203,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
       <div className='flex flex-row gap-4 justify-center'>
         <Button onClick={() => {setOpen(true);}}>Add Task</Button>      
       </div>
-      <AddTaskToWorkflowDialog open={open} setOpen={setOpen} onAddTask={addTaskToWorkflow}/>
+      <AddTaskToWorkflowDialog open={open} setOpen={setOpen} onAddTask={addTaskToWorkflow} isOnboardingWorkflow={props.isOnboardingWorkflow}/>
     </div>
   )
 }

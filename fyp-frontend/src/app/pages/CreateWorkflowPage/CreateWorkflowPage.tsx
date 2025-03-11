@@ -3,10 +3,12 @@ import WorkflowTemplateBuilder from './WorkflowTemplateBuilder';
 import { SetStateAction, useEffect, useState } from 'react';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 export default function CreateWorkflowPage() {
   const [taskTemplates, setTaskTemplates] = useState<TaskTemplate[]>([]);  
-  const [loading, setLoading] = useState<boolean>(false);    
+  const [loading, setLoading] = useState<boolean>(false);  
+  const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(false);  
 
   async function fetchTaskTemplates() {
     setLoading(true);
@@ -37,8 +39,9 @@ export default function CreateWorkflowPage() {
     }
     {
       !loading &&
-      <WorkflowTemplateBuilder taskTemplates={taskTemplates}/>
+      <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}/>
     }   
+    <Button onClick={() => {setIsOnboardingWf(!isOnboardingWf);}}>Toggle Onboarding Workflow</Button>
     </>
   )
 }
