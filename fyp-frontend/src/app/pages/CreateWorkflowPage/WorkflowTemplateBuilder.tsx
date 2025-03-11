@@ -8,11 +8,12 @@ import TaskNode from './Nodes/TaskNode';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { Button } from '@/components/ui/button';
 
-export default function WorkflowTemplateBuilder() {
-  // reserved task template Ids:
-  const START_WORKFLOW_TASK_TEMPLATE_ID = "start_workflow";
-  const END_WORKFLOW_TASK_TEMPLATE_ID = "end_workflow";
-  const INVITE_ONBOARDER_TASK_TEMPLATED_ID = "invite_onboarder";
+export default function WorkflowTemplateBuilder() {  
+
+  // reserved node ids:
+  const START_WORKFLOW_NODE_ID = "start_workflow";
+  const END_WORKFLOW_NODE_ID = "end_workflow";  
+  const MAINFLOW_TRIGGERING_TASK_NODE_ID = "mainflow_triggering_task_id";
 
   const ARROW_MARKER_END = {type: MarkerType.ArrowClosed, width: 10, height: 10, color: 'var(--foreground)' };
 
@@ -23,104 +24,131 @@ export default function WorkflowTemplateBuilder() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
 
   const nodeTypes = useMemo(() => ({ taskNode: TaskNode, startNode: StartNode, endNode: EndNode, addTaskNode: AddTaskNode, inviteUserNode: InviteUserNode }), []);
+  
 
-  const INITIAL_WF_NODES: WorkflowTemplateNode[] = [
-    {
-      taskTemplateId: START_WORKFLOW_TASK_TEMPLATE_ID,
-      previousTaskTemplateId: ''      
-    },
-    {
-      taskTemplateId: INVITE_ONBOARDER_TASK_TEMPLATED_ID,
-      previousTaskTemplateId: START_WORKFLOW_TASK_TEMPLATE_ID      
-    },
-    {
-      taskTemplateId: END_WORKFLOW_TASK_TEMPLATE_ID,
-      previousTaskTemplateId: INVITE_ONBOARDER_TASK_TEMPLATED_ID      
-    }
-  ]
+  // preflow and mainflow tasks (i.e. preboarding and onboarding)  
+  const [preflowTasks, setPreflowTasks] = useState<string[]>([]);
+  const [mainflowTasks, setMainflowTasks] = useState<string[]>([]);
 
-  const [workflowNodes, setWorkflowNodes] = useState<WorkflowTemplateNode[]>(INITIAL_WF_NODES);
+
 
   function getNodeTypeFromTaskTemplateId(taskTemplateId: string) {
     switch(taskTemplateId) {
-      case START_WORKFLOW_TASK_TEMPLATE_ID:
+      case START_WORKFLOW_NODE_ID:
         return "startNode";
-      case END_WORKFLOW_TASK_TEMPLATE_ID:
+      case END_WORKFLOW_NODE_ID:
         return "endNode";
-      case INVITE_ONBOARDER_TASK_TEMPLATED_ID:
+      case MAINFLOW_TRIGGERING_TASK_NODE_ID:
         return "inviteUserNode";
       default:
         return "taskNode"
     }
   }
 
+  function createEdge(prevNode: Node, node: Node) {
+    const edge: Edge = {
+      id: `e${prevNode.id}-${node.id}`, source: prevNode.id, target: node.id, 
+      markerEnd: ARROW_MARKER_END,
+      style: { strokeWidth: 4, stroke: 'var(--foreground)'}
+    };
+    return edge;
+  }
+
   function renderWorkflowNodes() {
     // loop through workflow nodes 
     let nodes: Node[] = [];
     let edges: Edge[] = [];
-    workflowNodes.forEach((wfNode, index) => {      
-      var prevNode: WorkflowTemplateNode | undefined = undefined;
-      prevNode = workflowNodes.find(i => i.taskTemplateId === wfNode.previousTaskTemplateId);    
-      // get y pos of previous node
-      const prevNodeYPos = nodes.find(i => i.id === wfNode.previousTaskTemplateId)?.position.y ?? 0;
-      // create node for task    
-      const node = {
-        id: wfNode.taskTemplateId, type: getNodeTypeFromTaskTemplateId(wfNode.taskTemplateId),
-        position: {
-          x: 0,
-          y: prevNodeYPos + 200
-        },
-        data: {}
-      }
-      nodes.push(node);
-      // create link to previous node, if any    
-      if (wfNode.previousTaskTemplateId !== "" && prevNode !== undefined) {    
-        edges.push(
-          {
-            id: `edge-${prevNode.taskTemplateId}-to-${node.id}`,
-            source: prevNode.taskTemplateId,
-            target: node.id,
-            markerEnd: ARROW_MARKER_END, style: { strokeWidth: 4, stroke: 'var(--foreground)'}
-          }
-        )
-      }
-      console.log("Nodes:", nodes);
-      console.log("Edges:", edges);
-      setNodes(nodes);
-      setEdges(edges);
+    // render workflow start node
+    const startNode = {
+      id: START_WORKFLOW_NODE_ID, type: "startNode", position: { x: 0, y: 0 },
+      data: {}
+    }
+    nodes.push(startNode);  
+    // render preflow tasks
+    preflowTasks.forEach((task, index) => {
+      // add task node
+      const prevNode = nodes[nodes.length - 1]
+      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
+      const taskNode: Node = {
+        id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
+        data: {
+          taskTitle: task,
+          deleteTask: () => { removeWorkflowNode(task) }
+        } 
+      };
+      nodes.push(taskNode);
+      // add edge between node and previous node
+      edges.push(createEdge(prevNode, taskNode));
+    });
+    // add mainflow triggering task node
+    var prevNode = nodes[nodes.length - 1]
+    var nodeYPosition = prevNode.position.y + 175; 
+    const triggeringTaskNode: Node = {
+      id: MAINFLOW_TRIGGERING_TASK_NODE_ID,
+      type: "inviteUserNode", position: { x: 0, y: nodeYPosition},
+      data: {}
+    }
+    nodes.push(triggeringTaskNode);
+    // add edge
+    edges.push(createEdge(prevNode, triggeringTaskNode));
+    // render mainflow tasks
+    mainflowTasks.forEach((task, index) => {
+      // add task node
+      const prevNode = nodes[nodes.length - 1]
+      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
+      const taskNode: Node = {
+        id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
+        data: {
+          taskTitle: task,
+          deleteTask: () => { removeWorkflowNode(task) }
+        } 
+      };
+      nodes.push(taskNode);
+      // add edge between node and previous node
+      edges.push(createEdge(prevNode, taskNode));
     })
+    // add end of workflow node
+    prevNode = nodes[nodes.length - 1]
+    nodeYPosition = prevNode.position.y + 175; 
+    const endWorkflowNode: Node = {
+      id: END_WORKFLOW_NODE_ID,
+      type: "endNode", position: { x: 0, y: nodeYPosition},
+      data: {}
+    }
+    nodes.push(endWorkflowNode);
+    // add edge
+    edges.push(createEdge(prevNode, endWorkflowNode));
+
+    setNodes(nodes);
+    setEdges(edges);
   }
 
-  function updateNodeInWFNodes(wfNodes: WorkflowTemplateNode[], updatedNode: WorkflowTemplateNode) {
-    return wfNodes.map((wfNode) => (      
-      wfNode.taskTemplateId === updatedNode.taskTemplateId ? updatedNode : wfNode
-    ))
+  function addWorkflowNode(taskId: string, type: "preflow" | "mainflow") {
+    switch(type) {
+      case "preflow":
+        setPreflowTasks((prevState) => ([...prevState, taskId]));
+        break;
+      case "mainflow":
+        setMainflowTasks((prevState) => ([...prevState, taskId]));
+        break;
+      default:
+        return;
+    }
   }
 
-  function addWorkflowNode(wfNode: WorkflowTemplateNode) {
-    // add workflow node to list, link it to a valid previous task
-    var updatedWfNodes = [...workflowNodes];
-    console.log("test 3:", workflowNodes);
-    updatedWfNodes.push(wfNode);
-    // find the other task that had that prev task as its and make the new node that task's prev task
-    var linkingNode = updatedWfNodes.find(i => i.previousTaskTemplateId === wfNode.previousTaskTemplateId);
-    if (linkingNode) {
-      linkingNode.previousTaskTemplateId = wfNode.taskTemplateId;
-      console.log("test 1:",updatedWfNodes);
-      updatedWfNodes = [...updateNodeInWFNodes(updatedWfNodes, linkingNode)];
-      console.log("test 2:",updatedWfNodes);
-    }    
-    setWorkflowNodes(updatedWfNodes);
+  function removeWorkflowNode(id: string) {
+    // attempt to find node in preflow tasks
+    setPreflowTasks((prevState) => (prevState.filter(i => i !== id)));
+    setMainflowTasks((prevState) => (prevState.filter(i => i !== id)));
   }
 
-  useEffect(() => {
-    console.log("TESTTT:", workflowNodes);
+  useEffect(() => {    
     renderWorkflowNodes();
-  }, [workflowNodes]);
+  }, [preflowTasks, mainflowTasks]);
 
   return (
     <div className='flex flex-col gap-4'>
-      <div style={{ width: '1500px', height: '700px', margin: "auto"}}>
+      <div style={{ width: '2000px', height: '1100px', margin: "auto"}}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -134,10 +162,10 @@ export default function WorkflowTemplateBuilder() {
           <Controls />
         </ReactFlow> 
       </div>
-      <Button onClick={() => {addWorkflowNode({
-        taskTemplateId: Date.now().toString(),
-        previousTaskTemplateId: workflowNodes[workflowNodes.length - 2].taskTemplateId
-      })}}>Add Workflow Task</Button>       
+      <div className='flex flex-row gap-4 justify-center'>
+        <Button onClick={() => {addWorkflowNode(Date.now().toString().substring(-4), "preflow")}}>Add Preflow Task</Button>       
+        <Button onClick={() => {addWorkflowNode(Date.now().toString().substring(-4), "mainflow")}}>Add Mainflow Task</Button>       
+      </div>
     </div>
   )
 }

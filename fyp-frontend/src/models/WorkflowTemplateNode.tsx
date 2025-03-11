@@ -1,6 +1,9 @@
 import TaskTemplate from "./tasks/TaskTemplate";
 
 export default interface WorkflowTemplateNode {
+  id: string;
   taskTemplateId: string;
-  previousTaskTemplateId: string;  
+  assigneeId: string;
+  assigneeName: string;
+    
 }
