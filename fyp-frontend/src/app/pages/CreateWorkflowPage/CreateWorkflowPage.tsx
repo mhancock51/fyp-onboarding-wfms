@@ -1,19 +1,43 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { addEdge, Background, BackgroundVariant, Controls, MarkerType, Panel, ReactFlow, useEdgesState, useNodesState, Node, Edge } from '@xyflow/react';
-import TaskNode from './Nodes/TaskNode';
-import StartNode from './Nodes/StartNode';
-import EndNode from './Nodes/EndNode';
-import { Button } from '@/components/ui/button';
-import WorkflowTemplate from '@/models/WorkflowTemplate';
-import WorkflowTask from '@/models/WorkflowTask';
-import AddTaskNode from './Nodes/AddTaskNode';
-import AddTaskDialog from './AddTaskDialog';
-import InviteUserNode from './Nodes/InviteUserNode';
+import Api from '@/api';
 import WorkflowTemplateBuilder from './WorkflowTemplateBuilder';
+import { useEffect, useState } from 'react';
+import WorkflowTask from '@/models/WorkflowTask';
+import TaskTemplate from '@/models/tasks/TaskTemplate';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function CreateWorkflowPage() {
+  const [taskTemplates, setTaskTemplates] = useState<TaskTemplate[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  async function fetchTaskTemplates() {
+    setLoading(true);
+    Api.fetchAllTaskTemplates()
+    .then((response) => {
+      setTaskTemplates(response.data.data);
+      setLoading(false);
+    })
+    .catch((error) => {
+      setLoading(false);
+    })
+  }
+
+  useEffect(() => {
+    void fetchTaskTemplates();
+  }, []);
 
   return (
-    <WorkflowTemplateBuilder/>
+    <>
+    {
+      loading &&
+      <div className='flex flex-row gap-2'>
+        <Spinner/>
+        <span>Loading...</span>
+      </div>
+    }
+    {
+      !loading &&
+      <WorkflowTemplateBuilder taskTemplates={taskTemplates}/>
+    }
+    </>
   )
 }

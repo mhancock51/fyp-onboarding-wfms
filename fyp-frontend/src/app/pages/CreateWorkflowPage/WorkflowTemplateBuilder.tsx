@@ -7,8 +7,13 @@ import StartNode from './Nodes/StartNode';
 import TaskNode from './Nodes/TaskNode';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { Button } from '@/components/ui/button';
+import TaskTemplate from '@/models/tasks/TaskTemplate';
 
-export default function WorkflowTemplateBuilder() {  
+interface Props {
+  taskTemplates: TaskTemplate[];
+}
+
+export default function WorkflowTemplateBuilder(props: Props) {  
 
   // reserved node ids:
   const START_WORKFLOW_NODE_ID = "start_workflow";
@@ -27,8 +32,8 @@ export default function WorkflowTemplateBuilder() {
   
 
   // preflow and mainflow tasks (i.e. preboarding and onboarding)  
-  const [preflowTasks, setPreflowTasks] = useState<string[]>([]);
-  const [mainflowTasks, setMainflowTasks] = useState<string[]>([]);
+  const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
+  const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
 
 
 
@@ -72,8 +77,8 @@ export default function WorkflowTemplateBuilder() {
       const taskNode: Node = {
         id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
-          taskTitle: task,
-          deleteTask: () => { removeWorkflowNode(task) }
+          taskTitle: task.taskTemplate.name,
+          deleteTask: () => { removeWorkflowNode(task.id) }
         } 
       };
       nodes.push(taskNode);
@@ -99,8 +104,8 @@ export default function WorkflowTemplateBuilder() {
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
-          taskTitle: task,
-          deleteTask: () => { removeWorkflowNode(task) }
+          taskTitle: task.taskTemplate.name,
+          deleteTask: () => { removeWorkflowNode(task.id) }
         } 
       };
       nodes.push(taskNode);
@@ -124,12 +129,20 @@ export default function WorkflowTemplateBuilder() {
   }
 
   function addWorkflowNode(taskId: string, type: "preflow" | "mainflow") {
+    const taskTemplate = props.taskTemplates.find(i => i.id === taskId);;
+    if (taskTemplate == null) {
+      return
+    }
+    const node: WorkflowTemplateNode = {
+      id: crypto.randomUUID(),
+      taskTemplate: taskTemplate
+    };
     switch(type) {
       case "preflow":
-        setPreflowTasks((prevState) => ([...prevState, taskId]));
+        setPreflowTasks((prevState) => ([...prevState, node]));
         break;
       case "mainflow":
-        setMainflowTasks((prevState) => ([...prevState, taskId]));
+        setMainflowTasks((prevState) => ([...prevState, node]));
         break;
       default:
         return;
@@ -138,8 +151,8 @@ export default function WorkflowTemplateBuilder() {
 
   function removeWorkflowNode(id: string) {
     // attempt to find node in preflow tasks
-    setPreflowTasks((prevState) => (prevState.filter(i => i !== id)));
-    setMainflowTasks((prevState) => (prevState.filter(i => i !== id)));
+    setPreflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
+    setMainflowTasks((prevState) => (prevState.filter(i => i.id !== i.id)));
   }
 
   useEffect(() => {    
@@ -163,8 +176,8 @@ export default function WorkflowTemplateBuilder() {
         </ReactFlow> 
       </div>
       <div className='flex flex-row gap-4 justify-center'>
-        <Button onClick={() => {addWorkflowNode(Date.now().toString().substring(-4), "preflow")}}>Add Preflow Task</Button>       
-        <Button onClick={() => {addWorkflowNode(Date.now().toString().substring(-4), "mainflow")}}>Add Mainflow Task</Button>       
+        <Button onClick={() => {addWorkflowNode(props.taskTemplates[Math.floor(Math.random() * props.taskTemplates.length)].id, "preflow")}}>Add Preflow Task</Button>       
+        <Button onClick={() => {addWorkflowNode(props.taskTemplates[Math.floor(Math.random() * props.taskTemplates.length)].id, "mainflow")}}>Add Mainflow Task</Button>       
       </div>
     </div>
   )
