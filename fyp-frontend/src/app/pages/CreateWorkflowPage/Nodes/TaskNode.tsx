@@ -44,23 +44,26 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             </div>
             <Separator/>
             <div className='flex flex-row gap-2 py-1'>
-              <Badge>{props.data.assignee}</Badge>             
-              <HoverCard>
-                <HoverCardTrigger>
-                  <Badge>{props.data.taskDependencies.length} Dependencies</Badge>
-                </HoverCardTrigger> 
-                <HoverCardContent className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
-                  <div className='flex flex-col gap-1 text-sm'>
-                    <Label>Dependencies</Label>
-                    <Separator/>
-                  {
-                    props.data.taskDependencies.map((dependency, index) => (
-                      <Label key={index} className='text-xs cursor-pointer'>{dependency.taskTemplate.name}</Label>
-                    ))
-                  }
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
+              <Badge>{props.data.assignee}</Badge>
+              {
+                props.data.taskDependencies.length > 0 &&
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Badge>{props.data.taskDependencies.length} Dependencies</Badge>
+                  </HoverCardTrigger> 
+                  <HoverCardContent className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                    <div className='flex flex-col gap-1 text-sm'>
+                      <Label>{props.data.taskDependencies.length > 0 ? "Dependencies" : "Dependency"}</Label>
+                      <Separator/>
+                    {
+                      props.data.taskDependencies.map((dependency, index) => (
+                        <Label key={index} className='text-xs cursor-pointer'>{dependency.taskTemplate.name}</Label>
+                      ))
+                    }
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              }             
             </div>
           </div>
           <Handle type="source" position={Position.Bottom} id="a" />
