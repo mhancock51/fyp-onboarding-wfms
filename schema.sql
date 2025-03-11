@@ -104,6 +104,29 @@ CREATE TABLE fileuploadtaskinstance (
     UploadedTimestamp DATETIME
 );
 
+/* Everything workflow template related */
+CREATE TABLE workflowtemplate (
+    Id VARCHAR(255) PRIMARY KEY,
+    IsOnboardingWF BOOLEAN,
+    Name VARCHAR(255),
+    Description TEXT
+);
+
+CREATE TABLE workflowtemplatenode (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowTemplateId VARCHAR(255),
+    TaskTemplateId VARCHAR(255),
+    AssigneeId VARCHAR(255),
+    `Order` INT,
+    WorkflowSection VARCHAR(255)
+);
+
+CREATE TABLE nodetaskdependency (
+    Id VARCHAR(255) PRIMARY KEY,
+    NodeId VARCHAR(255),
+    DependencyNodeId VARCHAR(255)
+);
+
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -182,3 +205,24 @@ ALTER TABLE fileuploadtaskinstance
 ALTER TABLE fileuploadtaskinstance
     ADD CONSTRAINT fk_file_upload_document_id
     FOREIGN KEY (DocumentId) REFERENCES document(Id);
+
+/* Workflow Template Node Constraints */
+ALTER TABLE workflowtemplatenode
+    ADD CONSTRAINT fk_workflow_template_node_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id);
+
+ALTER TABLE workflowtemplatenode
+    ADD CONSTRAINT  fk_workflow_template_node_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+
+ALTER TABLE workflowtemplatenode
+    ADD CONSTRAINT fk_workflow_template_node_assignee_id
+    FOREIGN KEY (AssigneeId) REFERENCES account(AccountId);
+
+ALTER TABLE nodetaskdependency
+    ADD CONSTRAINT fk_task_dependency_node_id
+    FOREIGN KEY (NodeId) REFERENCES workflowtemplatenode(Id);
+
+ALTER TABLE nodetaskdependency
+    ADD CONSTRAINT fk_task_dependency_dependency_node_id
+    FOREIGN KEY (DependencyNodeId) REFERENCES workflowtemplatenode(Id);
