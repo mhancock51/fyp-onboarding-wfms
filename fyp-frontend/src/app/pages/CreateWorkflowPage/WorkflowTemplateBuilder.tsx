@@ -8,6 +8,8 @@ import TaskNode from './Nodes/TaskNode';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { Button } from '@/components/ui/button';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
+import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
+import AccountDirectory from '@/models/AccountDirectory';
 
 interface Props {
   taskTemplates: TaskTemplate[];
@@ -35,20 +37,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
   const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
   const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
 
+  const [open, setOpen] = useState<boolean>(false);
 
-
-  function getNodeTypeFromTaskTemplateId(taskTemplateId: string) {
-    switch(taskTemplateId) {
-      case START_WORKFLOW_NODE_ID:
-        return "startNode";
-      case END_WORKFLOW_NODE_ID:
-        return "endNode";
-      case MAINFLOW_TRIGGERING_TASK_NODE_ID:
-        return "inviteUserNode";
-      default:
-        return "taskNode"
-    }
-  }
 
   function createEdge(prevNode: Node, node: Node) {
     const edge: Edge = {
@@ -73,13 +63,14 @@ export default function WorkflowTemplateBuilder(props: Props) {
     preflowTasks.forEach((task, index) => {
       // add task node
       const prevNode = nodes[nodes.length - 1]
-      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
+      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 150); 
       const taskNode: Node = {
         id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
           taskTitle: task.taskTemplate.name,
           description: task.taskTemplate.description,
-          deleteTask: () => { removeWorkflowNode(task.id) }
+          deleteTask: () => { removeWorkflowNode(task.id) },
+          assignee: task.assignee.displayName
         } 
       };
       nodes.push(taskNode);
@@ -88,7 +79,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     });
     // add mainflow triggering task node
     var prevNode = nodes[nodes.length - 1]
-    var nodeYPosition = prevNode.position.y + 175; 
+    var nodeYPosition = prevNode.position.y + 150; 
     const triggeringTaskNode: Node = {
       id: MAINFLOW_TRIGGERING_TASK_NODE_ID,
       type: "inviteUserNode", position: { x: 0, y: nodeYPosition},
@@ -101,13 +92,14 @@ export default function WorkflowTemplateBuilder(props: Props) {
     mainflowTasks.forEach((task, index) => {
       // add task node
       const prevNode = nodes[nodes.length - 1]
-      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
+      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 150); 
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
           taskTitle: task.taskTemplate.name,
           description: task.taskTemplate.description,
-          deleteTask: () => { removeWorkflowNode(task.id) }
+          deleteTask: () => { removeWorkflowNode(task.id) },
+          assignee: task.assignee.displayName
         } 
       };
       nodes.push(taskNode);
@@ -116,7 +108,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     })
     // add end of workflow node
     prevNode = nodes[nodes.length - 1]
-    nodeYPosition = prevNode.position.y + 175; 
+    nodeYPosition = prevNode.position.y + 150; 
     const endWorkflowNode: Node = {
       id: END_WORKFLOW_NODE_ID,
       type: "endNode", position: { x: 0, y: nodeYPosition},
@@ -130,14 +122,15 @@ export default function WorkflowTemplateBuilder(props: Props) {
     setEdges(edges);
   }
 
-  function addWorkflowNode(taskId: string, type: "preflow" | "mainflow") {
+  function addWorkflowNode(taskId: string, assignee: AccountDirectory, type: "preflow" | "mainflow") {
     const taskTemplate = props.taskTemplates.find(i => i.id === taskId);
     if (taskTemplate == null) {
       return
     }
     const node: WorkflowTemplateNode = {
       id: crypto.randomUUID(),
-      taskTemplate: taskTemplate
+      taskTemplate: taskTemplate,
+      assignee: assignee
     };
     switch(type) {
       case "preflow":
@@ -155,6 +148,10 @@ export default function WorkflowTemplateBuilder(props: Props) {
     // attempt to find node in preflow tasks
     setPreflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
     setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
+  }
+
+  function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory) {
+    addWorkflowNode(taskTemplate.id, assingee, "preflow");
   }
 
   useEffect(() => {    
@@ -178,9 +175,9 @@ export default function WorkflowTemplateBuilder(props: Props) {
         </ReactFlow> 
       </div>
       <div className='flex flex-row gap-4 justify-center'>
-        <Button onClick={() => {addWorkflowNode(props.taskTemplates[Math.floor(Math.random() * props.taskTemplates.length)].id, "preflow")}}>Add Preflow Task</Button>       
-        <Button onClick={() => {addWorkflowNode(props.taskTemplates[Math.floor(Math.random() * props.taskTemplates.length)].id, "mainflow")}}>Add Mainflow Task</Button>       
+        <Button onClick={() => {setOpen(true);}}>Add Task</Button>      
       </div>
+      <AddTaskToWorkflowDialog open={open} setOpen={setOpen} onAddTask={addTaskToWorkflow}/>
     </div>
   )
 }

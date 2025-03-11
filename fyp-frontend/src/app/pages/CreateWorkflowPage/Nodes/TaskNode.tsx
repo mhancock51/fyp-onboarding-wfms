@@ -11,7 +11,7 @@ export type TaskNode = Node<
     index: number;
     taskTitle: string;
     description: string;
-    assignee: number;
+    assignee: string;
     deleteTask: (index: number) => void;
   },
   'counter'
@@ -25,22 +25,25 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   }, []);
   
   return (
-    <div className='p-3' style={{color: "var(--foreground)", backgroundColor: "var(--background)", border: "1px solid var(--foreground)", borderRadius: "10px", width: "15em"}}>
+    <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", border: "1px solid var(--foreground)", borderRadius: "10px", width: "15em"}}>
       <Handle type="target" position={Position.Top} />
-      <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-        <div className='flex flex-row justify-between gap-8 items-center relative' style={{}}>
-          <label htmlFor="text" className='text-sm' style={{textAlign: "center", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "15em", overflow: "hidden"}}>{props.data.taskTitle}</label>
-          <Button variant="destructive" size="icon" className='rounded-2xl w-6 h-6' style={{position: "absolute", right: 0}} onClick={() => {props.data.deleteTask(props.data.index);}}><Trash2/></Button>
+      <div className='flex flex-col justify-start'>
+        <div className='flex flex-row justify-between gap-8 items-center w-full'>
+          <label htmlFor="text" className='text-sm w-full' style={{textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>{props.data.taskTitle}</label>
+          <Button variant="destructive" size="icon" className='rounded-2xl min-w-4 h-6 m-1' onClick={() => {props.data.deleteTask(props.data.index);}}><Trash2/></Button>
+
         </div>
         <Separator/>
-        <div className='flex flex-row gap-8'>
-          <label htmlFor="text" className='text-xs flex-4'>Description:</label>
-          <label htmlFor="text" className='text-xs flex-8' style={{overflowY: "hidden", textOverflow: "ellipsis", height: "3em"}}>{props.data.description}</label>
+        <div className='flex flex-col gap-2'>
+          {/* <div className='flex flex-row gap-8'>
+            <label htmlFor="text" className='text-xs flex-4'>Description:</label>
+            <label htmlFor="text" className='text-xs flex-8' style={{overflowY: "hidden", textOverflow: "ellipsis", height: "2em"}}>{props.data.description}</label>
+          </div> */}
+          <div className='flex flex-row gap-8 py-2'>
+            <label htmlFor="text" className='text-xs flex-4'>Assignee:</label>
+            <label htmlFor="text" className='text-xs flex-8'><Badge>{props.data.assignee}</Badge></label>
+          </div>             
         </div>
-        <div className='flex flex-row gap-8'>
-          <label htmlFor="text" className='text-xs flex-4'>Assignee:</label>
-          <label htmlFor="text" className='text-xs flex-8'><Badge>{props.data.assignee}</Badge></label>
-        </div>             
       </div>
       <Handle type="source" position={Position.Bottom} id="a" />
       <Handle

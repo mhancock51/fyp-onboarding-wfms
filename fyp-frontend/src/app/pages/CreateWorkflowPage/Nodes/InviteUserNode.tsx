@@ -8,9 +8,9 @@ export default function InviteUserNode() {
       boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
     }}>
       <Handle type="target" position={Position.Top} />
-      <div className='flex flex-row gap-2 items-center justify-center'>
+      <div className='flex flex-row gap-2 items-center justify-center' style={{color: "oklch(0.546 0.245 262.881)"}}>
         <Mail/>
-        <h1 className='text-sm font-bold text-foreground'>Jeff Invited</h1>
+        <h1 className='text-sm font-bold'>Jeff Invited</h1>
       </div>
       <Handle type="source" position={Position.Bottom} id="a" />
       <Handle

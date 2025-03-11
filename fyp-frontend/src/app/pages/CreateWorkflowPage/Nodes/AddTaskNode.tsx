@@ -15,7 +15,7 @@ export default function AddTaskNode(props: NodeProps<AddTaskNode>) {
   return (
     <div className='bg-blue-400 cursor-pointer p-3' style={{ border: "1px solid white", borderRadius: "25px", minWidth: "15em"}}>
       <Handle type="target" position={Position.Top} />
-      <div className='flex flex-row gap-2 justify-center items-center' onClick={props.data.onClick}>
+      <div className='flex flex-row gap-2 justify-center items-center text-blue-400' onClick={props.data.onClick}>
         <CirclePlus/>
         <h1 className='text-sm font-bold'> Add Task</h1>
       </div>

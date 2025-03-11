@@ -4,7 +4,7 @@ import AccountDirectory from '@/models/AccountDirectory';
 import Api from '@/api';
 
 interface Props {
-  setAccountId: React.Dispatch<React.SetStateAction<string>>;
+  setAccount: React.Dispatch<React.SetStateAction<AccountDirectory | null>>;
   additionalAccounts: AccountDirectory[];
 }
 
@@ -30,11 +30,11 @@ export default function AccountDirectoryLookup(props: Props) {
   }, []);
 
   return (
-    <Select onValueChange={(value: string) => {props.setAccountId(value);}}>
-      <SelectTrigger className="w-[180px]">
+    <Select onValueChange={(value: string) => {props.setAccount(accountsDirectory.find(i => i.id === value) ?? null);}} >
+      <SelectTrigger>
         <SelectValue placeholder="Select an Account" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="w-full">
         {
           !loading &&
           <SelectGroup>
