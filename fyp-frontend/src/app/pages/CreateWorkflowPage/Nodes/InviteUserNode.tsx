@@ -4,7 +4,9 @@ import React from 'react'
 
 export default function InviteUserNode() {
   return (
-    <div className='p-3' style={{backgroundColor: "#199c49", border: "1px solid white", borderRadius: "25px", minWidth: "15em"}}>
+    <div className='p-3' style={{backgroundColor: "var(--background)", borderLeft: "10px solid oklch(0.546 0.245 262.881)", borderRadius: "5px", minWidth: "15em",
+      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
+    }}>
       <Handle type="target" position={Position.Top} />
       <div className='flex flex-row gap-2 items-center justify-center'>
         <Mail/>

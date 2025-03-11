@@ -7,7 +7,9 @@ export default function StartNode() {
   const handleStyle = {};
 
   return (
-    <div className='p-3' style={{backgroundColor: "#199c49", border: "1px solid white", borderRadius: "25px", minWidth: "15em"}}>
+    <div className='p-3' style={{backgroundColor: "var(--background)", borderLeft: "10px solid #199c49", borderRadius: "5px", minWidth: "15em",
+      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
+    }}>
       <div className='flex flex-row gap-2 items-center justify-center'>
         <Play/>
         <h1 className='text-sm font-bold'>Start of Workflow</h1>
