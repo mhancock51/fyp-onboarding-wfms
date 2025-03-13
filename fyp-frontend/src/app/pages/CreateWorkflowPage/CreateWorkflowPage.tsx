@@ -10,9 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
-import CreateWorkflowTemplatePayload from '@/models/payloads/CreateWorkflowTemplatePayload';
 import { WorkflowTemplateNodeDTO } from '@/models/DTOs/WorkflowTemplateNodeDTO';
 import { toast } from 'sonner';
+import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';
 
 export default function CreateWorkflowPage() {
   const [taskTemplates, setTaskTemplates] = useState<TaskTemplate[]>([]);  
@@ -39,7 +39,7 @@ export default function CreateWorkflowPage() {
 
   async function createWorkflowTemplate() {
     setLoading(true);
-    const payload: CreateWorkflowTemplatePayload = {
+    const payload: WorkflowTemplateDTO = {
       Name: name,
       Description: description,
       IsOnboardingWF: isOnboardingWf,

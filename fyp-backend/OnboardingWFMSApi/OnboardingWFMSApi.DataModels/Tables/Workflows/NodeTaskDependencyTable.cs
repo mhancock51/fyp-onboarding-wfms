@@ -17,5 +17,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string NodeId { get; set; }
         [ForeignKey(nameof(WorkflowTemplateNodeTable.Id))]
         public string DependencyNodeId { get; set; }
+        [ForeignKey(nameof(WorkflowTemplateTable.Id))]
+        public string WorkflowTemplateId { get; set; }
     }
 }

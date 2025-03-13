@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { store } from './store';
 import Utils from './util';
-import CreateWorkflowTemplatePayload from './models/payloads/CreateWorkflowTemplatePayload';
+import CreateWorkflowTemplatePayload from './models/payloads/WorkflowTemplateDTO';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();

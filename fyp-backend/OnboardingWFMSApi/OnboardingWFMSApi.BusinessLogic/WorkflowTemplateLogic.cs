@@ -1,5 +1,7 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
+﻿using AutoMapper;
+using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
@@ -12,7 +14,8 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IWorkflowTemplateLogic
     {
-        public Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> CreateWorkflowTemplate(WorkflowTemplateDTO payload, string accountId);
+        public Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id);
     }
 
     public class WorkflowTemplateLogic : IWorkflowTemplateLogic
@@ -21,16 +24,19 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IWorkflowTemplateNodeRepository _workflowTemplateNodeRepository;
         private readonly INodeTaskDependencyRepository _nodeTaskDependencyRepository;
 
-        public WorkflowTemplateLogic(IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, 
-            INodeTaskDependencyRepository nodeTaskDependencyRepository
+        private readonly IMapper _mapper;
+
+        public WorkflowTemplateLogic(IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository,
+            INodeTaskDependencyRepository nodeTaskDependencyRepository, IMapper mapper
         )
         {
             _workflowTemplateRepository = workflowTemplateRepository;
             _workflowTemplateNodeRepository = workflowTemplateNodeRepository;
             _nodeTaskDependencyRepository = nodeTaskDependencyRepository;
+            _mapper = mapper;
         }
 
-        public async Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId)
+        public async Task<HTTPResponse<string, string>> CreateWorkflowTemplate(WorkflowTemplateDTO payload, string accountId)
         {
             // ensure there isn't another template with the same name
             var existingTemplate = await _workflowTemplateRepository.GetWorkflowTemplateByName(payload.Name);
@@ -56,6 +62,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 // TODO implement validation
                 var node = new WorkflowTemplateNodeTable()
                 {
+                    Id = "",
                     Order = index,
                     TaskTemplateId = preflowTask.TaskTemplateId,
                     AssigneeId = preflowTask.AssigneeId,
@@ -70,8 +77,10 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     var dependency = new NodeTaskDependencyTable()
                     {
+                        Id = "",
                         NodeId = preflowTask.TaskTemplateId,
-                        DependencyNodeId = taskDependency
+                        DependencyNodeId = taskDependency,
+                        WorkflowTemplateId = workflowTemplate.Id
                     };
                     taskDependencies.Add(dependency);
                 }
@@ -99,7 +108,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                     {
                         Id = "",
                         NodeId = mainflowTask.TaskTemplateId,
-                        DependencyNodeId = taskDependency
+                        DependencyNodeId = taskDependency,
+                        WorkflowTemplateId = workflowTemplate.Id
                     };
                     taskDependencies.Add(dependency);
                 }
@@ -130,6 +140,36 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to save dependencies" };
             }
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created workflow template" };
+        }
+
+        public async Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id)
+        {
+            var template = await _workflowTemplateRepository.GetById(id);
+            if (template == null)
+            {
+                return new HTTPResponse<WorkflowTemplateDTO, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
+            }
+
+            WorkflowTemplateDTO workflowTemplate = _mapper.Map<WorkflowTemplateDTO>(template);
+
+            // retrive nodes and dependencies
+            var nodes = await _workflowTemplateNodeRepository.GetAllNodesByWorkflowTemplateId(template.Id);
+            var dependencies = await _nodeTaskDependencyRepository.GetAllNodeDependenciesByWorkflowTemplateId(template.Id);
+            
+            // assign dependencies to nodes
+            var preflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "preflowtasks"));
+            for (int i = 0; i < preflowTasks.Count; i++) 
+            {
+                preflowTasks[i].DependencyTaskTemplateIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
+            }
+            var mainflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "mainflowtasks"));
+            for (int i = 0; i < mainflowTasks.Count; i++)
+            {
+                mainflowTasks[i].DependencyTaskTemplateIds = dependencies.Where(n => n.NodeId == mainflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
+            }
+            workflowTemplate.PreflowTasks = preflowTasks.ToList();
+            workflowTemplate.MainflowTasks = mainflowTasks.ToList();
+            return new HTTPResponse<WorkflowTemplateDTO, string>() { Success = true, HttpCode = 200, Data =  workflowTemplate };
         }
     }
 }
