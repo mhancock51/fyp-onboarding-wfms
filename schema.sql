@@ -124,7 +124,8 @@ CREATE TABLE workflowtemplatenode (
 CREATE TABLE nodetaskdependency (
     Id VARCHAR(255) PRIMARY KEY,
     NodeId VARCHAR(255),
-    DependencyNodeId VARCHAR(255)
+    DependencyNodeId VARCHAR(255),
+    WorkflowTemplateId VARCHAR(255)
 );
 
 
@@ -169,7 +170,6 @@ ALTER TABLE checklisttasktemplate
     ADD CONSTRAINT fk_task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
 
-
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_assignee_account_id
     FOREIGN KEY (AssigneeAccountId) REFERENCES account(AccountId);
@@ -207,15 +207,29 @@ ALTER TABLE fileuploadtaskinstance
     FOREIGN KEY (DocumentId) REFERENCES document(Id);
 
 /* Workflow Template Node Constraints */
-
 ALTER TABLE workflowtemplatenode
     ADD CONSTRAINT  fk_workflow_template_node_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowtemplatenode
+    ADD CONSTRAINT fk_workflow_template_node_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
+    ON DELETE CASCADE;
+
+/* No constraint for assigneId because of resevered placeholder ids i.e. onboarder */
 
 ALTER TABLE nodetaskdependency
-    ADD CONSTRAINT fk_task_dependency_node_id
-    FOREIGN KEY (NodeId) REFERENCES workflowtemplatenode(Id);
+    ADD CONSTRAINT fk_nodetaskdependency_node_id
+    FOREIGN KEY (NodeId) REFERENCES workflowtemplatenode(Id)
+    ON DELETE CASCADE;
 
 ALTER TABLE nodetaskdependency
-    ADD CONSTRAINT fk_task_dependency_dependency_node_id
-    FOREIGN KEY (DependencyNodeId) REFERENCES workflowtemplatenode(Id);
+    ADD CONSTRAINT fk_nodetaskdependency_dependency_node_id
+    FOREIGN KEY (DependencyNodeId) REFERENCES workflowtemplatenode(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE nodetaskdependency
+    ADD CONSTRAINT fk_nodetaskdependency_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
+    ON DELETE CASCADE;
