@@ -40,11 +40,13 @@ export default function CreateWorkflowPage() {
   async function createWorkflowTemplate() {
     setLoading(true);
     const payload: WorkflowTemplateDTO = {
+      Id: "",
       Name: name,
       Description: description,
       IsOnboardingWF: isOnboardingWf,
       PreflowTasks: preflowTasks.map((task) => (
         { 
+          Id: "",
           TaskTemplateId: task.taskTemplate.id,
           AssigneeId: task.assignee.id,
           DependencyTaskTemplateIds: task.taskDependencies.map((dependency) => dependency.taskTemplate.id) ?? []
@@ -52,6 +54,7 @@ export default function CreateWorkflowPage() {
       )),
       MainflowTasks: mainflowTasks.map((task) => (
         { 
+          Id: "",
           TaskTemplateId: task.taskTemplate.id,
           AssigneeId: task.assignee.id,
           DependencyTaskTemplateIds: task.taskDependencies.map((dependency) => dependency.taskTemplate.id) ?? []

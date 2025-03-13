@@ -62,7 +62,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 // TODO implement validation
                 var node = new WorkflowTemplateNodeTable()
                 {
-                    Id = "",
+                    Id = Guid.NewGuid().ToString(),
                     Order = index,
                     TaskTemplateId = preflowTask.TaskTemplateId,
                     AssigneeId = preflowTask.AssigneeId,
@@ -70,19 +70,19 @@ namespace OnboardingWFMSApi.BusinessLogic
                     WorkflowTemplateId = workflowTemplate.Id
                 };
                 nodes.Add(node);
-                // TODO implement validation
-                var taskDependencies = new List<NodeTaskDependencyTable>();
+                // TODO implement validation                
                 if (preflowTask.DependencyTaskTemplateIds == null) preflowTask.DependencyTaskTemplateIds = [];
+
                 foreach (var taskDependency in preflowTask.DependencyTaskTemplateIds)
                 {
                     var dependency = new NodeTaskDependencyTable()
                     {
-                        Id = "",
-                        NodeId = preflowTask.TaskTemplateId,
-                        DependencyNodeId = taskDependency,
+                        Id = Guid.NewGuid().ToString(),
+                        NodeId = node.Id,
+                        DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == taskDependency).Id,
                         WorkflowTemplateId = workflowTemplate.Id
                     };
-                    taskDependencies.Add(dependency);
+                    dependencies.Add(dependency);
                 }
                 index++;
             }
@@ -91,7 +91,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 // TODO implement validation
                 var node = new WorkflowTemplateNodeTable()
                 {
-                    Id = "",
+                    Id = Guid.NewGuid().ToString(),
                     Order = index,
                     TaskTemplateId = mainflowTask.TaskTemplateId,
                     AssigneeId = mainflowTask.AssigneeId,
@@ -99,19 +99,19 @@ namespace OnboardingWFMSApi.BusinessLogic
                     WorkflowTemplateId = workflowTemplate.Id
                 };
                 nodes.Add(node);
-                // TODO implement validation
-                var taskDependencies = new List<NodeTaskDependencyTable>();
+                // TODO implement validation                
                 if (mainflowTask.DependencyTaskTemplateIds == null) mainflowTask.DependencyTaskTemplateIds = [];
+                // remove null values
                 foreach (var taskDependency in mainflowTask.DependencyTaskTemplateIds)
                 {
                     var dependency = new NodeTaskDependencyTable()
                     {
-                        Id = "",
-                        NodeId = mainflowTask.TaskTemplateId,
-                        DependencyNodeId = taskDependency,
+                        Id = Guid.NewGuid().ToString(),
+                        NodeId = node.Id,
+                        DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == taskDependency).Id,
                         WorkflowTemplateId = workflowTemplate.Id
                     };
-                    taskDependencies.Add(dependency);
+                    dependencies.Add(dependency);
                 }
                 index++;
             }

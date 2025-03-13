@@ -40,9 +40,15 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             var guidStr = guid.ToString();
 
             var keyProp = typeof(TEntity).GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.KeyAttribute))).First();
+
             if (keyProp != null && keyProp.CanWrite)
             {
-                keyProp.SetValue(entity, Convert.ChangeType(guidStr, keyProp.PropertyType), null);
+                // ensure id hasn't already been set
+                var value = keyProp.GetValue(entity);
+                if (value == null || (value is string str && str == ""))
+                {
+                    keyProp.SetValue(entity, Convert.ChangeType(guidStr, keyProp.PropertyType), null);
+                }
             }
             else
             {

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { store } from './store';
 import Utils from './util';
-import CreateWorkflowTemplatePayload from './models/payloads/WorkflowTemplateDTO';
+import WorkflowTemplateDTO from './models/DTOs/WorkflowTemplateDTO';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -126,7 +126,7 @@ const Api = {
   fetchAccountsDirectory: async() => {
     return AuthInstance.get(`${ROUTE_URL}/account/directory`);
   },
-  createWorkflowTemplate: async(payload: CreateWorkflowTemplatePayload) => {
+  createWorkflowTemplate: async(payload: WorkflowTemplateDTO) => {
     return AuthInstance.post(`${ROUTE_URL}/workflow-template/create`, payload);
   }
 }

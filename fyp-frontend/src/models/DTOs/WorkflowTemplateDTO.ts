@@ -1,7 +1,7 @@
 import { WorkflowTemplateNodeDTO } from "./WorkflowTemplateNodeDTO";
-import WorkflowTemplateNode from "../WorkflowTemplateNode";
 
 export default interface WorkflowTemplateDTO {
+  Id: string;
   Name: string;
   Description: string;
   IsOnboardingWF: boolean;
