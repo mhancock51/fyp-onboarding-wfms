@@ -9,6 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckedState } from '@radix-ui/react-checkbox';
+import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
+import CreateWorkflowTemplatePayload from '@/models/payloads/CreateWorkflowTemplatePayload';
+import { WorkflowTemplateNodeDTO } from '@/models/DTOs/WorkflowTemplateNodeDTO';
+import { toast } from 'sonner';
 
 export default function CreateWorkflowPage() {
   const [taskTemplates, setTaskTemplates] = useState<TaskTemplate[]>([]);  
@@ -16,7 +20,10 @@ export default function CreateWorkflowPage() {
   
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(false);  
+  const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(false); 
+  
+  const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
+  const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
 
   async function fetchTaskTemplates() {
     setLoading(true);
@@ -30,9 +37,73 @@ export default function CreateWorkflowPage() {
     })
   }
 
+  async function createWorkflowTemplate() {
+    setLoading(true);
+    const payload: CreateWorkflowTemplatePayload = {
+      Name: name,
+      Description: description,
+      IsOnboardingWF: isOnboardingWf,
+      PreflowTasks: preflowTasks.map((task) => (
+        { 
+          TaskTemplateId: task.taskTemplate.id,
+          AssigneeId: task.assignee.id,
+          DependencyTaskTemplateIds: task.taskDependencies.map((dependency) => dependency.taskTemplate.id) ?? []
+        }
+      )),
+      MainflowTasks: mainflowTasks.map((task) => (
+        { 
+          TaskTemplateId: task.taskTemplate.id,
+          AssigneeId: task.assignee.id,
+          DependencyTaskTemplateIds: task.taskDependencies.map((dependency) => dependency.taskTemplate.id) ?? []
+        }
+      )),
+    }
+    await Api.createWorkflowTemplate(payload)
+    .then((response) => {
+      toast.success("Successfully created workflow template");
+    })
+    .catch((error) => {
+      toast.error("Failed to create workflow template");
+    })
+    .finally(() => {
+      setLoading(false);
+    })
+  }
+
   useEffect(() => {    
     void fetchTaskTemplates();
+
+    setPreflowTasks(JSON.parse(localStorage.getItem("PREFLOW_TASKS") ?? ""));
+    setMainflowTasks(JSON.parse(localStorage.getItem("MAINFLOW_TASKS") ?? ""));
+    setName(localStorage.getItem("WORKFLOW_NAME") ?? "");
+    setDescription(localStorage.getItem("WORKFLOW_DESCRIPTION") ?? "");
+    setIsOnboardingWf(localStorage.getItem("IS_ONBOARDING_WORKFLOW") === "true" ? true : false);
   }, []);
+
+  useEffect(() => {
+    // save preflow tasks
+    localStorage.setItem("PREFLOW_TASKS", JSON.stringify(preflowTasks));
+  }, [preflowTasks]);
+
+  useEffect(() => {
+    // save preflow tasks
+    localStorage.setItem("MAINFLOW_TASKS", JSON.stringify(mainflowTasks));
+  }, [mainflowTasks]);
+
+  useEffect(() => {
+    // save preflow tasks
+    localStorage.setItem("WORKFLOW_NAME", name);
+  }, [name]);
+
+  useEffect(() => {
+    // save preflow tasks
+    localStorage.setItem("WORKFLOW_DESCRIPTION", description);
+  }, [description]);
+
+  useEffect(() => {
+    // save preflow tasks
+    localStorage.setItem("IS_ONBOARDING_WORKFLOW", isOnboardingWf ? "true" : "false");
+  }, [isOnboardingWf]);
 
   return (
     <div className='flex flex-col gap-2 w-full items-center'>
@@ -62,10 +133,13 @@ export default function CreateWorkflowPage() {
       }
       {
         !loading &&
-        <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}/>
+        <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}
+          preflowTasks={preflowTasks} setPreflowTasks={setPreflowTasks}
+          mainflowTasks={mainflowTasks} setMainflowTasks={setMainflowTasks}
+        />
       }         
       </>
-      <Button className='mx-2'>Save Workflow Template</Button>
+      <Button className='mx-2' onClick={createWorkflowTemplate}>Create Workflow Template</Button>
     </div>
   )
 }

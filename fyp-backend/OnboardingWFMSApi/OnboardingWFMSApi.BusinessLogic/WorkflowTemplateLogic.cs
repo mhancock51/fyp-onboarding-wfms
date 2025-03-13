@@ -65,6 +65,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 nodes.Add(node);
                 // TODO implement validation
                 var taskDependencies = new List<NodeTaskDependencyTable>();
+                if (preflowTask.DependencyTaskTemplateIds == null) preflowTask.DependencyTaskTemplateIds = [];
                 foreach (var taskDependency in preflowTask.DependencyTaskTemplateIds)
                 {
                     var dependency = new NodeTaskDependencyTable()
@@ -76,6 +77,35 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
                 index++;
             }
+            foreach (var mainflowTask in payload.MainflowTasks)
+            {
+                // TODO implement validation
+                var node = new WorkflowTemplateNodeTable()
+                {
+                    Id = "",
+                    Order = index,
+                    TaskTemplateId = mainflowTask.TaskTemplateId,
+                    AssigneeId = mainflowTask.AssigneeId,
+                    WorkflowSection = "mainflowtasks",
+                    WorkflowTemplateId = workflowTemplate.Id
+                };
+                nodes.Add(node);
+                // TODO implement validation
+                var taskDependencies = new List<NodeTaskDependencyTable>();
+                if (mainflowTask.DependencyTaskTemplateIds == null) mainflowTask.DependencyTaskTemplateIds = [];
+                foreach (var taskDependency in mainflowTask.DependencyTaskTemplateIds)
+                {
+                    var dependency = new NodeTaskDependencyTable()
+                    {
+                        Id = "",
+                        NodeId = mainflowTask.TaskTemplateId,
+                        DependencyNodeId = taskDependency
+                    };
+                    taskDependencies.Add(dependency);
+                }
+                index++;
+            }
+
 
             // securely insert nodes
             try

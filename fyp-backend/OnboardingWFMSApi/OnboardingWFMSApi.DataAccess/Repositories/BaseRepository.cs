@@ -98,12 +98,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             var savedEntities = new List<TEntity>();
             foreach (var entity in entities)
             {
-                var result = await _dbContext.AddAsync(entity);
-                savedEntities.Add(result.Entity);
+                var result = await AddAsync(entity);
+                savedEntities.Add(result);
             }
+
             var rows = await _dbContext.SaveChangesAsync();
-            if (rows != entities.Count) throw new Exception("Failed to save records correctly");
-            // return all new entities
+
             return savedEntities;
         }
     }
