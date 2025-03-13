@@ -207,17 +207,10 @@ ALTER TABLE fileuploadtaskinstance
     FOREIGN KEY (DocumentId) REFERENCES document(Id);
 
 /* Workflow Template Node Constraints */
-ALTER TABLE workflowtemplatenode
-    ADD CONSTRAINT fk_workflow_template_node_workflow_template_id
-    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id);
 
 ALTER TABLE workflowtemplatenode
     ADD CONSTRAINT  fk_workflow_template_node_task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
-
-ALTER TABLE workflowtemplatenode
-    ADD CONSTRAINT fk_workflow_template_node_assignee_id
-    FOREIGN KEY (AssigneeId) REFERENCES account(AccountId);
 
 ALTER TABLE nodetaskdependency
     ADD CONSTRAINT fk_task_dependency_node_id
