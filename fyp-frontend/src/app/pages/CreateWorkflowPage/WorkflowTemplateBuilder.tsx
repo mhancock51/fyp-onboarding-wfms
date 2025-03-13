@@ -230,6 +230,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
           // onEdgesChange={onEdgesChange}
           // onConnect={onConnect}
           defaultViewport={{x: 650, y: 200, zoom: 0.75}}
+          nodeOrigin={[0.5, 0.5]}
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  
           <Controls />
