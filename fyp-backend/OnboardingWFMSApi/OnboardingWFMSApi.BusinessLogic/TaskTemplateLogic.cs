@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
@@ -34,13 +35,16 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
+        private readonly ITaskTemplateHandlerFactory _taskTemplateHandlerFactory;
+
         private readonly ITaskTypeRepository _taskTypeRepository;
 
         private readonly IMapper _mapper;
 
         public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
             IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository,
-            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ITaskTypeRepository taskTypeRepository)
+            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory
+        )
         {
             _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
@@ -48,6 +52,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
             _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
             _taskTypeRepository = taskTypeRepository;
+            _taskTemplateHandlerFactory = taskTemplateHandlerFactory;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId)
@@ -61,49 +66,20 @@ namespace OnboardingWFMSApi.BusinessLogic
             HTTPResponse<string, string> invalidTaskDataResponse = new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task data" };
 
 
-            switch (payload.TaskTypeId)
+            var handler = _taskTemplateHandlerFactory.GetHandler(payload.TaskTypeId);
+            if (handler == null)
             {
-                case UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    var uploadDocumentData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    uploadDocumentData.TaskTemplateId = taskTemplate.Id;
-                    if (uploadDocumentData == null)
-                    {
-                        return invalidTaskDataResponse;
-                    }
-                    else
-                    {
-                        // insert data into file upload table
-                        await _fileUploadTaskTemplateRepository.AddAsync(uploadDocumentData);
-                    }
-                    break;
-                case READ_DOCUMENT_TASK_TYPE_ID:
-                    var readDocumentData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    readDocumentData.TaskTemplateId = taskTemplate.Id;
-                    if (readDocumentData == null)
-                    {
-                        return invalidTaskDataResponse;
-                    }
-                    else
-                    {
-                        // insert data into read document table
-                        await _readDocumentTaskTemplateRepository.AddAsync(readDocumentData);
-                    }
-                    break;
-                case CHECKLIST_TASK_TYPE_ID:
-                    var checklistData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(payload.TaskTypeData.ToString());
-                    checklistData.TaskTemplateId = taskTemplate.Id;
-                    if (checklistData == null)
-                    {
-                        return invalidTaskDataResponse;
-                    }
-                    else
-                    {
-                        // insert data into checklist task table
-                        await _checklistTaskTemplateRepository.AddAsync(checklistData);
-                    }
-                    break;
-                default:
-                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task type" };
+                // delete task template
+                await _taskTemplateRepository.DeleteAsync(taskTemplate);
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid task type provided" };
+            }
+
+            var response = await handler.CreateTaskTypeMetaData(payload.TaskTypeData, taskTemplate.Id);
+            if (response.Success == false)
+            {
+                // delete task template
+                await _taskTemplateRepository.DeleteAsync(taskTemplate);
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to insert task type meta data" };
             }
             
             return new HTTPResponse<string, string>() { Success = true, Data = "Created task template", HttpCode = 200 };
