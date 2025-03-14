@@ -71,13 +71,13 @@ export default function WorkflowTemplateBuilder(props: Props) {
         const taskNode: Node = {
           id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
           data: {
-            taskTitle: task.taskTemplate.name,
-            taskTypeId: task.taskTemplate.taskTypeId,
-            description: task.taskTemplate.description,
+            taskTitle: task.taskTemplate?.name,
+            taskTypeId: task.taskTemplate?.taskTypeId,
+            description: task.taskTemplate?.description,
             deleteTask: () => { removeWorkflowNode(task.id) },
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
-            assignee: task.assignee.displayName,
+            assignee: task.assignee?.displayName,
             taskDependencies: task.taskDependencies
           } 
         };
@@ -116,13 +116,13 @@ export default function WorkflowTemplateBuilder(props: Props) {
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
-          taskTitle: task.taskTemplate.name,
-          taskTypeId: task.taskTemplate.taskTypeId,
-          description: task.taskTemplate.description,
+          taskTitle: task.taskTemplate?.name,
+          taskTypeId: task.taskTemplate?.taskTypeId,
+          description: task.taskTemplate?.description,
           deleteTask: () => { removeWorkflowNode(task.id) },
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
-          assignee: task.assignee.displayName,
+          assignee: task.assignee?.displayName,
           taskDependencies: task.taskDependencies
         } 
       };
@@ -229,7 +229,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
           // onNodesChange={onNodesChange}
           // onEdgesChange={onEdgesChange}
           // onConnect={onConnect}
-          defaultViewport={{x: 650, y: 200, zoom: 0.75}}
+          defaultViewport={{x: 975, y: 200, zoom: 0.75}}
           nodeOrigin={[0.5, 0.5]}
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  

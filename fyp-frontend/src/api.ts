@@ -128,6 +128,9 @@ const Api = {
   },
   createWorkflowTemplate: async(payload: WorkflowTemplateDTO) => {
     return AuthInstance.post(`${ROUTE_URL}/workflow-template/create`, payload);
+  },
+  fetchWorkflowTemplate: async(workflowTemplateId: string) => {
+    return AuthInstance.get(`${ROUTE_URL}/workflow-template?workflowTemplateId=${workflowTemplateId}`);
   }
 }
 
