@@ -16,7 +16,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId);
         public Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword);
         public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
-        public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
+        public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();        
     }
 
     public class AccountLogic : IAccountLogic

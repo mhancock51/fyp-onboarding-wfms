@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -23,17 +24,18 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
         private readonly IWorkflowTemplateNodeRepository _workflowTemplateNodeRepository;
         private readonly INodeTaskDependencyRepository _nodeTaskDependencyRepository;
+        private readonly IAccountRepository _accountRepository;
 
         private readonly IMapper _mapper;
 
         public WorkflowTemplateLogic(IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository,
-            INodeTaskDependencyRepository nodeTaskDependencyRepository, IMapper mapper
-        )
+            INodeTaskDependencyRepository nodeTaskDependencyRepository, IMapper mapper, IAccountRepository accountRepository)
         {
             _workflowTemplateRepository = workflowTemplateRepository;
             _workflowTemplateNodeRepository = workflowTemplateNodeRepository;
             _nodeTaskDependencyRepository = nodeTaskDependencyRepository;
             _mapper = mapper;
+            _accountRepository = accountRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowTemplate(WorkflowTemplateDTO payload, string accountId)
@@ -160,7 +162,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             var preflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "preflowtasks"));
             for (int i = 0; i < preflowTasks.Count; i++) 
             {
-                preflowTasks[i].DependencyTaskTemplateIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
+                preflowTasks[i].DependencyTaskTemplateIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();                
             }
             var mainflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "mainflowtasks"));
             for (int i = 0; i < mainflowTasks.Count; i++)
