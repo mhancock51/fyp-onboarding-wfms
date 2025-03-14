@@ -74,6 +74,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid task type provided" };
             }
 
+            // handle the insertion of task type meta data, i.e. checklist data, file upload data, etc
             var response = await handler.CreateTaskTypeMetaData(payload.TaskTypeData, taskTemplate.Id);
             if (response.Success == false)
             {
