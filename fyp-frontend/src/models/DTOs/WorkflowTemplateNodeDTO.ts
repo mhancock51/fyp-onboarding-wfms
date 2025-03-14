@@ -1,6 +1,6 @@
 export interface WorkflowTemplateNodeDTO {
-  Id: string;
-  TaskTemplateId: string;
-  AssigneeId: string;
-  DependencyTaskTemplateIds: string[];
+  id: string;
+  taskTemplateId: string;
+  assigneeId: string;
+  dependencyTaskTemplateIds: string[];
 }
