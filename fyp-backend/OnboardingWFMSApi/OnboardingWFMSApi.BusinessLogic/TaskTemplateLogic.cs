@@ -31,9 +31,6 @@ namespace OnboardingWFMSApi.BusinessLogic
         public const string CHECKLIST_TASK_TYPE_ID = "checklist";
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
-        private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
-        private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
-        private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
         private readonly ITaskTemplateHandlerFactory _taskTemplateHandlerFactory;
 
@@ -42,29 +39,20 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IMapper _mapper;
 
         public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
-            IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository,
-            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory
+            ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory
         )
         {
             _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
-            _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
-            _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
-            _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
             _taskTypeRepository = taskTypeRepository;
             _taskTemplateHandlerFactory = taskTemplateHandlerFactory;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId)
-        {
-            // check task type is valid            
-
-            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { CreatorAccountId = accountId, Name = payload.Name, Description = payload.Description, DateCreated = DateTime.Now, TaskTypeId = payload.TaskTypeId });
-
-            // make sure task type data can be cast to its type
+        {           
+            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { CreatorAccountId = accountId, Name = payload.Name, Description = payload.Description, DateCreated = DateTime.Now, TaskTypeId = payload.TaskTypeId });          
 
             HTTPResponse<string, string> invalidTaskDataResponse = new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task data" };
-
 
             var handler = _taskTemplateHandlerFactory.GetHandler(payload.TaskTypeId);
             if (handler == null)
