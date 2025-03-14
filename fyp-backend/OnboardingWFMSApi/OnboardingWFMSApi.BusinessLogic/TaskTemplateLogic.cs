@@ -115,21 +115,18 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             else
             {
-                // load task type data
-                switch(taskTemplate.TaskTypeId)
+                // retrieve task type meta data using handler
+                var handler = _taskTemplateHandlerFactory.GetHandler(taskTemplate.TaskTypeId);
+                if (handler == null)
                 {
-                    case UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
-                        break;
-                    case READ_DOCUMENT_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
-                        break;
-                    case CHECKLIST_TASK_TYPE_ID:
-                        taskTemplate.TaskTypeData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplate.Id);
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid task type associated with task template");
+                    throw new InvalidOperationException("Invalid task type associated with task template");
                 }
+                var response = await handler.GetTaskTypeMetaData(taskTemplate.Id);
+                if (!response.Success) 
+                {
+                    return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = response.Error, HttpCode = 500 };
+                }
+                taskTemplate.TaskTypeData = response.Data;
             }
             taskTemplate.taskType = _mapper.Map<TaskType>(await _taskTypeRepository.GetById(taskTemplate.TaskTypeId));
 
