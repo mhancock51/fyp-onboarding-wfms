@@ -1,4 +1,6 @@
+import AccountDirectory from "@/models/AccountDirectory";
 import AuthenticatedUser from "@/models/AuthenticatedUser";
+import TaskTemplate from "@/models/tasks/TaskTemplate";
 import TaskType from "@/models/tasks/taskType";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -11,6 +13,8 @@ export interface AppState {
     openCreateTaskTemplateDialog: boolean;
     openTaskTemplatesListDialog: boolean;
     taskTypes: TaskType[];
+    accountsDirectory: AccountDirectory[];
+    taskTemplates: TaskTemplate[]
 }
 
 const initialState: AppState = {
@@ -19,7 +23,9 @@ const initialState: AppState = {
     openCreateDepartmentDialog: false,
     openCreateTaskTemplateDialog: false,
     openTaskTemplatesListDialog: false,
-    taskTypes: []
+    taskTypes: [],
+    accountsDirectory: [],
+    taskTemplates: []
 }
 
 export const appSlice = createSlice({
@@ -45,12 +51,18 @@ export const appSlice = createSlice({
         SET_TASK_TYPES: (state, action: PayloadAction<TaskType[]>) => {
             state.taskTypes = action.payload;
         },
+        SET_ACCOUNTS_DIRECTORY: (state, action: PayloadAction<AccountDirectory[]>) => {
+            state.accountsDirectory = action.payload;
+        },
+        SET_TASK_TEMPLATES: (state, action: PayloadAction<TaskTemplate[]>) => {
+            state.taskTemplates = action.payload;
+        }
     }
 });
 
 export const {
     SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
-    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG
+    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES
 } = appSlice.actions;
 
 export default appSlice.reducer;

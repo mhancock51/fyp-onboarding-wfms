@@ -17,8 +17,9 @@ import { Button } from './components/ui/button';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
 import { Spinner } from './components/ui/spinner';
-import { SET_TASK_TYPES } from './features/appSlice';
+import { SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
 import TaskType from './models/tasks/taskType';
+import AccountDirectory from './models/AccountDirectory';
 
 function App() {  
 
@@ -28,7 +29,11 @@ function App() {
   const dispatcher = useDispatch(); 
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [validated, setValidated] = useState<boolean>(false);
+  const [loadedTaskTypes, setLoadedTaskTypes] = useState<boolean>(false);
+  const [loadedAccounts, setLoadedAccounts] = useState<boolean>(false);  
+  const [loadedTaskTemplates, setLoadedTaskTemplates] = useState<boolean>(false);  
+
+  const [validatedToken, setValidatedToken] = useState<boolean>(false);
 
   /** Test validity of token by sending it to the API server and checking the response */
   async function testValidityOfToken() {
@@ -36,8 +41,7 @@ function App() {
     await Api.testTokenValidity()
     .then(async(response) => {      
       setLoading(false);
-      console.log("Token checked, still valid!");    
-      setValidated(true);  
+      console.log("Token checked, still valid!");          
     })
     .catch(async(error) => {
       console.log("Invalid token, redirecting to login page");
@@ -45,25 +49,55 @@ function App() {
       await Utils.relogin();      
       setLoading(false);
     })
+    .finally(() => {
+      setValidatedToken(true);  
+    })
   }  
 
   // fetch task types
   async function fetchTaskTypes() {
     if (taskTypes.length !== 0) return;
 
-    setLoading(true);
     await Api.fetchTaskTypes()
     .then((response) => {      
       toast("Successfully loaded task types");
       const taskTypes = response.data.data as TaskType[];
       dispatcher(SET_TASK_TYPES(taskTypes));
-      setLoading(false);
     })
     .catch((error) => {
       console.error("ERRROR:", error);
-      toast.error("Failed to load task types");
-      setLoading(false);    
+      toast.error("Failed to load task types");  
     })
+    .finally(() => {
+      setLoadedTaskTypes(true);
+    })
+  }
+
+  async function fetchAccountsDirectory() {    
+    await Api.fetchAccountsDirectory()
+    .then((response) => {
+      var accountsDirectory = response.data.data as AccountDirectory[];                 
+      dispatcher(SET_ACCOUNTS_DIRECTORY(accountsDirectory));      
+    })
+    .catch((error) => {
+      toast.error("Failed to fetch accounts directory");
+    })
+    .finally(() => {
+      setLoadedAccounts(true);
+    })
+  }
+
+  async function fetchTaskTemplates() {
+    console.log("fetching task templates");        
+    Api.fetchAllTaskTemplates()
+    .then((response) => {
+      dispatcher(SET_TASK_TEMPLATES(response.data.data));      
+    })
+    .catch((error) => {      
+    })
+    .finally(() => {
+      setLoadedTaskTemplates(true);      
+    })    
   }
 
   useEffect(() => {
@@ -73,22 +107,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (validated) {
+    if (validatedToken && !Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
       void fetchTaskTypes();
+      void fetchAccountsDirectory();
+      void fetchTaskTemplates();
     }
-  }, [validated]);
+  }, [validatedToken]);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>    
       {
-        loading ? (
-          <div className='flex flex-col justify-center my-auto' style={{minHeight: "100vh"}}>
-            <div className='flex flex-row gap-2 justify-center'>
-              <h1>Authenticating...</h1>
-              <Spinner/>
-            </div>
-          </div>
-        ) : (
+        validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates ? (
           <Router>
             <Routes>
               <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>
@@ -103,6 +132,13 @@ function App() {
               <Route path='/register' element={user === null ? <RegisterPage/> : <Navigate to={"/"}/>}/>
             </Routes>
           </Router>         
+        ) : (
+          <div className='flex flex-col justify-center my-auto' style={{minHeight: "100vh"}}>
+            <div className='flex flex-row gap-2 justify-center'>
+              <h1>Authenticating...</h1>
+              <Spinner/>
+            </div>
+          </div>
         )
       }  
       <Toaster /> 
