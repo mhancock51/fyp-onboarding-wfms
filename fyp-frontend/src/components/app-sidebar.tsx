@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Building, ClipboardList, Home, ListTodo, Route, Settings, UserPlus, Users } from "lucide-react"
+import { Blocks, Building, ClipboardList, Home, ListTodo, Route, Settings, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
@@ -52,9 +52,9 @@ export function AppSidebar(props: Props) {
       icon: ListTodo
     },
     {
-      title: "Create Workflow Template",
-      onClickAction: () => { navigate("/create-workflow")},
-      icon: Route
+      title: "Workflow Builder",
+      onClickAction: () => { navigate("/workflow-builder")},
+      icon: Blocks
     },
     {
       title: "Invite User",

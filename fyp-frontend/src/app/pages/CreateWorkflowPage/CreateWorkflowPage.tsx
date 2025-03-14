@@ -111,7 +111,7 @@ export default function CreateWorkflowPage() {
   }
 
   useEffect(() => {
-    var workflowTemplateId = searchParams.get("workflowtemplateid");
+    var workflowTemplateId = searchParams.get("id");
     if (workflowTemplateId) {
       void fetchWorkflowTemplate(workflowTemplateId);
     }
