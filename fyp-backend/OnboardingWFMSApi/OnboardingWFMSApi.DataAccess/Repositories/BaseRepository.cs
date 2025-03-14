@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public Task<TEntity> GetById(string id);
         public Task<bool> ExistsById(string id);
         public Task<List<TEntity>> GetAll();
+        public Task<List<TEntity>> AddManyAsync(List<TEntity> entities);
     }
 
     
@@ -37,9 +40,15 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             var guidStr = guid.ToString();
 
             var keyProp = typeof(TEntity).GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.KeyAttribute))).First();
+
             if (keyProp != null && keyProp.CanWrite)
             {
-                keyProp.SetValue(entity, Convert.ChangeType(guidStr, keyProp.PropertyType), null);
+                // ensure id hasn't already been set
+                var value = keyProp.GetValue(entity);
+                if (value == null || (value is string str && str == ""))
+                {
+                    keyProp.SetValue(entity, Convert.ChangeType(guidStr, keyProp.PropertyType), null);
+                }
             }
             else
             {
@@ -88,6 +97,20 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public virtual async Task<List<TEntity>> GetAll()
         {
             return _dbContext.Set<TEntity>().ToList();
+        }
+
+        public virtual async Task<List<TEntity>> AddManyAsync(List<TEntity> entities)
+        {
+            var savedEntities = new List<TEntity>();
+            foreach (var entity in entities)
+            {
+                var result = await AddAsync(entity);
+                savedEntities.Add(result);
+            }
+
+            var rows = await _dbContext.SaveChangesAsync();
+
+            return savedEntities;
         }
     }
 }

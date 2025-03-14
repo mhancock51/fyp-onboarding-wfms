@@ -6,6 +6,7 @@ using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using System;
 using System.Text;
@@ -37,6 +38,10 @@ builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInst
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
+builder.Services.AddScoped<IWorkflowTemplateRepository, WorkflowTemplateRepository>();
+builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNodeRepository>();
+builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
@@ -44,6 +49,8 @@ builder.Services.AddScoped<IAuthLogic, AuthLogic>();
 builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
 builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
 builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
+
+builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 

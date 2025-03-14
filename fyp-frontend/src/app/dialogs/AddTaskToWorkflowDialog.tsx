@@ -7,9 +7,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Label } from '@/components/ui/label';
+import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
-import WorkflowTask from '@/models/WorkflowTask';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
 import React, { SetStateAction, useState } from 'react'
@@ -24,18 +24,8 @@ interface Props {
 
 export default function AddTaskToWorkflowDialog(props: Props) {
   const TEMPLATED_ACCOUNTS = [
-    {
-      displayName: "Onboarder's account",
-      id: 'onboarder_account_id',
-      departmentId: '',
-      departmentName: ''
-    },
-    {
-      displayName: "Workflow Creator's account",
-      id: "workflow_creators_account_id",
-      departmentId: '',
-      departmentName: ''
-    }
+    PLACEHOLDER_ONBOARDERS_ACCOUNT,
+    PLACEHOLDER_SUPERVISORS_ACCOUNT
   ]
 
   const [step, setStep] = useState<number>(0);
@@ -103,7 +93,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                 </HoverCardContent>
               </HoverCard>
               <MultiSelect 
-                options={props.existingTaskNodes.map((node) => ({ label: node.taskTemplate.name, value: node.id}))} 
+                options={props.existingTaskNodes.map((node) => ({ label: node.taskTemplate?.name ?? "ERROR", value: node.id}))} 
                 onValueChange={(taskIds: string[]) => { setTaskNodeDependencies(props.existingTaskNodes.filter(i => taskIds.includes(i.id))) }}
               />
             </div>

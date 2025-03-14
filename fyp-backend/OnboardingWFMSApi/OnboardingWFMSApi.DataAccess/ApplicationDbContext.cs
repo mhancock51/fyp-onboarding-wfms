@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnboardingWFMSApi.DataModels.Tables;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,10 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<ChecklistTaskInstanceTable> checklistTaskInstances { get; set; }
         public DbSet<ReadDocumentTaskInstanceTable> readDocumentTaskInstances { get; set; }
         public DbSet<FileUploadTaskInstanceTable> fileUploadTaskInstances { get; set; }
+
+        public DbSet<NodeTaskDependencyTable> workflowTemplateNodeDependencies { get; set; }
+        public DbSet<WorkflowTemplateNodeTable> workflowTemplateNodes { get; set; }
+        public DbSet<WorkflowTemplateTable> workflowTemplates { get; set; }
 
         public DbSet<DocumentTable> documents { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }

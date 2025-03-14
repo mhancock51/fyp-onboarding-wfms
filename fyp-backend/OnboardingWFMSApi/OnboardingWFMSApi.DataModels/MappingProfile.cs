@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Models;
+using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +22,9 @@ namespace OnboardingWFMSApi.DataModels
             CreateMap<TaskTemplateTable, TaskTemplate>();
             CreateMap<TaskInstanceTable, TaskInstance>();
             CreateMap<TaskTypeTable, TaskType>();
+
+            CreateMap<WorkflowTemplateTable, WorkflowTemplateDTO>();
+            CreateMap<WorkflowTemplateNodeTable, WorkflowTemplateNodeDTO>();
 
         }
     }

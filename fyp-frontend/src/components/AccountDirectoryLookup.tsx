@@ -2,23 +2,28 @@ import React, { useEffect, useState } from 'react'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './ui/select';
 import AccountDirectory from '@/models/AccountDirectory';
 import Api from '@/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_ACCOUNTS_DIRECTORY } from '@/features/appSlice';
+import { RootState } from '@/store';
 
 interface Props {
   setAccount: React.Dispatch<React.SetStateAction<AccountDirectory | null>>;
   additionalAccounts: AccountDirectory[];
 }
 
-export default function AccountDirectoryLookup(props: Props) {
-  const [accountsDirectory, setAccountsDirectory] = useState<AccountDirectory[]>([]);
+export default function AccountDirectoryLookup(props: Props) {  
   const [loading, setLoading] = useState<boolean>(false);
+
+  const dispatch = useDispatch();
+  const accounts = useSelector((state: RootState) => state.app.accountsDirectory);
 
   async function fetchAccountsDirectory() {
     setLoading(true);
     Api.fetchAccountsDirectory()
-    .then((response) => {
-      console.log(response);
-      setAccountsDirectory(response.data.data);
-      setLoading(false);
+    .then((response) => {      
+      var accountsDirectory = response.data.data as AccountDirectory[];           
+      dispatch(SET_ACCOUNTS_DIRECTORY(accountsDirectory));
+          
     })
     .catch((error) => {
       setLoading(false);
@@ -26,11 +31,13 @@ export default function AccountDirectoryLookup(props: Props) {
   }
 
   useEffect(() => {
-    void fetchAccountsDirectory();
+    if (accounts.length === 0) {
+      void fetchAccountsDirectory();
+    }
   }, []);
 
   function handleValueChange(value: string) {
-    var account = accountsDirectory.concat(props.additionalAccounts).find(i => i.id === value);
+    var account = accounts.concat(props.additionalAccounts).find(i => i.id === value);
     if (account !== undefined) {
       props.setAccount(account);
     }
@@ -47,7 +54,7 @@ export default function AccountDirectoryLookup(props: Props) {
           <SelectGroup>
             <SelectLabel>Accounts</SelectLabel>
             {
-              props.additionalAccounts.map((account, index) => (
+              props.additionalAccounts.concat(accounts).map((account, index) => (
                 <SelectItem key={index} value={account.id}>{account.displayName}
                 {
                   account.departmentName !== "" &&
@@ -57,19 +64,7 @@ export default function AccountDirectoryLookup(props: Props) {
                 } 
                 </SelectItem>
               ))
-            }
-            {
-              accountsDirectory.map((account, index) => (
-                <SelectItem key={props.additionalAccounts.length + index} value={account.id}>{account.displayName}
-                {
-                  account.departmentName !== "" &&
-                  <>
-                    {" "}({account.departmentName})
-                  </>
-                }
-                </SelectItem>
-              ))
-            }          
+            }        
           </SelectGroup>
         }
         {

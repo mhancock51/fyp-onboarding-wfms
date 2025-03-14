@@ -7,9 +7,9 @@ import { useSelector } from 'react-redux';
 export default function TaskTypeBadge(props: {taskTypeId: string}) {
   const taskTypes = useSelector((state: RootState) => state.app.taskTypes);
 
-  function taskTypeIcon(taskType: string) {
+  function taskTypeIcon(taskType?: string) {
     const ICON_SIZE = 18;
-    switch(taskType.toLowerCase()) {
+    switch((taskType ?? "").toLowerCase()) {
       case "checklist":
         return <ListTodo size={ICON_SIZE}/>
       case "upload-document":

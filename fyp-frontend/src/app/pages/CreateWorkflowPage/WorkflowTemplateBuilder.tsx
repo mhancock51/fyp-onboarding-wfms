@@ -14,6 +14,10 @@ import AccountDirectory from '@/models/AccountDirectory';
 interface Props {
   taskTemplates: TaskTemplate[];
   isOnboardingWorkflow: boolean;
+  preflowTasks: WorkflowTemplateNode[];
+  setPreflowTasks: React.Dispatch<React.SetStateAction<WorkflowTemplateNode[]>>;
+  mainflowTasks: WorkflowTemplateNode[];
+  setMainflowTasks: React.Dispatch<React.SetStateAction<WorkflowTemplateNode[]>>;
 }
 
 export default function WorkflowTemplateBuilder(props: Props) {  
@@ -33,11 +37,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
 
   const nodeTypes = useMemo(() => ({ taskNode: TaskNode, startNode: StartNode, endNode: EndNode, addTaskNode: AddTaskNode, inviteUserNode: InviteUserNode }), []);
-  
 
-  // preflow and mainflow tasks (i.e. preboarding and onboarding)  
-  const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
-  const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
 
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState<boolean>(false);
   const [selectedSection, setSelectedSection] = useState<"preflow" | "mainflow">("preflow");
@@ -64,20 +64,20 @@ export default function WorkflowTemplateBuilder(props: Props) {
     nodes.push(startNode);  
     if (props.isOnboardingWorkflow) {
       // render preflow tasks (preboarding tasks)
-      preflowTasks.forEach((task, index) => {
+      props.preflowTasks.forEach((task, index) => {
         // add task node
         const prevNode = nodes[nodes.length - 1]
         const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
         const taskNode: Node = {
           id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
           data: {
-            taskTitle: task.taskTemplate.name,
-            taskTypeId: task.taskTemplate.taskTypeId,
-            description: task.taskTemplate.description,
+            taskTitle: task.taskTemplate?.name,
+            taskTypeId: task.taskTemplate?.taskTypeId,
+            description: task.taskTemplate?.description,
             deleteTask: () => { removeWorkflowNode(task.id) },
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
-            assignee: task.assignee.displayName,
+            assignee: task.assignee?.displayName,
             taskDependencies: task.taskDependencies
           } 
         };
@@ -109,20 +109,20 @@ export default function WorkflowTemplateBuilder(props: Props) {
     }
 
     // render mainflow tasks
-    mainflowTasks.forEach((task, index) => {
+    props.mainflowTasks.forEach((task, index) => {
       // add task node
       const prevNode = nodes[nodes.length - 1]
       const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
-          taskTitle: task.taskTemplate.name,
-          taskTypeId: task.taskTemplate.taskTypeId,
-          description: task.taskTemplate.description,
+          taskTitle: task.taskTemplate?.name,
+          taskTypeId: task.taskTemplate?.taskTypeId,
+          description: task.taskTemplate?.description,
           deleteTask: () => { removeWorkflowNode(task.id) },
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
-          assignee: task.assignee.displayName,
+          assignee: task.assignee?.displayName,
           taskDependencies: task.taskDependencies
         } 
       };
@@ -169,10 +169,10 @@ export default function WorkflowTemplateBuilder(props: Props) {
     };
     switch(type) {
       case "preflow":
-        setPreflowTasks((prevState) => ([...prevState, node]));
+        props.setPreflowTasks((prevState) => ([...prevState, node]));
         break;
       case "mainflow":
-        setMainflowTasks((prevState) => ([...prevState, node]));
+        props.setMainflowTasks((prevState) => ([...prevState, node]));
         break;
       default:
         return;
@@ -189,26 +189,26 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   function moveNodeUp(index: number, section: "preflow" | "mainflow") {    
     if (section === "preflow" && index > 0) {
-      setPreflowTasks((prevState) => moveItemBack(prevState, index, -1));      
+      props.setPreflowTasks((prevState) => moveItemBack(prevState, index, -1));      
     }
     else if(section === "mainflow" && index > 0) {
-      setMainflowTasks((prevState) => moveItemBack(prevState, index, -1));
+      props.setMainflowTasks((prevState) => moveItemBack(prevState, index, -1));
     }
   }
 
   function moveNodeDown(index: number, section: "preflow" | "mainflow") {    
     if (section === "preflow") {
-      setPreflowTasks((prevState) => moveItemBack(prevState, index, 1));      
+      props.setPreflowTasks((prevState) => moveItemBack(prevState, index, 1));      
     }
     else if(section === "mainflow") {
-      setMainflowTasks((prevState) => moveItemBack(prevState, index, 1));
+      props.setMainflowTasks((prevState) => moveItemBack(prevState, index, 1));
     }
   }
 
   function removeWorkflowNode(id: string) {
     // attempt to find node in preflow tasks
-    setPreflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
-    setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
+    props.setPreflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
+    props.setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
   }
 
   function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[]) {
@@ -217,7 +217,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   useEffect(() => {    
     renderWorkflowNodes();
-  }, [preflowTasks, mainflowTasks, props.isOnboardingWorkflow]);
+  }, [props.preflowTasks, props.mainflowTasks, props.isOnboardingWorkflow]);
 
   return (
     <div className='flex flex-col gap-4'>
@@ -229,7 +229,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
           // onNodesChange={onNodesChange}
           // onEdgesChange={onEdgesChange}
           // onConnect={onConnect}
-          defaultViewport={{x: 650, y: 200, zoom: 0.75}}
+          defaultViewport={{x: 975, y: 200, zoom: 0.75}}
+          nodeOrigin={[0.5, 0.5]}
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  
           <Controls />
@@ -237,7 +238,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
       </div>
       <AddTaskToWorkflowDialog open={openAddTaskDialog} setOpen={setOpenAddTaskDialog} onAddTask={addTaskToWorkflow} 
         isOnboardingWorkflow={props.isOnboardingWorkflow}
-        existingTaskNodes={preflowTasks.concat(mainflowTasks)}
+        existingTaskNodes={props.preflowTasks.concat(props.mainflowTasks)}
       />
     </div>
   )
