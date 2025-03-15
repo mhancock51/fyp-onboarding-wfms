@@ -160,15 +160,18 @@ REFERENCES tasktype (TaskTypeId);
 
 ALTER TABLE fileuploadtasktemplate 
 ADD CONSTRAINT fk_fileuploadtasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
-REFERENCES tasktemplate (TaskTemplateId);
+REFERENCES tasktemplate (TaskTemplateId)
+ON DELETE CASCADE;
 
 ALTER TABLE readdocumenttasktemplate 
 ADD CONSTRAINT fk_readdocumenttasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
-REFERENCES tasktemplate (TaskTemplateId);
+REFERENCES tasktemplate (TaskTemplateId)
+ON DELETE CASCADE;
 
 ALTER TABLE checklisttasktemplate
-    ADD CONSTRAINT fk_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+ADD CONSTRAINT fk_task_template_id
+FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+ON DELETE CASCADE;
 
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_assignee_account_id

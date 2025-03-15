@@ -100,7 +100,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     return serverErrorResponse;
                 }
                 // load template
-                var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId); ;
+                var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId);
                 taskTemplate = response.Data;
                 // create instance of task type data
                 // i.e. checklist task -> create row in ChecklistTaskInstance repo
@@ -112,7 +112,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             try
             {
-                var handler = _taskInstanceHandlerFactory.GetHandler(instance.TaskTemplateId);
+                var handler = _taskInstanceHandlerFactory.GetHandler(taskTemplate.TaskTypeId);
                 if (handler == null)
                 {
                     throw new Exception("Tasks template has an invalid task type");
