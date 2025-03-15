@@ -171,12 +171,14 @@ namespace OnboardingWFMSApi.BusinessLogic
                 throw new Exception("Task instance isn't associated with a valid task template");
             }
             // get task type data            
-            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.template.Id);
+            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.template.TaskTypeId);
             if (handler == null)
             {
                 throw new Exception("Task instance is associated with an invalid task type id");
             }
-            taskInstance.InstanceData = handler.GetTaskInstanceMetaData(taskInstance.Id);
+            var dataResponse = await handler.GetTaskInstanceMetaData(taskInstance.Id);
+            if (!dataResponse.Success) return new HTTPResponse<TaskInstance, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
+            taskInstance.InstanceData = dataResponse.Data;
 
             return new HTTPResponse<TaskInstance, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
         }
