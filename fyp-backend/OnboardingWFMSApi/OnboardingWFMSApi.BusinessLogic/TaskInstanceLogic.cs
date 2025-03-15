@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
+using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -44,11 +46,12 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
         private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
 
+        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
+
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
-            IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository, 
-            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository
-        )
+            IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
+            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory)
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
@@ -59,6 +62,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
             _documentLogic = documentLogic;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
+            _taskInstanceHandlerFactory = taskInstanceHandlerFactory;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -108,21 +112,17 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             try
             {
-                switch(taskTemplate.TaskTypeId)
+                var handler = _taskInstanceHandlerFactory.GetHandler(instance.TaskTemplateId);
+                if (handler == null)
                 {
-                    case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
-                        var checklistItems = (taskTemplate.TaskTypeData as ChecklistTaskTemplateTable).Items;
-                        await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstance.Id });
-                        break;
-                    case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                        await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstance.Id });
-                        break;                    
-                    case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                        await _uploadTaskInstanceRepository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstance.Id, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
-                        break;
-                    default:
-                        throw new Exception("Tasks template has an invalid task type");
-                }            
+                    throw new Exception("Tasks template has an invalid task type");
+                }
+                // insert task instance meta data using handler
+                var result = await handler.InsertTaskInstanceMetaData(taskTemplate.TaskTypeData, taskInstance.Id);
+                if (!result.Success)
+                {
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = result.Error };
+                }
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created task instance" };
             }
             catch (Exception ex)
@@ -170,19 +170,14 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Task instance isn't associated with a valid task template");
             }
-            // get task type data
-            switch(taskInstance.template.TaskTypeId)
+            // get task type data            
+            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.template.Id);
+            if (handler == null)
             {
-                case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
-                    taskInstance.InstanceData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-                    break;
-                case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = await _uploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-                    break;
-                case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                    taskInstance.InstanceData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-                    break;
+                throw new Exception("Task instance is associated with an invalid task type id");
             }
+            taskInstance.InstanceData = handler.GetTaskInstanceMetaData(taskInstance.Id);
+
             return new HTTPResponse<TaskInstance, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
         }
 
@@ -346,26 +341,17 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have access to update this resource" }; 
             }
-            bool isComplete = false;
-            // make sure task meets conditions to be complete
-            switch(taskInstance.template.TaskTypeId)
-            {
-                case TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID:
-                    isComplete = IsChecklistTaskComplete(taskInstance);
-                    break;
-                case TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID:
-                    isComplete = IsReadDocumentTaskComplete(taskInstance);
-                    break;
-                case TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID:
-                    isComplete = IsUploadDocumentTaskComplete(taskInstance);
-                    break;
-                default:
-                    throw new Exception("Task template isn't associated with a valid task type id");
-            }            
 
-            if (!isComplete)
+            // make sure task meets conditions to be complete using handler
+            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.template.TaskTypeId);
+            if (handler == null)
             {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task can't be completed yet" };
+                throw new Exception("Task template isn't associated with a valid task type id");
+            }
+            var completeResponse = await handler.IsTaskInstanceCompleteable(taskInstance.InstanceData);
+            if (!completeResponse.Success)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = completeResponse.Error };
             }
             
             // mark task instance as complete
@@ -378,66 +364,6 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
         }
-
-        private bool IsUploadDocumentTaskComplete(TaskInstance taskInstance)
-        {
-            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID)
-            {
-                throw new Exception("Task is not an upload document task");
-            }
-            // ensure document has been uploaded
-            var uploadDocInstanceData = (taskInstance.InstanceData as FileUploadTaskInstanceTable);
-            if (uploadDocInstanceData.DocumentId == "")
-            {
-                return false;
-            }
-            if (uploadDocInstanceData.UploadedTimestamp == DateTime.MinValue)
-            {
-                return false;
-            }
-            return true;
-
-        }
-
-        private bool IsReadDocumentTaskComplete(TaskInstance taskInstance)
-        {
-            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID)
-            {
-                throw new Exception("Task is not a read document task");
-            }
-
-            // ensure document has been opened and checkbox has been checked
-            var readDocInstanceData = (taskInstance.InstanceData as ReadDocumentTaskInstanceTable);
-            if (readDocInstanceData.CheckboxChecked && readDocInstanceData.LinkClicked)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private bool IsChecklistTaskComplete(TaskInstance taskInstance)
-        {
-            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID)
-            {
-                throw new Exception("Task is not a checklist task");
-            }
-
-            // ensure all checklist items are complete
-            var checklistInstanceData = (taskInstance.InstanceData as ChecklistTaskInstanceTable);
-            foreach(var itemStatus in checklistInstanceData.ItemCompletionStatuses)
-            {
-                if (itemStatus == false)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        
     }
 
 }
