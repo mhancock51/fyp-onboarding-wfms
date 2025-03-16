@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,8 +19,10 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string AssigneeAccountId { get; set; }
         [ForeignKey(nameof(AccountTable.Id))]
         public string AssignerAccountId { get; set; }
-        [ForeignKey(nameof(TaskTemplateTable.Id))]
+        [ForeignKey(nameof(TaskTemplateTable.Id))]        
         public string TaskTemplateId { get; set; }
+        [ForeignKey(nameof(WorkflowInstanceTable.Id))]
+        public string? WorkflowInstanceId { get; set; } 
         public DateTime CreationTimestamp { get; set; }
         public string Status { get; set; }
     }

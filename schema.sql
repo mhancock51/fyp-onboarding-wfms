@@ -69,6 +69,7 @@ CREATE TABLE taskinstance (
     AssigneeAccountId VARCHAR(255),
     AssignerAccountId VARCHAR(255),
     TaskTemplateId VARCHAR(255),
+    WorkflowInstanceId VARCHAR(255),
     CreationTimestamp DATETIME,
     Status VARCHAR(255)
 );
@@ -193,6 +194,10 @@ ALTER TABLE taskinstance
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+
+ALTER TABLE taskinstance
+    ADD CONSTRAINT fk_task_instance_workflow_instance_id
+    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id);
 
 ALTER TABLE checklisttaskinstance
     ADD CONSTRAINT fk_checklist_instance_task_instance_id

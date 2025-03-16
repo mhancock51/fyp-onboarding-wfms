@@ -4,6 +4,7 @@ using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Payloads;
@@ -46,12 +47,15 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
         private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
 
+        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
+
         private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
             IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
-            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory)
+            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory, IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository)
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
@@ -63,6 +67,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             _documentLogic = documentLogic;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
             _taskInstanceHandlerFactory = taskInstanceHandlerFactory;
+            _workflowTemplateRepository = workflowTemplateRepository;
+            _workflowInstanceRepository = workflowInstanceRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -87,6 +93,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 AssigneeAccountId = payload.AssigneeAccountId,
                 AssignerAccountId = payload.AssignerAccountId,
                 TaskTemplateId = payload.TaskTemplateId,
+                WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
                 CreationTimestamp = DateTime.Now,
                 Status = OPEN_TASK_STATUS
             };
@@ -179,6 +186,18 @@ namespace OnboardingWFMSApi.BusinessLogic
             var dataResponse = await handler.GetTaskInstanceMetaData(taskInstance.Id);
             if (!dataResponse.Success) return new HTTPResponse<TaskInstance, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
             taskInstance.InstanceData = dataResponse.Data;
+
+            if (taskInstance.WorkflowInstanceId != null)
+            {
+                // retrieve name of workflow template
+                var workflowInstance = await _workflowInstanceRepository.GetById(taskInstance.WorkflowInstanceId);
+                var workflowTemplate = await _workflowTemplateRepository.GetById(workflowInstance.WorkflowTemplateId);
+                taskInstance.WorkflowInstanceTemplateName = workflowTemplate.Name;
+            }
+            else
+            {
+                taskInstance.WorkflowInstanceTemplateName = "";
+            }
 
             return new HTTPResponse<TaskInstance, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
         }

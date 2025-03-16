@@ -11,5 +11,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string TaskTemplateId { get; set; }
         public string AssigneeAccountId { get; set; }
         public string AssignerAccountId { get; set; }
+        public string? WorkflowInstanceId { get; set; }
     }
 }

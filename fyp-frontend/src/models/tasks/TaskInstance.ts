@@ -11,5 +11,7 @@ export default interface TaskInstance {
     creationTimestamp: string;
     status: string;
     template: TaskTemplate;
+    workflowInstanceTemplateName: string;
+    workflowInstanceId?: string;
     instanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | null;
 }

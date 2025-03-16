@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+﻿using OnboardingWFMSApi.DataModels.Payloads;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace OnboardingWFMSApi.DataModels.DTOs
 {
     public class WorkflowInstanceDTO : WorkflowInstanceTable
     {
-        public WorkflowTemplateTable WorkflowTemplate { get; set; }
+        public WorkflowTemplateDTO WorkflowTemplate { get; set; }
     }
 }

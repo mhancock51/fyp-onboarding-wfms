@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -15,22 +16,25 @@ namespace OnboardingWFMSApi.BusinessLogic
     public interface IWorkflowInstanceLogic
     {
         public Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload);
+        public Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId);
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
     {
         private readonly ILogger<WorkflowInstanceLogic> _logger;
+        private readonly IMapper _mapper;
 
         private readonly IWorkflowTemplateLogic _workflowTemplateLogic;
         private readonly ITaskInstanceLogic _taskInstanceLogic;
 
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
 
-        public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic, ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger)
+        public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic, ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
             _taskInstanceLogic = taskInstanceLogic;
             _logger = logger;
+            _mapper = mapper;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -80,7 +84,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             foreach (var task in tasks) 
             {
                 var result = await _taskInstanceLogic.CreateInstance(
-                    new CreateTaskInstancePayload() { TaskTemplateId = task.TaskTemplateId, AssigneeAccountId = task.AssigneeId, AssignerAccountId = instance.SupervisorAccountId }
+                    new CreateTaskInstancePayload() { 
+                        TaskTemplateId = task.TaskTemplateId, 
+                        AssigneeAccountId = task.AssigneeId, 
+                        AssignerAccountId = instance.SupervisorAccountId,
+                        WorkflowInstanceId = instance.Id
+                    }
                 );
                 if (!result.Success)
                 {
@@ -89,6 +98,24 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 400, Data = "Successfully instantiated workflow instance" };
+        }
+
+        public async Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId)
+        {
+            var workflowInstance = await _workflowInstanceRepository.GetById(workflowInstanceId);
+            if (workflowInstance == null)
+            {
+                return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 400, Error = "Workflow instance doesn't exist" };
+            }
+            var workflowInstanceDTO = _mapper.Map<WorkflowInstanceDTO>(workflowInstance);
+            // retrieve workflow template DTO
+            var result = await _workflowTemplateLogic.GetWorkflowTemplate(workflowInstance.WorkflowTemplateId);
+            if (!result.Success || !result.HasData)
+            {
+                return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to retrieve workflow template" };
+            }
+            workflowInstanceDTO.WorkflowTemplate = result.Data;
+            return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 200, Data = workflowInstanceDTO };
         }
     }
 }
