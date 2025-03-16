@@ -44,7 +44,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
         {
-            var taskInstance = JsonSerializer.Deserialize<FileUploadTaskInstanceTable>(taskInstanceMetaData.ToString());
+            var taskInstance = taskInstanceMetaData as FileUploadTaskInstanceTable;
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
@@ -63,7 +63,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData, object taskTemplateMetaData, string taskInstanceId)
         {
-            var taskInstance = JsonSerializer.Deserialize<FileUploadTaskInstanceTable>(updatedTaskInstanceMetaData.ToString());
+            var taskInstance = updatedTaskInstanceMetaData as FileUploadTaskInstanceTable;
             // validate updated meta data before inserting
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData, taskTemplateMetaData);
             if (!validationResponse.Success)
@@ -79,12 +79,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData, object taskTemplateMetaData)
         {
-            var taskInstance = JsonSerializer.Deserialize<FileUploadTaskInstanceTable>(taskInstanceMetaData.ToString());
+            var taskInstance = taskInstanceMetaData as FileUploadTaskInstanceTable;
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
-            var taskTemplate = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(taskTemplateMetaData.ToString());
+            var taskTemplate = taskTemplateMetaData as ChecklistTaskTemplateTable;
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };
