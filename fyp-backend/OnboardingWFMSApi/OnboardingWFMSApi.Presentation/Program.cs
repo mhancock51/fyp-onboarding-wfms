@@ -42,6 +42,8 @@ builder.Services.AddScoped<IWorkflowTemplateRepository, WorkflowTemplateReposito
 builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNodeRepository>();
 builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
 
+builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
@@ -50,7 +52,9 @@ builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
 builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
 builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
 
+
 builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();
+builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
