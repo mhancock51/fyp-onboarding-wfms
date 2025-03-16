@@ -1,0 +1,102 @@
+﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+{
+    public interface IUploadDocumentTaskTemplateHandler : ITaskTemplateHandler
+    {
+
+    }
+
+    public class UploadDocumentTaskTemplateHandler : IUploadDocumentTaskTemplateHandler
+    {
+        private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
+
+        private readonly string[] ALLOWED_FILE_EXTENSIONS =
+        {
+            ".pdf",
+            ".jpeg",
+            ".png",
+            ".docx",
+        };
+
+        public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository)
+        {
+            _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
+        }
+
+        public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
+        {
+            if (taskTypeData == null)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
+            }
+
+            FileUploadTaskTemplateTable fileUploadTaskData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(taskTypeData.ToString());
+            // validate
+            var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
+            if (!validationResult.Success)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
+            }
+
+            fileUploadTaskData.TaskTemplateId = taskTemplateId;
+            try
+            {
+                await _fileUploadTaskTemplateRepository.AddAsync(fileUploadTaskData);                
+                return new ServerResponse<string, string>() { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert checklist data" };
+            }
+        }
+
+        public string GetTaskTypeId()
+        {
+            return "upload-document";
+        }
+
+        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
+        {
+            var fileUploadTaskData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
+            return fileUploadTaskData == null ?
+                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve file upload task data" } :
+                new ServerResponse<object, string>() { Success = true, Data = fileUploadTaskData };
+        }
+
+        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
+        {
+            FileUploadTaskTemplateTable fileUploadTaskData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(taskTypeData.ToString());
+            if (fileUploadTaskData == null)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task type data" };
+            }
+
+            if (string.IsNullOrEmpty(fileUploadTaskData.DocumentName))
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Document name must be set" };
+            }
+            if (string.IsNullOrEmpty(fileUploadTaskData.SupportedDocumentType))
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "At least one supported document type must be provided" };
+            }
+            // ensure all supported document types are allowed
+            foreach (var fileExtension in fileUploadTaskData.SupportedDocumentType.Split(";"))
+            {
+                if (!ALLOWED_FILE_EXTENSIONS.Contains(fileExtension))
+                {
+                    return new ServerResponse<string, string>() { Success = false, Error = $"{fileExtension} is not an allowed extension" };
+                }
+            }
+            return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
+        }
+    }
+}
