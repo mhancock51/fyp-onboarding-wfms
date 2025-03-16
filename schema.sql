@@ -128,6 +128,15 @@ CREATE TABLE nodetaskdependency (
     WorkflowTemplateId VARCHAR(255)
 );
 
+/* Workflow instances */
+CREATE TABLE workflowinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowTemplateId VARCHAR(255) NOT NULL,
+    OnboarderAccountId VARCHAR(255),
+    SupervisorAccountId VARCHAR(255),
+    CreationTimestamp DATETIME
+);
+
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -233,3 +242,16 @@ ALTER TABLE nodetaskdependency
     ADD CONSTRAINT fk_nodetaskdependency_workflow_template_id
     FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
     ON DELETE CASCADE;
+
+/* Workflow instance */
+ALTER TABLE workflowinstance
+    ADD CONSTRAINT fk_workflow_instance_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id);
+
+ALTER TABLE workflowinstance
+    ADD CONSTRAINT fk_workflow_instance_onboarder_account_id
+    FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
+
+ALTER TABLE workflowinstance
+    ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
+    FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);
