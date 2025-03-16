@@ -149,8 +149,8 @@ function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) 
     }
     var data = {
       Items: items,
-      Id: "abc",
-      TaskTemplateId: "abc"
+      Id: "",
+      TaskTemplateId: ""
     }
     props.updateTaskTypeData(data);
   }
@@ -204,8 +204,8 @@ function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: an
     if (checkboxLabel === "") return;
 
     const data = {
-      Id: "abc",
-      TaskTemplateId: "abc",
+      Id: "",
+      TaskTemplateId: "",
       DocumentName: documentName,
       DocumentUrl: documentLink,
       CheckBoxLabel: checkboxLabel
@@ -247,8 +247,8 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
       return;
     }
     const data = {
-      Id: "abc",
-      TaskTemplateId: "abc",
+      Id: "",
+      TaskTemplateId: "",
       SupportedDocumentType: fileExtensions.join(";"),
       DocumentName: documentName      
     }
