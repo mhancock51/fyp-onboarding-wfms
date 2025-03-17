@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess;
@@ -11,6 +12,7 @@ using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using System;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,6 +72,9 @@ builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();
 builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+// register mediatR and register all services from assemblies
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(TaskCompletedRequest).Assembly));
+
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];
