@@ -25,5 +25,8 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string? WorkflowInstanceId { get; set; } 
         public DateTime CreationTimestamp { get; set; }
         public string Status { get; set; }
+        [ForeignKey(nameof(WorkflowTemplateNodeTable.Id))]
+        public string? WorkflowNodeId { get; set; }
+        
     }
 }
