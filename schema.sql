@@ -72,7 +72,7 @@ CREATE TABLE taskinstance (
     WorkflowInstanceId VARCHAR(255),
     CreationTimestamp DATETIME,
     Status VARCHAR(255),
-    WorkflowNodeId VARCHAR(255)
+    WorkflowNodeId VARCHAR(255),    
 );
 
 CREATE TABLE checklisttaskinstance (
@@ -136,7 +136,8 @@ CREATE TABLE workflowinstance (
     WorkflowTemplateId VARCHAR(255) NOT NULL,
     OnboarderAccountId VARCHAR(255),
     SupervisorAccountId VARCHAR(255),
-    CreationTimestamp DATETIME
+    CreationTimestamp DATETIME,
+    OnboarderEmailAddress VARCHAR(255)
 );
 
 

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using MediatR;
+using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -28,13 +30,15 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IOrganisationRepository _organisationRepository;
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository, IMapper mapper)
+        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository, IMapper mapper, IMediator mediator)
         {
             _accountRepository = accountRepository;
             _departmentRepository = departmentRepository;
             _organisationRepository = organisationRepository;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
         public async Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts()
@@ -156,13 +160,15 @@ namespace OnboardingWFMSApi.BusinessLogic
             try
             {
                 await _accountRepository.UpdateAsync(account);
-                return new HTTPResponse<string, string>() { Success = true, Data = "Registered user", HttpCode = 200 };
             }
             catch (Exception ex)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Failed to register user", HttpCode = 500 };
             }
+            await _mediator.Send(new AccountRegistrationRequest(account.Id, account.EmailAddress));
+            // TODO: possibly implement check to fallback if failed from medaitors response
 
+            return new HTTPResponse<string, string>() { Success = true, Data = "Registered user", HttpCode = 200 };
         }
     }
 }

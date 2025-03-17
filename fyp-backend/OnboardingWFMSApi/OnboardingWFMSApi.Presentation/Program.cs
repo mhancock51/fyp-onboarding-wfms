@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -77,7 +78,8 @@ builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(TaskCompletedRequest).Assembly));
-
+builder.Services.AddScoped<IRequestHandler<TaskCompletedRequest, HTTPResponse<string, string>>, TaskCompletionHandler>();
+builder.Services.AddScoped<IRequestHandler<AccountRegistrationRequest, HTTPResponse<string, string>>, AccountRegistrationHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

@@ -9,7 +9,7 @@ namespace OnboardingWFMSApi.DataModels.Payloads
     public class CreateWorkflowInstancePayload
     {
         public string workflowTeamplateId { get; set; }
-        public string? onboarderAccountId { get; set; }        
+        public string onboarderEmailAddress {  get; set; }     
         public string supervisorAccountId { get; set; }
     }
 }

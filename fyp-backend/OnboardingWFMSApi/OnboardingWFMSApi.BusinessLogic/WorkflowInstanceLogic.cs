@@ -19,6 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload);
         public Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId);
         public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstance taskInstance);
+        public Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress);
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
     {        
@@ -45,7 +46,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             // make sure an instance with the same template Id and account Ids don't exists
             var workflowInstances = await _workflowInstanceRepository.GetInstancesByTemplateId(payload.workflowTeamplateId);
-            if (workflowInstances.FirstOrDefault(i => i.SupervisorAccountId == payload.supervisorAccountId && i.OnboarderAccountId == payload.onboarderAccountId) != null)
+            if (workflowInstances.FirstOrDefault(i => i.SupervisorAccountId == payload.supervisorAccountId && i.OnboarderEmailAddress == payload.onboarderEmailAddress) != null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "A similar workflow instance already exists" };
             }
@@ -56,7 +57,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
             }
             
-            if (workflowTemplate.IsOnboardingWF && (payload.onboarderAccountId == null || payload.supervisorAccountId == null))
+            if (workflowTemplate.IsOnboardingWF && (payload.onboarderEmailAddress == null || payload.supervisorAccountId == null))
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder and Supervisor account must be selected" };
             }
@@ -67,25 +68,26 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 Id = "",
                 WorkflowTemplateId = payload.workflowTeamplateId,
-                OnboarderAccountId = payload.onboarderAccountId ?? null,
+                OnboarderAccountId = null,
+                OnboarderEmailAddress = payload.onboarderEmailAddress,
                 SupervisorAccountId = payload.supervisorAccountId,
                 CreationTimestamp = DateTime.UtcNow,
             };
             instance = await _workflowInstanceRepository.AddAsync(instance);
 
             // assign first tasks (ones with no dependencies in the preflow (if onboarding or mainflow))
-            var nodes = new List<WorkflowTemplateNodeDTO>();
+            var nodeswithNoDependencies = new List<WorkflowTemplateNodeDTO>();
             if (workflowTemplate.IsOnboardingWF)
             {
                 // find preflow tasks with no dependencies
-                nodes = workflowTemplate.PreflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                nodeswithNoDependencies = workflowTemplate.PreflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             }
             else
             {
-                nodes = workflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                nodeswithNoDependencies = workflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             }
             // assign tasks
-            foreach (var node in nodes) 
+            foreach (var node in nodeswithNoDependencies) 
             {
                 var result = await _taskInstanceLogic.CreateInstance(
                     new CreateTaskInstancePayload() { 
@@ -143,8 +145,9 @@ namespace OnboardingWFMSApi.BusinessLogic
                 var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
                 if (isPreflowSectionComplete)
                 {
-                    // TODO: invite onboarder (check onboarder hasn't already been invited) - once onboarder has registed, mainflow tasks should begin
-                    return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Onboarder invited" };
+                    // TODO: invite onboarder (check onboarder hasn't already been invited) - once onboarder has registed, mainflow tasks should begin                    
+
+                    //return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Onboarder invited" };
                 }
             }
 
@@ -162,7 +165,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 if (await AreNodesDependenciesSatisfied(dependentNode, workflowInstance, node.Id))
                 {
                     // all dependencies have been satisfied, instantiate this task
-                    var result = await _taskInstanceLogic.CreateInstance(
+                    await _taskInstanceLogic.CreateInstance(
                         new CreateTaskInstancePayload()
                         {
                             TaskTemplateId = dependentNode.TaskTemplateId,
@@ -220,6 +223,47 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }
             return true;
-        }        
+        }
+
+        public async Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress)
+        {
+            // find active worklow instance where onboarder email address is the same
+            var matchingWorkflowInstance = (await _workflowInstanceRepository.GetAll()).FirstOrDefault(i => i.OnboarderEmailAddress == emailAddress);
+            if (matchingWorkflowInstance == null)
+            {
+                // account isn't associated with an existing user
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Account isn't associated with a workflow instance where this user is an onboarder" };
+            }
+            if (!string.IsNullOrEmpty(matchingWorkflowInstance.OnboarderAccountId))
+            {
+                throw new Exception("OnboarderAccountId for worklow instance has already been set!");                
+            }
+            // update instance to include onboarder's account id
+            matchingWorkflowInstance.OnboarderAccountId = accountId;
+            await _workflowInstanceRepository.UpdateAsync(matchingWorkflowInstance);
+
+            var workflowInstance = (await GetWorkflowInstance(matchingWorkflowInstance.Id)).Data ?? null;
+            if (workflowInstance == null)
+            {
+                throw new Exception("Failed to retrieve DTO for workflow instance");
+            }
+            // start mainflow tasks
+            var nodesWithNoDependencies = workflowInstance?.WorkflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+            foreach(var node in nodesWithNoDependencies)
+            {
+                await _taskInstanceLogic.CreateInstance(
+                    new CreateTaskInstancePayload()
+                    {
+                        TaskTemplateId = node.TaskTemplateId,
+                        AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, workflowInstance),
+                        AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
+                        WorkflowInstanceId = workflowInstance.Id,
+                        WorkflowNodeId = node.Id,
+                    }
+                );
+            }
+
+            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200 };
+        }
     }
 }
