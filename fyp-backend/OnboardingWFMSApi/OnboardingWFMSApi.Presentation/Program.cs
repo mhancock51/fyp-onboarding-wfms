@@ -59,7 +59,7 @@ builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanc
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 
-builder.Services.AddScoped<IUtility, Utility>();
+builder.Services.AddScoped<IUtility, OnboardingWFMSApi.BusinessLogic.Utility>();
 
 
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
