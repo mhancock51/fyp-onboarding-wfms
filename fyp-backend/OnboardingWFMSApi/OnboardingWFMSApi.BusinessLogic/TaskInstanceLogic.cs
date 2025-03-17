@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
@@ -94,6 +94,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 AssignerAccountId = payload.AssignerAccountId,
                 TaskTemplateId = payload.TaskTemplateId,
                 WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
+                WorkflowNodeId = payload.WorkflowNodeId ?? null,
                 CreationTimestamp = DateTime.Now,
                 Status = OPEN_TASK_STATUS
             };
