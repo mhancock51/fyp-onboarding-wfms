@@ -59,6 +59,9 @@ builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanc
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 
+builder.Services.AddScoped<IUtility, Utility>();
+
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();

@@ -21,22 +21,24 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstance taskInstance);
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
-    {
+    {        
         private readonly ILogger<WorkflowInstanceLogic> _logger;
-        private readonly IMapper _mapper;        
+        private readonly IMapper _mapper;
+        private readonly IUtility _utility;
 
         private readonly IWorkflowTemplateLogic _workflowTemplateLogic;
         private readonly ITaskInstanceLogic _taskInstanceLogic;
 
-        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;        
+        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
 
-        public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic, ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper)
+        public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic, ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility)
         {
-            _workflowInstanceRepository = workflowInstanceRepository;            
+            _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
             _taskInstanceLogic = taskInstanceLogic;
             _logger = logger;
             _mapper = mapper;
+            _utility = utility;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -66,7 +68,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 Id = "",
                 WorkflowTemplateId = payload.workflowTeamplateId,
                 OnboarderAccountId = payload.onboarderAccountId ?? null,
-                SupervisorAccountId = payload.supervisorAccountId ?? null,
+                SupervisorAccountId = payload.supervisorAccountId,
                 CreationTimestamp = DateTime.UtcNow,
             };
             instance = await _workflowInstanceRepository.AddAsync(instance);
@@ -87,9 +89,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 var result = await _taskInstanceLogic.CreateInstance(
                     new CreateTaskInstancePayload() { 
-                        TaskTemplateId = node.TaskTemplateId, 
-                        AssigneeAccountId = node.AssigneeId, 
-                        AssignerAccountId = instance.SupervisorAccountId,
+                        TaskTemplateId = node.TaskTemplateId,
+                        AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, instance),
+                        AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(instance.SupervisorAccountId, instance),
                         WorkflowInstanceId = instance.Id,
                         WorkflowNodeId = node.Id
                     }
@@ -119,7 +121,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             workflowInstanceDTO.WorkflowTemplate = result.Data;
             return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 200, Data = workflowInstanceDTO };
-        }
+        }       
 
         public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstance taskInstance)
         {
@@ -164,8 +166,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                         new CreateTaskInstancePayload()
                         {
                             TaskTemplateId = dependentNode.TaskTemplateId,
-                            AssigneeAccountId = dependentNode.AssigneeId,
-                            AssignerAccountId = workflowInstance.SupervisorAccountId,
+                            AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(dependentNode.AssigneeId, workflowInstance),
+                            AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
                             WorkflowInstanceId = workflowInstance.Id,
                             WorkflowNodeId = dependentNode.Id,
                         }
@@ -218,6 +220,6 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }
             return true;
-        }
+        }        
     }
 }
