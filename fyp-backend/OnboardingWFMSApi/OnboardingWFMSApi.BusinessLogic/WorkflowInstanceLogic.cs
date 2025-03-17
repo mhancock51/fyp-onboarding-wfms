@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -74,11 +74,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (workflowTemplate.IsOnboardingWF)
             {
                 // find preflow tasks with no dependencies
-                tasks = workflowTemplate.PreflowTasks.Where(n => n.DependencyTaskTemplateIds.Count == 0).ToList();
+                tasks = workflowTemplate.PreflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             }
             else
             {
-                tasks = workflowTemplate.MainflowTasks.Where(n => n.DependencyTaskTemplateIds.Count == 0).ToList();
+                tasks = workflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             }
             // assign tasks
             foreach (var task in tasks) 

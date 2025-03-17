@@ -73,15 +73,15 @@ namespace OnboardingWFMSApi.BusinessLogic
                 };
                 nodes.Add(node);
                 // TODO implement validation                
-                if (preflowTask.DependencyTaskTemplateIds == null) preflowTask.DependencyTaskTemplateIds = [];
+                if (preflowTask.DependencyNodeIds == null) preflowTask.DependencyNodeIds = [];
 
-                foreach (var taskDependency in preflowTask.DependencyTaskTemplateIds)
+                foreach (var nodeDependency in preflowTask.DependencyNodeIds)
                 {
                     var dependency = new NodeTaskDependencyTable()
                     {
                         Id = Guid.NewGuid().ToString(),
                         NodeId = node.Id,
-                        DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == taskDependency).Id,
+                        DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == nodeDependency).Id,
                         WorkflowTemplateId = workflowTemplate.Id
                     };
                     dependencies.Add(dependency);
@@ -102,15 +102,15 @@ namespace OnboardingWFMSApi.BusinessLogic
                 };
                 nodes.Add(node);
                 // TODO implement validation                
-                if (mainflowTask.DependencyTaskTemplateIds == null) mainflowTask.DependencyTaskTemplateIds = [];
+                if (mainflowTask.DependencyNodeIds == null) mainflowTask.DependencyNodeIds = [];
                 // remove null values
-                foreach (var taskDependency in mainflowTask.DependencyTaskTemplateIds)
+                foreach (var nodeDependency in mainflowTask.DependencyNodeIds)
                 {
                     var dependency = new NodeTaskDependencyTable()
                     {
                         Id = Guid.NewGuid().ToString(),
                         NodeId = node.Id,
-                        DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == taskDependency).Id,
+                        DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == nodeDependency).Id,
                         WorkflowTemplateId = workflowTemplate.Id
                     };
                     dependencies.Add(dependency);
@@ -162,12 +162,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             var preflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "preflowtasks"));
             for (int i = 0; i < preflowTasks.Count; i++) 
             {
-                preflowTasks[i].DependencyTaskTemplateIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();                
+                preflowTasks[i].DependencyNodeIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();                
             }
             var mainflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "mainflowtasks"));
             for (int i = 0; i < mainflowTasks.Count; i++)
             {
-                mainflowTasks[i].DependencyTaskTemplateIds = dependencies.Where(n => n.NodeId == mainflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
+                mainflowTasks[i].DependencyNodeIds = dependencies.Where(n => n.NodeId == mainflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
             }
             workflowTemplate.PreflowTasks = preflowTasks.ToList();
             workflowTemplate.MainflowTasks = mainflowTasks.ToList();
