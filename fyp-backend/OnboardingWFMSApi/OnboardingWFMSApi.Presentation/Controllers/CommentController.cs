@@ -19,7 +19,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [Authorize]
-        [HttpPost("/tasktemplate")]
+        [HttpPost("tasktemplate")]
         public async Task<IActionResult> CreateTaskTemplateComment([FromBody] CreateCommentPayload payload)
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
@@ -35,8 +35,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("/tasktemplate")]
+        [HttpGet("tasktemplate")]
         public async Task<IActionResult> GetTaskTemplateComments(string taskTemplateId)
         {
             var response = await _commentLogic.GetTaskTemplateComments(taskTemplateId);

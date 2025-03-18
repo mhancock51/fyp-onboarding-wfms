@@ -131,6 +131,15 @@ const Api = {
   },
   fetchWorkflowTemplate: async(workflowTemplateId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/workflow-template?workflowTemplateId=${workflowTemplateId}`);
+  },
+  fetchTaskTemplateComments: async(taskTemplateId: string) => {
+    return AuthInstance.get(`${ROUTE_URL}/comment/tasktemplate?taskTemplateId=${taskTemplateId}`);
+  },
+  postTaskTemplateComment: async(taskTemplateId: string, comment: string) => {
+    return AuthInstance.post(`${ROUTE_URL}/comment/tasktemplate`, {
+      taskTemplateId: taskTemplateId,
+      text: comment
+    });
   }
 }
 

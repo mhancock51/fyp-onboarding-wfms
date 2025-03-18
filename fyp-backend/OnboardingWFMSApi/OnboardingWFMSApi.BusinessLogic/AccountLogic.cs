@@ -49,6 +49,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             var dto = _mapper.Map<AccountDirectoryDTO>(account);
             // set department name
             dto.DepartmentName = (await _departmentRepository.GetById(account.DepartmentId)).DisplayName;
+            return dto;
         }
 
         public async Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts()
