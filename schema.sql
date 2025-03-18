@@ -140,6 +140,15 @@ CREATE TABLE workflowinstance (
     OnboarderEmailAddress VARCHAR(255)
 );
 
+CREATE TABLE comment (
+    Id VARCHAR(255) PRIMARY KEY,
+    CommenterId VARCHAR(255),
+    Text TEXT,
+    TaskTemplateId VARCHAR(255),
+    CreationTimestamp DATETIME
+);
+
+
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -269,3 +278,12 @@ ALTER TABLE workflowinstance
 ALTER TABLE workflowinstance
     ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
     FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);
+
+/* Comment table constraints */
+ALTER TABLE comment
+    ADD CONSTRAINT fk_comment_commenter_id
+    FOREIGN KEY (CommenterId) REFERENCES account(AccountId);
+
+ALTER TABLE comment
+    ADD CONSTRAINT fk_comment__task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);

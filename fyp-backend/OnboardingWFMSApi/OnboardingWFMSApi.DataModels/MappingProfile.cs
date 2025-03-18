@@ -28,6 +28,8 @@ namespace OnboardingWFMSApi.DataModels
 
             CreateMap<WorkflowInstanceTable, WorkflowInstanceDTO>();
 
+            CreateMap<CommentTable, CommentDTO>();
+
         }
     }
 }
