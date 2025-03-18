@@ -20,6 +20,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId);
         public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstance taskInstance);
         public Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress);
+        public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId);
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
     {        
@@ -248,6 +249,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                 throw new Exception("Failed to retrieve DTO for workflow instance");
             }
             // start mainflow tasks
+            _logger.LogDebug($"Handling onboarding registration for onboarder (${accountId}) in workflow instance: {workflowInstance.Id} ({workflowInstance.WorkflowTemplate.Name})");
+            
             var nodesWithNoDependencies = workflowInstance?.WorkflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             foreach(var node in nodesWithNoDependencies)
             {
@@ -260,10 +263,27 @@ namespace OnboardingWFMSApi.BusinessLogic
                         WorkflowInstanceId = workflowInstance.Id,
                         WorkflowNodeId = node.Id,
                     }
-                );
+                );                
             }
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200 };
+        }
+
+        public async Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId)
+        {
+            // find all workflows where user is the supervisor
+            var workflowInstances = await _workflowInstanceRepository.GetInstancesBySupervisorAccountId(accountId);
+            // find all workflows where user is the onboarder
+            workflowInstances.AddRange(await _workflowInstanceRepository.GetInstancesByOnboarderAccountId(accountId));
+
+            var workflowInstanceDTOs = new List<WorkflowInstanceDTO>();
+            foreach (var workflowInstance in workflowInstances)
+            {
+                var dto = (await GetWorkflowInstance(workflowInstance.Id)).Data ?? null;
+                if (dto != null) workflowInstanceDTOs.Add(dto);
+            }
+
+            return new HTTPResponse<List<WorkflowInstanceDTO>, string>() { Success = true, HttpCode = 200, Data = workflowInstanceDTOs }; 
         }
     }
 }
