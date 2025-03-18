@@ -24,5 +24,10 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         [JsonInclude]
         [JsonPropertyName("mainflowTasks")]
         public List<WorkflowTemplateNodeDTO> MainflowTasks { get; set; }
+        [JsonPropertyName("numberOfTasks")]
+        public int NumberOfTasks
+        {
+            get { return PreflowTasks.Count + MainflowTasks.Count; }
+        }
     }
 }

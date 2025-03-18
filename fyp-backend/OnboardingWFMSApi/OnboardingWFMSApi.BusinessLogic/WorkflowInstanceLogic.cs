@@ -23,7 +23,11 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId);
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
-    {        
+    {
+        public const string WORKFLOW_INSTANCE_PREFLOW_STATUS = "PREFLOW";
+        public const string WORKFLOW_INSTANCE_MAINFLOW_STATUS = "MAINFLOW";
+        public const string WORKFLOW_INSTANCE_COMPLETE_STATUS = "COMPLETE";
+
         private readonly ILogger<WorkflowInstanceLogic> _logger;
         private readonly IMapper _mapper;
         private readonly IUtility _utility;
@@ -122,7 +126,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to retrieve workflow template" };
             }
-            workflowInstanceDTO.WorkflowTemplate = result.Data;
+            // retrieve the number of completed tasks
+            workflowInstanceDTO.CompletedTasks = (await _taskInstanceLogic.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS).Count();
+
+            workflowInstanceDTO.Status = await GetWorkflowInstanceStatus(workflowInstanceDTO);
+
             return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 200, Data = workflowInstanceDTO };
         }       
 
@@ -284,6 +292,22 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             return new HTTPResponse<List<WorkflowInstanceDTO>, string>() { Success = true, HttpCode = 200, Data = workflowInstanceDTOs }; 
+        }
+
+        private async Task<string> GetWorkflowInstanceStatus(WorkflowInstanceDTO workflowInstance)
+        {
+            if (workflowInstance.CompletedTasks == workflowInstance.WorkflowTemplate.NumberOfTasks)
+            {
+                return WORKFLOW_INSTANCE_COMPLETE_STATUS;
+            }
+
+            var preflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
+            if (!preflowTasksCompleted && workflowInstance.WorkflowTemplate.IsOnboardingWF) return WORKFLOW_INSTANCE_PREFLOW_STATUS;
+            
+            var mainflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.MainflowTasks, workflowInstance.Id);
+            if (!mainflowTasksCompleted) return WORKFLOW_INSTANCE_MAINFLOW_STATUS;
+
+            throw new Exception("Invalid condition met");
         }
     }
 }
