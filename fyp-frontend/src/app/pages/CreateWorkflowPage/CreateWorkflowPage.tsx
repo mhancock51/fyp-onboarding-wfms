@@ -49,7 +49,7 @@ export default function CreateWorkflowPage() {
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
-          dependencyTaskTemplateIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
+          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
         }
       )),
       mainflowTasks: mainflowTasks.map((task) => (
@@ -57,7 +57,7 @@ export default function CreateWorkflowPage() {
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
-          dependencyTaskTemplateIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
+          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
         }
       )),
     }
@@ -105,7 +105,7 @@ export default function CreateWorkflowPage() {
       id: node.id,
       taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),
       assignee: accountsDirectory.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id == node.assigneeId),
-      taskDependencies: nodeList.filter(i => node.dependencyTaskTemplateIds.includes(i.id)),
+      taskDependencies: nodeList.filter(i => node.dependencyNodeIds.includes(i.id)),
     }    
     return result;
   }

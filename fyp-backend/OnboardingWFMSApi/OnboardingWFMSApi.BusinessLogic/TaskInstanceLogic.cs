@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Payloads;
@@ -26,15 +30,18 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId);
         public Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId);
         public Task<HTTPResponse<string, string>> UpdateFileUploadInstanceState(UpdateInstanceStateFileUploadPayload payload, string accountId);
-
         public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
+
+        public Task<List<TaskInstance>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId);
     }
     public class TaskInstanceLogic : ITaskInstanceLogic
     {
-        private string OPEN_TASK_STATUS = "open";
-        private string COMPLETED_TASK_STATUS = "complete";
+        public const string OPEN_TASK_STATUS = "open";
+        public const string COMPLETED_TASK_STATUS = "complete";
 
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
+
         private readonly ITaskTemplateLogic _taskTemplateLogic;
         private readonly IDocumentLogic _documentLogic;
 
@@ -46,12 +53,17 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
         private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
 
+        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
+
         private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
             IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
-            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory)
+            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory, 
+            IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository, IMediator mediator
+        )
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
@@ -63,6 +75,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             _documentLogic = documentLogic;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
             _taskInstanceHandlerFactory = taskInstanceHandlerFactory;
+            _workflowTemplateRepository = workflowTemplateRepository;
+            _workflowInstanceRepository = workflowInstanceRepository;
+            _mediator = mediator;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -87,6 +102,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                 AssigneeAccountId = payload.AssigneeAccountId,
                 AssignerAccountId = payload.AssignerAccountId,
                 TaskTemplateId = payload.TaskTemplateId,
+                WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
+                WorkflowNodeId = payload.WorkflowNodeId ?? null,
                 CreationTimestamp = DateTime.Now,
                 Status = OPEN_TASK_STATUS
             };
@@ -179,6 +196,18 @@ namespace OnboardingWFMSApi.BusinessLogic
             var dataResponse = await handler.GetTaskInstanceMetaData(taskInstance.Id);
             if (!dataResponse.Success) return new HTTPResponse<TaskInstance, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
             taskInstance.InstanceData = dataResponse.Data;
+
+            if (taskInstance.WorkflowInstanceId != null)
+            {
+                // retrieve name of workflow template
+                var workflowInstance = await _workflowInstanceRepository.GetById(taskInstance.WorkflowInstanceId);
+                var workflowTemplate = await _workflowTemplateRepository.GetById(workflowInstance.WorkflowTemplateId);
+                taskInstance.WorkflowInstanceTemplateName = workflowTemplate.Name;
+            }
+            else
+            {
+                taskInstance.WorkflowInstanceTemplateName = "";
+            }
 
             return new HTTPResponse<TaskInstance, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
         }
@@ -360,11 +389,28 @@ namespace OnboardingWFMSApi.BusinessLogic
             taskInstance.Status = COMPLETED_TASK_STATUS;
             await _taskInstanceRepository.UpdateAsync(taskInstance);
 
-            // TODO implement logic to notify correct users
-            // TODO implement logic to call function in workflow to assign next task
+            var mediatorResponse = await _mediator.Send(new TaskCompletedRequest(taskInstance));
+
+            // TODO implement logic to notify correct users           
+
             // TODO implement logging of event for workflow
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
+        }
+
+        public async Task<List<TaskInstance>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId)
+        {
+            var instanceRows = await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstanceId);
+            List<TaskInstance> taskInstances = new List<TaskInstance>();
+            foreach(var instanceRow in instanceRows)
+            {
+                var taskInstance = (await GetTaskInstance(instanceRow.Id)).Data ?? null;
+                if (taskInstance != null)
+                {
+                    taskInstances.Add(taskInstance);
+                }
+            }
+            return taskInstances;
         }
     }
 

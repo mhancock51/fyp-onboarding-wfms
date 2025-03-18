@@ -1,8 +1,10 @@
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess;
@@ -11,6 +13,7 @@ using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using System;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +47,7 @@ builder.Services.AddScoped<IWorkflowTemplateRepository, WorkflowTemplateReposito
 builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNodeRepository>();
 builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
 
+builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
@@ -56,6 +60,9 @@ builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanc
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 
+builder.Services.AddScoped<IUtility, OnboardingWFMSApi.BusinessLogic.Utility>();
+
+
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IAccountLogic, AccountLogic>();
@@ -64,9 +71,15 @@ builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
 builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
 builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
 
+
 builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();
+builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+// register mediatR and register all services from assemblies
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(TaskCompletedRequest).Assembly));
+builder.Services.AddScoped<IRequestHandler<TaskCompletedRequest, HTTPResponse<string, string>>, TaskCompletionHandler>();
+builder.Services.AddScoped<IRequestHandler<AccountRegistrationRequest, HTTPResponse<string, string>>, AccountRegistrationHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

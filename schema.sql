@@ -69,8 +69,10 @@ CREATE TABLE taskinstance (
     AssigneeAccountId VARCHAR(255),
     AssignerAccountId VARCHAR(255),
     TaskTemplateId VARCHAR(255),
+    WorkflowInstanceId VARCHAR(255),
     CreationTimestamp DATETIME,
-    Status VARCHAR(255)
+    Status VARCHAR(255),
+    WorkflowNodeId VARCHAR(255),    
 );
 
 CREATE TABLE checklisttaskinstance (
@@ -126,6 +128,16 @@ CREATE TABLE nodetaskdependency (
     NodeId VARCHAR(255),
     DependencyNodeId VARCHAR(255),
     WorkflowTemplateId VARCHAR(255)
+);
+
+/* Workflow instances */
+CREATE TABLE workflowinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowTemplateId VARCHAR(255) NOT NULL,
+    OnboarderAccountId VARCHAR(255),
+    SupervisorAccountId VARCHAR(255),
+    CreationTimestamp DATETIME,
+    OnboarderEmailAddress VARCHAR(255)
 );
 
 
@@ -185,6 +197,14 @@ ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
 
+ALTER TABLE taskinstance
+    ADD CONSTRAINT fk_task_instance_workflow_instance_id
+    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id);
+
+ALTER TABLE taskinstance
+    ADD CONSTRAINT fk_task_instance_workflow_node_id
+    FOREIGN KEY (WorkflowNodeId) REFERENCES workflowtemplatenode(Id);
+
 ALTER TABLE checklisttaskinstance
     ADD CONSTRAINT fk_checklist_instance_task_instance_id
     FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
@@ -236,3 +256,16 @@ ALTER TABLE nodetaskdependency
     ADD CONSTRAINT fk_nodetaskdependency_workflow_template_id
     FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
     ON DELETE CASCADE;
+
+/* Workflow instance */
+ALTER TABLE workflowinstance
+    ADD CONSTRAINT fk_workflow_instance_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id);
+
+ALTER TABLE workflowinstance
+    ADD CONSTRAINT fk_workflow_instance_onboarder_account_id
+    FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
+
+ALTER TABLE workflowinstance
+    ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
+    FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);

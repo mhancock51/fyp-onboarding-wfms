@@ -26,6 +26,8 @@ namespace OnboardingWFMSApi.DataModels
             CreateMap<WorkflowTemplateTable, WorkflowTemplateDTO>();
             CreateMap<WorkflowTemplateNodeTable, WorkflowTemplateNodeDTO>();
 
+            CreateMap<WorkflowInstanceTable, WorkflowInstanceDTO>();
+
         }
     }
 }

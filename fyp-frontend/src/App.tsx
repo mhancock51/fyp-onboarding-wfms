@@ -117,7 +117,7 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>    
       {
-        validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates ? (
+        (validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates) || user === null ? (
           <Router>
             <Routes>
               <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>
@@ -125,8 +125,6 @@ function App() {
                 <Route path="/workflows" element={<WorkflowsPage/>} />                
                 <Route path="/workflow-builder" element={<CreateWorkflowPage/>} />            
                 <Route path="/settings" element={<div><h1>Settings</h1></div>} />
-                {/* only allow client to access these paths if admin */}
-                {/* <Route path="/invite" element={user?.isAdmin ? <InviteUser/> : <Navigate to={"/"} />}/> */}
               </Route>
               <Route path="/login" element={user === null ? <LoginPage/> : <Navigate to={"/"}/>}/>          
               <Route path='/register' element={user === null ? <RegisterPage/> : <Navigate to={"/"}/>}/>

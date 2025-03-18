@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -17,11 +18,14 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
     public class ChecklistTaskInstanceHandler : IChecklistTaskInstanceHandler
     {
+        private readonly ILogger<ChecklistTaskInstanceHandler> _logger;
+
         private readonly IChecklistTaskInstanceRepository _checklistTaskInstanceRepository;
 
-        public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository checklistTaskInstanceRepository)
+        public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository checklistTaskInstanceRepository, ILogger<ChecklistTaskInstanceHandler> logger)
         {
             _checklistTaskInstanceRepository = checklistTaskInstanceRepository;
+            _logger = logger;
         }
 
         public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
@@ -44,8 +48,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         }
 
         public async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
-        {
-            var taskInstance = JsonSerializer.Deserialize<ChecklistTaskInstanceTable>(taskInstanceMetaData.ToString());            
+        {            
+            var taskInstance = taskInstanceMetaData as ChecklistTaskInstanceTable;            
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
@@ -64,7 +68,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData, object taskTemplateMetaData, string taskInstanceId)
         {
-            var taskInstance = JsonSerializer.Deserialize<ChecklistTaskInstanceTable>(updatedTaskInstanceMetaData.ToString());
+            var taskInstance = updatedTaskInstanceMetaData as ChecklistTaskInstanceTable;
             // validate updated meta data before inserting
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData, taskTemplateMetaData);
             if (!validationResponse.Success)
@@ -80,12 +84,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData, object taskTemplateMetaData)
         {
-            var taskInstance = JsonSerializer.Deserialize<ChecklistTaskInstanceTable>(taskInstanceMetaData.ToString());
+            var taskInstance = taskInstanceMetaData as ChecklistTaskInstanceTable;
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
-            var taskTemplate = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(taskTemplateMetaData.ToString());
+            var taskTemplate = taskTemplateMetaData as ChecklistTaskTemplateTable;
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };

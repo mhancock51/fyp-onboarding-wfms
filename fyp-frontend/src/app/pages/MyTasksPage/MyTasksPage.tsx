@@ -99,7 +99,7 @@ export default function MyTasksPage() {
                     </TableCell>
                     <TableCell width={"100px"}>
                       <Badge className='mx-2 py-2 px-4 rounded-full'>
-                        [WORKFLOW NAME]
+                        {task.workflowInstanceTemplateName === "" ? "N/A" : task.workflowInstanceTemplateName}
                       </Badge>
                     </TableCell>
                     <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>

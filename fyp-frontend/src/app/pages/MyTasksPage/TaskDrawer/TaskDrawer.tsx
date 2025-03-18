@@ -55,9 +55,12 @@ export default function TaskDrawer(props: Props) {
             <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
             <div className='flex flex-row justify-center' style={{gap: "2px"}}>
               <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
-              <Badge className='mx-2 py-2 px-4 rounded-full'>
-                [WORKFLOW NAME]
-              </Badge>
+              {
+                props.task.workflowInstanceId &&
+                <Badge className='mx-2 py-2 px-4 rounded-full'>
+                  {props.task.workflowInstanceTemplateName === "" ? "N/A" : props.task.workflowInstanceTemplateName}
+                </Badge>
+              }
               <TaskStatusBadge status={props.task.status}/>
             </div>
             <Separator/>            

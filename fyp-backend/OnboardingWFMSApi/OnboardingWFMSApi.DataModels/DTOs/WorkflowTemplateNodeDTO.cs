@@ -15,8 +15,8 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         public string Id { get; set; }
         [JsonPropertyName("assigneeId")]
         public string AssigneeId { get; set; }
-        [JsonPropertyName("dependencyTaskTemplateIds")]
+        [JsonPropertyName("dependencyNodeIds")]
         [JsonInclude]
-        public List<string> DependencyTaskTemplateIds = new List<string>();
+        public List<string> DependencyNodeIds = new List<string>();
     }
 }
