@@ -49,7 +49,7 @@ export default function CreateWorkflowPage() {
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
-          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.id) ?? []
+          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
         }
       )),
       mainflowTasks: mainflowTasks.map((task) => (
@@ -57,7 +57,7 @@ export default function CreateWorkflowPage() {
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
-          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.id) ?? []
+          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
         }
       )),
     }

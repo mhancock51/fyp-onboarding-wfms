@@ -80,8 +80,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                         WorkflowTemplateId = workflowTemplate.Id
                     };
                     nodes.Add(node);
-                    // TODO implement validation                
-                    if (preflowTask.DependencyNodeIds == null) preflowTask.DependencyNodeIds = [];
+                    // TODO implement validation                                    
 
                     foreach (var nodeDependency in preflowTask.DependencyNodeIds)
                     {
@@ -109,11 +108,11 @@ namespace OnboardingWFMSApi.BusinessLogic
                         WorkflowTemplateId = workflowTemplate.Id
                     };
                     nodes.Add(node);
-                    // TODO implement validation                
-                    if (mainflowTask.DependencyNodeIds == null) mainflowTask.DependencyNodeIds = [];
+                    // TODO implement validation                                    
                     // remove null values
                     foreach (var nodeDependency in mainflowTask.DependencyNodeIds)
                     {
+                        if (nodeDependency == null) continue;
                         var dependency = new NodeTaskDependencyTable()
                         {
                             Id = Guid.NewGuid().ToString(),

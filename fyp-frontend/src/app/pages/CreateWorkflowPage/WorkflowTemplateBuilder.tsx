@@ -212,6 +212,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   }
 
   function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[]) {
+    taskDependencies = taskDependencies.filter(i => i !== null);
     addWorkflowNode(taskTemplate.id, assingee, taskDependencies, selectedSection);
   }
 
