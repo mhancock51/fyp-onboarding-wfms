@@ -18,7 +18,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId);
         public Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword);
         public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
-        public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();        
+        public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
+        public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
     }
 
     public class AccountLogic : IAccountLogic
@@ -39,6 +40,16 @@ namespace OnboardingWFMSApi.BusinessLogic
             _organisationRepository = organisationRepository;
             _mapper = mapper;
             _mediator = mediator;
+        }
+
+        public async Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId)
+        {
+            var account = await _accountRepository.GetById(accountId);
+            if (account == null) return null;
+            var dto = _mapper.Map<AccountDirectoryDTO>(account);
+            // set department name
+            dto.DepartmentName = (await _departmentRepository.GetById(account.DepartmentId)).DisplayName;
+            return dto;
         }
 
         public async Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts()

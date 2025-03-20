@@ -11,7 +11,7 @@ import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplat
 import ChecklistTask from './ChecklistTask';
 import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
-import { SetStateAction, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import Api from '@/api';
 import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
@@ -19,6 +19,20 @@ import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 import TaskStatusBadge from '../TaskStatusBadge';
 import UploadDocumentTask from './UploadDocumentTask';
 import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
+import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion';
+import { AccordionTrigger } from '@radix-ui/react-accordion';
+import { AxiosResponse } from 'axios';
+import HTTPresponse from '@/models/HTTPresponse';
+import CommentDTO from '@/models/DTOs/CommentDTO';
+import { Spinner } from '@/components/ui/spinner';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import NoResults from '@/components/NoResults';
+import { Flag, MessageSquareMore, X } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
+import { RootState } from '@/store';
+import CommentSection from '@/components/CommentSection';
 
 interface Props {
   open: boolean;
@@ -29,6 +43,15 @@ interface Props {
 
 export default function TaskDrawer(props: Props) {  
   const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
+  const [comments, setComments] = useState<CommentDTO[]>([]);
+
+  const [loadingComments, setLoadingComments] = useState<boolean>(false);
+  const [postingComment, setPostingComment] = useState<boolean>(false);
+
+  const [comment, setComment] = useState<string>("");
+  const [parentCommentId, setParentCommentId] = useState<string>("");
+
+  const dispatch = useDispatch();
 
   async function completeTask() {
     if (!canCompleteTask) return;    
@@ -44,6 +67,42 @@ export default function TaskDrawer(props: Props) {
       console.error(error);
     })
   }
+
+  async function postComment() {
+    setPostingComment(true);
+    await Api.postTaskTemplateComment(props.task.taskTemplateId, comment, parentCommentId)
+    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {      
+      setComment("");
+      void fetchComments();
+    })
+    .catch((error) => {
+      toast.error("Failed to post comment");
+    })
+    .finally(() => {
+      setPostingComment(false);
+    })
+  }
+
+  async function fetchComments() {
+    setLoadingComments(true);
+    await Api.fetchTaskTemplateComments(props.task.taskTemplateId)
+    .then((response: AxiosResponse<HTTPresponse<CommentDTO[], string>>) => {
+      setComments(response.data.data);
+    })
+    .catch((error) => {
+      console.error("EEE:", error);
+      toast.error("Failed to retrieve comments for task template");
+    })
+    .finally(() => {
+      setLoadingComments(false);
+    })
+  }
+  
+  useEffect(() => {
+    if (props.task.taskTemplateId !== "") {
+      void fetchComments();
+    }
+  }, [props.task.taskTemplateId]);
 
   return (
     <Drawer direction='right'  onClose={() => {props.setOpen(false);}} open={props.open}>
@@ -103,8 +162,33 @@ export default function TaskDrawer(props: Props) {
           Complete Task
         </Button>
         <DrawerFooter>
-          <Button variant={"outline"}>Flag an issue with this task</Button>
-          <Button variant={"outline"}>See discussions about this task</Button>
+          <Button variant={"outline"} onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
+            <Flag/>
+            Flag an issue with this task
+          </Button>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1" >
+              <AccordionTrigger className="w-full">
+                <Button variant={"outline"} className="w-full flex flex-row gap-2">
+                  <MessageSquareMore/>
+                  See comments about this task
+                </Button>              
+              </AccordionTrigger>
+              <AccordionContent className='p-2'>
+                <CommentSection 
+                  loadingComments={loadingComments} 
+                  postingComment={postingComment} 
+                  comments={comments} 
+                  comment={comment} 
+                  parentCommentId={parentCommentId}
+                  setComment={setComment} 
+                  setParentCommentId={setParentCommentId}
+                  postComment={postComment}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

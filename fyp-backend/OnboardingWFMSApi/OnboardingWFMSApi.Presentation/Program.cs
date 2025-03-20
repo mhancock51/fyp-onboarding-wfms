@@ -48,6 +48,9 @@ builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNode
 builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
 
 builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
+
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
@@ -74,6 +77,8 @@ builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
 
 builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();
 builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
+
+builder.Services.AddScoped<ICommentLogic, CommentLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies

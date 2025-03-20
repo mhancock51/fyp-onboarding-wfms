@@ -29,11 +29,13 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<ReadDocumentTaskInstanceTable> readDocumentTaskInstances { get; set; }
         public DbSet<FileUploadTaskInstanceTable> fileUploadTaskInstances { get; set; }
 
+        // everything workflow related:
         public DbSet<NodeTaskDependencyTable> workflowTemplateNodeDependencies { get; set; }
         public DbSet<WorkflowTemplateNodeTable> workflowTemplateNodes { get; set; }
         public DbSet<WorkflowTemplateTable> workflowTemplates { get; set; }
-
-        public DbSet<WorkflowInstanceTable> workflowInstances {  get; set; }        
+        public DbSet<WorkflowInstanceTable> workflowInstances {  get; set; }
+        
+        public DbSet<CommentTable> comments { get; set; }
 
         public DbSet<DocumentTable> documents { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
