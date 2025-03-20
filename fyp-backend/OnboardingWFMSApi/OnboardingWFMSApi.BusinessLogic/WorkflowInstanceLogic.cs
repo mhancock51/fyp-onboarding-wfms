@@ -122,10 +122,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             var workflowInstanceDTO = _mapper.Map<WorkflowInstanceDTO>(workflowInstance);
             // retrieve workflow template DTO
             var result = await _workflowTemplateLogic.GetWorkflowTemplate(workflowInstance.WorkflowTemplateId);
-            if (!result.Success || !result.HasData)
+            if (!result.Success || !result.HasData || result.Data == null)
             {
                 return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to retrieve workflow template" };
-            }
+            }            
+            workflowInstanceDTO.WorkflowTemplate = result.Data;
             // retrieve the number of completed tasks
             workflowInstanceDTO.CompletedTasks = (await _taskInstanceLogic.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS).Count();
 
@@ -287,7 +288,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             var workflowInstanceDTOs = new List<WorkflowInstanceDTO>();
             foreach (var workflowInstance in workflowInstances)
             {
-                var dto = (await GetWorkflowInstance(workflowInstance.Id)).Data ?? null;
+                var dto = (await GetWorkflowInstance(workflowInstance.Id)).Data ?? null;                
                 if (dto != null) workflowInstanceDTOs.Add(dto);
             }
 

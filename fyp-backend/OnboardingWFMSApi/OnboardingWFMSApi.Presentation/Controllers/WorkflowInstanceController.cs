@@ -26,7 +26,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [Authorize]
-        [HttpPost("get")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetAccountsWorkflowInstances()
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
