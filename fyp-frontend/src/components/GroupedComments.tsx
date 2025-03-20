@@ -57,10 +57,10 @@ export function GroupedComments(props: Props) {
             </Card>
             {
               /* Render the child/reply comments */
-              group.map((comment, j) => (
+              group.sort((a, b) => (new Date(a.creationTimestamp).getTime() - new Date(b.creationTimestamp).getTime())).map((comment, j) => (
                 <>
                 {
-                  j !== 0 &&
+                  comment.parentCommentId !== null && comment.parentCommentId !== "" &&
                   <Card key={j} className='flex flex-col gap-1 p-2 ml-6 my-1 bg-accent'>
                     <div className='flex flex-row justify-between p-1'>
                       <Label className='font-bold'>{comment.commentorId === user?.id ? "You" : comment.accountDirectory.displayName} replied:</Label>
