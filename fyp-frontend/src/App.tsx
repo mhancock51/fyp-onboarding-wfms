@@ -2,7 +2,6 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Layout from './app/layout';
 import { ThemeProvider } from './components/theme-provider';
-import WorkflowsPage from './app/pages/WorkflowsPage';
 import CreateWorkflowPage from './app/pages/CreateWorkflowPage/CreateWorkflowPage';
 
 import '@xyflow/react/dist/style.css';
@@ -20,6 +19,7 @@ import { Spinner } from './components/ui/spinner';
 import { SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
 import TaskType from './models/tasks/taskType';
 import AccountDirectory from './models/AccountDirectory';
+import WorkflowInstancesPage from './app/pages/WorkflowInstancesPage/WorkflowInstancesPage';
 
 function App() {  
 
@@ -122,9 +122,9 @@ function App() {
             <Routes>
               <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>
                 <Route path="/" element={<MyTasksPage/>}/>                
-                <Route path="/workflows" element={<WorkflowsPage/>} />                
+                <Route path="/workflows" element={<WorkflowInstancesPage/>} />                
                 <Route path="/workflow-builder" element={<CreateWorkflowPage/>} />            
-                <Route path="/settings" element={<div><h1>Settings</h1></div>} />
+                <Route path="/settings" element={<div><h1>Settings</h1></div>} />                
               </Route>
               <Route path="/login" element={user === null ? <LoginPage/> : <Navigate to={"/"}/>}/>          
               <Route path='/register' element={user === null ? <RegisterPage/> : <Navigate to={"/"}/>}/>

@@ -141,6 +141,9 @@ const Api = {
       text: comment,
       parentCommentId: parentCommentId
     });
+  },
+  fetchWorkflowInstances: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/workflow/instance/get`);
   }
 }
 
