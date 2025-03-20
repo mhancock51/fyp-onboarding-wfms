@@ -35,6 +35,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> CreateComment(CreateCommentPayload payload, string accountId)
         {
+            if (string.IsNullOrEmpty(payload.ParentCommentId)) payload.ParentCommentId = null;
             try
             {
                 await _commentRepository.AddAsync(new CommentTable()
@@ -44,6 +45,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     Text = payload.Text,
                     TaskTemplateId = payload.TaskTemplateId,
                     CreationTimestamp = DateTime.Now,
+                    ParentCommentId = payload.ParentCommentId
                 });
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created comment" };
             }

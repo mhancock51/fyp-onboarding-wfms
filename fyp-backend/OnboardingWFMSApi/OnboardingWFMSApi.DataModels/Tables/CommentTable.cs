@@ -24,6 +24,9 @@ namespace OnboardingWFMSApi.DataModels.Tables
         [ForeignKey(nameof(TaskTemplateTable.Id))]
         public string? TaskTemplateId { get; set; }
         [JsonPropertyName("creationTimestamp")]
-        public DateTime CreationTimestamp { get; set; } 
+        public DateTime CreationTimestamp { get; set; }
+        [JsonPropertyName("parentCommentId")]
+        [ForeignKey(nameof(CommentTable.Id))]
+        public string? ParentCommentId { get; set; }
     }
 }

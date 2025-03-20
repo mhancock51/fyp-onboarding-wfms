@@ -13,5 +13,7 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string TaskTemplateId { get; set; }
         [JsonPropertyName("text")]
         public string Text { get; set; }
+        [JsonPropertyName("parentCommentId")]
+        public string? ParentCommentId { get; set; }
     }
 }

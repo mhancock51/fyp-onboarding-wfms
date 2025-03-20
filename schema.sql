@@ -145,7 +145,8 @@ CREATE TABLE comment (
     CommenterId VARCHAR(255),
     Text TEXT,
     TaskTemplateId VARCHAR(255),
-    CreationTimestamp DATETIME
+    CreationTimestamp DATETIME,
+    ParentCommentId VARCHAR(255)
 );
 
 
@@ -287,3 +288,7 @@ ALTER TABLE comment
 ALTER TABLE comment
     ADD CONSTRAINT fk_comment__task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+
+ALTER TABLE comment
+    ADD CONSTRAINT fk_comment_parent_comment_id
+    FOREIGN KEY (ParentCommentId) REFERENCES comment(Id);

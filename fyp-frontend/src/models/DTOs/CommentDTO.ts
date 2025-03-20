@@ -7,4 +7,5 @@ export default interface CommentDTO {
   text: string;
   taskTemplateId: string | null;
   creationTimestamp: string;
+  parentCommentId: string | null;
 }
