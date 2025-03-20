@@ -5,5 +5,5 @@ export default interface WorkflowTemplate {
   description: string;
   isOnboardingWf: boolean;
   preflowTaskNodes: WorkflowTemplateNode[];
-  mainflowTaskNodes: WorkflowTemplateNode[];    
+  mainflowTaskNodes: WorkflowTemplateNode[];      
 }

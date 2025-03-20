@@ -30,7 +30,6 @@ import { Card } from '@/components/ui/card';
 import NoResults from '@/components/NoResults';
 import { Flag, MessageSquareMore, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
 import { RootState } from '@/store';
 import CommentSection from '@/components/CommentSection';
 
@@ -162,7 +161,7 @@ export default function TaskDrawer(props: Props) {
           Complete Task
         </Button>
         <DrawerFooter>
-          <Button variant={"outline"} onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
+          <Button variant={"outline"}>
             <Flag/>
             Flag an issue with this task
           </Button>

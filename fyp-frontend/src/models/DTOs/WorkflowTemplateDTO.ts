@@ -7,4 +7,5 @@ export default interface WorkflowTemplateDTO {
   isOnboardingWF: boolean;
   preflowTasks: WorkflowTemplateNodeDTO[];
   mainflowTasks: WorkflowTemplateNodeDTO[];
+  numberOfTasks: number;
 }
