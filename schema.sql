@@ -73,6 +73,7 @@ CREATE TABLE taskinstance (
     CreationTimestamp DATETIME,
     Status VARCHAR(255),
     WorkflowNodeId VARCHAR(255),    
+    DueDate DATETIME
 );
 
 CREATE TABLE checklisttaskinstance (

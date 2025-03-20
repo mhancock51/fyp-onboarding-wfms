@@ -76,7 +76,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 OnboarderAccountId = null,
                 OnboarderEmailAddress = payload.onboarderEmailAddress,
                 SupervisorAccountId = payload.supervisorAccountId,
-                CreationTimestamp = DateTime.UtcNow,
+                CreationTimestamp = DateTime.UtcNow                
             };
             instance = await _workflowInstanceRepository.AddAsync(instance);
 

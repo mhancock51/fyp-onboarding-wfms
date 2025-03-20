@@ -8,7 +8,6 @@ import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { Badge } from '../ui/badge'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
 import { DateTime } from 'luxon';
 import { Spinner } from '../ui/spinner'
 import { Label } from '../ui/label'

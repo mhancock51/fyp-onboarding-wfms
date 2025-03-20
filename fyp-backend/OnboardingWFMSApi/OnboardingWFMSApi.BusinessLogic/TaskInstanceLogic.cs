@@ -96,16 +96,18 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please choose an assignee" };
             }
-
+            
             var instance = new TaskInstanceTable()
             {
+
                 AssigneeAccountId = payload.AssigneeAccountId,
                 AssignerAccountId = payload.AssignerAccountId,
                 TaskTemplateId = payload.TaskTemplateId,
                 WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
                 WorkflowNodeId = payload.WorkflowNodeId ?? null,
                 CreationTimestamp = DateTime.Now,
-                Status = OPEN_TASK_STATUS
+                Status = OPEN_TASK_STATUS,
+                DueDate = payload.DueInXDays != null ? DateTime.Now.AddDays(payload.DueInXDays ?? 0.0) : null,
             };
             TaskInstanceTable taskInstance = null;
             TaskTemplate taskTemplate = null;
