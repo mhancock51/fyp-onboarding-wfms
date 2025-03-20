@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataModels.Models
 {
-    public class TaskInstance : TaskInstanceTable
+    public class TaskInstanceDTO : TaskInstanceTable
     {
         public TaskTemplate template { get; set; }
         /// <summary>

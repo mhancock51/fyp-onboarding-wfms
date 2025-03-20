@@ -13,8 +13,8 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
 {
     public class TaskCompletedRequest : IRequest<HTTPResponse<string, string>>
     {
-        public TaskInstance taskInstance;
-        public TaskCompletedRequest(TaskInstance taskInstance) 
+        public TaskInstanceDTO taskInstance;
+        public TaskCompletedRequest(TaskInstanceDTO taskInstance) 
         {
             this.taskInstance = taskInstance;
         }

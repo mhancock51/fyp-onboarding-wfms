@@ -14,4 +14,5 @@ export default interface TaskInstance {
     workflowInstanceTemplateName: string;
     workflowInstanceId?: string;
     instanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | null;
+    dueDate : Date | null;
 }

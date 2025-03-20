@@ -20,7 +20,7 @@ namespace OnboardingWFMSApi.DataModels
             CreateMap<AccountTable, InvitedAccountDTO>();
             CreateMap<AccountTable, AccountDirectoryDTO>();
             CreateMap<TaskTemplateTable, TaskTemplate>();
-            CreateMap<TaskInstanceTable, TaskInstance>();
+            CreateMap<TaskInstanceTable, TaskInstanceDTO>();
             CreateMap<TaskTypeTable, TaskType>();
 
             CreateMap<WorkflowTemplateTable, WorkflowTemplateDTO>();
