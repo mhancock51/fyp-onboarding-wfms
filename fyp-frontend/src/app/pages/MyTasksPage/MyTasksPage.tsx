@@ -37,16 +37,32 @@ export default function MyTasksPage() {
   }
 
   function dueInColor(dueIn: number) {
-    if (dueIn < 3) {
+    if (dueIn === -1) {
+      return "bg-accent"
+    }
+    if (dueIn < 2) {
       return "bg-red-600";
     }
-    else if (dueIn < 7) {
+    else if (dueIn < 4) {
       return "bg-orange-500";
     }
     else {
       return "bg-green-600";
     }
   }  
+
+  function daysUntil(date: Date): number {
+    const targetDate = new Date(date);
+    if (isNaN(targetDate.getTime())) {
+      throw new Error("Invalid date provided");
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize to midnight
+    targetDate.setHours(0, 0, 0, 0);  // normalize to midnight
+  
+    const diffTime = targetDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // convert to days
+  }
 
   useEffect(() => {
     void fetchTaskInstances();
@@ -75,13 +91,13 @@ export default function MyTasksPage() {
               <TableCell style={{textAlign: "center"}}>Name    </TableCell>
               <TableCell style={{textAlign: "center"}}>Type    </TableCell>
               <TableCell style={{textAlign: "center"}}>Status  </TableCell>
-              <TableCell style={{textAlign: "center"}}>Due  </TableCell>
+              <TableCell style={{textAlign: "center"}} width={100}>Due  </TableCell>
               <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
               <TableCell style={{textAlign: "center"}}>Description</TableCell>
             </TableHeader> 
             <TableBody>
               {
-                tasks.map((task, index) => (
+                tasks.sort((a, b) => (new Date(a.creationTimestamp).getTime() - new Date(b.creationTimestamp).getTime())).map((task, index) => (
                   <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
                     <TableCell style={{maxWidth: "150px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                       {task.template.name}
@@ -93,17 +109,34 @@ export default function MyTasksPage() {
                       <TaskStatusBadge status={task.status}/>
                     </TableCell>
                     <TableCell width={"50px"}>
-                      <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
-                        {
-
-                        }
-                        -1 days
-                      </Badge>
+                      {
+                        task.dueDate === null &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          N/A
+                        </div>
+                      }
+                      {
+                        task.dueDate !== null &&
+                        <Badge className={`mx-2 py-2 px-4 rounded-full w-full ${dueInColor(task.dueDate === null ? -1 : daysUntil(task.dueDate))}`}>                      
+                          {
+                            `${daysUntil(task.dueDate)} days` 
+                          }                        
+                        </Badge>
+                      }
                     </TableCell>
                     <TableCell width={"100px"}>
-                      <Badge className='mx-2 py-2 px-4 rounded-full'>
-                        {task.workflowInstanceTemplateName === "" ? "N/A" : task.workflowInstanceTemplateName}
-                      </Badge>
+                      {
+                        task.workflowInstanceTemplateName === "" &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          N/A
+                        </div>
+                      }
+                      {
+                        task.workflowInstanceTemplateName !== "" &&
+                        <Badge className='mx-2 py-2 px-4 rounded-full w-full'>
+                          {task.workflowInstanceTemplateName === "" ? "N/A" : task.workflowInstanceTemplateName}
+                        </Badge>
+                      }
                     </TableCell>
                     <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                       {task.template.description}
