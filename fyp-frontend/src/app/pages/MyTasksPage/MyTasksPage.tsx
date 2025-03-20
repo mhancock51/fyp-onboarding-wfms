@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
-import TaskInstance from '@/models/tasks/TaskInstance'
+import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
 import React, { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
@@ -17,8 +17,8 @@ import TaskStatusBadge from './TaskStatusBadge'
 export default function MyTasksPage() {
   const dispatcher = useDispatch(); 
 
-  const [tasks, setTasks] = useState<TaskInstance[]>([]);
-  const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
+  const [tasks, setTasks] = useState<TaskInstanceDTO[]>([]);
+  const [currentTask, setCurrentTask] = useState<TaskInstanceDTO | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -28,7 +28,7 @@ export default function MyTasksPage() {
     .then((response) => {
       console.log(response);
       setLoading(false);
-      setTasks(response.data.data as TaskInstance[]);
+      setTasks(response.data.data as TaskInstanceDTO[]);
     })
     .catch((error) => {
       setLoading(false);
@@ -94,6 +94,9 @@ export default function MyTasksPage() {
                     </TableCell>
                     <TableCell width={"50px"}>
                       <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
+                        {
+
+                        }
                         -1 days
                       </Badge>
                     </TableCell>

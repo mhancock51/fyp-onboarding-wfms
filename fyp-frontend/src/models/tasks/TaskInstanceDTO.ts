@@ -3,7 +3,7 @@ import FileUploadTaskInstance from "./FileUploadTaskInstance";
 import ReadDocumentTaskInstance from "./ReadDocumentTaskInstance";
 import TaskTemplate from "./TaskTemplate";
 
-export default interface TaskInstance {
+export default interface TaskInstanceDTO {
     id: string;
     assigneeAccountId: string;
     assignerAccountId: string;

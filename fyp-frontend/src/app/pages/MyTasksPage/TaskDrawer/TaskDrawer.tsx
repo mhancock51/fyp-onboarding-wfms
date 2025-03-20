@@ -1,5 +1,5 @@
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
-import TaskInstance from '@/models/tasks/TaskInstance'
+import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
 import TaskTypeBadge from '../TaskTypeBadge';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,7 @@ import CommentSection from '@/components/CommentSection';
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  task: TaskInstance;
+  task: TaskInstanceDTO;
   fetchTaskInstances: () => Promise<void>;
 }
 
