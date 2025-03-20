@@ -135,10 +135,11 @@ const Api = {
   fetchTaskTemplateComments: async(taskTemplateId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/comment/tasktemplate?taskTemplateId=${taskTemplateId}`);
   },
-  postTaskTemplateComment: async(taskTemplateId: string, comment: string) => {
+  postTaskTemplateComment: async(taskTemplateId: string, comment: string, parentCommentId?: string) => {
     return AuthInstance.post(`${ROUTE_URL}/comment/tasktemplate`, {
       taskTemplateId: taskTemplateId,
-      text: comment
+      text: comment,
+      parentCommentId: parentCommentId
     });
   }
 }

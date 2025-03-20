@@ -28,7 +28,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import NoResults from '@/components/NoResults';
-import { Flag, MessageSquareMore } from 'lucide-react';
+import { Flag, MessageSquareMore, X } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
+import { RootState } from '@/store';
+import CommentSection from '@/components/CommentSection';
 
 interface Props {
   open: boolean;
@@ -45,6 +49,9 @@ export default function TaskDrawer(props: Props) {
   const [postingComment, setPostingComment] = useState<boolean>(false);
 
   const [comment, setComment] = useState<string>("");
+  const [parentCommentId, setParentCommentId] = useState<string>("");
+
+  const dispatch = useDispatch();
 
   async function completeTask() {
     if (!canCompleteTask) return;    
@@ -63,7 +70,7 @@ export default function TaskDrawer(props: Props) {
 
   async function postComment() {
     setPostingComment(true);
-    await Api.postTaskTemplateComment(props.task.taskTemplateId, comment)
+    await Api.postTaskTemplateComment(props.task.taskTemplateId, comment, parentCommentId)
     .then((response: AxiosResponse<HTTPresponse<string, string>>) => {      
       setComment("");
       void fetchComments();
@@ -155,7 +162,7 @@ export default function TaskDrawer(props: Props) {
           Complete Task
         </Button>
         <DrawerFooter>
-          <Button variant={"outline"}>
+          <Button variant={"outline"} onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
             <Flag/>
             Flag an issue with this task
           </Button>
@@ -168,47 +175,16 @@ export default function TaskDrawer(props: Props) {
                 </Button>              
               </AccordionTrigger>
               <AccordionContent className='p-2'>
-                {
-                  loadingComments && 
-                  <div className='flex flex-row gap-2 mx-auto'>
-                    <Spinner/>
-                    <Label>Loading comments...</Label>
-                  </div>
-                }
-                {
-                  !loadingComments &&
-                  <>                    
-                    <div className='flex flex-col my-2 max-h-100 overflow overflow-y-auto overflow-x-hidden'>
-                      {
-                        comments.length > 0 && comments.sort((a, b) => {return new Date(b.creationTimestamp).getTime() - new Date(a.creationTimestamp).getTime()})
-                        .map((comment, index) => (
-                          <Card key={index} className='flex flex-col gap-1 p-2 my-1'>
-                            <div className='flex flex-row justify-between p-1'>
-                              <Label className='font-bold'>{comment.accountDirectory.displayName} ({comment.accountDirectory.departmentName}) said:</Label>
-                              <Label>({new Date(comment.creationTimestamp).toLocaleString()})</Label>
-                            </div>
-                            <Separator/>
-                            <Label className='m-1'>{comment.text}</Label>
-                          </Card>
-                        ))
-                      }
-                      {
-                        comments.length === 0 &&
-                        <NoResults text={'No comments on this task template yet'}/>
-                      }
-                    </div>                    
-                    <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void postComment();}}>
-                      <Input type='text' disabled={postingComment} placeholder='Enter your comment...' onChange={(event: any) => {setComment(event.target.value);}}/>
-                      <Button disabled={comment === "" || postingComment} type='submit' className='flex flex-row gap-2'>
-                        {
-                          postingComment &&
-                          <Spinner/>
-                        }
-                        Submit
-                      </Button>
-                    </form>
-                  </>
-                }
+                <CommentSection 
+                  loadingComments={loadingComments} 
+                  postingComment={postingComment} 
+                  comments={comments} 
+                  comment={comment} 
+                  parentCommentId={parentCommentId}
+                  setComment={setComment} 
+                  setParentCommentId={setParentCommentId}
+                  postComment={postComment}
+                />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
