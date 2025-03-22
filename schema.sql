@@ -97,7 +97,8 @@ CREATE TABLE document (
     DocumentData LONGBLOB,
     FileExtension VARCHAR(50),
     UploadTimestamp DATETIME,
-    FileName VARCHAR(255)
+    FileName VARCHAR(255),
+    AccessAccountIds JSON
 );
 
 CREATE TABLE documentaccesslink (

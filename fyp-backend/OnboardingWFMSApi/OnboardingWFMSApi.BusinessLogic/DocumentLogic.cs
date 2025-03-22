@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -32,9 +33,10 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ITaskInstanceLogic _taskInstanceLogic;
 
         private readonly IMapper _mapper;
+        private readonly ILogger<DocumentLogic> _logger;
 
-        public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper, 
-            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository)
+        public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
+            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger)
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
@@ -42,6 +44,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _accountLogic = accountLogic;
             _taskInstanceLogic = taskInstanceLogic;
             _documentAccessLinkRepository = documentAccessLinkRepository;
+            _logger = logger;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -92,11 +95,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (taskInstance != null)
             {
                 // check task instance is an "upload doc" task                
-
                 workflowInstanceId = taskInstance.WorkflowInstanceId;
             }
-            
-            
+
+
 
             // check account is valid
             // check workflow exists and is open
@@ -105,9 +107,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             // check file extension matches onces allow in task template
 
             // TODO ensure document with same name isn't assigned to this workflow or task instance already
+            DocumentTable document = null;
             try
             {
-                var document = new DocumentTable()
+                document = new DocumentTable()
                 {
                     TaskInstanceId = payload.TaskInstanceId,
                     CreatorId = accountId,
@@ -117,15 +120,19 @@ namespace OnboardingWFMSApi.BusinessLogic
                     FileName = payload.DocumentName,
                     DocumentData = await ConvertIFormFileToByteArray(payload.File)
                 };
-                await _documentRepository.AddAsync(document);
-                return new HTTPResponse<DocumentDTO, string>() { Success = true, HttpCode = 200, Data = _mapper.Map<DocumentDTO>(document) };
+                document = await _documentRepository.AddAsync(document);
             }
             catch (Exception ex)
             {
                 return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
             }
-
-            // TODO: update task instance to mark as complete and update metadata
+            // assign access to document
+            foreach(var accessAccountId in payload.AccessAccountIds)
+            {
+                var link = await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accessAccountId, DocumentId = document.Id });
+                if (link == null) _logger.LogError($"Failed to provide access to document for account {accessAccountId}");
+            }
+            return new HTTPResponse<DocumentDTO, string>() { Success = true, HttpCode = 200, Data = _mapper.Map<DocumentDTO>(document) };
         }
 
         private async Task<bool> CheckAccessToDocument(string accountId, string documentId)

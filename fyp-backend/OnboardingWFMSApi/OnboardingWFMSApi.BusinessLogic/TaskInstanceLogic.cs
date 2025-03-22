@@ -333,6 +333,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     TaskInstanceId = taskInstance.Id,
                     File = payload.File,
                     DocumentName = taskTypeTemplateData.DocumentName,
+                    AccessAccountIds = taskTypeTemplateData.AccessAccountIds
                 },
                 accountId
             ));

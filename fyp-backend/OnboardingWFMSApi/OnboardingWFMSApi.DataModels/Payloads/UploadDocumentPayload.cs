@@ -12,5 +12,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public required string? TaskInstanceId {  get; set; }        
         public required IFormFile File { get; set; }
         public string DocumentName { get; set; }
+        public string[] AccessAccountIds { get; set; }
     }
 }

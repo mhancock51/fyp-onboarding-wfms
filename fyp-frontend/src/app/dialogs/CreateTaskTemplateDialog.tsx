@@ -5,11 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import { TEMPLATE_ACCOUNTS } from '@/constants';
 import TaskType from '@/models/tasks/taskType';
+import { RootState } from '@/store';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Trash2 } from 'lucide-react';
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
 interface Props {
@@ -75,7 +79,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
         </DialogHeader>
         {
           step === 0 &&
-          <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); setStep(1);}}>
+          <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); if (taskType !== null) setStep(1);}}>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Name</Label>
               <Input required className="col-span-3" value={name} onChange={(event: any) => { setName(event.target.value);}} />
@@ -130,7 +134,13 @@ export default function CreateTaskTemplateDialog(props: Props) {
               <Label className="col-span-3">{taskType?.taskName}</Label>
             </div>  
             <DialogFooter>
-              <Button type="submit">Create Task Template</Button>
+              <Button type="submit">
+                {
+                  loading &&
+                  <Spinner/>
+                }
+                Create Task Template
+              </Button>
             </DialogFooter>
           </form>
         }
@@ -240,6 +250,9 @@ function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: an
 function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [documentName, setDocumentName] = useState<string>("");
   const [fileExtensions, setFileExtensions] = useState<string[]>([]);
+  const [accessAccountIds, setAccessAccountIds] = useState<string[]>([]);
+
+  const accountDirectories = useSelector((state: RootState) => state.app.accountsDirectory);
 
   function submitUploadDocTask() {
     if (fileExtensions.length === 0) {
@@ -250,7 +263,8 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
       Id: "",
       TaskTemplateId: "",
       SupportedDocumentType: fileExtensions.join(";"),
-      DocumentName: documentName      
+      DocumentName: documentName,
+      AccessAccountIds: accessAccountIds      
     }
     props.updateTaskTypeData(data);
   }
@@ -273,6 +287,20 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
             { label: ".docx", value: ".odt"}
           ]} 
           onValueChange={(value: string[]) => { setFileExtensions(value);}}
+        />        
+      </div>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="name" className="text-right">Account Access</Label>
+        <MultiSelect           
+          className='w-100'
+          variant={"inverted"}
+          options={TEMPLATE_ACCOUNTS.concat(accountDirectories).map((account) => (
+            {
+              value: account.id,
+              label: `${account.displayName} ${account.departmentName !== "" ? `(${account.departmentName})` : ""}`
+            }
+          ))} 
+          onValueChange={(value: string[]) => { setAccessAccountIds(value)}}
         />        
       </div>
       <DialogFooter className='flex flex-row justify-between'> 

@@ -9,7 +9,7 @@ import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
+import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT, TEMPLATE_ACCOUNTS } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
@@ -28,11 +28,7 @@ interface Props {
   section: string;
 }
 
-export default function AddTaskToWorkflowDialog(props: Props) {
-  const TEMPLATED_ACCOUNTS = [
-    PLACEHOLDER_ONBOARDERS_ACCOUNT,
-    PLACEHOLDER_SUPERVISORS_ACCOUNT
-  ]
+export default function AddTaskToWorkflowDialog(props: Props) {  
 
   const [step, setStep] = useState<number>(0);
   const [taskTemplate, setTaskTemplate] = useState<TaskTemplate | null>(null);
@@ -74,7 +70,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
           <form className='flex flex-col gap-2 w-full' onSubmit={(event: any) => { event.preventDefault(); addTaskToWorkflow();}}>
             <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right">Task Assignee</Label>
-              <AccountDirectoryLookup setAccount={setAssignee} additionalAccounts={props.isOnboardingWorkflow ? TEMPLATED_ACCOUNTS : []}/>                     
+              <AccountDirectoryLookup setAccount={setAssignee} additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []}/>                     
             </div>  
             <div className="grid grid-cols-2 gap-4">
               <HoverCard>
