@@ -38,24 +38,43 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         
         [HttpGet]
         public async Task<IActionResult> GetDocument(string documentId)
-        {            
-            var response = await _documentLogic.GetDocument(documentId);
-            if (response.Success)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
             {
-                string fileName = response.Data.FileName + response.Data.FileExtension;
-                return File(response.Data.DocumentData, $"application/{response.Data.FileExtension.Replace(".", "")}", fileName);
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
             }
             else
             {
-                return StatusCode(response.HttpCode, response);
+                var response = await _documentLogic.GetDocument(documentId, accountId);
+                if (response.Success)
+                {
+                    string fileName = response.Data.FileName + response.Data.FileExtension;
+                    return File(response.Data.DocumentData, $"application/{response.Data.FileExtension.Replace(".", "")}", fileName);
+                }
+                else
+                {
+                    return StatusCode(response.HttpCode, response);
+                }
             }
+
         }
 
         [HttpGet("data")]
         public async Task<IActionResult> GetDocumentData(string documentId)
         {
-            var response = await _documentLogic.GetDocument(documentId);
-            return StatusCode(response.HttpCode, response);
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _documentLogic.GetDocument(documentId, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
         }
 
         [Authorize]

@@ -43,6 +43,7 @@ builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTask
 builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IDocumentAccessLinkRepository, DocumentAccessLinkRepository>();
 
 builder.Services.AddScoped<IWorkflowTemplateRepository, WorkflowTemplateRepository>();
 builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNodeRepository>();

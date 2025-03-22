@@ -100,6 +100,12 @@ CREATE TABLE document (
     FileName VARCHAR(255)
 );
 
+CREATE TABLE documentaccesslink (
+    Id VARCHAR(255) PRIMARY KEY,
+    AccountId VARCHAR(255),
+    DocumentId VARCHAR(255)
+);
+
 CREATE TABLE fileuploadtaskinstance (
     Id VARCHAR(255) PRIMARY KEY,
     TaskInstanceId VARCHAR(255),
@@ -294,3 +300,12 @@ ALTER TABLE comment
 ALTER TABLE comment
     ADD CONSTRAINT fk_comment_parent_comment_id
     FOREIGN KEY (ParentCommentId) REFERENCES comment(Id);
+
+/* Document table constraints */
+ALTER TABLE documentaccesslink
+    ADD CONSTRAINT fk_document_access_account_id
+    FOREIGN KEY (AccountId) REFERENCES account(AccountId);
+
+ALTER TABLE documentaccesslink
+    ADD CONSTRAINT fk_document_access_document_id
+    FOREIGN KEY (DocumentId) REFERENCES document(Id);

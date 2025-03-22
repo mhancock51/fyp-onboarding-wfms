@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -17,12 +18,14 @@ namespace OnboardingWFMSApi.BusinessLogic
     public interface IDocumentLogic
     {
         public Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
-        public Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId);
+        public Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId, string accountId);
         public Task<HTTPResponse<List<DocumentDTO>, string>> GetDocumentsFromWorkflowInstance(string workflowInstanceId, string accountId);
     }
     public class DocumentLogic : IDocumentLogic
     {
         private readonly IDocumentRepository _documentRepository;
+        private readonly IDocumentAccessLinkRepository _documentAccessLinkRepository;
+
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         private readonly IAccountLogic _accountLogic;
@@ -30,13 +33,15 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IMapper _mapper;
 
-        public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper, IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic)
+        public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper, 
+            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository)
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
             _accountLogic = accountLogic;
             _taskInstanceLogic = taskInstanceLogic;
+            _documentAccessLinkRepository = documentAccessLinkRepository;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -48,10 +53,15 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId)
+        public async Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId, string accountId)
         {
             var doc = await _documentRepository.GetById(documentId);
-            // TODO, implement access control
+            // implement access control
+            var canAccess = await CheckAccessToDocument(documentId, accountId);
+            if (!canAccess)
+            {
+                return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 403, Error = "Account does not have access to this document" };
+            }
 
             var docDTO = _mapper.Map<DocumentDTO>(doc);
             docDTO.CreatorsAccount = await _accountLogic.GetDirectoryByAccountId(docDTO.CreatorId);
@@ -64,9 +74,9 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var documentIds = (await _documentRepository.GetDocumentsFromWorkflowInstance(workflowInstanceId)).Select(d => d.Id);
             var documents = new List<DocumentDTO>();    
-            foreach(var id in documentIds)
+            foreach(var documentId in documentIds)
             {
-                var response = await GetDocument(id);
+                var response = await GetDocument(documentId, accountId);
                 if (response.Success && response.HasData)
                 {
                     documents.Add(response.Data);
@@ -116,6 +126,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // TODO: update task instance to mark as complete and update metadata
+        }
+
+        private async Task<bool> CheckAccessToDocument(string accountId, string documentId)
+        {
+            var access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);
+            return access != null;
         }
     }
 

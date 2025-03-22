@@ -38,6 +38,7 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<CommentTable> comments { get; set; }
 
         public DbSet<DocumentTable> documents { get; set; }
+        public DbSet<DocumentAccessLinkTable> documentAccessLinks { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     }
 }

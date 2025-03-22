@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import DocumentDTO from '@/models/DTOs/DocumentDTO';
 import HTTPresponse from '@/models/HTTPresponse';
 import WorkflowInstanceDTO from '@/models/WorkflowInstanceDTO';
+import { Separator } from '@radix-ui/react-separator';
 import { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
@@ -53,7 +54,9 @@ export default function DocumentsDialog(props: Props) {
     <Dialog open={props.open} onOpenChange={closeAndClear}>
       <DialogContent className="sm:max-w-[750px]">
         <DialogHeader>
-          <DialogTitle>Workflow Documents ({props.workflowInstance?.workflowTemplate.name})</DialogTitle>
+          <DialogTitle>Workflow Documents ({props.workflowInstance?.workflowTemplate.name})</DialogTitle>          
+          <h1>Displaying documents you have access to</h1>
+          <Separator/>
         </DialogHeader> 
         <div className="grid gap-4 py-4">          
           <DocumentsTable documents={documents} loading={loading} loaded={loaded}/>
