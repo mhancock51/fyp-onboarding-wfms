@@ -12,4 +12,5 @@ export interface CreateWorkflowTemplateNode {
   id: string;
   assigneeId: string;
   dependencyNodeIds: string[];
+  daysUntilDue: number | null;
 }

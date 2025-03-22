@@ -77,7 +77,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                         TaskTemplateId = preflowTask.TaskTemplateId,
                         AssigneeId = preflowTask.AssigneeId,
                         WorkflowSection = "preflowtasks",
-                        WorkflowTemplateId = workflowTemplate.Id
+                        WorkflowTemplateId = workflowTemplate.Id,
+                        DaysUntilDue = preflowTask.DaysUntilDue
                     };
                     nodes.Add(node);
                     // TODO implement validation                                    
@@ -105,7 +106,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                         TaskTemplateId = mainflowTask.TaskTemplateId,
                         AssigneeId = mainflowTask.AssigneeId,
                         WorkflowSection = "mainflowtasks",
-                        WorkflowTemplateId = workflowTemplate.Id
+                        WorkflowTemplateId = workflowTemplate.Id,
+                        DaysUntilDue = mainflowTask.DaysUntilDue
                     };
                     nodes.Add(node);
                     // TODO implement validation                                    
@@ -118,7 +120,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                             Id = Guid.NewGuid().ToString(),
                             NodeId = node.Id,
                             DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == nodeDependency).Id,
-                            WorkflowTemplateId = workflowTemplate.Id
+                            WorkflowTemplateId = workflowTemplate.Id                            
                         };
                         dependencies.Add(dependency);
                     }

@@ -71,6 +71,9 @@ export default function CreateWorkflowPage() {
     .catch((error) => {
       toast.error("Failed to create workflow template");
     })
+    .finally(() => {
+      setLoading(false);
+    })
   }
 
   async function fetchWorkflowTemplate(workflowTemplateId: string) {

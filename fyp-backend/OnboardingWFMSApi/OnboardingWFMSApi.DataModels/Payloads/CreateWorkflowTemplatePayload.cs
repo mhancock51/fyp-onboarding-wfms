@@ -37,6 +37,8 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         [JsonPropertyName("dependencyNodeIds")]
         [JsonInclude]
         public List<string> DependencyNodeIds = new List<string>();
+        [JsonPropertyName("daysUntilDue")]
+        public int? DaysUntilDue { get; set; }
 
     }
 }
