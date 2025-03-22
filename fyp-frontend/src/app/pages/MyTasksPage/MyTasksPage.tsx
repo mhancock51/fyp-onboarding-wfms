@@ -36,8 +36,8 @@ export default function MyTasksPage() {
     })
   }
 
-  function dueInColor(dueIn: number) {
-    if (dueIn === -1) {
+  function dueInColor(dueIn: number | null) {
+    if (dueIn === null) {
       return "bg-accent"
     }
     if (dueIn < 2) {
@@ -51,7 +51,16 @@ export default function MyTasksPage() {
     }
   }  
 
-  function daysUntil(date: Date): number {
+  function dueDisplayValue(dueIn: number | null) {
+    if (dueIn === null) return "N/A";
+    if (dueIn < 0) return `Overdue (${dueIn * -1} days)`;
+    if (dueIn === 0) return "Today";
+    if (dueIn === 2) return "Tomorrow";
+    return `${dueIn} days`;
+  }
+
+  function daysUntil(date: Date | null): number | null {
+    if (date === null) return null;
     const targetDate = new Date(date);
     if (isNaN(targetDate.getTime())) {
       throw new Error("Invalid date provided");
@@ -117,10 +126,10 @@ export default function MyTasksPage() {
                       }
                       {
                         task.dueDate !== null &&
-                        <Badge className={`mx-2 py-2 px-4 rounded-full w-full ${dueInColor(task.dueDate === null ? -1 : daysUntil(task.dueDate))}`}>                      
+                        <Badge className={`mx-2 py-2 px-4 rounded-full w-full ${dueInColor(daysUntil(task.dueDate))}`}> 
                           {
-                            `${daysUntil(task.dueDate)} days` 
-                          }                        
+                            dueDisplayValue(daysUntil(task.dueDate))
+                          }                                      
                         </Badge>
                       }
                     </TableCell>
