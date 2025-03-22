@@ -23,6 +23,6 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string SupervisorAccountId { get; set; }
         public DateTime CreationTimestamp { get; set; }        
         public string? OnboarderEmailAddress { get; set; }
-        
+        public DateTime? MainflowStartTimestamp { get; set; }
     }
 }

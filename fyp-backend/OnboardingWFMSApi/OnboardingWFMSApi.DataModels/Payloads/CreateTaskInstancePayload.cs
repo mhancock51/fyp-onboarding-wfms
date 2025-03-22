@@ -13,6 +13,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string AssignerAccountId { get; set; }
         public string? WorkflowInstanceId { get; set; }
         public string? WorkflowNodeId { get; set; }
-        public double? DueInXDays { get; set; }
+        public DateTime? DueDate { get; set; }
     }
 }

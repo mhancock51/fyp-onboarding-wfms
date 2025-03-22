@@ -138,7 +138,8 @@ CREATE TABLE workflowinstance (
     OnboarderAccountId VARCHAR(255),
     SupervisorAccountId VARCHAR(255),
     CreationTimestamp DATETIME,
-    OnboarderEmailAddress VARCHAR(255)
+    OnboarderEmailAddress VARCHAR(255),
+    MainflowStartTimestamp DATETIME
 );
 
 CREATE TABLE comment (
