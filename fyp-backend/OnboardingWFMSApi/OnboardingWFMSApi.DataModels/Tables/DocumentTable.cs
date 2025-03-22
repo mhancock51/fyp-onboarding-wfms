@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,9 +17,9 @@ namespace OnboardingWFMSApi.DataModels.Tables
         [ForeignKey(nameof(TaskInstanceTable.Id))]
         public string TaskInstanceId {  get; set; }
         [ForeignKey(nameof(AccountTable.Id))]
-        public string CreatorId { get; set; }
-        // TODO add foreign key constraint
-        public string WorkflowInstanceId { get; set; }
+        public string CreatorId { get; set; }        
+        [ForeignKey(nameof(WorkflowInstanceTable.Id))]
+        public string? WorkflowInstanceId {  get; set; }
         public byte[] DocumentData { get; set; }
         public string FileExtension { get; set; }
         public DateTime UploadTimestamp { get; set; }

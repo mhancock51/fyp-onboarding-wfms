@@ -10,6 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
     public interface IDocumentRepository : IRepository<DocumentTable>
     {
+        public Task<List<DocumentTable>> GetDocumentsFromWorkflowInstance(string workflowInstanceId);
     }
     public class DocumentRepository : BaseRepository<DocumentTable>, IDocumentRepository
     {
@@ -20,6 +21,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public override async Task<DocumentTable> GetById(string id)
         {
             return await _dbContext.documents.FirstOrDefaultAsync(i => i.Id == id);
+        }
+
+        public async Task<List<DocumentTable>> GetDocumentsFromWorkflowInstance(string workflowInstanceId)
+        {
+            return await _dbContext.documents.Where(d => d.WorkflowInstanceId == workflowInstanceId).ToListAsync();
         }
     }
 

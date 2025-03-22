@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,16 +16,27 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IDocumentLogic
     {
-        public Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
-        public Task<HTTPResponse<DocumentTable, string>> GetDocument(string documentId);
+        public Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
+        public Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId);
+        public Task<HTTPResponse<List<DocumentDTO>, string>> GetDocumentsFromWorkflowInstance(string workflowInstanceId, string accountId);
     }
     public class DocumentLogic : IDocumentLogic
     {
         private readonly IDocumentRepository _documentRepository;
+        private readonly ITaskInstanceRepository _taskInstanceRepository;
 
-        public DocumentLogic(IDocumentRepository documentRepository)
+        private readonly IAccountLogic _accountLogic;
+        private readonly ITaskInstanceLogic _taskInstanceLogic;
+
+        private readonly IMapper _mapper;
+
+        public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper, IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic)
         {
             _documentRepository = documentRepository;
+            _taskInstanceRepository = taskInstanceRepository;
+            _mapper = mapper;
+            _accountLogic = accountLogic;
+            _taskInstanceLogic = taskInstanceLogic;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -34,16 +48,45 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<DocumentTable, string>> GetDocument(string documentId)
+        public async Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId)
         {
             var doc = await _documentRepository.GetById(documentId);
-            return new HTTPResponse<DocumentTable, string>() { Success = true, HttpCode = 200, Data = doc };
+            // TODO, implement access control
+
+            var docDTO = _mapper.Map<DocumentDTO>(doc);
+            docDTO.CreatorsAccount = await _accountLogic.GetDirectoryByAccountId(docDTO.CreatorId);
+            docDTO.TaskInstance = (await _taskInstanceLogic.GetTaskInstance(docDTO.TaskInstanceId)).Data ?? null;
+
+            return new HTTPResponse<DocumentDTO, string>() { Success = true, HttpCode = 200, Data = docDTO };
         }
 
-        public async Task<HTTPResponse<DocumentTable, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
-        {            
-            // check task instance is an "upload doc" task
+        public async Task<HTTPResponse<List<DocumentDTO>, string>> GetDocumentsFromWorkflowInstance(string workflowInstanceId, string accountId)
+        {
+            var documentIds = (await _documentRepository.GetDocumentsFromWorkflowInstance(workflowInstanceId)).Select(d => d.Id);
+            var documents = new List<DocumentDTO>();    
+            foreach(var id in documentIds)
+            {
+                var response = await GetDocument(id);
+                if (response.Success && response.HasData)
+                {
+                    documents.Add(response.Data);
+                }
+            }
+            return new HTTPResponse<List<DocumentDTO>, string>() { Success = true, HttpCode = 200, Data = documents };
+        }
 
+        public async Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
+        {
+            var taskInstance = await _taskInstanceRepository.GetById(payload.TaskInstanceId);
+            string workflowInstanceId = null;
+            if (taskInstance != null)
+            {
+                // check task instance is an "upload doc" task                
+
+                workflowInstanceId = taskInstance.WorkflowInstanceId;
+            }
+            
+            
 
             // check account is valid
             // check workflow exists and is open
@@ -58,18 +101,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     TaskInstanceId = payload.TaskInstanceId,
                     CreatorId = accountId,
-                    WorkflowInstanceId = "",
+                    WorkflowInstanceId = workflowInstanceId,
                     FileExtension = Path.GetExtension(payload.File.FileName),
                     UploadTimestamp = DateTime.Now,
                     FileName = payload.DocumentName,
                     DocumentData = await ConvertIFormFileToByteArray(payload.File)
                 };
                 await _documentRepository.AddAsync(document);
-                return new HTTPResponse<DocumentTable, string>() { Success = true, HttpCode = 200, Data = document };
+                return new HTTPResponse<DocumentDTO, string>() { Success = true, HttpCode = 200, Data = _mapper.Map<DocumentDTO>(document) };
             }
             catch (Exception ex)
             {
-                return new HTTPResponse<DocumentTable, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
+                return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
             }
 
             // TODO: update task instance to mark as complete and update metadata

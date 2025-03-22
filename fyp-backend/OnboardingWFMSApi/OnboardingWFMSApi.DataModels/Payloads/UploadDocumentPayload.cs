@@ -9,8 +9,7 @@ namespace OnboardingWFMSApi.DataModels.Payloads
 {
     public class UploadDocumentPayload
     {
-        public required string TaskInstanceId {  get; set; }
-        public required string WorkflowId {  get; set; }
+        public required string? TaskInstanceId {  get; set; }        
         public required IFormFile File { get; set; }
         public string DocumentName { get; set; }
     }

@@ -30,6 +30,8 @@ namespace OnboardingWFMSApi.DataModels
 
             CreateMap<CommentTable, CommentDTO>();
 
+            CreateMap<DocumentTable, DocumentDTO>();
+
         }
     }
 }
