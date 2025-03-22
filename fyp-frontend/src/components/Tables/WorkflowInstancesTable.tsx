@@ -136,19 +136,19 @@ export default function WorkflowInstancesTable(props: Props) {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center'>
+                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
                     {getRoleFromUserId(instance)}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center'>
+                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
                     {accounts.find(a => a.id === instance.supervisorAccountId)?.displayName ?? "ERROR"}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   {
                     instance.onboarderAccountId !== null &&
-                    <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center'>
+                    <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
                       {accounts.find(a => a.id === instance.onboarderAccountId)?.displayName ?? "N/A"}
                     </Badge>              
                   }
