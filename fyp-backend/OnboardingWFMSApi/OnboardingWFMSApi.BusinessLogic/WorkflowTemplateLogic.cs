@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IWorkflowTemplateLogic
     {
-        public Task<HTTPResponse<string, string>> CreateWorkflowTemplate(WorkflowTemplateDTO payload, string accountId);
+        public Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId);
         public Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id);
     }
 
@@ -38,7 +38,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _accountRepository = accountRepository;
         }
 
-        public async Task<HTTPResponse<string, string>> CreateWorkflowTemplate(WorkflowTemplateDTO payload, string accountId)
+        public async Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId)
         {
             // ensure there isn't another template with the same name
             var existingTemplate = await _workflowTemplateRepository.GetWorkflowTemplateByName(payload.Name);

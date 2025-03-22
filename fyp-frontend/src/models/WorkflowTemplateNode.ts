@@ -7,4 +7,5 @@ export default interface WorkflowTemplateNode {
   assignee: AccountDirectory | undefined;
   // tasks that must be completed before this task can be started
   taskDependencies: WorkflowTemplateNode[];
+  daysUntilDue: number | null;
 }

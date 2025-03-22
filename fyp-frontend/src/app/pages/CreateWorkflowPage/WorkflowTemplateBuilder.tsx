@@ -156,7 +156,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     setEdges(edges);
   }
 
-  function addWorkflowNode(taskId: string, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], type: "preflow" | "mainflow") {
+  function addWorkflowNode(taskId: string, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], type: "preflow" | "mainflow", daysUntilDue: number | null) {
     const taskTemplate = props.taskTemplates.find(i => i.id === taskId);
     if (taskTemplate == null) {
       return
@@ -165,7 +165,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
       id: crypto.randomUUID(),
       taskTemplate: taskTemplate,
       assignee: assignee,
-      taskDependencies: taskDependencies
+      taskDependencies: taskDependencies,
+      daysUntilDue: daysUntilDue      
     };
     switch(type) {
       case "preflow":
@@ -211,9 +212,9 @@ export default function WorkflowTemplateBuilder(props: Props) {
     props.setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
   }
 
-  function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[]) {
+  function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null) {
     taskDependencies = taskDependencies.filter(i => i !== null);
-    addWorkflowNode(taskTemplate.id, assingee, taskDependencies, selectedSection);
+    addWorkflowNode(taskTemplate.id, assingee, taskDependencies, selectedSection, daysUntilDue);
   }
 
   useEffect(() => {    
@@ -240,6 +241,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
       <AddTaskToWorkflowDialog open={openAddTaskDialog} setOpen={setOpenAddTaskDialog} onAddTask={addTaskToWorkflow} 
         isOnboardingWorkflow={props.isOnboardingWorkflow}
         existingTaskNodes={props.preflowTasks.concat(props.mainflowTasks)}
+        section={selectedSection}
       />
     </div>
   )
