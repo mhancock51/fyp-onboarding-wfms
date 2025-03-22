@@ -57,7 +57,29 @@ const Utils = {
         toast("Failed to re login, redirector to login page", { duration: 1000, onAutoClose: () => { Utils.safelyRedirectToLoginPage();}})
       })
     }
-  } 
+  },
+  downloadFile(byteString: string, filename: string) {
+    // convert byte string to a Blob
+    const byteCharacters = atob(byteString);
+    const byteNumbers = new Uint8Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const blob = new Blob([byteNumbers], { type: "application/octet-stream" });
+    // create a URL for the blob
+    const url = URL.createObjectURL(blob);
+
+    // create an anchor element and trigger download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    // Cleanup
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 }
 
 export default Utils;

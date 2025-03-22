@@ -115,9 +115,6 @@ const Api = {
       TaskTypeData: taskData
     })
   },
-  fetchDocument: async(documentId: string) => {
-    window.open(`${ROUTE_URL}/document?documentId=${documentId}`, '_blank');
-  },
   fetchDocumentData: async(documentId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/data?documentId=${documentId}`);
   },

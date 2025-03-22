@@ -7,6 +7,7 @@ import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import TableActionsDropdown from '../TableActionsDropdown';
 import Api from '@/api';
+import util from '@/util';
 
 interface Props {
   documents: DocumentDTO[];
@@ -75,7 +76,7 @@ export default function DocumentsTable(props: Props) {
                     <TableActionsDropdown actions={[
                       {
                         label: "Download document",
-                        onClick: () => {Api.fetchDocument(document.id)}
+                        onClick: () => {util.downloadFile(document.documentData, `${document.fileName}${document.fileExtension}`)}
                       }
                     ]}/>
                   </TableCell>
