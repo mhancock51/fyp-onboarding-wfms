@@ -50,6 +50,8 @@ export default function TaskDrawer(props: Props) {
   const [comment, setComment] = useState<string>("");
   const [parentCommentId, setParentCommentId] = useState<string>("");
 
+  const user = useSelector((state: RootState) => state.app.user);
+
   const dispatch = useDispatch();
 
   async function completeTask() {
@@ -110,7 +112,15 @@ export default function TaskDrawer(props: Props) {
           props.task !== null &&
           <>
           <DrawerHeader className='p-3'>
-            <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
+            <div className='flex flex-col justify-center gap-1'>
+              <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
+              {
+                user?.isAdmin &&
+                <Badge className='mx-auto text-center cursor-pointer' onClick={() => {navigator.clipboard.writeText(props.task.id);}}>
+                  [{props.task.id}]
+                </Badge>              
+              }
+            </div>
             <div className='flex flex-row justify-center' style={{gap: "2px"}}>
               <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
               {

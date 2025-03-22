@@ -145,6 +145,9 @@ const Api = {
   },
   fetchWorkflowInstances: async() => {
     return AuthInstance.get(`${ROUTE_URL}/workflow/instance/get`);
+  },
+  fetchWorkflowsDocuments: async(workflowInstanceId: string) => {
+    return AuthInstance.get(`${ROUTE_URL}/document/workflow-instance/data?workflowInstanceId=${workflowInstanceId}`);
   }
 }
 

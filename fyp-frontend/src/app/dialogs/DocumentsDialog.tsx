@@ -1,0 +1,64 @@
+import Api from '@/api';
+import NoResults from '@/components/NoResults';
+import DocumentsTable from '@/components/Tables/DocumentsTable';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import DocumentDTO from '@/models/DTOs/DocumentDTO';
+import HTTPresponse from '@/models/HTTPresponse';
+import WorkflowInstanceDTO from '@/models/WorkflowInstanceDTO';
+import { AxiosResponse } from 'axios';
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner';
+
+interface Props {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  workflowInstance: WorkflowInstanceDTO | null;
+}
+
+export default function DocumentsDialog(props: Props) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const [documents, setDocuments] = useState<DocumentDTO[]>([]);
+
+  async function fetchDocuments() {
+    if (props.workflowInstance === null) return;
+    setLoading(true);
+    Api.fetchWorkflowsDocuments(props.workflowInstance?.id)
+    .then((response: AxiosResponse<HTTPresponse<DocumentDTO[], string>>) => {
+      console.log("TEST 12345:", response);
+      setDocuments(response.data.data);
+    })
+    .catch((error) => {
+      toast.error("Failed to load documents");
+    })
+    .finally(() => {
+      setLoading(false);
+      setLoaded(true);
+    })
+  }
+
+  useEffect(() => {
+    if (props.workflowInstance !== null) {
+      void fetchDocuments();
+    }
+  }, [props.workflowInstance]);
+
+  function closeAndClear() {
+    props.setOpen(false);
+  }
+
+  return (
+    <Dialog open={props.open} onOpenChange={closeAndClear}>
+      <DialogContent className="sm:max-w-[750px]">
+        <DialogHeader>
+          <DialogTitle>Workflow Documents ({props.workflowInstance?.workflowTemplate.name})</DialogTitle>
+        </DialogHeader> 
+        <div className="grid gap-4 py-4">          
+          <DocumentsTable documents={documents} loading={loading} loaded={loaded}/>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}

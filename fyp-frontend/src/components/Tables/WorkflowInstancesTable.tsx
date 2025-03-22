@@ -8,12 +8,17 @@ import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { Badge } from '../ui/badge'
-import { DateTime } from 'luxon';
 import { Spinner } from '../ui/spinner'
 import { Label } from '../ui/label'
 import NoResults from '../NoResults'
+import TableActionsDropdown, { DropdownAction } from '../TableActionsDropdown'
 
-export default function WorkflowInstancesTable() {
+interface Props {
+  actions: DropdownAction[];
+  setSelectedWorkflow: React.Dispatch<React.SetStateAction<WorkflowInstanceDTO | null>>;
+}
+
+export default function WorkflowInstancesTable(props: Props) {
   const [workflowInstances, setWorkflowInstances] = useState<WorkflowInstanceDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -107,12 +112,13 @@ export default function WorkflowInstancesTable() {
           <TableCell width={50} className='text-center'>Your Role</TableCell>
           <TableCell width={50} className='text-center'>Supervisor</TableCell>
           <TableCell width={50} className='text-center'>Onboarder</TableCell>
-          <TableCell width={1000}>Overdue Tasks</TableCell>        
+          <TableCell width={1000}>Overdue Tasks</TableCell>  
+          <TableCell width={50}></TableCell>        
         </TableHeader>
         <TableBody>
           {
             workflowInstances.map((instance, index) => (
-              <TableRow key={index} className='cursor-pointer hover:brightness-90 hover:rounded-full'>
+              <TableRow key={index} className='cursor-pointer hover:brightness-90 hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
                 <TableCell>{instance.workflowTemplate.name}</TableCell>
                 <TableCell width={50}>
                   <Badge className={`bg-primary py-2 px-4 w-full rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center ${getStatusColor(instance.status)}`}>
@@ -154,7 +160,10 @@ export default function WorkflowInstancesTable() {
                   }
                 </TableCell>                                
                 <TableCell>
-                  !!!!
+                  !!!
+                </TableCell>
+                <TableCell>
+                  <TableActionsDropdown actions={props.actions}/>
                 </TableCell>
               </TableRow>
             ))
