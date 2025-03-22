@@ -24,15 +24,15 @@ namespace OnboardingWFMSApi.BusinessLogic
     public interface ITaskInstanceLogic
     {
         public Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload);
-        public Task<HTTPResponse<List<TaskInstance>, string>> GetUsersAssignedTask(string accountId);
-        public Task<HTTPResponse<TaskInstance, string>> GetTaskInstance(string tasksInstanceId);
+        public Task<HTTPResponse<List<TaskInstanceDTO>, string>> GetUsersAssignedTask(string accountId);
+        public Task<HTTPResponse<TaskInstanceDTO, string>> GetTaskInstance(string tasksInstanceId);
 
         public Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId);
         public Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId);
         public Task<HTTPResponse<string, string>> UpdateFileUploadInstanceState(UpdateInstanceStateFileUploadPayload payload, string accountId);
         public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
 
-        public Task<List<TaskInstance>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId);
+        public Task<List<TaskInstanceDTO>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId);
     }
     public class TaskInstanceLogic : ITaskInstanceLogic
     {
@@ -96,16 +96,18 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please choose an assignee" };
             }
-
+            
             var instance = new TaskInstanceTable()
             {
+
                 AssigneeAccountId = payload.AssigneeAccountId,
                 AssignerAccountId = payload.AssignerAccountId,
                 TaskTemplateId = payload.TaskTemplateId,
                 WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
                 WorkflowNodeId = payload.WorkflowNodeId ?? null,
                 CreationTimestamp = DateTime.Now,
-                Status = OPEN_TASK_STATUS
+                Status = OPEN_TASK_STATUS,
+                DueDate = payload.DueDate,
             };
             TaskInstanceTable taskInstance = null;
             TaskTemplate taskTemplate = null;
@@ -150,9 +152,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<List<TaskInstance>, string>> GetUsersAssignedTask(string accountId)
+        public async Task<HTTPResponse<List<TaskInstanceDTO>, string>> GetUsersAssignedTask(string accountId)
         {
-            var taskInstances = _mapper.Map<List<TaskInstance>>(await _taskInstanceRepository.GetUsersTaskInstances(accountId));               
+            var taskInstances = _mapper.Map<List<TaskInstanceDTO>>(await _taskInstanceRepository.GetUsersTaskInstances(accountId));               
             for (var i = 0; i < taskInstances.Count; i++)
             {
                 // add template and task type instance data
@@ -166,15 +168,15 @@ namespace OnboardingWFMSApi.BusinessLogic
                     throw new Exception("Task instance isn't associated with a valid task template or task type instance");
                 }
             }
-            return new HTTPResponse<List<TaskInstance>, string>() { Success = true, HttpCode = 200, Data = taskInstances };
+            return new HTTPResponse<List<TaskInstanceDTO>, string>() { Success = true, HttpCode = 200, Data = taskInstances };
         }
 
-        public async Task<HTTPResponse<TaskInstance, string>> GetTaskInstance(string tasksInstanceId)
+        public async Task<HTTPResponse<TaskInstanceDTO, string>> GetTaskInstance(string tasksInstanceId)
         {
-            var taskInstance = _mapper.Map<TaskInstance>(await _taskInstanceRepository.GetById(tasksInstanceId));
+            var taskInstance = _mapper.Map<TaskInstanceDTO>(await _taskInstanceRepository.GetById(tasksInstanceId));
             if (taskInstance == null)
             {
-                return new HTTPResponse<TaskInstance, string>() { Success = false, Error = "No task instance found", HttpCode = 400 };
+                return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, Error = "No task instance found", HttpCode = 400 };
             }
 
             // get template data
@@ -194,7 +196,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 throw new Exception("Task instance is associated with an invalid task type id");
             }
             var dataResponse = await handler.GetTaskInstanceMetaData(taskInstance.Id);
-            if (!dataResponse.Success) return new HTTPResponse<TaskInstance, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
+            if (!dataResponse.Success) return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
             taskInstance.InstanceData = dataResponse.Data;
 
             if (taskInstance.WorkflowInstanceId != null)
@@ -209,7 +211,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 taskInstance.WorkflowInstanceTemplateName = "";
             }
 
-            return new HTTPResponse<TaskInstance, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
+            return new HTTPResponse<TaskInstanceDTO, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
         }
 
         public async Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId)
@@ -398,10 +400,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
         }
 
-        public async Task<List<TaskInstance>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId)
+        public async Task<List<TaskInstanceDTO>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId)
         {
             var instanceRows = await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstanceId);
-            List<TaskInstance> taskInstances = new List<TaskInstance>();
+            List<TaskInstanceDTO> taskInstances = new List<TaskInstanceDTO>();
             foreach(var instanceRow in instanceRows)
             {
                 var taskInstance = (await GetTaskInstance(instanceRow.Id)).Data ?? null;

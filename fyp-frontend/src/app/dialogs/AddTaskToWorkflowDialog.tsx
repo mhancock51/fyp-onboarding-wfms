@@ -6,20 +6,26 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
+import { CheckedState } from '@radix-ui/react-checkbox';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
+import { SelectLabel } from '@radix-ui/react-select';
+import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>
-  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[]) => void;
+  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null) => void;
   isOnboardingWorkflow: boolean;
   existingTaskNodes: WorkflowTemplateNode[];
+  section: string;
 }
 
 export default function AddTaskToWorkflowDialog(props: Props) {
@@ -32,6 +38,8 @@ export default function AddTaskToWorkflowDialog(props: Props) {
   const [taskTemplate, setTaskTemplate] = useState<TaskTemplate | null>(null);
   const [assignee, setAssignee] = useState<AccountDirectory | null>(null);
   const [taskNodeDependencies, setTaskNodeDependencies] = useState<WorkflowTemplateNode[]>([]);
+
+  const [daysUntilDue, setDaysUntilDue] = useState<number | null>(null);
  
   function closeAndClear() {
     setStep(0);
@@ -44,7 +52,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
   function addTaskToWorkflow() {
     if (taskTemplate === null) return;
     if (assignee === null) return;
-    props.onAddTask(taskTemplate, assignee, taskNodeDependencies);
+    props.onAddTask(taskTemplate, assignee, taskNodeDependencies, daysUntilDue);
     closeAndClear();
   }
 
@@ -96,6 +104,17 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                 options={props.existingTaskNodes.map((node) => ({ label: node.taskTemplate?.name ?? "ERROR", value: node.id}))} 
                 onValueChange={(taskIds: string[]) => { setTaskNodeDependencies(props.existingTaskNodes.filter(i => taskIds.includes(i.id))) }}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className='flex flex-col gap-2'>
+                <Label>Select Days Until Due</Label>
+                <Label className='font-normal'>(after {props.section} starts)</Label>
+              </div>
+              <div className='flex flex-row gap-1'>
+                <Input type='number' min={1} value={daysUntilDue ?? ""} onChange={(event: any) => {setDaysUntilDue(event.target.value);}}/>
+                <Label className='font-normal'>Day(s)</Label>
+                <Button variant={"destructive"} onClick={() => {setDaysUntilDue(null);}}><X/></Button>
+              </div>
             </div>
             <DialogFooter>
               <Button type='button' onClick={() => {setStep(0);}}>Back</Button>

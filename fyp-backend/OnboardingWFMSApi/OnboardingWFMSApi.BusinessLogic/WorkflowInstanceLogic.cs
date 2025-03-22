@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         public Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload);
         public Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId);
-        public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstance taskInstance);
+        public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance);
         public Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress);
         public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId);
     }
@@ -76,7 +76,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 OnboarderAccountId = null,
                 OnboarderEmailAddress = payload.onboarderEmailAddress,
                 SupervisorAccountId = payload.supervisorAccountId,
-                CreationTimestamp = DateTime.UtcNow,
+                CreationTimestamp = DateTime.UtcNow                
             };
             instance = await _workflowInstanceRepository.AddAsync(instance);
 
@@ -94,15 +94,16 @@ namespace OnboardingWFMSApi.BusinessLogic
             // assign tasks
             foreach (var node in nodeswithNoDependencies) 
             {
-                var result = await _taskInstanceLogic.CreateInstance(
-                    new CreateTaskInstancePayload() { 
-                        TaskTemplateId = node.TaskTemplateId,
-                        AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, instance),
-                        AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(instance.SupervisorAccountId, instance),
-                        WorkflowInstanceId = instance.Id,
-                        WorkflowNodeId = node.Id
-                    }
-                );
+                var taskInstancePayload = new CreateTaskInstancePayload()
+                {
+                    TaskTemplateId = node.TaskTemplateId,
+                    AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, instance),
+                    AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(instance.SupervisorAccountId, instance),
+                    WorkflowInstanceId = instance.Id,
+                    WorkflowNodeId = node.Id,
+                    DueDate = GetDueDateOfTask(node, instance)
+                };
+                var result = await _taskInstanceLogic.CreateInstance(taskInstancePayload);
                 if (!result.Success)
                 {
                     _logger.LogWarning($"Failed to instantiate task instance for workflow, error: {result.Error}");
@@ -135,7 +136,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 200, Data = workflowInstanceDTO };
         }       
 
-        public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstance taskInstance)
+        public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance)
         {
             _logger.LogDebug($"Handling task completion event for task instance: {taskInstance.Id} ({taskInstance.template.Name}, {taskInstance.AssigneeAccountId})");
             if (string.IsNullOrEmpty(taskInstance.WorkflowInstanceId))
@@ -175,16 +176,17 @@ namespace OnboardingWFMSApi.BusinessLogic
                 if (await AreNodesDependenciesSatisfied(dependentNode, workflowInstance, node.Id))
                 {
                     // all dependencies have been satisfied, instantiate this task
-                    await _taskInstanceLogic.CreateInstance(
-                        new CreateTaskInstancePayload()
-                        {
-                            TaskTemplateId = dependentNode.TaskTemplateId,
-                            AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(dependentNode.AssigneeId, workflowInstance),
-                            AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
-                            WorkflowInstanceId = workflowInstance.Id,
-                            WorkflowNodeId = dependentNode.Id,
-                        }
-                    );
+                    var payload = new CreateTaskInstancePayload()
+                    {
+                        TaskTemplateId = dependentNode.TaskTemplateId,
+                        AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(dependentNode.AssigneeId, workflowInstance),
+                        AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
+                        WorkflowInstanceId = workflowInstance.Id,
+                        WorkflowNodeId = dependentNode.Id,
+                        DueDate = GetDueDateOfTask(dependentNode, workflowInstance)
+                    };                                        
+
+                    await _taskInstanceLogic.CreateInstance(payload);
                 }
             }
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200 };
@@ -250,6 +252,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             // update instance to include onboarder's account id
             matchingWorkflowInstance.OnboarderAccountId = accountId;
+            matchingWorkflowInstance.MainflowStartTimestamp = DateTime.UtcNow;
             await _workflowInstanceRepository.UpdateAsync(matchingWorkflowInstance);
 
             var workflowInstance = (await GetWorkflowInstance(matchingWorkflowInstance.Id)).Data ?? null;
@@ -271,6 +274,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                         AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
                         WorkflowInstanceId = workflowInstance.Id,
                         WorkflowNodeId = node.Id,
+                        DueDate = GetDueDateOfTask(node, workflowInstance)
                     }
                 );                
             }
@@ -309,6 +313,25 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (!mainflowTasksCompleted) return WORKFLOW_INSTANCE_MAINFLOW_STATUS;
 
             throw new Exception("Invalid condition met");
+        }
+
+        // assign due date depending on the node's section and when the instance was started/mainflow was started
+        private DateTime? GetDueDateOfTask(WorkflowTemplateNodeDTO node, WorkflowInstanceTable workflowInstance)
+        {
+            if (node.DaysUntilDue == null) return null;
+
+            if (node.WorkflowSection == "mainflowtasks" && workflowInstance.MainflowStartTimestamp != null)
+            {
+                return workflowInstance.MainflowStartTimestamp.Value.AddDays((double)node.DaysUntilDue);
+            }
+            else if (node.WorkflowSection == "preflowtasks")
+            {
+                return workflowInstance.CreationTimestamp.AddDays((double)node.DaysUntilDue);
+            }
+            else
+            {
+                throw new Exception("Invalid state reached");
+            }
         }
     }
 }

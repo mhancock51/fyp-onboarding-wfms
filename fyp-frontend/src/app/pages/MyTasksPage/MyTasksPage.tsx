@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
-import TaskInstance from '@/models/tasks/TaskInstance'
+import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
 import React, { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
 import TaskTypeBadge from './TaskTypeBadge'
@@ -17,8 +17,8 @@ import TaskStatusBadge from './TaskStatusBadge'
 export default function MyTasksPage() {
   const dispatcher = useDispatch(); 
 
-  const [tasks, setTasks] = useState<TaskInstance[]>([]);
-  const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
+  const [tasks, setTasks] = useState<TaskInstanceDTO[]>([]);
+  const [currentTask, setCurrentTask] = useState<TaskInstanceDTO | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -28,7 +28,7 @@ export default function MyTasksPage() {
     .then((response) => {
       console.log(response);
       setLoading(false);
-      setTasks(response.data.data as TaskInstance[]);
+      setTasks(response.data.data as TaskInstanceDTO[]);
     })
     .catch((error) => {
       setLoading(false);
@@ -36,17 +36,42 @@ export default function MyTasksPage() {
     })
   }
 
-  function dueInColor(dueIn: number) {
-    if (dueIn < 3) {
+  function dueInColor(dueIn: number | null) {
+    if (dueIn === null) {
+      return "bg-accent"
+    }
+    if (dueIn < 2) {
       return "bg-red-600";
     }
-    else if (dueIn < 7) {
+    else if (dueIn < 4) {
       return "bg-orange-500";
     }
     else {
       return "bg-green-600";
     }
   }  
+
+  function dueDisplayValue(dueIn: number | null) {
+    if (dueIn === null) return "N/A";
+    if (dueIn < 0) return `Overdue (${dueIn * -1} days)`;
+    if (dueIn === 0) return "Today";
+    if (dueIn === 2) return "Tomorrow";
+    return `${dueIn} days`;
+  }
+
+  function daysUntil(date: Date | null): number | null {
+    if (date === null) return null;
+    const targetDate = new Date(date);
+    if (isNaN(targetDate.getTime())) {
+      throw new Error("Invalid date provided");
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize to midnight
+    targetDate.setHours(0, 0, 0, 0);  // normalize to midnight
+  
+    const diffTime = targetDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // convert to days
+  }
 
   useEffect(() => {
     void fetchTaskInstances();
@@ -75,13 +100,13 @@ export default function MyTasksPage() {
               <TableCell style={{textAlign: "center"}}>Name    </TableCell>
               <TableCell style={{textAlign: "center"}}>Type    </TableCell>
               <TableCell style={{textAlign: "center"}}>Status  </TableCell>
-              <TableCell style={{textAlign: "center"}}>Due  </TableCell>
+              <TableCell style={{textAlign: "center"}} width={100}>Due  </TableCell>
               <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
               <TableCell style={{textAlign: "center"}}>Description</TableCell>
             </TableHeader> 
             <TableBody>
               {
-                tasks.map((task, index) => (
+                tasks.sort((a, b) => (new Date(a.creationTimestamp).getTime() - new Date(b.creationTimestamp).getTime())).map((task, index) => (
                   <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
                     <TableCell style={{maxWidth: "150px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                       {task.template.name}
@@ -93,14 +118,34 @@ export default function MyTasksPage() {
                       <TaskStatusBadge status={task.status}/>
                     </TableCell>
                     <TableCell width={"50px"}>
-                      <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
-                        -1 days
-                      </Badge>
+                      {
+                        task.dueDate === null &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          N/A
+                        </div>
+                      }
+                      {
+                        task.dueDate !== null &&
+                        <Badge className={`mx-2 py-2 px-4 rounded-full w-full ${dueInColor(daysUntil(task.dueDate))}`}> 
+                          {
+                            dueDisplayValue(daysUntil(task.dueDate))
+                          }                                      
+                        </Badge>
+                      }
                     </TableCell>
                     <TableCell width={"100px"}>
-                      <Badge className='mx-2 py-2 px-4 rounded-full'>
-                        {task.workflowInstanceTemplateName === "" ? "N/A" : task.workflowInstanceTemplateName}
-                      </Badge>
+                      {
+                        task.workflowInstanceTemplateName === "" &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          N/A
+                        </div>
+                      }
+                      {
+                        task.workflowInstanceTemplateName !== "" &&
+                        <Badge className='mx-2 py-2 px-4 rounded-full w-full'>
+                          {task.workflowInstanceTemplateName === "" ? "N/A" : task.workflowInstanceTemplateName}
+                        </Badge>
+                      }
                     </TableCell>
                     <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                       {task.template.description}

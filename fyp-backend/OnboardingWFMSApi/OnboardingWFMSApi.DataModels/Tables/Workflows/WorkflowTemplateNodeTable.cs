@@ -21,5 +21,6 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string AssigneeId { get; set; }
         public int Order { get; set; }
         public string WorkflowSection {  get; set; }
+        public int? DaysUntilDue { get; set; }
     }
 }

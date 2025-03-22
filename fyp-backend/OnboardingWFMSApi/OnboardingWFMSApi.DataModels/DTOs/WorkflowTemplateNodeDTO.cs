@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,5 +19,9 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         [JsonPropertyName("dependencyNodeIds")]
         [JsonInclude]
         public List<string> DependencyNodeIds = new List<string>();
+        [JsonPropertyName("daysUntilDue")]
+        public int? DaysUntilDue { get; set; }
+        [JsonPropertyName("workflowSection")]
+        public string WorkflowSection { get; set; }
     }
 }

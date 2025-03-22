@@ -17,6 +17,7 @@ import { WorkflowTemplateNodeDTO } from '@/models/DTOs/WorkflowTemplateNodeDTO';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
+import { CreateWorkflowTemplatePayload } from '@/models/payloads/CreateWorkflowTemplatePayload';
 
 export default function CreateWorkflowPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,7 +40,7 @@ export default function CreateWorkflowPage() {
 
   async function createWorkflowTemplate() {    
     setLoading(true);
-    const payload: WorkflowTemplateDTO = {
+    const payload: CreateWorkflowTemplatePayload = {
       id: "",
       name: name,
       description: description,
@@ -49,7 +50,8 @@ export default function CreateWorkflowPage() {
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
-          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
+          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? [],
+          daysUntilDue: task.daysUntilDue
         }
       )),
       mainflowTasks: mainflowTasks.map((task) => (
@@ -57,7 +59,8 @@ export default function CreateWorkflowPage() {
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
-          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? []
+          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? [],
+          daysUntilDue: task.daysUntilDue
         }
       )),
     }
@@ -67,6 +70,9 @@ export default function CreateWorkflowPage() {
     })
     .catch((error) => {
       toast.error("Failed to create workflow template");
+    })
+    .finally(() => {
+      setLoading(false);
     })
   }
 
@@ -101,11 +107,13 @@ export default function CreateWorkflowPage() {
   }
 
   function workflowTemplateDTOToNode(node: WorkflowTemplateNodeDTO, nodeList: WorkflowTemplateNode[]) {  
+    console.log("TEST123:", node.daysUntilDue)
     var result: WorkflowTemplateNode = {
       id: node.id,
       taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),
       assignee: accountsDirectory.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id == node.assigneeId),
       taskDependencies: nodeList.filter(i => node.dependencyNodeIds.includes(i.id)),
+      daysUntilDue: node.daysUntilDue
     }    
     return result;
   }

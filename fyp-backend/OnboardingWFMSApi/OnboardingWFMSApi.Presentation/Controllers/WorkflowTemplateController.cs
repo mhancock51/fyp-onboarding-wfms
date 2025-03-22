@@ -20,7 +20,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
 
         [Authorize]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateWorkflowTemplate([FromBody] WorkflowTemplateDTO payload)
+        public async Task<IActionResult> CreateWorkflowTemplate([FromBody] CreateWorkflowTemplatePayload payload)
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
             if (accountId == "")
