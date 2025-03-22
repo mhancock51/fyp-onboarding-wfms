@@ -26,6 +26,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         private readonly IDocumentRepository _documentRepository;
         private readonly IDocumentAccessLinkRepository _documentAccessLinkRepository;
+        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
 
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
@@ -36,7 +37,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ILogger<DocumentLogic> _logger;
 
         public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
-            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger)
+            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger, 
+            IWorkflowInstanceRepository workflowInstanceRepository)
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
@@ -45,6 +47,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _taskInstanceLogic = taskInstanceLogic;
             _documentAccessLinkRepository = documentAccessLinkRepository;
             _logger = logger;
+            _workflowInstanceRepository = workflowInstanceRepository;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -60,7 +63,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var doc = await _documentRepository.GetById(documentId);
             // implement access control
-            var canAccess = await CheckAccessToDocument(documentId, accountId);
+            var canAccess = await CheckAccessToDocument(accountId, documentId, doc.WorkflowInstanceId);
             if (!canAccess)
             {
                 return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 403, Error = "Account does not have access to this document" };
@@ -135,10 +138,34 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<DocumentDTO, string>() { Success = true, HttpCode = 200, Data = _mapper.Map<DocumentDTO>(document) };
         }
 
-        private async Task<bool> CheckAccessToDocument(string accountId, string documentId)
+        private async Task<bool> CheckAccessToDocument(string accountId, string documentId, string? workflowInstanceId)
         {
+            // attempt with actual account Id
             var access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);
-            return access != null;
+            if (access != null) return true;
+
+            // failed to gaina access with real account id, check if account is associated through workflow instance
+            if (string.IsNullOrEmpty(workflowInstanceId))
+            {
+                return false;
+            }
+            var workflowInstance = await _workflowInstanceRepository.GetById(workflowInstanceId);
+            // if account id is supervisor of workflow instance, replace account id with placeholder when doing look up
+            if (accountId == workflowInstance.SupervisorAccountId)
+            {
+                accountId = Utility.SUPERVISOR_ACCOUNT_ID_PLACEHOLDER;
+                access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);
+                if (access != null) return true;
+            }
+
+            // like so if onboarder
+            if (accountId == workflowInstance.OnboarderAccountId)
+            {
+                accountId = Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER;
+                access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);
+                return access != null;
+            }
+            return false;
         }
     }
 

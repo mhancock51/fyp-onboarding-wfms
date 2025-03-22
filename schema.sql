@@ -304,9 +304,5 @@ ALTER TABLE comment
 
 /* Document table constraints */
 ALTER TABLE documentaccesslink
-    ADD CONSTRAINT fk_document_access_account_id
-    FOREIGN KEY (AccountId) REFERENCES account(AccountId);
-
-ALTER TABLE documentaccesslink
     ADD CONSTRAINT fk_document_access_document_id
     FOREIGN KEY (DocumentId) REFERENCES document(Id);
