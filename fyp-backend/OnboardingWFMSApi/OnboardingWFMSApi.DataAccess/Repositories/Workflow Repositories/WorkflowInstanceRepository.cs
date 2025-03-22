@@ -14,6 +14,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         public Task<List<WorkflowInstanceTable>> GetInstancesByTemplateId(string workflowTemplateId);
         public Task<List<WorkflowInstanceTable>> GetInstancesBySupervisorAccountId(string supervisorAccountId);
         public Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderAccountId(string onboarderAccountId);
+        public Task<List<WorkflowInstanceTable>> GetInstancesWhereAccountIsAssignee(string accountId);
     }
 
     public class WorkflowInstanceRepository : BaseRepository<WorkflowInstanceTable>, IWorkflowInstanceRepository
@@ -40,6 +41,18 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         public async Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderAccountId(string onboarderAccountId)
         {
             return await _dbContext.workflowInstances.Where(i => i.OnboarderAccountId == onboarderAccountId).ToListAsync();
+        }
+
+
+        /// <summary>
+        /// Get workflow instances where the account associated with the given account Id is an assignee of a task in a node of the workflow's template
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public async Task<List<WorkflowInstanceTable>> GetInstancesWhereAccountIsAssignee(string accountId)
+        {            
+            var nodes = await _dbContext.workflowTemplateNodes.Where(i => i.AssigneeId == accountId).ToListAsync();
+            return await _dbContext.workflowInstances.Where(i => nodes.Select(n => n.WorkflowTemplateId).Contains(i.WorkflowTemplateId)).ToListAsync();
         }
     }
 }

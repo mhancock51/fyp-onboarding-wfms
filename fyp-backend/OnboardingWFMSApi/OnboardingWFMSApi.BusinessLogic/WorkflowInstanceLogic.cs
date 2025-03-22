@@ -288,6 +288,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             var workflowInstances = await _workflowInstanceRepository.GetInstancesBySupervisorAccountId(accountId);
             // find all workflows where user is the onboarder
             workflowInstances.AddRange(await _workflowInstanceRepository.GetInstancesByOnboarderAccountId(accountId));
+            // find all workflows where user is an assignee of a task
+            workflowInstances.AddRange(await _workflowInstanceRepository.GetInstancesWhereAccountIsAssignee(accountId));
+
+            workflowInstances = workflowInstances.Distinct().ToList();
 
             var workflowInstanceDTOs = new List<WorkflowInstanceDTO>();
             foreach (var workflowInstance in workflowInstances)
