@@ -107,6 +107,7 @@ export default function CreateWorkflowPage() {
   }
 
   function workflowTemplateDTOToNode(node: WorkflowTemplateNodeDTO, nodeList: WorkflowTemplateNode[]) {  
+    console.log("TEST123:", node.daysUntilDue)
     var result: WorkflowTemplateNode = {
       id: node.id,
       taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),

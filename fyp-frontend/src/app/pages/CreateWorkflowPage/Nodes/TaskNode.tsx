@@ -21,6 +21,7 @@ export type TaskNode = Node<
     deleteTask: () => void;
     moveTaskUp: () => void;
     moveTaskDown: () => void;
+    daysUntilDue: number | null;
   }
 >;
 
@@ -36,16 +37,16 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   return (
     <Popover open={openPopover} onOpenChange={setOpenPopover}>
       <PopoverTrigger asChild>
-        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", width: "20em",
+        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", width: "24em",
           boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
         }} onClick={() => {setOpenPopover(true)}}>
           <Handle type="target" position={Position.Top} />
-          <div className='flex flex-col justify-start'>
-            <div className='flex flex-row justify-between gap-8 items-center w-full'>
-              <label htmlFor="text" className='text-sm w-full' style={{textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>{props.data.taskTitle}</label>              
+          <div className='flex flex-col justify-center gap-1'>
+            <div className='flex flex-row justify-center gap-8 text-center py-1 w-full'>
+              <h1 className='text-base w-full font-bold'>{props.data.taskTitle}</h1>              
             </div>
             <Separator/>
-            <div className='flex flex-row gap-2 py-1'>
+            <div className='flex flex-row gap-2 py-1 justify-center w-full'>
               <Badge className='rounded-full'>{props.data.assignee}</Badge>
               {
                 props.data.taskDependencies.length > 0 &&
@@ -59,7 +60,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
                       <Separator/>
                     {
                       props.data.taskDependencies.map((dependency, index) => (
-                        <Label key={index} className='text-xs cursor-pointer'>{dependency.taskTemplate.name}</Label>
+                        <Label key={index} className='text-xs cursor-pointer'>{dependency.taskTemplate?.name}</Label>
                       ))
                     }
                     </div>
@@ -67,6 +68,10 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
                 </HoverCard>
               }             
               <TaskTypeBadge taskTypeId={props.data.taskTypeId}/>
+              {
+                props.data.daysUntilDue !== null && props.data.daysUntilDue !== undefined &&
+                <Badge className='rounded-full'>{props.data.daysUntilDue} Days</Badge>
+              }
             </div>
           </div>
           <Handle type="source" position={Position.Bottom} id="a" />

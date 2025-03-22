@@ -65,6 +65,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     if (props.isOnboardingWorkflow) {
       // render preflow tasks (preboarding tasks)
       props.preflowTasks.forEach((task, index) => {
+        console.log("TEST:", task.daysUntilDue);
         // add task node
         const prevNode = nodes[nodes.length - 1]
         const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
@@ -78,7 +79,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
             assignee: task.assignee?.displayName,
-            taskDependencies: task.taskDependencies
+            taskDependencies: task.taskDependencies,
+            daysUntilDue: task.daysUntilDue ?? null
           } 
         };
         nodes.push(taskNode);
