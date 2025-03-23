@@ -145,6 +145,16 @@ const Api = {
   },
   fetchWorkflowsDocuments: async(workflowInstanceId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/workflow-instance/data?workflowInstanceId=${workflowInstanceId}`);
+  },
+  fetchAllWorkflowTemplates: async() => {
+    return AuthInstance.get(`${ROUTE_URL}/workflow-template/all`);
+  },
+  createWorkflowInstance: async(workflowTeamplateId: string, supervisorAccountId: string, onboardingEmployeeDetails: { displayName: string, emailAddress: string, departmentId: string} | null) => {
+    return AuthInstance.post(`${ROUTE_URL}/workflow/instance/create`, {
+      workflowTeamplateId,
+      supervisorAccountId,
+      onboardingEmployeeDetails
+    })
   }
 }
 

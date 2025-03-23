@@ -64,7 +64,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
 
   function closeAndClear() {
     setOnboarder(false);
-    setDepartment("");
+    setDepartment(null);
     setDisplayName("");
     setEmail("");
     props.setOpenDialog(false);

@@ -149,7 +149,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }
 
-            return new HTTPResponse<string, string>() { Success = true, HttpCode = 400, Data = "Successfully instantiated workflow instance" };
+            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully instantiated workflow instance" };
         }
 
         public async Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId)

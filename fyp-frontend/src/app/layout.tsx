@@ -8,6 +8,7 @@ import InviteUserDialog from "./dialogs/InviteUserDialog";
 import DepartmentCreationDialog from "./dialogs/DepartmentCreationDialog";
 import CreateTaskTemplateDialog from "./dialogs/CreateTaskTemplateDialog";
 import TaskTemplatesListDialog from "./dialogs/TaskTemplatesListDialog";
+import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
 
 export default function layout() {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ export default function layout() {
       <DepartmentCreationDialog open={openCreateDptDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
       <CreateTaskTemplateDialog open={openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>
       <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>
+      <CreateWorkflowInstanceDialog/>
     </SidebarProvider>
   )
 }
