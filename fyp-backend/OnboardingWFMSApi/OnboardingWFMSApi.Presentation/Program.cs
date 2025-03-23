@@ -50,6 +50,7 @@ builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNode
 builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
 
 builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
+builder.Services.AddScoped<IOnboardingEmployeeDetailsRepository, OnboardingEmployeeDetailsRepository>();
 
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
@@ -88,6 +89,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Tas
 builder.Services.AddScoped<IRequestHandler<TaskCompletedRequest, HTTPResponse<string, string>>, TaskCompletionHandler>();
 builder.Services.AddScoped<IRequestHandler<AccountRegistrationRequest, HTTPResponse<string, string>>, AccountRegistrationHandler>();
 builder.Services.AddScoped<IRequestHandler<UploadDocumentRequest, HTTPResponse<DocumentDTO, string>>, UploadDocumentHandler>();
+builder.Services.AddScoped<IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>>, InviteAccountHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

@@ -33,7 +33,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
 
             // TODO make organisation ID derived from user context
-            var result = await _accountLogic.InviteUser(displayName, emailAddress, isOnboarder, departmentId, "organisation");
+            var result = await _accountLogic.InviteUser(displayName, emailAddress, isOnboarder, departmentId);
             return StatusCode(result.HttpCode, result);
         }
 

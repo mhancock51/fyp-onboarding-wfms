@@ -138,15 +138,22 @@ CREATE TABLE nodetaskdependency (
     WorkflowTemplateId VARCHAR(255)
 );
 
-/* Workflow instances */
+/* Workflow instance */
 CREATE TABLE workflowinstance (
     Id VARCHAR(255) PRIMARY KEY,
     WorkflowTemplateId VARCHAR(255) NOT NULL,
     OnboarderAccountId VARCHAR(255),
     SupervisorAccountId VARCHAR(255),
-    CreationTimestamp DATETIME,
-    OnboarderEmailAddress VARCHAR(255),
+    CreationTimestamp DATETIME,    
     MainflowStartTimestamp DATETIME
+);
+
+CREATE TABLE onboardingemployeedetails (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowInstanceId VARCHAR(255),
+    DisplayName VARCHAR(255),
+    EmailAddress VARCHAR(255),
+    DepartmentId VARCHAR(255)
 );
 
 CREATE TABLE comment (
@@ -157,6 +164,7 @@ CREATE TABLE comment (
     CreationTimestamp DATETIME,
     ParentCommentId VARCHAR(255)
 );
+
 
 
 
@@ -230,15 +238,18 @@ ALTER TABLE checklisttaskinstance
 
 ALTER TABLE readdocumenttaskinstance
     ADD CONSTRAINT fk_readdoc_instance_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);    
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
+    ON DELETE CASCADE; 
 
 ALTER TABLE document
     ADD CONSTRAINT fk_document_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
+    ON DELETE CASCADE;
 
 ALTER TABLE document
     ADD CONSTRAINT fk_document_creator_id
-    FOREIGN KEY (CreatorId) REFERENCES account(AccountId);
+    FOREIGN KEY (CreatorId) REFERENCES account(AccountId)
+    ON DELETE CASCADE;
 
 ALTER TABLE fileuploadtaskinstance
     ADD CONSTRAINT fk_file_upload_task_instance_id
@@ -289,6 +300,15 @@ ALTER TABLE workflowinstance
     ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
     FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);
 
+ALTER TABLE onboardingemployeedetails
+    ADD CONSTRAINT fk_onboarding_employee_details_workflow_instance_id
+    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE onboardingemployeedetails
+    ADD CONSTRAINT fk_onboarding_employee_details_department_id
+    FOREIGN KEY (DepartmentId) REFERENCES department(DepartmentId);
+
 /* Comment table constraints */
 ALTER TABLE comment
     ADD CONSTRAINT fk_comment_commenter_id
@@ -305,4 +325,5 @@ ALTER TABLE comment
 /* Document table constraints */
 ALTER TABLE documentaccesslink
     ADD CONSTRAINT fk_document_access_document_id
-    FOREIGN KEY (DocumentId) REFERENCES document(Id);
+    FOREIGN KEY (DocumentId) REFERENCES document(Id)
+    ON DELETE CASCADE;
