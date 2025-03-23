@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -33,6 +35,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ILogger<WorkflowInstanceLogic> _logger;
         private readonly IMapper _mapper;
         private readonly IUtility _utility;
+        private readonly IMediator _mediator;
+
 
         private readonly IWorkflowTemplateLogic _workflowTemplateLogic;
         private readonly ITaskInstanceLogic _taskInstanceLogic;
@@ -40,7 +44,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
 
-        public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic, ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository)
+        public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
+            ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
@@ -49,6 +54,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _mapper = mapper;
             _utility = utility;
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
+            _mediator = mediator;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -190,15 +196,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to retrieve workflow instance" };
             }
 
+            // invite onboarder once all preflow (preboarding) tasks have been completed
             if (workflowInstance.WorkflowTemplate.IsOnboardingWF)
             {
                 // check if all preflow tasks have been completed
                 var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
-                if (isPreflowSectionComplete)
+                if (isPreflowSectionComplete && workflowInstance.OnboarderAccountId == null)
                 {
-                    // TODO: invite onboarder (check onboarder hasn't already been invited) - once onboarder has registed, mainflow tasks should begin                    
-
-                    //return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Onboarder invited" };
+                    var onboardingEmployeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstance.Id);
+                    if (onboardingEmployeeDetails == null) throw new Exception("No onboarding employee details could be retrieved for an onboarding workflow instance");
+                    
+                    var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, true, onboardingEmployeeDetails.DepartmentId));
+                    return result;
                 }
             }
 
@@ -280,7 +289,9 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress)
         {
             // find active worklow instance where onboarder email address is the same
-            var matchingWorkflowInstance = (await _workflowInstanceRepository.GetAll()).FirstOrDefault(i => i.OnboarderEmailAddress == emailAddress);
+
+
+            var matchingWorkflowInstance = (await _workflowInstanceRepository.GetInstancesByOnboarderEmailAddress(emailAddress)).FirstOrDefault();
             if (matchingWorkflowInstance == null)
             {
                 // account isn't associated with an existing user
