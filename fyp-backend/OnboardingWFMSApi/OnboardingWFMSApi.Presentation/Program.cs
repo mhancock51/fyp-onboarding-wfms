@@ -88,7 +88,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Tas
 builder.Services.AddScoped<IRequestHandler<TaskCompletedRequest, HTTPResponse<string, string>>, TaskCompletionHandler>();
 builder.Services.AddScoped<IRequestHandler<AccountRegistrationRequest, HTTPResponse<string, string>>, AccountRegistrationHandler>();
 builder.Services.AddScoped<IRequestHandler<UploadDocumentRequest, HTTPResponse<DocumentDTO, string>>, UploadDocumentHandler>();
-builder.Services.AddScoped<IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>, InviteAccountHandler>>();
+builder.Services.AddScoped<IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>>, InviteAccountHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

@@ -138,7 +138,7 @@ CREATE TABLE nodetaskdependency (
     WorkflowTemplateId VARCHAR(255)
 );
 
-/* Workflow instances */
+/* Workflow instance */
 CREATE TABLE workflowinstance (
     Id VARCHAR(255) PRIMARY KEY,
     WorkflowTemplateId VARCHAR(255) NOT NULL,
@@ -149,6 +149,14 @@ CREATE TABLE workflowinstance (
     MainflowStartTimestamp DATETIME
 );
 
+CREATE TABLE onboardingemployeedetails (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowInstanceId VARCHAR(255),
+    DisplayName VARCHAR(255),
+    EmailAddress VARCHAR(255),
+    DepartmentId VARCHAR(255)
+);
+
 CREATE TABLE comment (
     Id VARCHAR(255) PRIMARY KEY,
     CommenterId VARCHAR(255),
@@ -157,6 +165,7 @@ CREATE TABLE comment (
     CreationTimestamp DATETIME,
     ParentCommentId VARCHAR(255)
 );
+
 
 
 
@@ -288,6 +297,15 @@ ALTER TABLE workflowinstance
 ALTER TABLE workflowinstance
     ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
     FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);
+
+ALTER TABLE onboardingemployeedetails
+    ADD CONSTRAINT fk_onboarding_employee_details_workflow_instance_id
+    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE onboardingemployeedetails
+    ADD CONSTRAINT fk_onboarding_employee_details_department_id
+    FOREIGN KEY (DepartmentId) REFERENCES department(DepartmentId);
 
 /* Comment table constraints */
 ALTER TABLE comment

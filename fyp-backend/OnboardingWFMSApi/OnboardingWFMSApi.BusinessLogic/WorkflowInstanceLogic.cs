@@ -50,19 +50,19 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
         {
             // make sure an instance with the same template Id and account Ids don't exists
-            var workflowInstances = await _workflowInstanceRepository.GetInstancesByTemplateId(payload.workflowTeamplateId);
-            if (workflowInstances.FirstOrDefault(i => i.SupervisorAccountId == payload.supervisorAccountId && i.OnboarderEmailAddress == payload.onboarderEmailAddress) != null)
+            var workflowInstances = await _workflowInstanceRepository.GetInstancesByTemplateId(payload.WorkflowTeamplateId);
+            if (workflowInstances.FirstOrDefault(i => i.SupervisorAccountId == payload.SupervisorAccountId && i.OnboarderEmailAddress == payload.OnboardingEmployeeDetails.EmailAddress) != null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "A similar workflow instance already exists" };
             }
             // fetch workflow template - make sure it exists
-            var workflowTemplate = (await _workflowTemplateLogic.GetWorkflowTemplate(payload.workflowTeamplateId)).Data ?? null;
+            var workflowTemplate = (await _workflowTemplateLogic.GetWorkflowTemplate(payload.WorkflowTeamplateId)).Data ?? null;
             if (workflowTemplate == null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
             }
             
-            if (workflowTemplate.IsOnboardingWF && (payload.onboarderEmailAddress == null || payload.supervisorAccountId == null))
+            if (workflowTemplate.IsOnboardingWF && (payload.onboarderEmailAddress == null || payload.SupervisorAccountId == null))
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder and Supervisor account must be selected" };
             }
@@ -72,10 +72,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             var instance = new WorkflowInstanceTable()
             {
                 Id = "",
-                WorkflowTemplateId = payload.workflowTeamplateId,
+                WorkflowTemplateId = payload.WorkflowTeamplateId,
                 OnboarderAccountId = null,
                 OnboarderEmailAddress = payload.onboarderEmailAddress,
-                SupervisorAccountId = payload.supervisorAccountId,
+                SupervisorAccountId = payload.SupervisorAccountId,
                 CreationTimestamp = DateTime.UtcNow                
             };
             instance = await _workflowInstanceRepository.AddAsync(instance);
