@@ -1,4 +1,5 @@
-import WorkflowTemplateDTO from "./DTOs/WorkflowTemplateDTO";
+import OnboardingEmployeeDetailsDTO from "./OnboardingEmployeeDetailsDTO";
+import WorkflowTemplateDTO from "./WorkflowTemplateDTO";
 
 export default interface WorkflowInstanceDTO {
   workflowTemplate: WorkflowTemplateDTO;
@@ -6,8 +7,7 @@ export default interface WorkflowInstanceDTO {
   status: string;
   id: string;
   workflowTemplateId: string;
-  onboarderAccountId: string | null;
   supervisorAccountId: string;
   creationTimestamp: string;
-  onboarderEmailAddress: string | null;
+  onboardingEmployeeDetails: OnboardingEmployeeDetailsDTO | null;
 }

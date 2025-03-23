@@ -2,7 +2,7 @@ import DocumentsDialog from '@/app/dialogs/DocumentsDialog';
 import { DropdownAction } from '@/components/TableActionsDropdown'
 import WorkflowInstancesTable from '@/components/Tables/WorkflowInstancesTable'
 import { Separator } from '@/components/ui/separator'
-import WorkflowInstanceDTO from '@/models/WorkflowInstanceDTO';
+import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO';
 import React, { useState } from 'react'
 
 export default function WorkflowInstancesPage() {

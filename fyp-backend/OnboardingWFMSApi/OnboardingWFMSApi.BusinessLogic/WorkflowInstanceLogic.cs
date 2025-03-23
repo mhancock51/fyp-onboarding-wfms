@@ -136,8 +136,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                 var taskInstancePayload = new CreateTaskInstancePayload()
                 {
                     TaskTemplateId = node.TaskTemplateId,
-                    AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, instance),
-                    AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(instance.SupervisorAccountId, instance),
+                    AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, instance),
+                    AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(instance.SupervisorAccountId, instance),
                     WorkflowInstanceId = instance.Id,
                     WorkflowNodeId = node.Id,
                     DueDate = GetDueDateOfTask(node, instance)
@@ -228,8 +228,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                     var payload = new CreateTaskInstancePayload()
                     {
                         TaskTemplateId = dependentNode.TaskTemplateId,
-                        AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(dependentNode.AssigneeId, workflowInstance),
-                        AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
+                        AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(dependentNode.AssigneeId, workflowInstance),
+                        AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
                         WorkflowInstanceId = workflowInstance.Id,
                         WorkflowNodeId = dependentNode.Id,
                         DueDate = GetDueDateOfTask(dependentNode, workflowInstance)
@@ -297,12 +297,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 // account isn't associated with an existing user
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Account isn't associated with a workflow instance where this user is an onboarder" };
             }
-            if (!string.IsNullOrEmpty(matchingWorkflowInstance.OnboarderAccountId))
+            var workflowInstanceDTO = (await GetWorkflowInstance(matchingWorkflowInstance.Id))?.Data ?? null;
+
+            if (!string.IsNullOrEmpty(workflowInstanceDTO.OnboardingEmployeeDetails.OnboarderAccountId))
             {
-                throw new Exception("OnboarderAccountId for worklow instance has already been set!");                
+                throw new Exception("OnboarderAccountId for workflow instance has already been set!");                
             }
-            // update instance to include onboarder's account id
-            matchingWorkflowInstance.OnboarderAccountId = accountId;
+
+            // get onboarder details and update it
+            var employeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstanceDTO.Id);
+            employeeDetails.OnboarderAccountId = accountId;
+            await _onboardingEmployeeDetailsRepository.UpdateAsync(employeeDetails);           
+            // update instance to indicate mainflow start         
             matchingWorkflowInstance.MainflowStartTimestamp = DateTime.UtcNow;
             await _workflowInstanceRepository.UpdateAsync(matchingWorkflowInstance);
 
@@ -321,8 +327,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                     new CreateTaskInstancePayload()
                     {
                         TaskTemplateId = node.TaskTemplateId,
-                        AssigneeAccountId = _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, workflowInstance),
-                        AssignerAccountId = _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
+                        AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, workflowInstance),
+                        AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
                         WorkflowInstanceId = workflowInstance.Id,
                         WorkflowNodeId = node.Id,
                         DueDate = GetDueDateOfTask(node, workflowInstance)

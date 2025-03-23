@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import DocumentDTO from '@/models/DTOs/DocumentDTO';
 import HTTPresponse from '@/models/HTTPresponse';
-import WorkflowInstanceDTO from '@/models/WorkflowInstanceDTO';
+import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO';
 import { Separator } from '@radix-ui/react-separator';
 import { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react'

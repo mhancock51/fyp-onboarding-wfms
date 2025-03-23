@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table'
 import Api from '@/api'
 import { AxiosResponse } from 'axios'
 import HTTPresponse from '@/models/HTTPresponse'
-import WorkflowInstanceDTO from '@/models/WorkflowInstanceDTO'
+import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -57,7 +57,7 @@ export default function WorkflowInstancesTable(props: Props) {
 
   function getRoleFromUserId(workflowInstance: WorkflowInstanceDTO) {
     switch(user?.id) {
-      case workflowInstance.onboarderAccountId:
+      case workflowInstance:
         return "Onboarder";
       case workflowInstance.supervisorAccountId:
         return "Supervisor";
