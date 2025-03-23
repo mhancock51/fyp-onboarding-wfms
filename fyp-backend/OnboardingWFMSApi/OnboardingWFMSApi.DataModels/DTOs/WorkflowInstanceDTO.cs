@@ -20,5 +20,7 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         /// </summary>
         [JsonPropertyName("status")]
         public string Status { get; set; }
+        [JsonPropertyName("onboardingEmployeeDetails")]
+        public OnboardingEmployeeDetailsDTO OnboardingEmployeeDetails { get; set; }
     }
 }

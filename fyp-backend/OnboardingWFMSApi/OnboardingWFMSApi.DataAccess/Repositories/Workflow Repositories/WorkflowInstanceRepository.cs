@@ -15,6 +15,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         public Task<List<WorkflowInstanceTable>> GetInstancesBySupervisorAccountId(string supervisorAccountId);
         public Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderAccountId(string onboarderAccountId);
         public Task<List<WorkflowInstanceTable>> GetInstancesWhereAccountIsAssignee(string accountId);
+        public Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderEmailAddress(string onboarderEmailAddress);
     }
 
     public class WorkflowInstanceRepository : BaseRepository<WorkflowInstanceTable>, IWorkflowInstanceRepository
@@ -53,6 +54,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         {            
             var nodes = await _dbContext.workflowTemplateNodes.Where(i => i.AssigneeId == accountId).ToListAsync();
             return await _dbContext.workflowInstances.Where(i => nodes.Select(n => n.WorkflowTemplateId).Contains(i.WorkflowTemplateId)).ToListAsync();
+        }
+
+        public async Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderEmailAddress(string onboarderEmailAddress)
+        {
+            var matchingEmployeeDetails = await _dbContext.onboardingEmployeeDetails.Where(i => i.EmailAddress == onboarderEmailAddress).ToListAsync();
+            return await _dbContext.workflowInstances.Where(i => matchingEmployeeDetails.Select(j => j.WorkflowInstanceId).Contains(i.Id)).ToListAsync();
         }
     }
 }
