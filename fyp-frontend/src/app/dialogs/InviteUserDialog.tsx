@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import Department from "@/models/Department";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -21,7 +22,7 @@ import { toast } from "sonner";
 export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (open: boolean) => void}) {
   const [onboarder, setOnboarder] = useState<boolean>(false);
 
-  const [departmentId, setDepartmentId] = useState<string>("");
+  const [department, setDepartment] = useState<Department | null>(null);
   const [displayName, setDisplayName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
 
@@ -36,13 +37,13 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
       toast.warning("Please enter an email address");
       return;
     }
-    if (departmentId === "") {
+    if (department === null) {
       toast.warning("Please select a department");
       return;
     }
 
     setLoading(true);
-    Api.inviteUser(displayName, email, onboarder, departmentId)
+    Api.inviteUser(displayName, email, onboarder, department.id)
     .then((response) => {
       setLoading(false);
       toast(`Successfully invited ${displayName}!`, { duration: 600, onAutoClose: () => {
@@ -63,7 +64,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
 
   function closeAndClear() {
     setOnboarder(false);
-    setDepartmentId("");
+    setDepartment("");
     setDisplayName("");
     setEmail("");
     props.setOpenDialog(false);
@@ -89,7 +90,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Department</Label>
-            <DepartmentLookup setDepartmentId={setDepartmentId}/>           
+            <DepartmentLookup setDepartment={setDepartment} department={department}/>           
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Onboarder?</Label>
