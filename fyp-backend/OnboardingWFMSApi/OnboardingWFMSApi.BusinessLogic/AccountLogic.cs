@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IAccountLogic
     {
-        public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId);
+        public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId);
         public Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword);
         public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
         public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
@@ -88,19 +88,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId, string organisationId)
+        public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId)
         {           
             // check email address doesn't already exist
             var existingAccount = await _accountRepository.GetByEmailAddress(emailAddress);
             if (existingAccount != null)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account already exists", HttpCode = 400 };
-            }
-
-            // check organisation exists
-            if (!await _organisationRepository.ExistsById(organisationId))
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Organisation doesn't exist", HttpCode = 400 };
             }
 
             // check department exists
@@ -115,7 +109,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 EmailAddress = emailAddress,
                 IsOnboarder = isOnboarder,
                 IsAdmin = false,
-                OrganisationId = organisationId,
+                OrganisationId = "organisation",
                 DepartmentId = departmentId,
                 DisplayName = displayName,
                 HashedPassword = "",
