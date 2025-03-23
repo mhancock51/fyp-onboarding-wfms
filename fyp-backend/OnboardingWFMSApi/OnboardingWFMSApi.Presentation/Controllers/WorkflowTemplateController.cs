@@ -35,10 +35,19 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }            
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetWorkflowTemplate(string workflowTemplateId)
         {
             var response = await _workflowTemplateLogic.GetWorkflowTemplate(workflowTemplateId);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize]
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllWorkflowTemplates()
+        {
+            var response = await _workflowTemplateLogic.GetAllWorkflowTemplates();
             return StatusCode(response.HttpCode, response);
         }
     }
