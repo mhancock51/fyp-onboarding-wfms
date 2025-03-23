@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { Document } from '@/models/Document';
 import { Badge } from '@/components/ui/badge';
+import Utils from '@/util';
+import { AxiosError } from 'axios';
 
 interface Props {
   documentId: string;
@@ -12,13 +14,22 @@ export default function DocumentLinkBadge(props: Props) {
   const [document, setDocument] = useState<Document | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
 
+  const [error, setError] = useState<string>("");
+
   async function fetchDocumentData() {
     await Api.fetchDocumentData(props.documentId) 
     .then((response) => {
       setDocument(response.data.data as Document);
     })
-    .catch((error) => {
-      toast("Failed to retrieve document data");
+    .catch((error: AxiosError) => {
+      if (error.status === 403) {
+        setError("Access Forbidden");
+        toast.error("Access to document forbidden");
+      }
+      else {
+        setError("Error");
+        toast.error("Failed to retrieve document");
+      }
     })
     .finally(() => {
       setLoaded(true);
@@ -30,17 +41,21 @@ export default function DocumentLinkBadge(props: Props) {
   }, [props.documentId]);
 
   return (
-    <Badge onClick={() => {void Api.fetchDocument(document?.id ?? "");}} className='cursor-pointer rounded-full p-2 min-w-25'>
-      <span>
+    <>
       {
         document === null && loaded &&
-        "ERROR"
+        <Badge className='cursor-pointer rounded-full p-2 min-w-25'>
+          {error}
+        </Badge>
       }
       {
-        document !== null &&
-        document.fileName
+        document !== null && loaded &&
+        <Badge className='cursor-pointer rounded-full p-2 min-w-25'
+          onClick={() => {Utils.downloadFile(document?.documentData, `${document?.fileName}${document?.fileExtension}`)}}
+        >
+          {document.fileName}
+        </Badge>
       }
-      </span>
-    </Badge>
+    </>
   )
 }

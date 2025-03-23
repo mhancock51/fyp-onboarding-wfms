@@ -42,8 +42,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
 
-        private readonly ITaskTemplateLogic _taskTemplateLogic;
-        private readonly IDocumentLogic _documentLogic;
+        private readonly ITaskTemplateLogic _taskTemplateLogic;        
 
         private readonly ITaskInstanceRepository _taskInstanceRepository;
         private readonly ITaskTemplateRepository _taskTemplateRepository;
@@ -56,12 +55,12 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
 
-        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
+        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;        
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
             IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
-            IDocumentLogic documentLogic, IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory, 
+            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory, 
             IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository, IMediator mediator
         )
         {
@@ -72,7 +71,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             _checklistTaskInstanceRepository = checklistTaskInstanceRepository;
             _taskTemplateRepository = taskTemplateRepository;
             _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
-            _documentLogic = documentLogic;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
             _taskInstanceHandlerFactory = taskInstanceHandlerFactory;
             _workflowTemplateRepository = workflowTemplateRepository;
@@ -328,17 +326,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid file extension" };
             }
 
-            // attempt to upload document            
-            var result = await _documentLogic.UploadDocument(
+            // attempt to upload document                        
+            var result = await _mediator.Send(new UploadDocumentRequest(
                 new UploadDocumentPayload()
                 {
                     TaskInstanceId = taskInstance.Id,
-                    WorkflowId = "---",
                     File = payload.File,
                     DocumentName = taskTypeTemplateData.DocumentName,
+                    AccessAccountIds = taskTypeTemplateData.AccessAccountIds
                 },
                 accountId
-            );
+            ));
+
             if (!result.Success)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };

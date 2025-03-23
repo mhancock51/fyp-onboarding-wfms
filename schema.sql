@@ -97,7 +97,14 @@ CREATE TABLE document (
     DocumentData LONGBLOB,
     FileExtension VARCHAR(50),
     UploadTimestamp DATETIME,
-    FileName VARCHAR(255)
+    FileName VARCHAR(255),
+    AccessAccountIds JSON
+);
+
+CREATE TABLE documentaccesslink (
+    Id VARCHAR(255) PRIMARY KEY,
+    AccountId VARCHAR(255),
+    DocumentId VARCHAR(255)
 );
 
 CREATE TABLE fileuploadtaskinstance (
@@ -294,3 +301,8 @@ ALTER TABLE comment
 ALTER TABLE comment
     ADD CONSTRAINT fk_comment_parent_comment_id
     FOREIGN KEY (ParentCommentId) REFERENCES comment(Id);
+
+/* Document table constraints */
+ALTER TABLE documentaccesslink
+    ADD CONSTRAINT fk_document_access_document_id
+    FOREIGN KEY (DocumentId) REFERENCES document(Id);

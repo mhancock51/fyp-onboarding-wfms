@@ -13,3 +13,8 @@ export const PLACEHOLDER_SUPERVISORS_ACCOUNT: AccountDirectory = {
   departmentId: '',
   departmentName: ''
 }
+
+export const TEMPLATE_ACCOUNTS = [
+  PLACEHOLDER_ONBOARDERS_ACCOUNT,
+  PLACEHOLDER_SUPERVISORS_ACCOUNT
+]

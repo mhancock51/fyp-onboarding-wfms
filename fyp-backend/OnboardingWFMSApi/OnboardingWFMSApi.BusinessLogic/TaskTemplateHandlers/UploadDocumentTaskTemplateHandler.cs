@@ -95,7 +95,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 {
                     return new ServerResponse<string, string>() { Success = false, Error = $"{fileExtension} is not an allowed extension" };
                 }
-            }
+            }            
+
             return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
         }
     }

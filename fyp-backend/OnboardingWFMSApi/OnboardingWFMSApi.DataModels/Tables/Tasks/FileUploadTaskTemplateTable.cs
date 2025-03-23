@@ -17,5 +17,6 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskTemplateId { get; set; }
         public string SupportedDocumentType { get; set; }
         public string DocumentName { get; set; }
+        public string[] AccessAccountIds { get; set; }
     }
 }

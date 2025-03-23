@@ -23,12 +23,12 @@ import { title } from "process"
    
 const mainItems = [
   {
-    title: "My Tasks",
+    title: "Tasks",
     url: "",
     icon: ClipboardList,
   },
   {
-    title: "My Workflows",
+    title: "Workflows",
     url: "/workflows",
     icon: Route,
   },
@@ -89,8 +89,8 @@ export function AppSidebar(props: Props) {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <a onClick={() => {navigate(item.url)}}>
-                        <item.icon />
-                        <span>{item.title}</span>
+                        <item.icon size={60}/>
+                        <span className="text-base">{item.title}</span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
