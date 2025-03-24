@@ -89,6 +89,18 @@ CREATE TABLE readdocumenttaskinstance (
     LinkClicked BOOLEAN
 );
 
+CREATE TABLE projectasktemplate (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskTemplateId VARCHAR(255),
+    Name VARCHAR(255),
+    Brief TEXT,
+    Objectives JSON,
+    Skills JSON
+);
+
+
+
+
 CREATE TABLE document (
     Id VARCHAR(255) PRIMARY KEY,
     TaskInstanceId VARCHAR(255),
@@ -327,4 +339,10 @@ ALTER TABLE comment
 ALTER TABLE documentaccesslink
     ADD CONSTRAINT fk_document_access_document_id
     FOREIGN KEY (DocumentId) REFERENCES document(Id)
+    ON DELETE CASCADE;
+
+/* Project Task Template */
+ALTER TABLE projectasktemplate
+    ADD CONSTRAINT fk_project_task_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
     ON DELETE CASCADE;

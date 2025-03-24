@@ -31,6 +31,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 .ToList();
 
             ITaskTemplateHandler selectedHandler = null;
+            // find the handler that is for this task type by looping through each one, instantiating it and checking its task type Id
             foreach (var handlerType in handlersInterfaces)
             {
                 var handler = _serviceProvider.GetService(handlerType) as ITaskTemplateHandler;

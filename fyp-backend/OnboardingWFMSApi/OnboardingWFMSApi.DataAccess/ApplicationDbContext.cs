@@ -23,6 +23,7 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<FileUploadTaskTemplateTable> fileUploadTaskTemplates { get; set; }
         public DbSet<ReadDocumentTaskTemplateTable> readDocumentTaskTemplates { get; set; }
         public DbSet<ChecklistTaskTemplateTable> checklistTaskTemplates { get; set; }
+        public DbSet<ProjectTaskTemplateTable> projectTaskTemplates { get; set; }
 
         public DbSet<TaskInstanceTable> taskInstances { get; set; }
         public DbSet<ChecklistTaskInstanceTable> checklistTaskInstances { get; set; }
