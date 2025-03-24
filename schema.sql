@@ -153,7 +153,8 @@ CREATE TABLE onboardingemployeedetails (
     WorkflowInstanceId VARCHAR(255),
     DisplayName VARCHAR(255),
     EmailAddress VARCHAR(255),
-    DepartmentId VARCHAR(255)
+    DepartmentId VARCHAR(255),
+    OnboarderAccountId VARCHAR(255)
 );
 
 CREATE TABLE comment (
@@ -293,10 +294,6 @@ ALTER TABLE workflowinstance
     FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id);
 
 ALTER TABLE workflowinstance
-    ADD CONSTRAINT fk_workflow_instance_onboarder_account_id
-    FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
-
-ALTER TABLE workflowinstance
     ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
     FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);
 
@@ -308,6 +305,10 @@ ALTER TABLE onboardingemployeedetails
 ALTER TABLE onboardingemployeedetails
     ADD CONSTRAINT fk_onboarding_employee_details_department_id
     FOREIGN KEY (DepartmentId) REFERENCES department(DepartmentId);
+
+ALTER TABLE onboardingemployeedetails
+    ADD CONSTRAINT fk_onboarder_account_id
+    FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
 
 /* Comment table constraints */
 ALTER TABLE comment

@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SetStateAction, useState } from "react"
 import InviteUserDialog from "@/app/dialogs/InviteUserDialog"
-import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
+import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
 import { title } from "process"
    
 const mainItems = [
@@ -71,6 +71,14 @@ export function AppSidebar(props: Props) {
       onClickAction: () => {},
       icon: Building
     }
+  ];
+
+  const supervisorItems = [
+    {
+      title: "Start A Workflow Instance",
+      onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
+      icon: Route
+    }
   ]
 
   return (
@@ -98,6 +106,29 @@ export function AppSidebar(props: Props) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+          {
+            /* change this to isSupervisor check */
+            user?.isAdmin &&
+            <SidebarGroup>
+              <SidebarGroupLabel>Supervisor</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {
+                    supervisorItems.map((item, index) => (
+                      <SidebarMenuItem key={index}>
+                        <SidebarMenuButton asChild>
+                        <a onClick={item.onClickAction}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))  
+                  }
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          }
           {
             user?.isAdmin &&
             <SidebarGroup>

@@ -17,6 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         public Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId);
         public Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id);
+        public Task<HTTPResponse<List<WorkflowTemplateDTO>, string>> GetAllWorkflowTemplates();
     }
 
     public class WorkflowTemplateLogic : IWorkflowTemplateLogic
@@ -158,6 +159,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to save dependencies" };
             }
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created workflow template" };
+        }
+
+        public async Task<HTTPResponse<List<WorkflowTemplateDTO>, string>> GetAllWorkflowTemplates()
+        {
+            var workflowTemplateIds = (await _workflowTemplateRepository.GetAll()).Select(t => t.Id);
+            var workflowTemplateDTOS = new List<WorkflowTemplateDTO>();
+            foreach(var workflowTemplateId in workflowTemplateIds)
+            {
+                var dto = (await GetWorkflowTemplate(workflowTemplateId)).Data;
+                if (dto != null) workflowTemplateDTOS.Add(dto);
+            }
+            return new HTTPResponse<List<WorkflowTemplateDTO>, string>() { Success = true, HttpCode = 200, Data =  workflowTemplateDTOS };
         }
 
         public async Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id)

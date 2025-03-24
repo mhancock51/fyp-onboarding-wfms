@@ -41,7 +41,8 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
 
         public async Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderAccountId(string onboarderAccountId)
         {
-            return await _dbContext.workflowInstances.Where(i => i.OnboarderAccountId == onboarderAccountId).ToListAsync();
+            var workflowInstanceIds = await _dbContext.onboardingEmployeeDetails.Where(i => i.OnboarderAccountId == onboarderAccountId).Select(i => i.WorkflowInstanceId).ToListAsync();
+            return await _dbContext.workflowInstances.Where(i => workflowInstanceIds.Contains(i.Id)).ToListAsync();
         }
 
 

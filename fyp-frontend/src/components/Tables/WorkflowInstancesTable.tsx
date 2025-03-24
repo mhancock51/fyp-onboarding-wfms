@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table'
 import Api from '@/api'
 import { AxiosResponse } from 'axios'
 import HTTPresponse from '@/models/HTTPresponse'
-import WorkflowInstanceDTO from '@/models/WorkflowInstanceDTO'
+import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -57,7 +57,7 @@ export default function WorkflowInstancesTable(props: Props) {
 
   function getRoleFromUserId(workflowInstance: WorkflowInstanceDTO) {
     switch(user?.id) {
-      case workflowInstance.onboarderAccountId:
+      case workflowInstance.onboardingEmployeeDetails?.onboarderAccountId:
         return "Onboarder";
       case workflowInstance.supervisorAccountId:
         return "Supervisor";
@@ -214,13 +214,13 @@ export default function WorkflowInstancesTable(props: Props) {
                 </TableCell>
                 <TableCell>
                   {
-                    instance.onboarderAccountId !== null &&
+                    instance.onboardingEmployeeDetails?.onboarderAccountId !== undefined &&
                     <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
-                      {accounts.find(a => a.id === instance.onboarderAccountId)?.displayName ?? "N/A"}
+                      {accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)?.displayName ?? instance.onboardingEmployeeDetails.displayName}
                     </Badge>              
                   }
                   {
-                    instance.onboarderAccountId === null &&
+                    instance.onboardingEmployeeDetails?.onboarderAccountId === undefined &&
                     <span className='py-2 px-4 rounded-full text-[12px] flex flex-row gap-2 items-center justify-center'>
                       N/A
                     </span>                    

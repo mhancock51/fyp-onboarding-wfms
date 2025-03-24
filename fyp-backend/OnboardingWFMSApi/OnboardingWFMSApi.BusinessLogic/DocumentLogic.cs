@@ -26,8 +26,9 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         private readonly IDocumentRepository _documentRepository;
         private readonly IDocumentAccessLinkRepository _documentAccessLinkRepository;
-        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
 
+        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         private readonly IAccountLogic _accountLogic;
@@ -37,8 +38,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ILogger<DocumentLogic> _logger;
 
         public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
-            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger, 
-            IWorkflowInstanceRepository workflowInstanceRepository)
+            IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger,
+            IWorkflowInstanceRepository workflowInstanceRepository, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository)
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
@@ -48,6 +49,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _documentAccessLinkRepository = documentAccessLinkRepository;
             _logger = logger;
             _workflowInstanceRepository = workflowInstanceRepository;
+            _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -158,8 +160,9 @@ namespace OnboardingWFMSApi.BusinessLogic
                 if (access != null) return true;
             }
 
+            var onboardersDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstanceId);            
             // like so if onboarder
-            if (accountId == workflowInstance.OnboarderAccountId)
+            if (accountId == onboardersDetails.OnboarderAccountId)
             {
                 accountId = Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER;
                 access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);

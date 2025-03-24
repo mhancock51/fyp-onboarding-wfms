@@ -18,8 +18,6 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         [ForeignKey(nameof(WorkflowTemplateTable.Id))]
         public string WorkflowTemplateId { get; set; }
         [ForeignKey(nameof(AccountTable.Id))]
-        public string? OnboarderAccountId { get; set; }
-        [ForeignKey(nameof(AccountTable.Id))]
         public string SupervisorAccountId { get; set; }
         public DateTime CreationTimestamp { get; set; }                
         public DateTime? MainflowStartTimestamp { get; set; }

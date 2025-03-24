@@ -7,8 +7,10 @@ import { SET_ACCOUNTS_DIRECTORY } from '@/features/appSlice';
 import { RootState } from '@/store';
 
 interface Props {
+  account: AccountDirectory | null;
   setAccount: React.Dispatch<React.SetStateAction<AccountDirectory | null>>;
   additionalAccounts: AccountDirectory[];
+  filter?: (a: AccountDirectory) => boolean;
 }
 
 export default function AccountDirectoryLookup(props: Props) {  
@@ -16,6 +18,8 @@ export default function AccountDirectoryLookup(props: Props) {
 
   const dispatch = useDispatch();
   const accounts = useSelector((state: RootState) => state.app.accountsDirectory);
+
+  const filteredAccounts = props.filter !== undefined ? props.additionalAccounts.concat(accounts).filter(props.filter) : props.additionalAccounts.concat(accounts);
 
   async function fetchAccountsDirectory() {
     setLoading(true);
@@ -44,8 +48,8 @@ export default function AccountDirectoryLookup(props: Props) {
   }
 
   return (
-    <Select onValueChange={(value: string) => {handleValueChange(value)}}>
-      <SelectTrigger>
+    <Select onValueChange={(value: string) => {handleValueChange(value)}} value={props.account?.id ?? undefined}>
+      <SelectTrigger className='flex-8'>
         <SelectValue placeholder="Select an Account" />
       </SelectTrigger>
       <SelectContent className="w-full">
@@ -54,7 +58,7 @@ export default function AccountDirectoryLookup(props: Props) {
           <SelectGroup>
             <SelectLabel>Accounts</SelectLabel>
             {
-              props.additionalAccounts.concat(accounts).map((account, index) => (
+              filteredAccounts.map((account, index) => (
                 <SelectItem key={index} value={account.id}>{account.displayName}
                 {
                   account.departmentName !== "" &&
@@ -70,7 +74,7 @@ export default function AccountDirectoryLookup(props: Props) {
         {
           loading &&
           <SelectGroup>
-            <SelectLabel>Loading Accounts</SelectLabel>
+            <SelectLabel>Loading Accounts...</SelectLabel>
           </SelectGroup>
         }
       </SelectContent>

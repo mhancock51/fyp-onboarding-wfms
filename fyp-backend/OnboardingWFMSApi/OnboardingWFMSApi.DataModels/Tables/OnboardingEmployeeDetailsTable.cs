@@ -20,5 +20,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string EmailAddress { get; set; }
         [ForeignKey(nameof(DepartmentTable.Id))]
         public string DepartmentId { get; set; }
+        [ForeignKey(nameof(AccountTable.Id))]
+        public string? OnboarderAccountId { get; set; }
     }
 }

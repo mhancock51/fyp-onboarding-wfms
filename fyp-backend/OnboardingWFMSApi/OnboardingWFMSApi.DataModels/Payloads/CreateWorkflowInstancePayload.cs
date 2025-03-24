@@ -11,7 +11,7 @@ namespace OnboardingWFMSApi.DataModels.Payloads
 {
     public class CreateWorkflowInstancePayload
     {
-        [JsonPropertyName("workflowTeamplateId ")]
+        [JsonPropertyName("workflowTeamplateId")]
         public string WorkflowTeamplateId { get; set; }
         [JsonPropertyName("supervisorAccountId")]        
         public string SupervisorAccountId { get; set; }

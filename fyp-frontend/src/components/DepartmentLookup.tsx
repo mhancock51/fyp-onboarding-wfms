@@ -7,7 +7,8 @@ import { Button } from './ui/button';
 import { Plus } from 'lucide-react';
 
 interface Props {
-  setDepartmentId: React.Dispatch<React.SetStateAction<string>>;
+  department: Department | null;
+  setDepartment: React.Dispatch<React.SetStateAction<Department | null>>;
 }
 
 export default function DepartmentLookup(props: Props) {
@@ -32,9 +33,9 @@ export default function DepartmentLookup(props: Props) {
   }, []);
 
   return (
-    <div className='flex flex-row gap-2'>
-      <Select onValueChange={(value: string) => {props.setDepartmentId(value);}}>
-        <SelectTrigger className="w-[180px]">
+    <div className='flex flex-row gap-2 className="w-[180px] flex-8"'>
+      <Select value={props.department?.id ?? undefined} onValueChange={(value: string) => {props.setDepartment(departments.find(i => i.id === value) ?? null);}}>
+        <SelectTrigger>
           <SelectValue placeholder="Select a department" />
         </SelectTrigger>
         <SelectContent>
