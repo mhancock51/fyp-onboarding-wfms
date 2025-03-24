@@ -75,7 +75,7 @@ export function AppSidebar(props: Props) {
 
   const supervisorItems = [
     {
-      title: "Create workflow instance",
+      title: "Start A Workflow Instance",
       onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
       icon: Route
     }

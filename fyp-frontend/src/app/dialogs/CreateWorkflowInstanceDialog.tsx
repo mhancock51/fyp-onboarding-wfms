@@ -118,7 +118,7 @@ export default function CreateWorkflowInstanceDialog() {
           step === 0 &&
           <>
             <DialogHeader>
-              Create workflow instance
+              Start a workflow instance
             </DialogHeader>
             <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
               <div className="flex flex-row items-center gap-4">
@@ -127,7 +127,7 @@ export default function CreateWorkflowInstanceDialog() {
               </div>
               <div className="flex flex-row items-center gap-4">
                 <Label htmlFor="name" className="flex-4">Supervisor</Label>
-                {/* Change filter to filter by isSupervisor */}
+                {/* TODO Change filter to filter by isSupervisor */}
                 <AccountDirectoryLookup setAccount={setSupervisor} account={supervisor}
                   additionalAccounts={[]} filter={(a: AccountDirectory) => (a.isAdmin)}
                 />
@@ -150,14 +150,15 @@ export default function CreateWorkflowInstanceDialog() {
                 <Input required className='flex-8' value={displayName} onChange={(event: any) => {setDisplayName(event.target.value);}}/>                
               </div>
               <div className="flex flex-row items-center gap-4 w-full">
-                <Label htmlFor="name" className="flex-4">Email Address</Label>
-                <Input required className='flex-8' value={emailAddress} onChange={(event: any) => {setEmailAddress(event.target.value);}}/>                
+                <Label className="flex-4">Email Address</Label>
+                <Input type='email' required className='flex-8' value={emailAddress} onChange={(event: any) => {setEmailAddress(event.target.value);}}/>                
               </div>
               <div className="flex flex-row items-center gap-4 w-full">
                 <Label htmlFor="name" className="flex-4">Department</Label>
                 <DepartmentLookup setDepartment={setDepartment} department={department}/>
               </div>
-              <DialogFooter>              
+              <DialogFooter>
+                <Button type='button' onClick={() => {setStep(0)}}>Back</Button>              
                 <Button type='submit'>Next</Button>
               </DialogFooter>
             </form>
@@ -199,12 +200,13 @@ export default function CreateWorkflowInstanceDialog() {
                   </div>
                 </>
               }
-              <DialogFooter>              
+              <DialogFooter>          
+                <Button type='button' onClick={() => {setStep(1)}}>Back</Button>     
                 <Button type='submit'>
                   {
                     loading && <Spinner/>
                   }
-                  Create Workflow Instance
+                  Start Workflow Instance
                 </Button>
               </DialogFooter>
             </form>
