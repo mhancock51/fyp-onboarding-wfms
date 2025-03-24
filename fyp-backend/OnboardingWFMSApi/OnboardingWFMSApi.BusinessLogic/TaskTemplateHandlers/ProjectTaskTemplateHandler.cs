@@ -69,10 +69,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
             }
             // validate values
-            if (string.IsNullOrEmpty(projectTaskData.Name))
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Please provide a project name" };
-            }
             if (string.IsNullOrEmpty(projectTaskData.Brief))
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Please provide a project breif" };
