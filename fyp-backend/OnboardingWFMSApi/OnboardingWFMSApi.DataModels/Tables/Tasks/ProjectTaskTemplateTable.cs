@@ -18,8 +18,6 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [ForeignKey(nameof(TaskTemplateTable.Id))]
         [JsonPropertyName("taskTemplateId")]
         public string TaskTemplateId { get; set; }
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
         [JsonPropertyName("brief")]
         public string Brief { get; set; }
         [JsonPropertyName("objectives")]

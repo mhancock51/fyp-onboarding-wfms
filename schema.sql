@@ -92,7 +92,6 @@ CREATE TABLE readdocumenttaskinstance (
 CREATE TABLE projectasktemplate (
     Id VARCHAR(255) PRIMARY KEY,
     TaskTemplateId VARCHAR(255),
-    Name VARCHAR(255),
     Brief TEXT,
     Objectives JSON,
     Skills JSON
