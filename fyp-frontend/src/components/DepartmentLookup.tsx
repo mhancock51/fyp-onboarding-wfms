@@ -33,9 +33,9 @@ export default function DepartmentLookup(props: Props) {
   }, []);
 
   return (
-    <div className='flex flex-row gap-2'>
+    <div className='flex flex-row gap-2 className="w-[180px] flex-8"'>
       <Select value={props.department?.id ?? undefined} onValueChange={(value: string) => {props.setDepartment(departments.find(i => i.id === value) ?? null);}}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger>
           <SelectValue placeholder="Select a department" />
         </SelectTrigger>
         <SelectContent>

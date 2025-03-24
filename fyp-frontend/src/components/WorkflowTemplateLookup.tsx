@@ -37,7 +37,7 @@ export default function WorkflowTemplateLookup(props: Props) {
 
   return (
     <Select required value={props.value?.id ?? ""} onValueChange={(value: string) => {props.setValue(templates.find(i => i.id === value) ?? null)}}>
-      <SelectTrigger className='flex-8'>
+      <SelectTrigger className='flex-8 w-[180px]'>
         <SelectValue placeholder="Select a workflow template" />
       </SelectTrigger>
       <SelectContent>

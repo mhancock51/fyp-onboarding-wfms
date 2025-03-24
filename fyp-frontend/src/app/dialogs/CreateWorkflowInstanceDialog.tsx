@@ -121,7 +121,7 @@ export default function CreateWorkflowInstanceDialog() {
               Create workflow instance
             </DialogHeader>
             <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
-              <div className="flex flex-row items-center gap-4 w-full">
+              <div className="flex flex-row items-center gap-4">
                 <Label htmlFor="name" className="flex-4">Workflow Template</Label>
                 <WorkflowTemplateLookup value={workflowTemplate} setValue={setWorkflowTemplate}/>
               </div>
