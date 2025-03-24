@@ -67,11 +67,13 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            ChecklistTaskTemplateTable checklistTaskData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(taskTypeData.ToString());
-            if (checklistTaskData == null)
+            if (taskTypeData.GetType() != typeof(ChecklistTaskTemplateTable))
             {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task type data" };
+                return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
             }
+
+            ChecklistTaskTemplateTable checklistTaskData = taskTypeData as ChecklistTaskTemplateTable;
+
             if (checklistTaskData.Items.Length == 0)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Checklist must include at least one item" };

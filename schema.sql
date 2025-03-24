@@ -33,7 +33,7 @@ CREATE TABLE tasktype (
 
 CREATE TABLE tasktemplate (
     TaskTemplateId VARCHAR(255) NOT NULL,
-    Name VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) UNIQUE NOT NULL ,
     Description TEXT,
     CreatorAccountId VARCHAR(255) NOT NULL,
     DateCreated DATETIME NOT NULL,

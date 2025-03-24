@@ -34,11 +34,11 @@ export default function TaskTemplatesTable(props: Props) {
   return (
     <Table>
       <TableHeader>
-        <TableCell>Name</TableCell>
-        <TableCell>Task Type</TableCell>
-        <TableCell>Date Created</TableCell>
+        <TableCell width={200}>Name</TableCell>
+        <TableCell className='text-center' width={25}>Task Type</TableCell>
+        <TableCell className='text-center' width={25}>Date Created</TableCell>
       </TableHeader>
-      <TableBody>
+      <TableBody className='max-h-[50vh] overflow-y-hidden'>
         {
           taskTemplates.map((row, index) => (
             <TableRow key={index} className={`${props.selectedTemplate?.id === row.id ? "bg-secondary" : ""} cursor-pointer hover:bg-accent`} onClick={() => { if (props.onRowClick) props.onRowClick(row);}}>
