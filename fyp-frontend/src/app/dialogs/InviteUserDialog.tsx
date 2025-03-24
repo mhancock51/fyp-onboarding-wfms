@@ -1,7 +1,6 @@
 import Api from "@/api";
 import DepartmentLookup from "@/components/DepartmentLookup";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -12,10 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import Department from "@/models/Department";
-import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -79,57 +76,28 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
             Invite an employee to the organisation            
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <form className="grid gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); inviteUser();}}>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Display Name</Label>
-            <Input className="col-span-3" value={displayName} onChange={(event: any) => {setDisplayName(event.target.value);}} />
+            <Input required className="col-span-3" value={displayName} onChange={(event: any) => {setDisplayName(event.target.value);}} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">Email Address</Label>
-            <Input className="col-span-3" value={email} onChange={(event: any) => {setEmail(event.target.value);}} />
+            <Input required type="email" className="col-span-3" value={email} onChange={(event: any) => {setEmail(event.target.value);}} />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">Department</Label>
+          <div className="flex flex-row items-center gap-4">
+            <Label htmlFor="name" className="flex-4">Department</Label>
             <DepartmentLookup setDepartment={setDepartment} department={department}/>           
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">Onboarder?</Label>
-            <Checkbox className="col-span-3" checked={onboarder} onCheckedChange={(state: CheckedState) => {setOnboarder(state as boolean)}}/>              
-          </div>          
-          {
-            /* Only display if "is onboarder" is selected */
-            onboarder &&
-            <div>
-              <DialogDescription >
-                Selected an onboarding workflow for the user to start
-              </DialogDescription>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Onboard Workflow</Label>
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select a workflow" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Onboarding Workflows</SelectLabel>
-                      <SelectItem value="test">Workflow 1</SelectItem>
-                      <SelectItem value="test2">Workflow 2</SelectItem>
-                      <SelectItem value="test3">Workflow 3</SelectItem>       
-                    </SelectGroup>
-                  </SelectContent>
-                </Select> 
-              </div>              
-            </div>
-          }
-        </div>
-        <DialogFooter>
-          <Button type="submit" disabled={loading} onClick={inviteUser}>
-            {
-              loading && <Spinner className="text-white text-sm"/>
-            }
-            Invite Employee
-          </Button>
-        </DialogFooter>
+          </div>        
+          <DialogFooter>
+            <Button type="submit" disabled={loading}>
+              {
+                loading && <Spinner className="text-white text-sm"/>
+              }
+              Invite Employee
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
