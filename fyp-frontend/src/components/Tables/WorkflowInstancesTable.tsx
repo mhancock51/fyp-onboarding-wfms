@@ -216,7 +216,7 @@ export default function WorkflowInstancesTable(props: Props) {
                   {
                     instance.onboardingEmployeeDetails?.onboarderAccountId !== undefined &&
                     <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
-                      {accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)?.displayName ?? "N/A"}
+                      {accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)?.displayName ?? instance.onboardingEmployeeDetails.displayName}
                     </Badge>              
                   }
                   {
