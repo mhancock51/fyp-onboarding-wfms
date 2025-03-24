@@ -59,6 +59,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
+builder.Services.AddScoped<IProjectTaskTemplateHandler, ProjectTaskTemplateHandler>();
 
 builder.Services.AddScoped<ITaskTemplateHandlerFactory, TaskTemplateHandlerFactory>();
 

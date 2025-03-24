@@ -5,11 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 {
-    public class ProjectTaskTemplateHandler : ITaskTemplateHandler
+    public interface IProjectTaskTemplateHandler : ITaskTemplateHandler
+    {
+
+    }
+
+    public class ProjectTaskTemplateHandler : IProjectTaskTemplateHandler
     {
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
 
@@ -24,7 +30,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
-            var projectTaskData = taskTypeData as ProjectTaskTemplateTable;
+            var projectTaskData = JsonSerializer.Deserialize<ProjectTaskTemplateTable>(taskTypeData.ToString());
             if (projectTaskData == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
@@ -63,17 +69,18 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            var projectTaskData = taskTypeData as ProjectTaskTemplateTable;
-            if (projectTaskData == null)
+            if (taskTypeData.GetType() != typeof(ProjectTaskTemplateTable))
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
             }
+            ProjectTaskTemplateTable projectTaskData = taskTypeData as ProjectTaskTemplateTable;
+
             // validate values
             if (string.IsNullOrEmpty(projectTaskData.Brief))
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Please provide a project breif" };
             }
-            if (projectTaskData.Objectives.Length == 0)
+            if (projectTaskData.Objectives.Count == 0)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Please provide objectives" };
             }

@@ -2,13 +2,15 @@ import Api from '@/api';
 import { MultiSelect } from '@/components/multi-select';
 import TaskTypeLookup from '@/components/TaskTypeLookup';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { TEMPLATE_ACCOUNTS } from '@/constants';
-import TaskType from '@/models/tasks/taskType';
+import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Trash2 } from 'lucide-react';
@@ -119,6 +121,13 @@ export default function CreateTaskTemplateDialog(props: Props) {
           />
         }
         {
+          step === 1 && taskType?.id === "project-task" &&
+          <ProjectTemplateCreationForm 
+            updateTaskTypeData={updateTaskTypeData} 
+            backButtonClick={() => {setStep(0)}}
+          />
+        }
+        {
           step === 2 &&
           <form className="grid gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); void createTaskTemplate();}}>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -154,7 +163,7 @@ function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) 
 
   function submitChecklist() {
     if (items.length === 0) {
-      toast("Please add a checklist item");
+      toast.warning("Please add a checklist item");
       return;
     }
     var data = {
@@ -307,6 +316,85 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
         <Button type='button' onClick={props.backButtonClick}>Back</Button>
         <Button type="submit">Next</Button>
       </DialogFooter> 
+    </form>
+  )
+}
+
+function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+  const [brief, setBrief] = useState<string>("");
+  const [objectives, setObjectives] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
+  
+  function submitProject() {
+    var data: ProjectTaskTemplate = {
+      id: '',
+      taskTemplateId: '',
+      brief: brief,
+      objectives: objectives,
+      skills: skills
+    }
+    props.updateTaskTypeData(data);
+  }
+
+  function deleteObjective(index: number) {
+    setObjectives((prevState) => (prevState.filter((_, i) => (i !== index))))
+  }
+
+  function addEmptyObjective() {
+    setObjectives((prevState) => ([
+      ...prevState, ""
+    ]));
+  }
+
+  function updateObjective(item: string, index: number) {
+    var updatedItems = [...objectives];
+    updatedItems[index] = item;
+    setObjectives(updatedItems);
+  }
+
+  return (
+    <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitProject();}}>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="name" >Project Brief</Label>
+        <Textarea required className='col-span-3' value={brief} onChange={(event: any) => {setBrief(event.target.value);}}/>
+      </div>
+      <div className='flex flex-col gap-2 w-full'>
+        <Label>Skills ({skills.length})</Label>
+        <Label className='font-normal'>Awarded to user on completion of the project</Label>
+        <MultiSelect options={[
+          { label: "Frontend", value: "frontend"},
+          { label: "Backend", value: "backend"},
+          { label: "React.js", value: "reactjs"},
+
+        ]} onValueChange={(value: string[]) => {setSkills(value);}}/>
+      </div>
+      <div className='flex flex-col gap-2 w-full'>
+        <Label>Resources</Label>
+      </div>
+      <div className='flex flex-col gap-2 w-full'>
+        <Label htmlFor="name" >Objectives ({objectives.length})</Label>
+        <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input bg-sidebar rounded-[15px]'>
+          {
+            objectives.length === 0 &&
+            <div className='w-full text-center'>No Objectives</div>
+          }
+          {
+            objectives.map((objective, index) => (
+              <div className='flex flex-row justify-between items-center w-full'>
+                <Input required placeholder='Enter objective...' className="flex-11 bg-background" value={objective} onChange={(event: any) => {updateObjective(event.target.value, index);}}/>
+                <Button className='my-1 mx-2 flex-1' onClick={() => {deleteObjective(index);}} variant={"destructive"}><Trash2/></Button>
+              </div>
+            ))
+          }
+        </div>
+        <div className="grid grid-row items-center gap-4">
+          <Button onClick={addEmptyObjective}>Add Objective</Button>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
+        <Button type="submit">Next</Button>
+      </DialogFooter>
     </form>
   )
 }
