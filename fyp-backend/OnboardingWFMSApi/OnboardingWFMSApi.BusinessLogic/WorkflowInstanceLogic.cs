@@ -83,8 +83,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             var instance = new WorkflowInstanceTable()
             {
                 Id = "",
-                WorkflowTemplateId = payload.WorkflowTeamplateId,
-                OnboarderAccountId = null,                
+                WorkflowTemplateId = payload.WorkflowTeamplateId,                    
                 SupervisorAccountId = payload.SupervisorAccountId,
                 CreationTimestamp = DateTime.UtcNow                
             };
@@ -201,7 +200,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 // check if all preflow tasks have been completed
                 var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
-                if (isPreflowSectionComplete && workflowInstance.OnboarderAccountId == null)
+                if (isPreflowSectionComplete && workflowInstance.OnboardingEmployeeDetails.OnboarderAccountId == null)
                 {
                     var onboardingEmployeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstance.Id);
                     if (onboardingEmployeeDetails == null) throw new Exception("No onboarding employee details could be retrieved for an onboarding workflow instance");
