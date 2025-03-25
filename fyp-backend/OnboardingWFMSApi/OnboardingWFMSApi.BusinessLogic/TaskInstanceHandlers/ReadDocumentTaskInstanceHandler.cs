@@ -16,7 +16,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
     }
 
-    public class ReadDocumentTaskInstanceHandler : IReadDocumentTaskInstanceHandler
+    public class ReadDocumentTaskInstanceHandler : BaseTaskHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
     {
         private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
@@ -47,7 +47,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
         {
-            var taskInstance = taskInstanceMetaData as ReadDocumentTaskInstanceTable;
+            var taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
@@ -68,9 +68,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
-            ReadDocumentTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<ReadDocumentTaskInstanceTable>();
+            // cast object            
+            ReadDocumentTaskInstanceTable updatedTaskInstance = CastObjectToType(updatedTaskInstanceMetaData);
             // validate update meta data
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
             if (!validationResponse.Success)
@@ -88,8 +87,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
-            ReadDocumentTaskInstanceTable taskInstance = jsonElement.Deserialize<ReadDocumentTaskInstanceTable>();
+            // cast object
+            ReadDocumentTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };

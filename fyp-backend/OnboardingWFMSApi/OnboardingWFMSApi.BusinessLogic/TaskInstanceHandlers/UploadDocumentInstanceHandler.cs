@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
 
     }
-    public class UploadDocumentInstanceHandler : IUploadDocumentInstanceHandler
+    public class UploadDocumentInstanceHandler : BaseTaskHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
     {
         private readonly IFileUploadTaskInstanceRepository _fileUploadTaskInstanceRepository;
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
@@ -45,7 +45,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
         {
-            var taskInstance = taskInstanceMetaData as FileUploadTaskInstanceTable;
+            var taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
@@ -64,9 +64,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
-            FileUploadTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<FileUploadTaskInstanceTable>();
+            // cast object            
+            FileUploadTaskInstanceTable updatedTaskInstance = CastObjectToType(updatedTaskInstanceMetaData);
 
             // validate updated meta data before inserting
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
@@ -83,9 +82,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
-            FileUploadTaskInstanceTable taskInstance = jsonElement.Deserialize<FileUploadTaskInstanceTable>();
-
+            // cast object
+            FileUploadTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };

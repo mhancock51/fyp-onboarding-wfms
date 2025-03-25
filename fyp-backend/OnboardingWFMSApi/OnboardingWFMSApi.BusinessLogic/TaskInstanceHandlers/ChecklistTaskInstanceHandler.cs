@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
     }
 
-    public class ChecklistTaskInstanceHandler : IChecklistTaskInstanceHandler
+    public class ChecklistTaskInstanceHandler : BaseTaskHandler<ChecklistTaskInstanceTable>, IChecklistTaskInstanceHandler
     {
         private readonly ILogger<ChecklistTaskInstanceHandler> _logger;
 
@@ -72,9 +72,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
-            ChecklistTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<ChecklistTaskInstanceTable>();
+            // cast object            
+            ChecklistTaskInstanceTable updatedTaskInstance = CastObjectToType(updatedTaskInstanceMetaData);
             // validate updated meta data before inserting
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
             if (!validationResponse.Success)
@@ -88,8 +87,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
-            ChecklistTaskInstanceTable taskInstance = jsonElement.Deserialize<ChecklistTaskInstanceTable>();
+            // cast object
+            ChecklistTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };

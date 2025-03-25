@@ -14,7 +14,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
 
     }
-    public class ProjectTaskInstanceHandler : IProjectTaskInstanceHandler
+    public class ProjectTaskInstanceHandler : BaseTaskHandler<ProjectTaskInstanceTable>, IProjectTaskInstanceHandler
     {
         private readonly IProjectTaskInstanceRepository _projectTaskInstanceRepository;
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
@@ -69,9 +69,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
-            ProjectTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<ProjectTaskInstanceTable>();
+            // cast object            
+            ProjectTaskInstanceTable updatedTaskInstance = CastObjectToType(updatedTaskInstanceMetaData);
             
             // validate updated meta data before inserting
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
@@ -87,22 +86,21 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
-            ProjectTaskInstanceTable projectInstance = jsonElement.Deserialize<ProjectTaskInstanceTable>();
-            if (projectInstance == null)
+            // cast object            
+            ProjectTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
+            if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
 
-            var projectTemplateData = await _projectTaskTemplateRepository.GetByTaskInstanceId(projectInstance.TaskInstanceId);
+            var projectTemplateData = await _projectTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);
             if (projectTemplateData == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };
             }
 
             // ensure instance data has same number of objective state items as the template has objective items
-            if (projectInstance.ObjectiveStates.Count != projectTemplateData.Objectives.Count)
+            if (taskInstance.ObjectiveStates.Count != projectTemplateData.Objectives.Count)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Invalid objectives state" };
             }
