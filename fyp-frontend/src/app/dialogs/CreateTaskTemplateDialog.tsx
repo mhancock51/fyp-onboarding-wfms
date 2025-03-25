@@ -3,15 +3,19 @@ import { MultiSelect } from '@/components/multi-select';
 import TaskTypeLookup from '@/components/TaskTypeLookup';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { TEMPLATE_ACCOUNTS } from '@/constants';
+import ProjectObjective from '@/models/tasks/ProjectObjective';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
+import { CheckedState } from '@radix-ui/react-checkbox';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Trash2 } from 'lucide-react';
 import React, { useState } from 'react'
@@ -325,7 +329,7 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
 
 function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [brief, setBrief] = useState<string>("");
-  const [objectives, setObjectives] = useState<string[]>([]);
+  const [objectives, setObjectives] = useState<ProjectObjective[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
   
   function submitProject() {
@@ -345,13 +349,19 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
 
   function addEmptyObjective() {
     setObjectives((prevState) => ([
-      ...prevState, ""
+      ...prevState, { id: prevState.length.toString(), objective: "", required: false}
     ]));
   }
 
-  function updateObjective(item: string, index: number) {
+  function updateObjectiveText(objectiveText: string, index: number) {
     var updatedItems = [...objectives];
-    updatedItems[index] = item;
+    updatedItems[index].objective = objectiveText;
+    setObjectives(updatedItems);
+  }
+
+  function updateObjectiveRequirement(required: boolean, index: number) {
+    var updatedItems = [...objectives];
+    updatedItems[index].required = required;
     setObjectives(updatedItems);
   }
 
@@ -383,8 +393,16 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
           }
           {
             objectives.map((objective, index) => (
-              <div className='flex flex-row justify-between items-center w-full'>
-                <Input required placeholder='Enter objective...' className="flex-11 bg-background" value={objective} onChange={(event: any) => {updateObjective(event.target.value, index);}}/>
+              <div key={index} className='flex flex-row justify-between items-center w-full gap-2'>
+                <Input required placeholder='Enter objective...' className="flex-11 bg-background" value={objective.objective} onChange={(event: any) => {updateObjectiveText(event.target.value, index);}}/>
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Checkbox checked={objective.required} onCheckedChange={(checked: CheckedState) => {updateObjectiveRequirement(checked as boolean, index)}}/>
+                  </HoverCardTrigger>
+                  <HoverCardContent className='p-2 my-1 w-[175px] flex flex-row justify-center text-center'>
+                    <Label className='text-sm'>Required to complete project?</Label>                    
+                  </HoverCardContent>
+                </HoverCard>
                 <Button className='my-1 mx-2 flex-1' onClick={() => {deleteObjective(index);}} variant={"destructive"}><Trash2/></Button>
               </div>
             ))

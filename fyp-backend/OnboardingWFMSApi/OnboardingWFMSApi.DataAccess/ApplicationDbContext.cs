@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -6,7 +7,9 @@ using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess
@@ -42,6 +45,19 @@ namespace OnboardingWFMSApi.DataAccess
 
         public DbSet<DocumentTable> documents { get; set; }
         public DbSet<DocumentAccessLinkTable> documentAccessLinks { get; set; }
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {             
+        
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // make sure ProjectObjective is treated like a json property, not another table
+            modelBuilder.Entity<ProjectTaskTemplateTable>()
+                .Property(e => e.Objectives)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                    v => JsonSerializer.Deserialize<List<ProjectObjective>>(v, new JsonSerializerOptions()) ?? new List<ProjectObjective>()
+                );
+        }
     }
 }

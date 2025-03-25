@@ -1,4 +1,4 @@
-import ProjectObjective from "../ProjectObjective";
+import ProjectObjective from "./ProjectObjective";
 
 export default interface ProjectTaskTemplate {
   id: string;

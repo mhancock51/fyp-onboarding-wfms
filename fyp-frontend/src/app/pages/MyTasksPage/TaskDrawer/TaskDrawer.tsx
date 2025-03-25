@@ -32,6 +32,9 @@ import { Flag, MessageSquareMore, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import CommentSection from '@/components/CommentSection';
+import ProjectTask from './ProjectTask';
+import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 
 interface Props {
   open: boolean;
@@ -144,6 +147,12 @@ export default function TaskDrawer(props: Props) {
               setCanCompleteTask={setCanCompleteTask}
               taskStatus={props.task.status}
             />
+            // <ProjectTask taskInstanceId={props.task.id} 
+            //   projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate}
+            //   fetchTaskInstances={props.fetchTaskInstances} 
+            //   setCanCompleteTask={setCanCompleteTask} 
+            //   taskStatus={props.task.status}
+            // />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === "upload-document" &&
@@ -161,6 +170,16 @@ export default function TaskDrawer(props: Props) {
               taskInstanceId={props.task.id} 
               readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
               readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === "project-task" &&
+            <ProjectTask 
+              taskInstanceId={props.task.id} 
+              projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 
+              projectInstance={props.task.instanceData as ProjectTaskInstance}
               fetchTaskInstances={props.fetchTaskInstances} 
               setCanCompleteTask={setCanCompleteTask} 
               taskStatus={props.task.status}/>
