@@ -57,26 +57,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
-        {
-            // cast object            
-            ReadDocumentTaskInstanceTable updatedTaskInstance = CastObjectToType(updatedTaskInstanceMetaData);
-            // validate update meta data
-            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
-            if (!validationResponse.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
-            }
-            // update task instance
-            var checklistInstance = await _repository.GetByTaskInstanceId(updatedTaskInstance.Id);
-            checklistInstance.LinkClicked = updatedTaskInstance.LinkClicked;
-            checklistInstance.CheckboxChecked = updatedTaskInstance.CheckboxChecked;
-            await _repository.UpdateAsync(checklistInstance);
-            
-            return new ServerResponse<string, string>() { Success = true };
-        }
-
-        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
             // cast object
             ReadDocumentTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);

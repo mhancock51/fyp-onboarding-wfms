@@ -59,24 +59,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
-        {
-            // cast object            
-            ProjectTaskInstanceTable updatedTaskInstance = CastObjectToType(updatedTaskInstanceMetaData);
-            
-            // validate updated meta data before inserting
-            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
-            if (!validationResponse.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
-            }
-            // update task instance                        
-            await _repository.UpdateAsync(updatedTaskInstance);
-
-            return new ServerResponse<string, string>() { Success = true };
-        }
-
-        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
             // cast object            
             ProjectTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
