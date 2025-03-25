@@ -143,6 +143,9 @@ export default function CreateTaskTemplateDialog(props: Props) {
               <Label className="col-span-3">{taskType?.taskName}</Label>
             </div>  
             <DialogFooter>
+              <Button type='button' onClick={() => {setStep(1);}}>
+                Back
+              </Button>
               <Button type="submit">
                 {
                   loading &&
