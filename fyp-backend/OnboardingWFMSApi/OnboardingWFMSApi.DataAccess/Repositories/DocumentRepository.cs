@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
+namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IDocumentRepository : IRepository<DocumentTable>
     {

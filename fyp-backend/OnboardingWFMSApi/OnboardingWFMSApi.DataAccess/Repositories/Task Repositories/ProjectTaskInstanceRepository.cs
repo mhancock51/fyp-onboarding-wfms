@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,8 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IProjectTaskInstanceRepository : IRepository<ProjectTaskInstanceTable>
-    {
-        public Task<ProjectTaskInstanceTable> GetByTaskInstanceId(string taskInstanceId);
+    public interface IProjectTaskInstanceRepository : ITaskTypeInstanceRepository<ProjectTaskInstanceTable>
+    {        
     }
 
     public class ProjectTaskInstanceRepository : BaseRepository<ProjectTaskInstanceTable>, IProjectTaskInstanceRepository
