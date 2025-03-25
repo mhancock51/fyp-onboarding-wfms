@@ -74,28 +74,12 @@ const Api = {
   fetchAssignedTaskInstance: async() => {
     return AuthInstance.get(`${ROUTE_URL}/task/instances/get-assigned?accountId=477430cf-bb2b-4936-bf40-ee6779a95e25`); 
   },
-  updateChecklistTaskState: async(taskInstanceId: string, itemStatuses: boolean[]) => {
-    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/checklist`, {
-      taskInstanceId: taskInstanceId,
-      itemCompletionStatuses: itemStatuses
-    })
-  },
-  updateReadDocTaskState: async(taskInstanceId: string, checkboxChecked: boolean, linkClicked: boolean) => {
-    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/read-doc`, {
-      taskInstanceId: taskInstanceId,
-      checkboxChecked: checkboxChecked,
-      linkClicked: linkClicked
+  updateTaskState: async(taskState: any, taskTypeId: string, taskInstanceId: string) => {
+    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state`, {
+      updateTaskState: taskState,
+      taskTypeId: taskTypeId,
+      taskInstanceId: taskInstanceId
     });
-  },
-  updateUploadDocTaskState: async(taskInstanceId: string, fileData: File) => {
-    const formData = new FormData();
-    formData.append("file", fileData);
-    formData.append("taskInstanceId", taskInstanceId);
-    return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state/upload-doc`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
   },
   completeTask: async(taskInstanceId: string) => {
     return AuthInstance.post(`${ROUTE_URL}/task/instances/complete`, null, {

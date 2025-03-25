@@ -28,7 +28,7 @@ export default function ReadDocumentTask(props: Props) {
   const [readDocState, setReadDocState] = useState<ReadDocumentTaskInstance>(DEFAULT_STATE);  
 
   async function updateReadDocStatus(readDocState: ReadDocumentTaskInstance) {
-    await Api.updateReadDocTaskState(props.taskInstanceId, readDocState.checkboxChecked, readDocState.linkClicked)
+    await Api.updateTaskState(readDocState, "read-document", readDocState.taskInstanceId)    
     .then((response) => {
       toast("Successfully updated checklist task's state");
       if (readDocState.linkClicked && readDocState.checkboxChecked) {

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
@@ -12,9 +13,12 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
     public class ChecklistTaskTemplateTable : ITableEntity
     {
         [Key]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
         [ForeignKey(nameof(TaskTemplateTable.Id))]
+        [JsonPropertyName("taskTemplateId")]
         public string TaskTemplateId { get; set; }
+        [JsonPropertyName("items")]
         public string[] Items { get; set; }
     }
 }
