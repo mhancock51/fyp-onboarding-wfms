@@ -16,22 +16,13 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
     }
 
-    public class ReadDocumentTaskInstanceHandler : BaseTaskHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
-    {
-        private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
+    public class ReadDocumentTaskInstanceHandler : BaseTaskInstanceHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
+    {        
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
 
-        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository)
-        {
-            _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
+        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository) : base(repository)
+        {            
             _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
-        {
-            var taskInstanceMetaData = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstanceId);
-            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task metadata" }
-                : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
         public string GetTaskTypeId()
@@ -41,7 +32,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
         {
-            await _readDocumentTaskInstanceRepository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstanceId });
+            await _repository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstanceId });
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -77,10 +68,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
             // update task instance
-            var checklistInstance = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(updatedTaskInstance.Id);
+            var checklistInstance = await _repository.GetByTaskInstanceId(updatedTaskInstance.Id);
             checklistInstance.LinkClicked = updatedTaskInstance.LinkClicked;
             checklistInstance.CheckboxChecked = updatedTaskInstance.CheckboxChecked;
-            await _readDocumentTaskInstanceRepository.UpdateAsync(checklistInstance);
+            await _repository.UpdateAsync(checklistInstance);
             
             return new ServerResponse<string, string>() { Success = true };
         }

@@ -15,21 +15,13 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
 
     }
-    public class UploadDocumentInstanceHandler : BaseTaskHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
-    {
-        private readonly IFileUploadTaskInstanceRepository _fileUploadTaskInstanceRepository;
+    public class UploadDocumentInstanceHandler : BaseTaskInstanceHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
+    {        
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
 
-        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository fileUploadTaskInstanceRepository)
-        {
-            _fileUploadTaskInstanceRepository = fileUploadTaskInstanceRepository;
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
-        {
-            var taskInstanceMetaData = await _fileUploadTaskInstanceRepository.GetByTaskInstanceId(taskInstanceId);
-            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task metadata" }
-                : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
+        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository, IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository) : base(repository)
+        {            
+            _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
         }
 
         public string GetTaskTypeId()
@@ -39,7 +31,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
         {
-            await _fileUploadTaskInstanceRepository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
+            await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -74,9 +66,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
             // update task instance
-            var taskInstance = await _fileUploadTaskInstanceRepository.GetByTaskInstanceId(updatedTaskInstance.Id);           
+            var taskInstance = await _repository.GetByTaskInstanceId(updatedTaskInstance.Id);           
 
-            await _fileUploadTaskInstanceRepository.UpdateAsync(taskInstance);
+            await _repository.UpdateAsync(taskInstance);
             return new ServerResponse<string, string>() { Success = true };
         }
 

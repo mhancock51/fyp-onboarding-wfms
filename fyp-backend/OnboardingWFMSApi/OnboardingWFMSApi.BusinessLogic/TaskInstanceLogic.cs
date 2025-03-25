@@ -189,7 +189,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Task instance is associated with an invalid task type id");
             }
-            var dataResponse = await handler.GetTaskInstanceMetaData(taskInstance.Id);
+            var dataResponse = await handler.GetTaskTypeInstanceData(taskInstance.Id);
             if (!dataResponse.Success) return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
             taskInstance.InstanceData = dataResponse.Data;
 

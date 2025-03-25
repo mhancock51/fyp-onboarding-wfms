@@ -14,24 +14,16 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
 
     }
-    public class ProjectTaskInstanceHandler : BaseTaskHandler<ProjectTaskInstanceTable>, IProjectTaskInstanceHandler
+    public class ProjectTaskInstanceHandler : BaseTaskInstanceHandler<ProjectTaskInstanceTable>, IProjectTaskInstanceHandler
     {
-        private readonly IProjectTaskInstanceRepository _projectTaskInstanceRepository;
+        private readonly IProjectTaskInstanceRepository _repository;
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
-        public ProjectTaskInstanceHandler(IProjectTaskInstanceRepository projectTaskInstanceRepository, IProjectTaskTemplateRepository projectTaskTemplateRepository, ITaskInstanceRepository taskInstanceRepository)
-        {
-            _projectTaskInstanceRepository = projectTaskInstanceRepository;
+        public ProjectTaskInstanceHandler(IProjectTaskInstanceRepository repository, IProjectTaskTemplateRepository projectTaskTemplateRepository, ITaskInstanceRepository taskInstanceRepository) : base(repository)
+        {            
             _projectTaskTemplateRepository = projectTaskTemplateRepository;
             _taskInstanceRepository = taskInstanceRepository;
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
-        {
-            var projectInstance = await _projectTaskInstanceRepository.GetByTaskInstanceId(taskInstanceId);
-            return projectInstance == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
-                : new ServerResponse<object, string>() { Success = true, Data = projectInstance };
         }
 
         public string GetTaskTypeId()
@@ -42,7 +34,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         public async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
         {
             var objectives = (taskTemplateMetaData as ProjectTaskTemplateTable).Objectives;
-            await _projectTaskInstanceRepository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });            
+            await _repository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });            
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -79,7 +71,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
             // update task instance                        
-            await _projectTaskInstanceRepository.UpdateAsync(updatedTaskInstance);
+            await _repository.UpdateAsync(updatedTaskInstance);
 
             return new ServerResponse<string, string>() { Success = true };
         }

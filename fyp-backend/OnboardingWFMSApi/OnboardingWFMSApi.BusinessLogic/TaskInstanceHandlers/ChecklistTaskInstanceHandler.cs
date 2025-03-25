@@ -17,26 +17,17 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
     }
 
-    public class ChecklistTaskInstanceHandler : BaseTaskHandler<ChecklistTaskInstanceTable>, IChecklistTaskInstanceHandler
+    public class ChecklistTaskInstanceHandler : BaseTaskInstanceHandler<ChecklistTaskInstanceTable>, IChecklistTaskInstanceHandler
     {
         private readonly ILogger<ChecklistTaskInstanceHandler> _logger;
 
-        private readonly IChecklistTaskInstanceRepository _checklistTaskInstanceRepository;
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
-        public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository checklistTaskInstanceRepository, 
-            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ILogger<ChecklistTaskInstanceHandler> logger)
-        {
-            _checklistTaskInstanceRepository = checklistTaskInstanceRepository;
+        public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository repository, 
+            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ILogger<ChecklistTaskInstanceHandler> logger) : base(repository)
+        {            
             _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
             _logger = logger;
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
-        {
-            var taskInstanceMetaData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstanceId);
-            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
-                : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
         public string GetTaskTypeId()
@@ -47,7 +38,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         public async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
         {
             var checklistItems = (taskTemplateMetaData as ChecklistTaskTemplateTable).Items;
-            await _checklistTaskInstanceRepository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstanceId });
+            await _repository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstanceId });
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -81,7 +72,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
             // update task instance            
-            await _checklistTaskInstanceRepository.UpdateAsync(updatedTaskInstance);
+            await _repository.UpdateAsync(updatedTaskInstance);
             return new ServerResponse<string, string>() { Success = true };
         }
 

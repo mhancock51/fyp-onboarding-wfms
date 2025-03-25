@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 {
-    public class BaseTaskTemplateHandler<TTaskType> : BaseTaskHandler<TTaskType> where TTaskType : class, ITableEntity
+    public abstract class BaseTaskTemplateHandler<TTaskType> : BaseTaskHandler<TTaskType> where TTaskType : class, ITableEntity
     {
         protected readonly ITaskTemplateRepository<TTaskType> _repository;
 
