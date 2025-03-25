@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { TEMPLATE_ACCOUNTS } from '@/constants';
+import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
+import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import ProjectObjective from '@/models/tasks/ProjectObjective';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import TaskType from '@/models/tasks/TaskType';
@@ -173,10 +175,10 @@ function ChecklistTemplateCreationForm(props: { updateTaskTypeData: (data: any) 
       toast.warning("Please add a checklist item");
       return;
     }
-    var data = {
-      Items: items,
-      Id: "",
-      TaskTemplateId: ""
+    var data: ChecklistTaskTemplate = {
+      id: '',
+      taskTemplateId: '',
+      items: items
     }
     props.updateTaskTypeData(data);
   }
@@ -275,12 +277,12 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
       toast.warning("Please select at least one file extension");
       return;
     }
-    const data = {
-      Id: "",
-      TaskTemplateId: "",
-      SupportedDocumentType: fileExtensions.join(";"),
-      DocumentName: documentName,
-      AccessAccountIds: accessAccountIds      
+    const data: FileUploadTaskTemplate = {
+      id: '',
+      taskTemplateId: '',
+      supportedDocumentType: fileExtensions.join(";"),
+      documentName: documentName,
+      accessAccountIds: accessAccountIds
     }
     props.updateTaskTypeData(data);
   }

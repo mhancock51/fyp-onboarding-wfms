@@ -3,4 +3,5 @@ export interface FileUploadTaskTemplate {
     taskTemplateId: string;
     supportedDocumentType: string;
     documentName: string;
+    accessAccountIds: string[];
 }
