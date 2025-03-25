@@ -30,7 +30,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
-            var projectTaskData = JsonSerializer.Deserialize<ProjectTaskTemplateTable>(taskTypeData.ToString());
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            ProjectTaskTemplateTable projectTaskData = jsonElement.Deserialize<ProjectTaskTemplateTable>();
+            
             if (projectTaskData == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
@@ -69,11 +72,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            if (taskTypeData.GetType() != typeof(ProjectTaskTemplateTable))
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
-            }
-            ProjectTaskTemplateTable projectTaskData = taskTypeData as ProjectTaskTemplateTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            ProjectTaskTemplateTable projectTaskData = jsonElement.Deserialize<ProjectTaskTemplateTable>();
 
             // validate values
             if (string.IsNullOrEmpty(projectTaskData.Brief))

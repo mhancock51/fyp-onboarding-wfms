@@ -18,6 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     public class UploadDocumentInstanceHandler : IUploadDocumentInstanceHandler
     {
         private readonly IFileUploadTaskInstanceRepository _fileUploadTaskInstanceRepository;
+        private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
 
         public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository fileUploadTaskInstanceRepository)
         {
@@ -61,30 +62,35 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData, object taskTemplateMetaData, string taskInstanceId)
+        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            var taskInstance = updatedTaskInstanceMetaData as FileUploadTaskInstanceTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
+            FileUploadTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<FileUploadTaskInstanceTable>();
+
             // validate updated meta data before inserting
-            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData, taskTemplateMetaData);
+            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
             if (!validationResponse.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
             // update task instance
-            var checklistInstance = await _fileUploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);           
+            var taskInstance = await _fileUploadTaskInstanceRepository.GetByTaskInstanceId(updatedTaskInstance.Id);           
 
-            await _fileUploadTaskInstanceRepository.UpdateAsync(checklistInstance);
+            await _fileUploadTaskInstanceRepository.UpdateAsync(taskInstance);
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData, object taskTemplateMetaData)
+        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            var taskInstance = taskInstanceMetaData as FileUploadTaskInstanceTable;
+            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
+            FileUploadTaskInstanceTable taskInstance = jsonElement.Deserialize<FileUploadTaskInstanceTable>();
+
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
-            var taskTemplate = taskTemplateMetaData as ChecklistTaskTemplateTable;
+            var taskTemplate = await _fileUploadTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);           
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };

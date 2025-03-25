@@ -31,8 +31,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            ChecklistTaskTemplateTable checklistTaskData = jsonElement.Deserialize<ChecklistTaskTemplateTable>();
 
-            ChecklistTaskTemplateTable checklistTaskData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(taskTypeData.ToString());
             // validate 
             var validationResult = await ValidateTaskTypeMetaData(checklistTaskData);
             if (!validationResult.Success)
@@ -67,12 +69,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            if (taskTypeData.GetType() != typeof(ChecklistTaskTemplateTable))
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
-            }
-
-            ChecklistTaskTemplateTable checklistTaskData = taskTypeData as ChecklistTaskTemplateTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            ChecklistTaskTemplateTable checklistTaskData = jsonElement.Deserialize<ChecklistTaskTemplateTable>();            
 
             if (checklistTaskData.Items.Length == 0)
             {

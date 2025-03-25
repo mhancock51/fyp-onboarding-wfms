@@ -72,17 +72,17 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            var taskInstance = updatedTaskInstanceMetaData as ChecklistTaskInstanceTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
+            ChecklistTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<ChecklistTaskInstanceTable>();
             // validate updated meta data before inserting
             var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
             if (!validationResponse.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
-            // update task instance
-            var checklistInstance = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-            checklistInstance.ItemCompletionStatuses = taskInstance.ItemCompletionStatuses;
-            await _checklistTaskInstanceRepository.UpdateAsync(checklistInstance);
+            // update task instance            
+            await _checklistTaskInstanceRepository.UpdateAsync(updatedTaskInstance);
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -95,7 +95,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
 
-            ChecklistTaskTemplateTable taskTemplate = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskInstance.Id);            
+            ChecklistTaskTemplateTable taskTemplate = await _checklistTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);            
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };

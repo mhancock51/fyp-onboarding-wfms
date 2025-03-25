@@ -11,6 +11,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
     public interface IFileUploadTaskTemplateRepository : IRepository<FileUploadTaskTemplateTable>
     {
         public Task<FileUploadTaskTemplateTable> GetByTaskTemplateId(string id);
+        public Task<ProjectTaskTemplateTable> GetByTaskInstanceId(string id);
     }
     public class FileUploadTaskTemplateRepository : BaseRepository<FileUploadTaskTemplateTable>, IFileUploadTaskTemplateRepository
     {
@@ -26,6 +27,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public override async Task<FileUploadTaskTemplateTable> GetById(string id)
         {
             return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
+        }
+
+        public async Task<ProjectTaskTemplateTable> GetByTaskInstanceId(string id)
+        {
+            // find checklist instance
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.projectTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
         }
     }
 

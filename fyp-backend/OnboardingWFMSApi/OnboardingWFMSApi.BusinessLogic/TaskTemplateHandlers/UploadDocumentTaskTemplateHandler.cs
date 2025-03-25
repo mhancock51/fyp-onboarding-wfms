@@ -38,8 +38,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            FileUploadTaskTemplateTable fileUploadTaskData = jsonElement.Deserialize<FileUploadTaskTemplateTable>();
 
-            FileUploadTaskTemplateTable fileUploadTaskData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(taskTypeData.ToString());
             // validate
             var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
             if (!validationResult.Success)
@@ -74,7 +76,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            FileUploadTaskTemplateTable fileUploadTaskData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(taskTypeData.ToString());
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            FileUploadTaskTemplateTable fileUploadTaskData = jsonElement.Deserialize<FileUploadTaskTemplateTable>();
+
             if (fileUploadTaskData == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task type data" };

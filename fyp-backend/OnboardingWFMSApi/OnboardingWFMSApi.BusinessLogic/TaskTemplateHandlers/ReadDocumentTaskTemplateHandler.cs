@@ -29,8 +29,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            ReadDocumentTaskTemplateTable readDocumentTaskData = jsonElement.Deserialize<ReadDocumentTaskTemplateTable>();
 
-            ReadDocumentTaskTemplateTable readDocumentTaskData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(taskTypeData.ToString());
             // validate 
             var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
             if (!validationResult.Success)
@@ -66,7 +68,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            ReadDocumentTaskTemplateTable readDocumentTaskData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(taskTypeData.ToString());
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskTypeData;
+            ReadDocumentTaskTemplateTable readDocumentTaskData = jsonElement.Deserialize<ReadDocumentTaskTemplateTable>();
+
             if (string.IsNullOrEmpty(readDocumentTaskData.DocumentName))
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Document name must be provided" };

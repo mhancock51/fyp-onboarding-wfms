@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
@@ -66,30 +67,35 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData, object taskTemplateMetaData, string taskInstanceId)
+        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            var updatedProjectInstance = updatedTaskInstanceMetaData as ProjectTaskInstanceTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
+            ProjectTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<ProjectTaskInstanceTable>();
+            
             // validate updated meta data before inserting
-            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData, taskTemplateMetaData);
+            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
             if (!validationResponse.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
             }
-            // update task instance
-            var projectInstance = await _projectTaskInstanceRepository.GetByTaskInstanceId(updatedProjectInstance.Id);
-            projectInstance.ObjectiveStates = updatedProjectInstance.ObjectiveStates;
-            await _projectTaskInstanceRepository.UpdateAsync(projectInstance);
+            // update task instance                        
+            await _projectTaskInstanceRepository.UpdateAsync(updatedTaskInstance);
+
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData, object taskTemplateMetaData)
+        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            var projectInstance = taskInstanceMetaData as ProjectTaskInstanceTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
+            ProjectTaskInstanceTable projectInstance = jsonElement.Deserialize<ProjectTaskInstanceTable>();
             if (projectInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
-            var projectTemplateData = taskTemplateMetaData as ProjectTaskTemplateTable;
+
+            var projectTemplateData = await _projectTaskTemplateRepository.GetByTaskInstanceId(projectInstance.TaskInstanceId);
             if (projectTemplateData == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };

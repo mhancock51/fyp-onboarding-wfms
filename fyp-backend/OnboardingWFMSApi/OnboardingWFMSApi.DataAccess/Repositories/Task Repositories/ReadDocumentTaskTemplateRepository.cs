@@ -11,6 +11,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
     public interface IReadDocumentTaskTemplateRepository : IRepository<ReadDocumentTaskTemplateTable>
     {
         public Task<ReadDocumentTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId);
+        public Task<ReadDocumentTaskTemplateTable> GetByTaskInstanceId(string id);
     }
     public class ReadDocumentTaskTemplateRepository : BaseRepository<ReadDocumentTaskTemplateTable>, IReadDocumentTaskTemplateRepository
     {
@@ -21,6 +22,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public override async Task<ReadDocumentTaskTemplateTable> GetById(string id)
         {
             return await _dbContext.readDocumentTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
+        }
+
+        public async Task<ReadDocumentTaskTemplateTable> GetByTaskInstanceId(string id)
+        {
+            // find checklist instance
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.readDocumentTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
         }
 
         public async Task<ReadDocumentTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId)

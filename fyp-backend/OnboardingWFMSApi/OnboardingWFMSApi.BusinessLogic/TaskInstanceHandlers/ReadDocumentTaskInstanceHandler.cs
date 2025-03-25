@@ -19,10 +19,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     public class ReadDocumentTaskInstanceHandler : IReadDocumentTaskInstanceHandler
     {
         private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
+        private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
 
-        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository)
+        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository)
         {
             _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
+            _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
         }
 
         public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
@@ -64,11 +66,13 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData, object taskTemplateMetaData, string taskInstanceId)
+        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
         {
-            var updatedTaskInstance = updatedTaskInstanceMetaData as ReadDocumentTaskInstanceTable;
+            // cast object
+            JsonElement jsonElement = (JsonElement)updatedTaskInstanceMetaData;
+            ReadDocumentTaskInstanceTable updatedTaskInstance = jsonElement.Deserialize<ReadDocumentTaskInstanceTable>();
             // validate update meta data
-            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData, taskTemplateMetaData);
+            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceMetaData);
             if (!validationResponse.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
@@ -82,19 +86,19 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData, object taskTemplateMetaData)
+        public async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
         {
-            var taskInstance = taskInstanceMetaData as ReadDocumentTaskInstanceTable;
+            JsonElement jsonElement = (JsonElement)taskInstanceMetaData;
+            ReadDocumentTaskInstanceTable taskInstance = jsonElement.Deserialize<ReadDocumentTaskInstanceTable>();
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
-            var taskTemplate = taskTemplateMetaData as ReadDocumentTaskTemplateTable;
+            var taskTemplate = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskInstance.TaskInstanceId);
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };
             }
-
             // TODO implement validation
 
             return new ServerResponse<string, string>() { Success = true };
