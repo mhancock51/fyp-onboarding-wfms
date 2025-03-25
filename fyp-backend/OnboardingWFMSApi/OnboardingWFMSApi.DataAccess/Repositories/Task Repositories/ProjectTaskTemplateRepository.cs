@@ -18,6 +18,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         {
         }
 
+        public async Task<ProjectTaskTemplateTable> GetByTaskInstanceId(string id)
+        {
+            // find checklist instance
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.projectTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
+        }
+
         public async Task<ProjectTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId)
         {
             return await _dbContext.projectTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskTemplateId);

@@ -26,6 +26,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         {
             return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
         }
+
+        public async Task<FileUploadTaskTemplateTable> GetByTaskInstanceId(string id)
+        {
+            // find checklist instance
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
+        }
     }
 
 }

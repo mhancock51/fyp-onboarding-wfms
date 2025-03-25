@@ -93,7 +93,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
-            var taskTemplate = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskInstance.TaskInstanceId);
+            var taskTemplate = await _readDocumentTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };

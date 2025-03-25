@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     public class ChecklistTaskTemplateHandler : BaseTaskTemplateHandler<ChecklistTaskTemplateTable>, IChecklistTaskTemplateHandler
     {
-        public ChecklistTaskTemplateHandler(ChecklistTaskTemplateRepository repository) : base(repository)
+        public ChecklistTaskTemplateHandler(IChecklistTaskTemplateRepository repository) : base(repository)
         {
 
         }
