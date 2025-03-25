@@ -19,10 +19,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             _repository = repository;
         }
 
-        public async Task<ServerResponse<object, string>> GetTaskTypeData(string taskInstanceId)
+        public async Task<ServerResponse<object, string>> GetTaskTypeData(string taskTemplateId)
         {
             // implement generic method to retrieve task type data, i.e. checklist data, project data, etc.
-            var taskInstanceMetaData = await _repository.GetByTaskInstanceId(taskInstanceId);
+            var taskInstanceMetaData = await _repository.GetByTaskTemplateId(taskTemplateId);
             return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }

@@ -10,6 +10,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
     public interface ITaskTemplateRepository<TEntity> : IRepository<TEntity> where TEntity : class, ITableEntity
     {
-        public Task<TEntity> GetByTaskInstanceId(string id);
+        public Task<TEntity> GetByTaskTemplateId(string id);
     }
 }
