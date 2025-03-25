@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories
 {
-    public interface IRepository<TEntity>
+    public interface IRepository<TEntity> where TEntity : class, ITableEntity
     {
         public Task<TEntity> AddAsync(TEntity entity);
         public Task DeleteAsync(TEntity entity);

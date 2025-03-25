@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IChecklistTaskTemplateRepository : IRepository<ChecklistTaskTemplateTable>
+    public interface IChecklistTaskTemplateRepository : ITaskTemplateRepository<ChecklistTaskTemplateTable>
     {
         public Task<ChecklistTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId);
         public Task<ChecklistTaskTemplateTable> GetByTaskInstanceId(string id);

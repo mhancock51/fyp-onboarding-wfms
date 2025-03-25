@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IReadDocumentTaskTemplateRepository : IRepository<ReadDocumentTaskTemplateTable>
+    public interface IReadDocumentTaskTemplateRepository : ITaskTemplateRepository<ReadDocumentTaskTemplateTable>
     {
         public Task<ReadDocumentTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId);
         public Task<ReadDocumentTaskTemplateTable> GetByTaskInstanceId(string id);

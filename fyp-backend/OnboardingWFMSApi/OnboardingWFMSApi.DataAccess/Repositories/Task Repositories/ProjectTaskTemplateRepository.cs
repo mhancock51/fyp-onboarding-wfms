@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IProjectTaskTemplateRepository : IRepository<ProjectTaskTemplateTable>
+    public interface IProjectTaskTemplateRepository : ITaskTemplateRepository<ProjectTaskTemplateTable>
     {
         public Task<ProjectTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId);
         public Task<ProjectTaskTemplateTable> GetByTaskInstanceId(string id);

@@ -11,7 +11,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
     {
         public string GetTaskTypeId();
         public Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId);
-        public Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId);
+        public Task<ServerResponse<object, string>> GetTaskTypeData(string taskTemplateId);
         /// <summary>
         /// Validate the data passed as metadata for the task template's speicific type, i.e. checklist data, document upload data, etc.
         /// </summary>

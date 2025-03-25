@@ -15,10 +15,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class UploadDocumentTaskTemplateHandler : BaseTaskHandler<FileUploadTaskTemplateTable>, IUploadDocumentTaskTemplateHandler
+    public class UploadDocumentTaskTemplateHandler : BaseTaskTemplateHandler<FileUploadTaskTemplateTable>, IUploadDocumentTaskTemplateHandler
     {
-        private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
-
         private readonly string[] ALLOWED_FILE_EXTENSIONS =
         {
             ".pdf",
@@ -27,9 +25,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             ".docx",
         };
 
-        public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository)
-        {
-            _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
+        public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository repository) : base(repository)
+        {            
         }
 
         public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
@@ -51,7 +48,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             fileUploadTaskData.TaskTemplateId = taskTemplateId;
             try
             {
-                await _fileUploadTaskTemplateRepository.AddAsync(fileUploadTaskData);                
+                await _repository.AddAsync(fileUploadTaskData);                
                 return new ServerResponse<string, string>() { Success = true };
             }
             catch (Exception ex)
@@ -63,14 +60,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         public string GetTaskTypeId()
         {
             return "upload-document";
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
-        {
-            var fileUploadTaskData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return fileUploadTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve file upload task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = fileUploadTaskData };
         }
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)

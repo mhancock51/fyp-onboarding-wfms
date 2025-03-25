@@ -15,13 +15,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class ProjectTaskTemplateHandler : BaseTaskHandler<ProjectTaskTemplateTable>, IProjectTaskTemplateHandler
+    public class ProjectTaskTemplateHandler : BaseTaskTemplateHandler<ProjectTaskTemplateTable>, IProjectTaskTemplateHandler
     {
-        private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
-
-        public ProjectTaskTemplateHandler(IProjectTaskTemplateRepository projectTaskTemplateRepository)
+        public ProjectTaskTemplateHandler(IProjectTaskTemplateRepository repository) : base(repository)
         {
-            _projectTaskTemplateRepository = projectTaskTemplateRepository;
+            
         }
 
         public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
@@ -47,7 +45,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             // insert record
             try
             {
-                await _projectTaskTemplateRepository.AddAsync(projectTaskData);
+                await _repository.AddAsync(projectTaskData);
                 return new ServerResponse<string, string>() { Success = true };
             }
             catch (Exception ex)
@@ -59,14 +57,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         public string GetTaskTypeId()
         {
             return "project-task";
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
-        {
-            var projectTaskData = await _projectTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return projectTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve project task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = projectTaskData };
         }
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)

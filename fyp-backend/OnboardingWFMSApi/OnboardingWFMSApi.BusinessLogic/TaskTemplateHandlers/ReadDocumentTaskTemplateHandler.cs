@@ -14,13 +14,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
     {
     }
 
-    public class ReadDocumentTaskTemplateHandler : BaseTaskHandler<ReadDocumentTaskTemplateTable>, IReadDocumentTaskTemplateHandler
+    public class ReadDocumentTaskTemplateHandler : BaseTaskTemplateHandler<ReadDocumentTaskTemplateTable>, IReadDocumentTaskTemplateHandler
     {
-        private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
-
-        public ReadDocumentTaskTemplateHandler(IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository)
+        public ReadDocumentTaskTemplateHandler(IReadDocumentTaskTemplateRepository repository) : base(repository)
         {
-            _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
+            
         }
 
         public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
@@ -43,7 +41,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
             try
             {
-                await _readDocumentTaskTemplateRepository.AddAsync(readDocumentTaskData);
+                await _repository.AddAsync(readDocumentTaskData);
                 return new ServerResponse<string, string>() { Success = true };
             }
             catch (Exception ex)
@@ -55,14 +53,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         public string GetTaskTypeId()
         {
             return "read-document";
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
-        {
-            var readDocumentTaskData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return readDocumentTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve checklist task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = readDocumentTaskData };
         }
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)

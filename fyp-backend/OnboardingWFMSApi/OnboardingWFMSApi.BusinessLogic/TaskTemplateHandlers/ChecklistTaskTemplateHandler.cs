@@ -16,13 +16,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class ChecklistTaskTemplateHandler : BaseTaskHandler<ChecklistTaskTemplateTable>, IChecklistTaskTemplateHandler
+    public class ChecklistTaskTemplateHandler : BaseTaskTemplateHandler<ChecklistTaskTemplateTable>, IChecklistTaskTemplateHandler
     {
-        private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
-
-        public ChecklistTaskTemplateHandler(IChecklistTaskTemplateRepository checklistTaskTemplateRepository)
+        public ChecklistTaskTemplateHandler(ChecklistTaskTemplateRepository repository) : base(repository)
         {
-            _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
+
         }
 
         public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
@@ -43,7 +41,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             checklistTaskData.TaskTemplateId = taskTemplateId;
             try
             {
-                await _checklistTaskTemplateRepository.AddAsync(checklistTaskData);
+                await _repository.AddAsync(checklistTaskData);
                 return new ServerResponse<string, string>() { Success = true };
             }
             catch (Exception ex) 
@@ -52,13 +50,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             }
         }
 
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
-        {
-            var checklistTaskData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return checklistTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve checklist task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = checklistTaskData };
-        }
         public string GetTaskTypeId()
         {
             return "checklist";
