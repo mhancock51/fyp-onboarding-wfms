@@ -42,6 +42,7 @@ builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 builder.Services.AddScoped<IChecklistTaskInstanceRepository, ChecklistTaskInstanceRepository>();
 builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTaskInstanceRepository>();
 builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
+builder.Services.AddScoped<IProjectTaskInstanceRepository, ProjectTaskInstanceRepository>();
 
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
@@ -66,6 +67,7 @@ builder.Services.AddScoped<ITaskTemplateHandlerFactory, TaskTemplateHandlerFacto
 builder.Services.AddScoped<IChecklistTaskInstanceHandler, ChecklistTaskInstanceHandler>();
 builder.Services.AddScoped<IReadDocumentTaskInstanceHandler, ReadDocumentTaskInstanceHandler>();
 builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanceHandler>();
+builder.Services.AddScoped<IProjectTaskInstanceHandler, ProjectTaskInstanceHandler>();
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 

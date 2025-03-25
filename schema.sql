@@ -97,6 +97,12 @@ CREATE TABLE projectasktemplate (
     Skills JSON
 );
 
+CREATE TABLE projecttaskinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    ObjectiveStates JSON
+);
+
 
 
 
@@ -346,4 +352,9 @@ ALTER TABLE documentaccesslink
 ALTER TABLE projectasktemplate
     ADD CONSTRAINT fk_project_task_task_template_id
     FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+    ON DELETE CASCADE;
+
+ALTER TABLE projecttaskinstance
+    ADD CONSTRAINT fk_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
     ON DELETE CASCADE;

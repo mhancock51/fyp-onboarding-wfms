@@ -31,7 +31,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         public async Task<ServerResponse<object, string>> GetTaskInstanceMetaData(string taskInstanceId)
         {
             var taskInstanceMetaData = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstanceId);
-            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task metadata" }
+            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 

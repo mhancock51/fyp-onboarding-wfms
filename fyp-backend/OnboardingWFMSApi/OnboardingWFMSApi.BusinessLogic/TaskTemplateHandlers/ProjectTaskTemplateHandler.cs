@@ -86,7 +86,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             }
             foreach(var objective in projectTaskData.Objectives)
             {
-                if (string.IsNullOrEmpty(objective)) return new ServerResponse<string, string>() { Success = false, Error = "Objective is empty" };
+                if (string.IsNullOrEmpty(objective.Objective)) return new ServerResponse<string, string>() { Success = false, Error = "Objective is empty" };
             }
 
             return new ServerResponse<string, string>() { Success = true };

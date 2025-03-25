@@ -22,9 +22,9 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string Brief { get; set; }
         [JsonPropertyName("objectives")]
         [JsonInclude]
-        public List<string> Objectives { get; set; }
+        public List<ProjectObjective> Objectives { get; set; }
         [JsonPropertyName("skills")]
         [JsonInclude]
         public List<string> Skills { get; set; }
-    }
+    }    
 }
