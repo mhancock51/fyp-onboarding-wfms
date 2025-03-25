@@ -15,6 +15,7 @@ import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import ProjectObjective from '@/models/tasks/ProjectObjective';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
 import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import { CheckedState } from '@radix-ui/react-checkbox';
@@ -231,12 +232,12 @@ function ReadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: an
     if (documentLink === "") return;
     if (checkboxLabel === "") return;
 
-    const data = {
-      Id: "",
-      TaskTemplateId: "",
-      DocumentName: documentName,
-      DocumentUrl: documentLink,
-      CheckBoxLabel: checkboxLabel
+    const data: ReadDocumentTaskTemplate = {
+      id: '',
+      taskTemplateId: '',
+      documentName: documentName,
+      documentUrl: documentLink,
+      checkBoxLabel: checkboxLabel
     }
     props.updateTaskTypeData(data);
   }
