@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class UploadDocumentTaskTemplateHandler : IUploadDocumentTaskTemplateHandler
+    public class UploadDocumentTaskTemplateHandler : BaseTaskHandler<FileUploadTaskTemplateTable>, IUploadDocumentTaskTemplateHandler
     {
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
 
@@ -39,8 +39,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
             // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            FileUploadTaskTemplateTable fileUploadTaskData = jsonElement.Deserialize<FileUploadTaskTemplateTable>();
+            FileUploadTaskTemplateTable fileUploadTaskData = CastObjectToType(taskTypeData);
 
             // validate
             var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
@@ -76,9 +75,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            FileUploadTaskTemplateTable fileUploadTaskData = jsonElement.Deserialize<FileUploadTaskTemplateTable>();
+            // cast object           
+            FileUploadTaskTemplateTable fileUploadTaskData = CastObjectToType(taskTypeData);
 
             if (fileUploadTaskData == null)
             {

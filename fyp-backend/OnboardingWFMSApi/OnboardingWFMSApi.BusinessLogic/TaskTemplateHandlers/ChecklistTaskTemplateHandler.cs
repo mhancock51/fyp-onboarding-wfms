@@ -16,7 +16,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class ChecklistTaskTemplateHandler : IChecklistTaskTemplateHandler
+    public class ChecklistTaskTemplateHandler : BaseTaskHandler<ChecklistTaskTemplateTable>, IChecklistTaskTemplateHandler
     {
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
@@ -32,9 +32,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
             // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            ChecklistTaskTemplateTable checklistTaskData = jsonElement.Deserialize<ChecklistTaskTemplateTable>();
-
+            ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
             // validate 
             var validationResult = await ValidateTaskTypeMetaData(checklistTaskData);
             if (!validationResult.Success)
@@ -43,7 +41,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             }
 
             checklistTaskData.TaskTemplateId = taskTemplateId;
-
             try
             {
                 await _checklistTaskTemplateRepository.AddAsync(checklistTaskData);
@@ -68,16 +65,25 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         }
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
-        {
-            // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            ChecklistTaskTemplateTable checklistTaskData = jsonElement.Deserialize<ChecklistTaskTemplateTable>();            
+        {            
+            ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
 
             if (checklistTaskData.Items.Length == 0)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Checklist must include at least one item" };
             }
             return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
+        }
+
+        public ChecklistTaskTemplateTable CastObjectToType(object taskTypeData)
+        {
+            var checklistTaskData = taskTypeData as ChecklistTaskTemplateTable;
+            if (checklistTaskData == null)
+            {
+                JsonElement jsonElement = (JsonElement)taskTypeData;
+                checklistTaskData = jsonElement.Deserialize<ChecklistTaskTemplateTable>();
+            }
+            return checklistTaskData;
         }
     }
 }

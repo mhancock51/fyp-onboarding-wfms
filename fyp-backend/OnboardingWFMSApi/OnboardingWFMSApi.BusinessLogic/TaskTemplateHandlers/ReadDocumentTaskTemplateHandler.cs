@@ -14,7 +14,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
     {
     }
 
-    public class ReadDocumentTaskTemplateHandler : IReadDocumentTaskTemplateHandler
+    public class ReadDocumentTaskTemplateHandler : BaseTaskHandler<ReadDocumentTaskTemplateTable>, IReadDocumentTaskTemplateHandler
     {
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
 
@@ -30,8 +30,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
             // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            ReadDocumentTaskTemplateTable readDocumentTaskData = jsonElement.Deserialize<ReadDocumentTaskTemplateTable>();
+            ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);
 
             // validate 
             var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
@@ -68,9 +67,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
-            // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            ReadDocumentTaskTemplateTable readDocumentTaskData = jsonElement.Deserialize<ReadDocumentTaskTemplateTable>();
+            // cast object            
+            ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);
 
             if (string.IsNullOrEmpty(readDocumentTaskData.DocumentName))
             {

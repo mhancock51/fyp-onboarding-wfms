@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class ProjectTaskTemplateHandler : IProjectTaskTemplateHandler
+    public class ProjectTaskTemplateHandler : BaseTaskHandler<ProjectTaskTemplateTable>, IProjectTaskTemplateHandler
     {
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
 
@@ -30,9 +30,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
             }
-            // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            ProjectTaskTemplateTable projectTaskData = jsonElement.Deserialize<ProjectTaskTemplateTable>();
+            // cast object            
+            ProjectTaskTemplateTable projectTaskData = CastObjectToType(taskTypeData);
             
             if (projectTaskData == null)
             {
@@ -73,8 +72,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
         {
             // cast object
-            JsonElement jsonElement = (JsonElement)taskTypeData;
-            ProjectTaskTemplateTable projectTaskData = jsonElement.Deserialize<ProjectTaskTemplateTable>();
+            ProjectTaskTemplateTable projectTaskData = CastObjectToType(taskTypeData);
 
             // validate values
             if (string.IsNullOrEmpty(projectTaskData.Brief))
