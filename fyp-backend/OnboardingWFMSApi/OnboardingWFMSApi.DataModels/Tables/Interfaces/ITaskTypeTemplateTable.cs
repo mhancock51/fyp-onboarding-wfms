@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.DataModels.Tables.Tasks
+namespace OnboardingWFMSApi.DataModels.Tables.Interfaces
 {
     public interface ITaskTypeTemplateTable : ITableEntity
     {

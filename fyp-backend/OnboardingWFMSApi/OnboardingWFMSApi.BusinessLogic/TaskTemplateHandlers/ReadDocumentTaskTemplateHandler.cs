@@ -21,35 +21,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             
         }
 
-        public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
-        {
-            if (taskTypeData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
-            }
-            // cast object
-            ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);
-
-            // validate 
-            var validationResult = await ValidateTaskTypeData(taskTypeData);
-            if (!validationResult.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
-            }
-
-            readDocumentTaskData.TaskTemplateId = taskTemplateId;
-
-            try
-            {
-                await _repository.AddAsync(readDocumentTaskData);
-                return new ServerResponse<string, string>() { Success = true };
-            }
-            catch (Exception ex)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert checklist data" };
-            }
-        }
-
         public string GetTaskTypeId()
         {
             return "read-document";

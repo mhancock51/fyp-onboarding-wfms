@@ -1,6 +1,6 @@
 ﻿using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
-using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;

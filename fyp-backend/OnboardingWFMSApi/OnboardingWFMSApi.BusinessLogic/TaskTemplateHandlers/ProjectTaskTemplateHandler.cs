@@ -22,38 +22,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             
         }
 
-        public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
-        {
-            if (taskTypeData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
-            }
-            // cast object            
-            ProjectTaskTemplateTable projectTaskData = CastObjectToType(taskTypeData);
-            
-            if (projectTaskData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
-            }
-            var validationResult = await ValidateTaskTypeData(projectTaskData);
-            if (!validationResult.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
-            }
-            projectTaskData.Id = "";
-            projectTaskData.TaskTemplateId = taskTemplateId;
-            // insert record
-            try
-            {
-                await _repository.AddAsync(projectTaskData);
-                return new ServerResponse<string, string>() { Success = true };
-            }
-            catch (Exception ex)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert project task data" };
-            }
-        }
-
         public string GetTaskTypeId()
         {
             return "project-task";
