@@ -34,7 +34,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "upload-document";
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
         {
             // cast object           
             FileUploadTaskTemplateTable fileUploadTaskData = CastObjectToType(taskTypeData);

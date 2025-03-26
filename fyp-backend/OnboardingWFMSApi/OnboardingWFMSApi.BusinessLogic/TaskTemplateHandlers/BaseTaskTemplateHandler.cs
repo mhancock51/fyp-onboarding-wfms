@@ -27,7 +27,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
-        public virtual async Task<ServerResponse<string, string>> CreateTaskTypeData(object taskTypeData, string taskTemplateId)
+        public virtual async Task<ServerResponse<string, string>> CreateTaskTemplateData(object taskTypeData, string taskTemplateId)
         {
             if (taskTypeData == null)
             {
@@ -36,7 +36,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             // cast object
             TTaskType taskData = CastObjectToType(taskTypeData);
             // validate
-            var validationResult = await ValidateTaskTypeData(taskTypeData);
+            var validationResult = await ValidateTaskTemplateData(taskTypeData);
             if (!validationResult.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
@@ -54,6 +54,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             }
         }
 
-        public abstract Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData);
+        public abstract Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData);
     }
 }

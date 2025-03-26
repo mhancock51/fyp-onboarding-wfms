@@ -26,7 +26,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "read-document";
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
         {
             // cast object            
             ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);

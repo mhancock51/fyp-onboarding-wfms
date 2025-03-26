@@ -63,7 +63,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // handle the insertion of task type meta data, i.e. checklist data, file upload data, etc
-            var response = await handler.CreateTaskTypeData(payload.TaskTypeData, taskTemplate.Id);
+            var response = await handler.CreateTaskTemplateData(payload.TaskTypeData, taskTemplate.Id);
             if (response.Success == false)
             {
                 // delete task template

@@ -28,7 +28,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "checklist";
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
         {            
             ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
 

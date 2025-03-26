@@ -27,7 +27,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "project-task";
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
         {
             // cast object
             ProjectTaskTemplateTable projectTaskData = CastObjectToType(taskTypeData);
