@@ -31,7 +31,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return "project-task";
         }
 
-        public override async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
+        public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
             var objectives = (taskTemplateMetaData as ProjectTaskTemplateTable).Objectives;
             await _repository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });            
@@ -59,7 +59,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceMetaData)
         {
             // cast object            
             ProjectTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);

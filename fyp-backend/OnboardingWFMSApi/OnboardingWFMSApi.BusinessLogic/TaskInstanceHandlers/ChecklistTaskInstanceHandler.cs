@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return "checklist";
         }
 
-        public override async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
+        public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
             var checklistItems = (taskTemplateMetaData as ChecklistTaskTemplateTable).Items;
             await _repository.AddAsync(new ChecklistTaskInstanceTable() { ItemCompletionStatuses = new bool[checklistItems.Length], TaskInstanceId = taskInstanceId });
@@ -61,7 +61,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceMetaData)
         {
             // cast object
             ChecklistTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);

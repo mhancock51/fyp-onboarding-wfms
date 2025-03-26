@@ -30,7 +30,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return "read-document";
         }
 
-        public override async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
+        public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
             await _repository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstanceId });
             return new ServerResponse<string, string>() { Success = true };
@@ -57,7 +57,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceMetaData)
         {
             // cast object
             ReadDocumentTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);

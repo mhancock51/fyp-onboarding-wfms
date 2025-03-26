@@ -131,7 +131,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     throw new Exception("Tasks template has an invalid task type");
                 }
                 // insert task instance meta data using handler
-                var result = await handler.InsertTaskInstanceMetaData(taskTemplate.TaskTypeData, taskInstance.Id);
+                var result = await handler.CreateTaskInstanceData(taskTemplate.TaskTypeData, taskInstance.Id);
                 if (!result.Success)
                 {
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = result.Error };
@@ -289,7 +289,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // find appropriate handler
             var handler = _taskInstanceHandlerFactory.GetHandler(payload.TaskTypeId);
             // call method to update instance's tasktype data, i.e. checklist items state
-            var response = await handler.UpdateTaskInstance(payload.UpdateTaskState);
+            var response = await handler.UpdateTaskInstanceData(payload.UpdateTaskState);
 
             return new HTTPResponse<string, string>() { Success = response.Success, HttpCode = response.Success ? 200 : 500, Error = response.Error, Data = response.Data };
         }
