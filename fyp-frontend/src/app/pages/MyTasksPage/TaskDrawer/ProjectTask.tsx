@@ -1,12 +1,15 @@
+import Api from '@/api';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import { CheckedState } from '@radix-ui/react-checkbox';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { TabsList } from '@radix-ui/react-tabs';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner';
 
 interface Props {
   taskInstanceId: string;
@@ -17,6 +20,65 @@ interface Props {
   taskStatus: string;
 }
 export default function ProjectTask(props: Props) {
+  const DEFAULT_STATE: ProjectTaskInstance = {
+    id: '',
+    taskInstanceId: '',
+    objectiveStates: []
+  }
+  const [projectState, setProjectState] = useState<ProjectTaskInstance>(DEFAULT_STATE);
+
+  function areAllRequiredObjectivesComplete(projectState: ProjectTaskInstance) {
+    // ensure all required objectives are complete
+    var missedObjective = false;
+    projectState.objectiveStates.forEach((objective, index) => {
+      if (!objective && props.projectTemplate.objectives[index].required) {
+        missedObjective = true;
+      }      
+    });
+    return !missedObjective;
+  }
+
+  async function updateTaskInstanceState(projectInstance: ProjectTaskInstance) {
+    await Api.updateTaskState(projectInstance, "project-task", props.taskInstanceId)
+    .then((response) => {
+      toast.success("Successfully updated checklist task's state");
+      if (areAllRequiredObjectivesComplete(projectInstance)) {
+        props.setCanCompleteTask(true);
+      }
+      else {
+        props.setCanCompleteTask(false);
+      }
+      void props.fetchTaskInstances();
+    })
+    .catch((error) => {
+      toast("Failed to update checklist task's state");
+    })
+  }
+
+  function updateObjectiveState(complete: boolean, index: number) {
+    if (props.taskStatus !== "open") return;
+    // update checklist item's state through hook
+    setProjectState((prevState) => ({ 
+      ...prevState, 
+      // find item by index and set its value
+      objectiveStates: prevState.objectiveStates.map((status, i) => (i === index ? complete : status))
+    }));
+  }
+
+  useEffect(() => {
+    setProjectState(props.projectInstance);
+  }, [props.projectInstance]);
+
+  useEffect(() => {
+    // exit if project state isn't actually set
+    if (projectState.id === "") return;
+    if (projectState.objectiveStates.length === 0) return;
+    // update "can complete" flag if all required objectives complete
+    props.setCanCompleteTask(areAllRequiredObjectivesComplete(projectState));
+    // update state server side
+    void updateTaskInstanceState(projectState);
+  }, [projectState.objectiveStates]);
+
   return (
     <Tabs defaultValue="brief" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -42,8 +104,8 @@ export default function ProjectTask(props: Props) {
             {
               props.projectTemplate.objectives.map((objective, index) => (
                 <div key={index} className='flex flex-row gap-4 items-center'>
-                  <Checkbox className='data-[state=checked]:bg-green-500' checked={props.projectInstance.objectiveStates[index]}/>
-                  <Label>{objective.objective}</Label>
+                  <Checkbox className='data-[state=checked]:bg-green-500' checked={projectState.objectiveStates[index]} onCheckedChange={(checked: CheckedState) => {updateObjectiveState(checked as boolean, index)}}/>
+                  <Label>{objective.objective} {objective.required ? "" : "(optional)"}</Label>
                 </div>
               ))  
             }
