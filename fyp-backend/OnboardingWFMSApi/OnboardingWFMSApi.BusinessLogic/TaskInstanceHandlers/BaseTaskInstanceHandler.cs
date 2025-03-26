@@ -18,18 +18,18 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             _repository = repository;
         }
 
-        public async Task<ServerResponse<object, string>> GetTaskTypeInstanceData(string taskInstanceId)
+        public async Task<ServerResponse<object, string>> FetchTaskInstanceData(string taskInstanceId)
         {
             var taskInstanceMetaData = await _repository.GetByTaskInstanceId(taskInstanceId);
             return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task type instance data" }
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData)
+        public async Task<ServerResponse<string, string>> UpdateTaskInstance(object updatedTaskInstanceMetaData)
         {
             var updatedTaskInstanceData = CastObjectToType(updatedTaskInstanceMetaData);
 
-            var validationResponse = await ValidateTaskInstanceMetaData(updatedTaskInstanceData);
+            var validationResponse = await ValidateTaskInstance(updatedTaskInstanceData);
             if (!validationResponse.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Data = validationResponse.Data };
@@ -46,6 +46,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             }
         }
 
-        public abstract Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData);
+        public abstract Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData);
     }
 }

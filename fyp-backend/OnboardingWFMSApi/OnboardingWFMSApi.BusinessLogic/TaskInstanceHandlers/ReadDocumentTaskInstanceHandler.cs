@@ -57,7 +57,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData)
         {
             // cast object
             ReadDocumentTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);

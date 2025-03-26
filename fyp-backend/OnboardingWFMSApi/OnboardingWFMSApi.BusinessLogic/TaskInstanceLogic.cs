@@ -189,7 +189,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Task instance is associated with an invalid task type id");
             }
-            var dataResponse = await handler.GetTaskTypeInstanceData(taskInstance.Id);
+            var dataResponse = await handler.FetchTaskInstanceData(taskInstance.Id);
             if (!dataResponse.Success) return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
             taskInstance.InstanceData = dataResponse.Data;
 
@@ -289,7 +289,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // find appropriate handler
             var handler = _taskInstanceHandlerFactory.GetHandler(payload.TaskTypeId);
             // call method to update instance's tasktype data, i.e. checklist items state
-            var response = await handler.UpdateTaskInstanceMetaData(payload.UpdateTaskState);
+            var response = await handler.UpdateTaskInstance(payload.UpdateTaskState);
 
             return new HTTPResponse<string, string>() { Success = response.Success, HttpCode = response.Success ? 200 : 500, Error = response.Error, Data = response.Data };
         }

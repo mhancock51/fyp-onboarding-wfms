@@ -11,9 +11,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {
         public string GetTaskTypeId();
         public Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId);
-        public Task<ServerResponse<string, string>> UpdateTaskInstanceMetaData(object updatedTaskInstanceMetaData);
-        public Task<ServerResponse<string, string>> ValidateTaskInstanceMetaData(object taskInstanceMetaData);
+        public Task<ServerResponse<string, string>> UpdateTaskInstance(object updatedTaskInstanceMetaData);
+        public Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData);
         public Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData);        
-        public Task<ServerResponse<object, string>> GetTaskTypeInstanceData(string taskInstanceId);
+        public Task<ServerResponse<object, string>> FetchTaskInstanceData(string taskInstanceId);
     }
 }
