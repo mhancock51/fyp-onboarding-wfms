@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Models
 {
     [ComplexType]
-    public class ProjectSupportLink
+    public class ProjectSupportLink : ITableEntity
     {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
         [JsonPropertyName("description")]
         public string Description { get; set; }
         [JsonPropertyName("linkLabel")]

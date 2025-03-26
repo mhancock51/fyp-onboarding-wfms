@@ -1,6 +1,7 @@
 import Api from '@/api';
 import { MultiSelect } from '@/components/multi-select';
 import TaskTypeLookup from '@/components/TaskTypeLookup';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,13 +15,14 @@ import { TEMPLATE_ACCOUNTS } from '@/constants';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import ProjectObjective from '@/models/tasks/ProjectObjective';
+import ProjectSupportLink from '@/models/tasks/ProjectSupportLink';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
 import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { Trash2 } from 'lucide-react';
+import { ExternalLink, Trash2 } from 'lucide-react';
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
@@ -331,9 +333,12 @@ function UploadDocumentTemplateCreationForm(props: { updateTaskTypeData: (data: 
 }
 
 function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+  const [substep, setSubstep] = useState<number>(0);
+
   const [brief, setBrief] = useState<string>("");
   const [objectives, setObjectives] = useState<ProjectObjective[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
+  const [supportLinks, setSupportLinks] = useState<ProjectSupportLink[]>([]);
   
   function submitProject() {
     var data: ProjectTaskTemplate = {
@@ -341,13 +346,10 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
       taskTemplateId: '',
       brief: brief,
       objectives: objectives,
-      skills: skills
+      skills: skills,
+      supportLinks: supportLinks
     }
     props.updateTaskTypeData(data);
-  }
-
-  function deleteObjective(index: number) {
-    setObjectives((prevState) => (prevState.filter((_, i) => (i !== index))))
   }
 
   function addEmptyObjective() {
@@ -368,57 +370,125 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
     setObjectives(updatedItems);
   }
 
-  return (
-    <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitProject();}}>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="name" >Project Brief</Label>
-        <Textarea required className='col-span-3' value={brief} onChange={(event: any) => {setBrief(event.target.value);}}/>
-      </div>
-      <div className='flex flex-col gap-2 w-full'>
-        <Label>Skills ({skills.length})</Label>
-        <Label className='font-normal'>Awarded to user on completion of the project</Label>
-        <MultiSelect options={[
-          { label: "Frontend", value: "frontend"},
-          { label: "Backend", value: "backend"},
-          { label: "React.js", value: "reactjs"},
+  function deleteObjective(index: number) {
+    setObjectives((prevState) => (prevState.filter((_, i) => (i !== index))))
+  }
 
-        ]} onValueChange={(value: string[]) => {setSkills(value);}}/>
-      </div>
-      <div className='flex flex-col gap-2 w-full'>
-        <Label>Resources</Label>
-      </div>
-      <div className='flex flex-col gap-2 w-full'>
-        <Label htmlFor="name" >Objectives ({objectives.length})</Label>
-        <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input bg-sidebar rounded-[15px]'>
-          {
-            objectives.length === 0 &&
-            <div className='w-full text-center'>No Objectives</div>
-          }
-          {
-            objectives.map((objective, index) => (
-              <div key={index} className='flex flex-row justify-between items-center w-full gap-2'>
-                <Input required placeholder='Enter objective...' className="flex-11 bg-background" value={objective.objective} onChange={(event: any) => {updateObjectiveText(event.target.value, index);}}/>
-                <HoverCard>
-                  <HoverCardTrigger>
-                    <Checkbox checked={objective.required} onCheckedChange={(checked: CheckedState) => {updateObjectiveRequirement(checked as boolean, index)}}/>
-                  </HoverCardTrigger>
-                  <HoverCardContent className='p-2 my-1 w-[175px] flex flex-row justify-center text-center'>
-                    <Label className='text-sm'>Required to complete project?</Label>                    
-                  </HoverCardContent>
-                </HoverCard>
-                <Button className='my-1 mx-2 flex-1' onClick={() => {deleteObjective(index);}} variant={"destructive"}><Trash2/></Button>
-              </div>
-            ))
-          }
+  function addEmptySupprtLink() {
+    setSupportLinks((prevState) => (
+      [...prevState, { id: prevState.length.toString(), description: "", linkLabel: "", link: ""}]
+    ));
+  }
+
+  function updateLinkLabel(label: string, index: number) {
+    var updatedItems = [...supportLinks];
+    updatedItems[index].linkLabel = label;
+    setSupportLinks(updatedItems);
+  }
+
+  function updateLinkDescription(description: string, index: number) {
+    var updatedItems = [...supportLinks];
+    updatedItems[index].description = description;
+    setSupportLinks(updatedItems);
+  }
+
+  function updateLink(link: string, index: number) {
+    var updatedItems = [...supportLinks];
+    updatedItems[index].link = link;
+    setSupportLinks(updatedItems);
+  }
+
+  return (
+    <>
+    {
+      substep === 0 &&
+      <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); setSubstep(1);}}>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="name" >Project Brief</Label>
+          <Textarea required className='col-span-3' value={brief} onChange={(event: any) => {setBrief(event.target.value);}}/>
         </div>
-        <div className="grid grid-row items-center gap-4">
-          <Button onClick={addEmptyObjective}>Add Objective</Button>
+        <div className='flex flex-col gap-2 w-full'>
+          <Label>Skills ({skills.length})</Label>
+          <Label className='font-normal'>Awarded to user on completion of the project</Label>
+          <MultiSelect options={[
+            { label: "Frontend", value: "frontend"},
+            { label: "Backend", value: "backend"},
+            { label: "React.js", value: "reactjs"},
+
+          ]} onValueChange={(value: string[]) => {setSkills(value);}}/>
         </div>
-      </div>
-      <DialogFooter>
-        <Button type='button' onClick={props.backButtonClick}>Back</Button>
-        <Button type="submit">Next</Button>
-      </DialogFooter>
-    </form>
+        <div className='flex flex-col gap-2 w-full'>
+          <Label>Resources</Label>
+        </div>
+        <div className='flex flex-col gap-2 w-full'>
+          <Label htmlFor="name" >Objectives ({objectives.length})</Label>
+          <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input bg-sidebar rounded-[15px]'>
+            {
+              objectives.length === 0 &&
+              <div className='w-full text-center'>No Objectives</div>
+            }
+            {
+              objectives.map((objective, index) => (
+                <div key={index} className='flex flex-row justify-between items-center w-full gap-2'>
+                  <Input required placeholder='Enter objective...' className="flex-11 bg-background" value={objective.objective} onChange={(event: any) => {updateObjectiveText(event.target.value, index);}}/>
+                  <HoverCard>
+                    <HoverCardTrigger>
+                      <Checkbox checked={objective.required} onCheckedChange={(checked: CheckedState) => {updateObjectiveRequirement(checked as boolean, index)}}/>
+                    </HoverCardTrigger>
+                    <HoverCardContent className='p-2 my-1 w-[175px] flex flex-row justify-center text-center'>
+                      <Label className='text-sm'>Required to complete project?</Label>                    
+                    </HoverCardContent>
+                  </HoverCard>
+                  <Button className='my-1 mx-2 flex-1' onClick={() => {deleteObjective(index);}} variant={"destructive"}><Trash2/></Button>
+                </div>
+              ))
+            }
+          </div>
+          <div className="grid grid-row items-center gap-4">
+            <Button onClick={addEmptyObjective}>Add Objective</Button>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type='button' onClick={(props.backButtonClick)}>Back</Button>
+          <Button type="submit">Next</Button>
+        </DialogFooter>
+      </form>
+    }
+    {
+      substep === 1 &&
+      <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitProject();}}>
+        <div className='flex flex-col gap-2 w-full max-h-[50vh] overflow-y-auto'>
+          <Label htmlFor="name" >Supporting Links ({supportLinks.length})</Label>
+          <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input'>
+            {
+              supportLinks.length === 0 &&
+              <div className='w-full text-center'>No Links</div>
+            }
+            {
+              supportLinks.map((link, index) => (
+                <div key={index} className='flex flex-col justify-between items-center w-full gap-2 bg-sidebar rounded-[15px] p-1'>              
+                  <Badge className={`p-2 rounded-full cursor-pointer min-w-[250px] ${link.linkLabel === "" ? "invisible" : "visible"}`}
+                    onClick={() => {window.open(link.link, '_blank');}}
+                  >
+                    {link.linkLabel} <ExternalLink size={50}/>
+                  </Badge>                  
+                  <Input required placeholder='Enter link label' className="bg-background" value={link.linkLabel} onChange={(event: any) => {updateLinkLabel(event.target.value, index)}}/>
+                  <Textarea required placeholder='Enter description...' className="bg-background" value={link.description} onChange={(event: any) => {updateLinkDescription(event.target.value, index);}}/>
+                  <Input required placeholder='Enter link...' className="bg-background" value={link.link} onChange={(event: any) => {updateLink(event.target.value, index);}}/>
+                </div>
+              ))
+            }
+          </div>
+          <div className="grid grid-row items-center gap-4">
+            <Button onClick={addEmptySupprtLink}>Add Support Link</Button>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type='button' onClick={() => {setSubstep(0);}}>Back</Button>
+          <Button type="submit">Next</Button>
+        </DialogFooter>
+      </form>
+    }
+    </>
   )
 }

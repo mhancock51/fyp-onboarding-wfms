@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Models
 {
     [ComplexType]
-    public class ProjectObjective
+    public class ProjectObjective : ITableEntity
     {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
         [JsonPropertyName("objective")]
         public string Objective { get; set; }
         [JsonPropertyName("required")]

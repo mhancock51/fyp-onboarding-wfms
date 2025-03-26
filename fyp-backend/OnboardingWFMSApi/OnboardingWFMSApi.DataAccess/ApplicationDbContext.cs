@@ -51,13 +51,20 @@ namespace OnboardingWFMSApi.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // make sure ProjectObjective is treated like a json property, not another table
+            // make sure ProjectObjective is treated like a json property, not another table - like so for ProjectSupportLink
             modelBuilder.Entity<ProjectTaskTemplateTable>()
                 .Property(e => e.Objectives)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
                     v => JsonSerializer.Deserialize<List<ProjectObjective>>(v, new JsonSerializerOptions()) ?? new List<ProjectObjective>()
                 );
+            modelBuilder.Entity<ProjectTaskTemplateTable>()
+                .Property(e => e.SupportLinks)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                    v => JsonSerializer.Deserialize<List<ProjectSupportLink>>(v, new JsonSerializerOptions()) ?? new List<ProjectSupportLink>()
+                );
+
         }
     }
 }

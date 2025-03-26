@@ -122,78 +122,19 @@ export default function ProjectTask(props: Props) {
         <div className='flex flex-col gap-2 p-2'>
           <Label className='font-bold'>Supporting Links</Label>
           <div className='flex flex-col gap-2 w-full max-h-[33vh] overflow-y-scroll'>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>React Dev Learn webpage - a good start for anyone that hasn't worked with react before</Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://react.dev/learn", '_blank');}}>
-                  React Dev Learn <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>This course covers React fundamentals, including JSX, components, state, props, and hooks, through hands-on projects.</Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://www.codecademy.com/learn/react-101", '_blank');}}>
-                  Codecademy React 101 <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>A comprehensive YouTube tutorial that guides you through building React applications from scratch. </Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://www.youtube.com/watch?v=BQHRu-lB3SE&ab_channel=WowLearns", '_blank');}}>
-                  Advanced React FULL COURSE <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>React Dev Learn webpage - a good start for anyone that hasn't worked with react before</Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://react.dev/learn", '_blank');}}>
-                  React Dev Learn <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>This course covers React fundamentals, including JSX, components, state, props, and hooks, through hands-on projects.</Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://www.codecademy.com/learn/react-101", '_blank');}}>
-                  Codecademy React 101 <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>A comprehensive YouTube tutorial that guides you through building React applications from scratch. </Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://www.youtube.com/watch?v=BQHRu-lB3SE&ab_channel=WowLearns", '_blank');}}>
-                  Advanced React FULL COURSE <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>React Dev Learn webpage - a good start for anyone that hasn't worked with react before</Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://react.dev/learn", '_blank');}}>
-                  React Dev Learn <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>This course covers React fundamentals, including JSX, components, state, props, and hooks, through hands-on projects.</Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://www.codecademy.com/learn/react-101", '_blank');}}>
-                  Codecademy React 101 <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
-            <Card className='flex flex-col gap-2 w-full my-1 p-2'>
-              <Label className='font-normal'>A comprehensive YouTube tutorial that guides you through building React applications from scratch. </Label>
-              <div className='flex flex-row justify-center w-full'>
-                <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open("https://www.youtube.com/watch?v=BQHRu-lB3SE&ab_channel=WowLearns", '_blank');}}>
-                  Advanced React FULL COURSE <ExternalLink size={50}/>
-                </Badge>                        
-              </div>
-            </Card>
+            {
+              props.projectTemplate.supportLinks.map((link, index) => (
+                <Card key={index} className='flex flex-col gap-2 w-full my-1 p-2'>
+                  <Label className='font-normal'>{link.description}</Label>
+                  <div className='flex flex-row justify-center w-full'>
+                    <Badge className='p-2 rounded-full cursor-pointer min-w-[250px]' onClick={() => {window.open(link.link, '_blank');}}>
+                      {link.linkLabel} <ExternalLink size={50}/>
+                    </Badge>                        
+                  </div>
+                </Card>
+
+              ))
+            }
           </div>
         </div>
 
