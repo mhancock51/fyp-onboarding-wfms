@@ -94,6 +94,7 @@ CREATE TABLE projectasktemplate (
     TaskTemplateId VARCHAR(255),
     Brief TEXT,
     Objectives JSON,
+    SupportLinks JSON,
     Skills JSON
 );
 

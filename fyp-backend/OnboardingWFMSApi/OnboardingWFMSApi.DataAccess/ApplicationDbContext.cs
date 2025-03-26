@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
+using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;

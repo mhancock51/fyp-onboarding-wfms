@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
@@ -27,5 +28,8 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [JsonPropertyName("skills")]
         [JsonInclude]
         public List<string> Skills { get; set; }
+        [JsonPropertyName("supportLinks")]
+        [JsonInclude]
+        public List<ProjectSupportLink> SupportLinks { get; set; }
     }    
 }
