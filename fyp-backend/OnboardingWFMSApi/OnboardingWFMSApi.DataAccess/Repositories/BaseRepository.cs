@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

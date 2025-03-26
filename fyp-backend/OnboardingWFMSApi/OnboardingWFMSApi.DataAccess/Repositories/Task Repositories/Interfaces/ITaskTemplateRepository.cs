@@ -1,4 +1,4 @@
-﻿using OnboardingWFMSApi.DataModels;
+﻿using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;
