@@ -110,7 +110,7 @@ export default function ProjectTask(props: Props) {
             {
               props.projectTemplate.objectives.filter(o => o.required).map((objective, index) => (
                 <div key={index} className='flex flex-row gap-4 items-center'>
-                  <Checkbox className='data-[state=checked]:bg-green-500' 
+                  <Checkbox disabled={props.taskStatus !== "open"} className='data-[state=checked]:bg-green-500' 
                     checked={projectState.objectiveStates[props.projectTemplate.objectives.findIndex(i => i === objective)]} 
                     onCheckedChange={(checked: CheckedState) => {updateObjectiveState(checked as boolean, objective)}}
                   />
@@ -121,7 +121,6 @@ export default function ProjectTask(props: Props) {
                       <Asterisk size={20} className='text-red-500'/>
                     }
                   </div>
-
                 </div>
               ))  
             }
@@ -132,7 +131,7 @@ export default function ProjectTask(props: Props) {
             {
               props.projectTemplate.objectives.filter(o => !o.required).map((objective, index) => (
                 <div key={index} className='flex flex-row gap-4 items-center'>
-                  <Checkbox className='data-[state=checked]:bg-green-500' 
+                  <Checkbox disabled={props.taskStatus !== "open"} className='data-[state=checked]:bg-green-500' 
                     checked={projectState.objectiveStates[props.projectTemplate.objectives.findIndex(i => i === objective)]} 
                     onCheckedChange={(checked: CheckedState) => {updateObjectiveState(checked as boolean, objective)}}
                   />
@@ -153,7 +152,10 @@ export default function ProjectTask(props: Props) {
       </TabsContent>
       <TabsContent value="support">
         <div className='flex flex-col gap-2 p-2'>
-          <Label className='font-bold'>Supporting Links</Label>
+          {
+            props.projectTemplate.supportLinks.length !== 0 &&
+            <Label className='font-normal'>The following links may help you with this project</Label>
+          }
           <div className='flex flex-col gap-2 w-full max-h-[33vh] overflow-y-auto'>
             {
               props.projectTemplate.supportLinks.length === 0 &&
