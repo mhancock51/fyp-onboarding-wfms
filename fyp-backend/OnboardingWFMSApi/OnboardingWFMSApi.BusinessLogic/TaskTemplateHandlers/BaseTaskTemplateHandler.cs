@@ -27,7 +27,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
-        public virtual async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
+        public virtual async Task<ServerResponse<string, string>> CreateTaskTypeData(object taskTypeData, string taskTemplateId)
         {
             if (taskTypeData == null)
             {
