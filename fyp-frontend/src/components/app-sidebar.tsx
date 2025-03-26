@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Blocks, Building, ClipboardList, Home, ListTodo, Route, Settings, UserPlus, Users } from "lucide-react"
+import { Blocks, Building, ChartNoAxesColumn, ClipboardList, Home, ListTodo, Route, Settings, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
@@ -78,6 +78,11 @@ export function AppSidebar(props: Props) {
       title: "Start A Workflow Instance",
       onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
       icon: Route
+    },
+    {
+      title: "Workflows Dashboard",
+      onClickAction: () => { navigate("/workflows/dashboard")},
+      icon: ChartNoAxesColumn
     }
   ]
 

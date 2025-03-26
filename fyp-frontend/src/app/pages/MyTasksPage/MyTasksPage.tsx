@@ -10,8 +10,6 @@ import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
 import NoResults from '@/components/NoResults'
 import { useDispatch } from 'react-redux'
-import { SET_TASK_TYPES } from '@/features/appSlice'
-import TaskType from '@/models/tasks/taskType'
 import TaskStatusBadge from './TaskStatusBadge'
 
 export default function MyTasksPage() {
@@ -78,8 +76,8 @@ export default function MyTasksPage() {
   }, []);
 
   return (
-    <div className='m-4 flex flex-col gap-4'>
-      <div className='rounded-3xl bg-accent p-8' >
+    <div>
+      <div>
         <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
         <Separator/>
         {
