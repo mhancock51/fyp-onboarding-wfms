@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
@@ -37,6 +38,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
+        private readonly ILogger<TaskInstanceLogic> _logger;
 
         private readonly ITaskTemplateLogic _taskTemplateLogic;        
 
@@ -51,14 +53,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
 
-        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;        
+        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
             IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
-            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory, 
+            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory,
             IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository, IMediator mediator
-        )
+, ILogger<TaskInstanceLogic> logger)
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
@@ -72,6 +74,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _workflowTemplateRepository = workflowTemplateRepository;
             _workflowInstanceRepository = workflowInstanceRepository;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -114,9 +117,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
                 // load template
                 var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId);
-                taskTemplate = response.Data;
-                // create instance of task type data
-                // i.e. checklist task -> create row in ChecklistTaskInstance repo
+                taskTemplate = response.Data;                
             }
             catch (Exception ex)
             {
@@ -125,6 +126,8 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             try
             {
+                // create instance of task type data
+                // i.e. checklist task -> create row in ChecklistTaskInstance repo
                 var handler = _taskInstanceHandlerFactory.GetHandler(taskTemplate.TaskTypeId);
                 if (handler == null)
                 {
@@ -134,6 +137,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 var result = await handler.CreateTaskInstanceData(taskTemplate.TaskTypeData, taskInstance.Id);
                 if (!result.Success)
                 {
+                    await _taskInstanceRepository.DeleteAsync(taskInstance);
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = result.Error };
                 }
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created task instance" };
@@ -189,9 +193,17 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Task instance is associated with an invalid task type id");
             }
-            var dataResponse = await handler.FetchTaskInstanceData(taskInstance.Id);
-            if (!dataResponse.Success) return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
-            taskInstance.InstanceData = dataResponse.Data;
+            try
+            {
+                var dataResponse = await handler.FetchTaskInstanceData(taskInstance.Id);                
+                taskInstance.InstanceData = dataResponse.Data;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"Error fetching task type data: {ex.Message}");
+                return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to create task instance data" };
+            }
+
 
             if (taskInstance.WorkflowInstanceId != null)
             {
