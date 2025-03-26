@@ -1,6 +1,6 @@
-import TaskType from '@/models/tasks/taskType';
+import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
-import { ListTodo, FileUp, StickyNote, FileText } from 'lucide-react';
+import { ListTodo, FileUp, StickyNote, FileText, Rocket } from 'lucide-react';
 import React from 'react'
 import { useSelector } from 'react-redux';
 
@@ -16,6 +16,8 @@ export default function TaskTypeBadge(props: {taskTypeId: string}) {
         return <FileUp size={ICON_SIZE}/>
       case "read-document":
         return <FileText size={ICON_SIZE}/>
+      case "project-task":
+        return <Rocket size={ICON_SIZE}/>
       default:
         return <StickyNote size={ICON_SIZE}/>
     }    

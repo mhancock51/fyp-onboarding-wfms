@@ -34,7 +34,7 @@ export default function UploadDocumentTask(props: Props) {
 
   async function handleFormSubmission() {
     if (file === null) return;
-    await Api.updateUploadDocTaskState(props.taskInstanceId, file)
+    await Api.updateTaskState(fileUploadState, "upload-document", fileUploadState.taskInstanceId)    
     .then((response) => {
       toast("Uploaded document");
       props.setCanCompleteTask(true);

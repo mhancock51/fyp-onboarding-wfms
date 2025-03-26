@@ -32,6 +32,9 @@ import { Flag, MessageSquareMore, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import CommentSection from '@/components/CommentSection';
+import ProjectTask from './ProjectTask';
+import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 
 interface Props {
   open: boolean;
@@ -107,70 +110,82 @@ export default function TaskDrawer(props: Props) {
 
   return (
     <Drawer direction='right'  onClose={() => {props.setOpen(false);}} open={props.open}>
-      <DrawerContent className="max-w-[600px] w-full p-2"> {/* Override max width */}
+      <DrawerContent className="max-w-[600px] w-full p-2 flex flex-col justify-start gap-2"> {/* Override max width */}
         {
           props.task !== null &&
-          <>
-          <DrawerHeader className='p-3'>
-            <div className='flex flex-col justify-center gap-1'>
-              <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
+          <div className='flex-11 w-full'>
+            <DrawerHeader className='p-3 flex-1'>
+              <div className='flex flex-col justify-center gap-1'>
+                <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
+                {
+                  user?.isAdmin &&
+                  <Badge className='mx-auto text-center cursor-pointer' onClick={() => {navigator.clipboard.writeText(props.task.id);}}>
+                    [{props.task.id}]
+                  </Badge>              
+                }
+              </div>
+              <div className='flex flex-row justify-center' style={{gap: "2px"}}>
+                <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
+                {
+                  props.task.workflowInstanceId &&
+                  <Badge className='mx-2 py-2 px-4 rounded-full'>
+                    {props.task.workflowInstanceTemplateName === "" ? "N/A" : props.task.workflowInstanceTemplateName}
+                  </Badge>
+                }
+                <TaskStatusBadge status={props.task.status}/>
+              </div>
+              <Separator/>            
+              <DrawerDescription>{props.task.template.description}</DrawerDescription>
+            </DrawerHeader>
+            <div className='flex-11'>
               {
-                user?.isAdmin &&
-                <Badge className='mx-auto text-center cursor-pointer' onClick={() => {navigator.clipboard.writeText(props.task.id);}}>
-                  [{props.task.id}]
-                </Badge>              
+                props.task.template.taskTypeId.toLowerCase() === "checklist" &&
+                <ChecklistTask 
+                  taskInstanceId={props.task.id} 
+                  checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
+                  checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
+                  fetchTaskInstances={props.fetchTaskInstances}
+                  setCanCompleteTask={setCanCompleteTask}
+                  taskStatus={props.task.status}
+                />
               }
-            </div>
-            <div className='flex flex-row justify-center' style={{gap: "2px"}}>
-              <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
               {
-                props.task.workflowInstanceId &&
-                <Badge className='mx-2 py-2 px-4 rounded-full'>
-                  {props.task.workflowInstanceTemplateName === "" ? "N/A" : props.task.workflowInstanceTemplateName}
-                </Badge>
+                props.task.template.taskTypeId.toLowerCase() === "upload-document" &&
+                <UploadDocumentTask 
+                  taskInstanceId={props.task.id} 
+                  fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
+                  fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
+                  fetchTaskInstances={props.fetchTaskInstances} 
+                  setCanCompleteTask={setCanCompleteTask} 
+                  taskStatus={props.task.status}/>
               }
-              <TaskStatusBadge status={props.task.status}/>
+              {
+                props.task.template.taskTypeId.toLowerCase() === "read-document" &&
+                <ReadDocumentTask 
+                  taskInstanceId={props.task.id} 
+                  readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
+                  readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
+                  fetchTaskInstances={props.fetchTaskInstances} 
+                  setCanCompleteTask={setCanCompleteTask} 
+                  taskStatus={props.task.status}/>
+              }
+              {
+                props.task.template.taskTypeId.toLowerCase() === "project-task" &&
+                <ProjectTask 
+                  taskInstanceId={props.task.id} 
+                  projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 
+                  projectInstance={props.task.instanceData as ProjectTaskInstance}
+                  fetchTaskInstances={props.fetchTaskInstances} 
+                  setCanCompleteTask={setCanCompleteTask} 
+                  taskStatus={props.task.status}/>
+              }
+              <Button className='rounded-full mx-r-2 p-2 w-full' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+                Complete Task
+              </Button>
             </div>
-            <Separator/>            
-            <DrawerDescription>{props.task.template.description}</DrawerDescription>
-          </DrawerHeader>
-          {
-            props.task.template.taskTypeId.toLowerCase() === "checklist" &&
-            <ChecklistTask 
-              taskInstanceId={props.task.id} 
-              checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
-              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
-              fetchTaskInstances={props.fetchTaskInstances}
-              setCanCompleteTask={setCanCompleteTask}
-              taskStatus={props.task.status}
-            />
-          }
-          {
-            props.task.template.taskTypeId.toLowerCase() === "upload-document" &&
-            <UploadDocumentTask 
-              taskInstanceId={props.task.id} 
-              fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
-              fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
-              fetchTaskInstances={props.fetchTaskInstances} 
-              setCanCompleteTask={setCanCompleteTask} 
-              taskStatus={props.task.status}/>
-          }
-          {
-            props.task.template.taskTypeId.toLowerCase() === "read-document" &&
-            <ReadDocumentTask 
-              taskInstanceId={props.task.id} 
-              readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
-              readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
-              fetchTaskInstances={props.fetchTaskInstances} 
-              setCanCompleteTask={setCanCompleteTask} 
-              taskStatus={props.task.status}/>
-          }
-          </>
+          </div>
         }
-        <Button className='rounded-full mx-2 p-2' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
-          Complete Task
-        </Button>
-        <DrawerFooter>
+        <DrawerFooter className='flex-1'>
           <Button variant={"outline"}>
             <Flag/>
             Flag an issue with this task

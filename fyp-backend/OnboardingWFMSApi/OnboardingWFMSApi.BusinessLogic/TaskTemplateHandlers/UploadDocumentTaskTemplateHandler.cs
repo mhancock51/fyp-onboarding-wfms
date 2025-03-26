@@ -15,10 +15,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class UploadDocumentTaskTemplateHandler : IUploadDocumentTaskTemplateHandler
+    public class UploadDocumentTaskTemplateHandler : BaseTaskTemplateHandler<FileUploadTaskTemplateTable>, IUploadDocumentTaskTemplateHandler
     {
-        private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
-
         private readonly string[] ALLOWED_FILE_EXTENSIONS =
         {
             ".pdf",
@@ -27,36 +25,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             ".docx",
         };
 
-        public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository)
+        public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository repository) : base(repository)
         {
-            _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
-        }
-
-        public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
-        {
-            if (taskTypeData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
-            }
-
-            FileUploadTaskTemplateTable fileUploadTaskData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(taskTypeData.ToString());
-            // validate
-            var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
-            if (!validationResult.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
-            }
-
-            fileUploadTaskData.TaskTemplateId = taskTemplateId;
-            try
-            {
-                await _fileUploadTaskTemplateRepository.AddAsync(fileUploadTaskData);                
-                return new ServerResponse<string, string>() { Success = true };
-            }
-            catch (Exception ex)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert checklist data" };
-            }
         }
 
         public string GetTaskTypeId()
@@ -64,17 +34,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "upload-document";
         }
 
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
         {
-            var fileUploadTaskData = await _fileUploadTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return fileUploadTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve file upload task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = fileUploadTaskData };
-        }
+            // cast object           
+            FileUploadTaskTemplateTable fileUploadTaskData = CastObjectToType(taskTypeData);
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
-        {
-            FileUploadTaskTemplateTable fileUploadTaskData = JsonSerializer.Deserialize<FileUploadTaskTemplateTable>(taskTypeData.ToString());
             if (fileUploadTaskData == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task type data" };

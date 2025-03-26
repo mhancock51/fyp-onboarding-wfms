@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
+using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
@@ -31,21 +32,21 @@ namespace OnboardingWFMSApi.BusinessLogic
         public const string CHECKLIST_TASK_TYPE_ID = "checklist";
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
+        private readonly ITaskTypeRepository _taskTypeRepository;
 
         private readonly ITaskTemplateHandlerFactory _taskTemplateHandlerFactory;
 
-        private readonly ITaskTypeRepository _taskTypeRepository;
-
         private readonly IMapper _mapper;
+        private readonly ILogger<TaskTemplateLogic> _logger;
 
         public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
-            ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory
-        )
+            ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory, ILogger<TaskTemplateLogic> logger)
         {
             _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
             _taskTypeRepository = taskTypeRepository;
             _taskTemplateHandlerFactory = taskTemplateHandlerFactory;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId)
@@ -63,12 +64,19 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // handle the insertion of task type meta data, i.e. checklist data, file upload data, etc
-            var response = await handler.CreateTaskTypeMetaData(payload.TaskTypeData, taskTemplate.Id);
-            if (response.Success == false)
+            try
             {
-                // delete task template
-                await _taskTemplateRepository.DeleteAsync(taskTemplate);
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to insert task type meta data" };
+                var response = await handler.CreateTaskTemplateData(payload.TaskTypeData, taskTemplate.Id);
+                if (response.Success == false)
+                {
+                    // delete task template
+                    await _taskTemplateRepository.DeleteAsync(taskTemplate);
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to insert task type meta data" };
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"Error inserting task template data: {ex.Message}");
             }
             
             return new HTTPResponse<string, string>() { Success = true, Data = "Created task template", HttpCode = 200 };
@@ -109,7 +117,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     throw new InvalidOperationException("Invalid task type associated with task template");
                 }
-                var response = await handler.GetTaskTypeMetaData(taskTemplate.Id);
+                var response = await handler.FetchTaskTemplateData(taskTemplate.Id);
                 if (!response.Success) 
                 {
                     return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = response.Error, HttpCode = 500 };

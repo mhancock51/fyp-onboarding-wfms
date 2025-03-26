@@ -20,6 +20,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
         public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
         public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
+        public Task<bool> DoesAccountExistByEmail(string emailAddress);
     }
 
     public class AccountLogic : IAccountLogic
@@ -40,6 +41,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             _organisationRepository = organisationRepository;
             _mapper = mapper;
             _mediator = mediator;
+        }
+
+        public async Task<bool> DoesAccountExistByEmail(string emailAddress)
+        {
+            return (await _accountRepository.GetByEmailAddress(emailAddress)) != null;
         }
 
         public async Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId)

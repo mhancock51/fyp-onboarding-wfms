@@ -33,7 +33,7 @@ CREATE TABLE tasktype (
 
 CREATE TABLE tasktemplate (
     TaskTemplateId VARCHAR(255) NOT NULL,
-    Name VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) UNIQUE NOT NULL ,
     Description TEXT,
     CreatorAccountId VARCHAR(255) NOT NULL,
     DateCreated DATETIME NOT NULL,
@@ -88,6 +88,25 @@ CREATE TABLE readdocumenttaskinstance (
     CheckboxChecked BOOLEAN,
     LinkClicked BOOLEAN
 );
+
+CREATE TABLE projectasktemplate (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskTemplateId VARCHAR(255),
+    Brief TEXT,
+    Deliverable VARCHAR(255),
+    Objectives JSON,
+    SupportLinks JSON,
+    Skills JSON
+);
+
+CREATE TABLE projecttaskinstance (
+    Id VARCHAR(255) PRIMARY KEY,
+    TaskInstanceId VARCHAR(255),
+    ObjectiveStates JSON
+);
+
+
+
 
 CREATE TABLE document (
     Id VARCHAR(255) PRIMARY KEY,
@@ -176,6 +195,8 @@ INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VA
 INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`checklist`, `Checklist`);
 INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`upload-document`, `Upload Document`);
 INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`read-document`, `Read Document`);
+INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES ('project-task', 'Project Task');
+
 
 ALTER TABLE organisationAdminLink 
 ADD CONSTRAINT fk_orgAdminLink_organisation FOREIGN KEY (OrganisationId) REFERENCES organisation(OrganisationId);
@@ -223,7 +244,8 @@ ALTER TABLE taskinstance
 
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+    ON DELETE CASCADE;
 
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_workflow_instance_id
@@ -327,4 +349,15 @@ ALTER TABLE comment
 ALTER TABLE documentaccesslink
     ADD CONSTRAINT fk_document_access_document_id
     FOREIGN KEY (DocumentId) REFERENCES document(Id)
+    ON DELETE CASCADE;
+
+/* Project Task Template */
+ALTER TABLE projectasktemplate
+    ADD CONSTRAINT fk_project_task_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+    ON DELETE CASCADE;
+
+ALTER TABLE projecttaskinstance
+    ADD CONSTRAINT fk_task_instance_id
+    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
     ON DELETE CASCADE;

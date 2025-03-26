@@ -36,7 +36,7 @@ export default function ChecklistTask(props: Props) {
   }
 
   async function updateChecklistStatus(checklistState: ChecklistTaskInstance) {
-    await Api.updateChecklistTaskState(props.taskInstanceId, checklistState.itemCompletionStatuses)
+    await Api.updateTaskState(checklistState, "checklist", checklistState.taskInstanceId)
     .then((response) => {
       toast("Successfully updated checklist task's state");
       if (areAllTasksComplete(checklistState.itemCompletionStatuses)) {

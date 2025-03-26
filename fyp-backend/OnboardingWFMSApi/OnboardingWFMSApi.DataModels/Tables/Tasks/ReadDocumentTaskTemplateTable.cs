@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("readdocumenttasktemplate")]
-    public class ReadDocumentTaskTemplateTable : ITableEntity
+    public class ReadDocumentTaskTemplateTable : ITaskTypeTemplateTable
     {
         [Key]
         public string Id { get; set; }

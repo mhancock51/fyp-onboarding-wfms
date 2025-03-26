@@ -54,7 +54,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
                   <HoverCardTrigger>
                     <Badge className='rounded-full'>{props.data.taskDependencies.length} Dependencies</Badge>
                   </HoverCardTrigger> 
-                  <HoverCardContent className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                  <HoverCardContent side='top' className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
                     <div className='flex flex-col gap-1 text-sm'>
                       <Label>{props.data.taskDependencies.length > 0 ? "Dependencies" : "Dependency"}</Label>
                       <Separator/>

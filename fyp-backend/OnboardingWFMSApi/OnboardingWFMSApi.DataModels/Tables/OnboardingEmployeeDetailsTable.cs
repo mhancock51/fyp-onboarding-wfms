@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables.Workflows;
+﻿using OnboardingWFMSApi.DataModels.Tables.Interfaces;
+using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

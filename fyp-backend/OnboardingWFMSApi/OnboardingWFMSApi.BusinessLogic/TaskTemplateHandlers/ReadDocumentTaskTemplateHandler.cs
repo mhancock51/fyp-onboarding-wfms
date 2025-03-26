@@ -14,41 +14,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
     {
     }
 
-    public class ReadDocumentTaskTemplateHandler : IReadDocumentTaskTemplateHandler
+    public class ReadDocumentTaskTemplateHandler : BaseTaskTemplateHandler<ReadDocumentTaskTemplateTable>, IReadDocumentTaskTemplateHandler
     {
-        private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
-
-        public ReadDocumentTaskTemplateHandler(IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository)
+        public ReadDocumentTaskTemplateHandler(IReadDocumentTaskTemplateRepository repository) : base(repository)
         {
-            _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
-        }
-
-        public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
-        {
-            if (taskTypeData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
-            }
-
-            ReadDocumentTaskTemplateTable readDocumentTaskData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(taskTypeData.ToString());
-            // validate 
-            var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
-            if (!validationResult.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
-            }
-
-            readDocumentTaskData.TaskTemplateId = taskTemplateId;
-
-            try
-            {
-                await _readDocumentTaskTemplateRepository.AddAsync(readDocumentTaskData);
-                return new ServerResponse<string, string>() { Success = true };
-            }
-            catch (Exception ex)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert checklist data" };
-            }
+            
         }
 
         public string GetTaskTypeId()
@@ -56,17 +26,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "read-document";
         }
 
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
         {
-            var readDocumentTaskData = await _readDocumentTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return readDocumentTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve checklist task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = readDocumentTaskData };
-        }
+            // cast object            
+            ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
-        {
-            ReadDocumentTaskTemplateTable readDocumentTaskData = JsonSerializer.Deserialize<ReadDocumentTaskTemplateTable>(taskTypeData.ToString());
             if (string.IsNullOrEmpty(readDocumentTaskData.DocumentName))
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Document name must be provided" };

@@ -1,5 +1,6 @@
 import { ChecklistTaskInstance } from "./ChecklistTaskInstance";
 import FileUploadTaskInstance from "./FileUploadTaskInstance";
+import ProjectTaskInstance from "./ProjectTaskInstance";
 import ReadDocumentTaskInstance from "./ReadDocumentTaskInstance";
 import TaskTemplate from "./TaskTemplate";
 
@@ -13,6 +14,6 @@ export default interface TaskInstanceDTO {
     template: TaskTemplate;
     workflowInstanceTemplateName: string;
     workflowInstanceId?: string;
-    instanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | null;
+    instanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | ProjectTaskInstance | null;
     dueDate : Date | null;
 }

@@ -2,8 +2,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
-using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
@@ -26,10 +27,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload);
         public Task<HTTPResponse<List<TaskInstanceDTO>, string>> GetUsersAssignedTask(string accountId);
         public Task<HTTPResponse<TaskInstanceDTO, string>> GetTaskInstance(string tasksInstanceId);
-
-        public Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId);
-        public Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId);
-        public Task<HTTPResponse<string, string>> UpdateFileUploadInstanceState(UpdateInstanceStateFileUploadPayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> UpdateInstanceState(UpdateInstanceStatePayload payload, string accountId);
         public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
         public Task<List<TaskInstanceDTO>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId);
     }
@@ -40,6 +38,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
+        private readonly ILogger<TaskInstanceLogic> _logger;
 
         private readonly ITaskTemplateLogic _taskTemplateLogic;        
 
@@ -54,14 +53,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
 
-        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;        
+        private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
             IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
-            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory, 
+            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory,
             IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository, IMediator mediator
-        )
+, ILogger<TaskInstanceLogic> logger)
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
@@ -75,6 +74,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _workflowTemplateRepository = workflowTemplateRepository;
             _workflowInstanceRepository = workflowInstanceRepository;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> CreateInstance(CreateTaskInstancePayload payload)
@@ -117,9 +117,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
                 // load template
                 var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId);
-                taskTemplate = response.Data;
-                // create instance of task type data
-                // i.e. checklist task -> create row in ChecklistTaskInstance repo
+                taskTemplate = response.Data;                
             }
             catch (Exception ex)
             {
@@ -128,15 +126,18 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             try
             {
+                // create instance of task type data
+                // i.e. checklist task -> create row in ChecklistTaskInstance repo
                 var handler = _taskInstanceHandlerFactory.GetHandler(taskTemplate.TaskTypeId);
                 if (handler == null)
                 {
                     throw new Exception("Tasks template has an invalid task type");
                 }
                 // insert task instance meta data using handler
-                var result = await handler.InsertTaskInstanceMetaData(taskTemplate.TaskTypeData, taskInstance.Id);
+                var result = await handler.CreateTaskInstanceData(taskTemplate.TaskTypeData, taskInstance.Id);
                 if (!result.Success)
                 {
+                    await _taskInstanceRepository.DeleteAsync(taskInstance);
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = result.Error };
                 }
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created task instance" };
@@ -192,9 +193,17 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Task instance is associated with an invalid task type id");
             }
-            var dataResponse = await handler.GetTaskInstanceMetaData(taskInstance.Id);
-            if (!dataResponse.Success) return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = dataResponse.Error };
-            taskInstance.InstanceData = dataResponse.Data;
+            try
+            {
+                var dataResponse = await handler.FetchTaskInstanceData(taskInstance.Id);                
+                taskInstance.InstanceData = dataResponse.Data;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"Error fetching task type data: {ex.Message}");
+                return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to create task instance data" };
+            }
+
 
             if (taskInstance.WorkflowInstanceId != null)
             {
@@ -209,149 +218,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             return new HTTPResponse<TaskInstanceDTO, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
-        }
-
-        public async Task<HTTPResponse<string, string>> UpdateChecklistInstanceState(UpdateInstanceStateChecklistPayload payload, string accountId)
-        {
-            // check task is a checklist task
-            var response = await GetTaskInstance(payload.TaskInstanceId);
-            if (!response.Success || response.Data == null)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
-            }
-            var taskInstance = response.Data;
-            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.CHECKLIST_TASK_TYPE_ID)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a checklist task" };
-            }
-            // ensure task is open
-            if (taskInstance.Status != OPEN_TASK_STATUS)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
-            }
-
-            // check user is assigned to task instance
-            if (taskInstance.AssigneeAccountId != accountId)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
-            }
-
-            // VALIDATE STATE
-            // check that checklist status length is correct
-            var taskItems = (taskInstance.template.TaskTypeData as ChecklistTaskTemplateTable).Items;
-            if (payload.ItemCompletionStatuses.Length != taskItems.Length)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid checklist state" };
-            }
-
-            // update state
-            var checklistInstance = await _checklistTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-            checklistInstance.ItemCompletionStatuses = payload.ItemCompletionStatuses;
-            await _checklistTaskInstanceRepository.UpdateAsync(checklistInstance);
-
-            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Message = "Successfully updated state" };
-        }
-
-        public async Task<HTTPResponse<string, string>> UpdateReadDocumentInstanceState(UpdateInstanceStateReadDocPayload payload, string accountId)
-        {
-            // check task is a checklist task
-            var response = await GetTaskInstance(payload.TaskInstanceId);
-            if (!response.Success || response.Data == null)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
-            }
-            var taskInstance = response.Data;
-            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.READ_DOCUMENT_TASK_TYPE_ID)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a read document task" };
-            }
-            // ensure task is open
-            if (taskInstance.Status != OPEN_TASK_STATUS)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
-            }
-            // check user is assigned to task instance
-            if (taskInstance.AssigneeAccountId != accountId)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
-            }
-
-            // VALIDATE STATE
-
-            // update state
-            var readDocInstance = await _readDocumentTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-            readDocInstance.LinkClicked = payload.LinkClicked;
-            readDocInstance.CheckboxChecked = payload.CheckboxChecked;
-            await _readDocumentTaskInstanceRepository.UpdateAsync(readDocInstance);
-
-            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Message = "Successfully updated state" };
-        }
-
-        public async Task<HTTPResponse<string, string>> UpdateFileUploadInstanceState(UpdateInstanceStateFileUploadPayload payload, string accountId)
-        {
-            // check task is a "file upload" task
-            var response = await GetTaskInstance(payload.TaskInstanceId);
-            if (!response.Success || response.Data == null)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
-            }
-            var taskInstance = response.Data;
-            if (taskInstance.template.TaskTypeId != TaskTemplateLogic.UPLOAD_DOCUMENT_TASK_TYPE_ID)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance isn't a read document task" };
-            }
-            // ensure task is open
-            if (taskInstance.Status != OPEN_TASK_STATUS)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
-            }
-            // check user is assigned to task instance
-            if (taskInstance.AssigneeAccountId != accountId)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
-            }
-
-            // validate state           
-            // ensure file contains data
-            if (payload.File == null)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Document was not uploaded" };
-            }
-            // ensure file extension is valid
-            var taskTypeTemplateData = taskInstance.template.TaskTypeData as FileUploadTaskTemplateTable;               
-            var fileExtension = Path.GetExtension(payload.File.FileName);
-            if (!taskTypeTemplateData.SupportedDocumentType.Split(";").Contains(fileExtension))
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid file extension" };
-            }
-
-            // attempt to upload document                        
-            var result = await _mediator.Send(new UploadDocumentRequest(
-                new UploadDocumentPayload()
-                {
-                    TaskInstanceId = taskInstance.Id,
-                    File = payload.File,
-                    DocumentName = taskTypeTemplateData.DocumentName,
-                    AccessAccountIds = taskTypeTemplateData.AccessAccountIds
-                },
-                accountId
-            ));
-
-            if (!result.Success)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
-            }
-            else
-            {
-                var document = result.Data;
-                var uploadDocInstance = await _uploadTaskInstanceRepository.GetByTaskInstanceId(taskInstance.Id);
-                uploadDocInstance.DocumentId = document.Id;
-                uploadDocInstance.TaskInstanceId = taskInstance.Id;
-                uploadDocInstance.UploadedTimestamp = DateTime.UtcNow;
-
-                await _uploadTaskInstanceRepository.UpdateAsync(uploadDocInstance);
-                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully upload document" };
-            }                      
         }
 
         public async Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId)
@@ -411,6 +277,33 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }
             return taskInstances;
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateInstanceState(UpdateInstanceStatePayload payload, string accountId)
+        {
+            // validate state of task instance            
+            var taskInstance = (await GetTaskInstance(payload.TaskInstanceId)).Data ?? null;
+            if (taskInstance == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
+            }
+            // ensure task is open
+            if (taskInstance.Status != OPEN_TASK_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
+            }
+            // check user is assigned to task instance
+            if (taskInstance.AssigneeAccountId != accountId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User not authorised to update this resource" };
+            }
+
+            // find appropriate handler
+            var handler = _taskInstanceHandlerFactory.GetHandler(payload.TaskTypeId);
+            // call method to update instance's tasktype data, i.e. checklist items state
+            var response = await handler.UpdateTaskInstanceData(payload.UpdateTaskState);
+
+            return new HTTPResponse<string, string>() { Success = response.Success, HttpCode = response.Success ? 200 : 500, Error = response.Error, Data = response.Data };
         }
     }
 

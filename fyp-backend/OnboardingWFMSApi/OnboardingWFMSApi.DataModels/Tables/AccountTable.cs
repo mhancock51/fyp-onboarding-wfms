@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 
 namespace OnboardingWFMSApi.DataModels.Tables
 {

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
@@ -35,12 +36,15 @@ builder.Services.AddScoped<ITaskTemplateRepository, TaskTemplateRepository>();
 builder.Services.AddScoped<IFileUploadTaskTemplateRepository, FileUploadTaskTemplateRepository>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTaskTemplateRepository>();
 builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTemplateRepository>();
+builder.Services.AddScoped<IProjectTaskTemplateRepository, ProjectTaskTemplateRepository>();
 
 builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 
 builder.Services.AddScoped<IChecklistTaskInstanceRepository, ChecklistTaskInstanceRepository>();
 builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTaskInstanceRepository>();
 builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
+builder.Services.AddScoped<IProjectTaskInstanceRepository, ProjectTaskInstanceRepository>();
+
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IDocumentAccessLinkRepository, DocumentAccessLinkRepository>();
@@ -57,12 +61,14 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
+builder.Services.AddScoped<IProjectTaskTemplateHandler, ProjectTaskTemplateHandler>();
 
 builder.Services.AddScoped<ITaskTemplateHandlerFactory, TaskTemplateHandlerFactory>();
 
 builder.Services.AddScoped<IChecklistTaskInstanceHandler, ChecklistTaskInstanceHandler>();
 builder.Services.AddScoped<IReadDocumentTaskInstanceHandler, ReadDocumentTaskInstanceHandler>();
 builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanceHandler>();
+builder.Services.AddScoped<IProjectTaskInstanceHandler, ProjectTaskInstanceHandler>();
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 

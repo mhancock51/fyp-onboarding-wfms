@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { useDispatch } from 'react-redux';
 import { SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from '@/features/appSlice';
 import TaskTemplatesTable from '@/components/Tables/TaskTemplatesTable';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Props {
   open: boolean;
@@ -23,11 +24,13 @@ export default function TaskTemplatesListDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[750px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[70vh]">
         <DialogHeader>
           <DialogTitle>Task Templates</DialogTitle>          
         </DialogHeader>
-        <TaskTemplatesTable/>
+        <ScrollArea className='max-h-[55vh]'>
+          <TaskTemplatesTable selectedTemplate={null}/>
+        </ScrollArea>
         <DialogFooter>
           <Button type='button' onClick={openCreateTemplateMenu}>Create Template</Button>
         </DialogFooter>

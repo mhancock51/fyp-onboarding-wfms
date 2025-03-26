@@ -16,62 +16,22 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
     }
 
-    public class ChecklistTaskTemplateHandler : IChecklistTaskTemplateHandler
+    public class ChecklistTaskTemplateHandler : BaseTaskTemplateHandler<ChecklistTaskTemplateTable>, IChecklistTaskTemplateHandler
     {
-        private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
-
-        public ChecklistTaskTemplateHandler(IChecklistTaskTemplateRepository checklistTaskTemplateRepository)
+        public ChecklistTaskTemplateHandler(IChecklistTaskTemplateRepository repository) : base(repository)
         {
-            _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
+
         }
 
-        public async Task<ServerResponse<string, string>> CreateTaskTypeMetaData(object taskTypeData, string taskTemplateId)
-        {
-            if (taskTypeData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Task type data is null" };
-            }
-
-            ChecklistTaskTemplateTable checklistTaskData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(taskTypeData.ToString());
-            // validate 
-            var validationResult = await ValidateTaskTypeMetaData(checklistTaskData);
-            if (!validationResult.Success)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
-            }
-
-            checklistTaskData.TaskTemplateId = taskTemplateId;
-
-            try
-            {
-                await _checklistTaskTemplateRepository.AddAsync(checklistTaskData);
-                return new ServerResponse<string, string>() { Success = true };
-            }
-            catch (Exception ex) 
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert checklist data" };
-            }
-        }
-
-        public async Task<ServerResponse<object, string>> GetTaskTypeMetaData(string taskTemplateId)
-        {
-            var checklistTaskData = await _checklistTaskTemplateRepository.GetByTaskTemplateId(taskTemplateId);
-            return checklistTaskData == null ?
-                new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve checklist task data" } :
-                new ServerResponse<object, string>() { Success = true, Data = checklistTaskData };
-        }
         public string GetTaskTypeId()
         {
             return "checklist";
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
-        {
-            ChecklistTaskTemplateTable checklistTaskData = JsonSerializer.Deserialize<ChecklistTaskTemplateTable>(taskTypeData.ToString());
-            if (checklistTaskData == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task type data" };
-            }
+        public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
+        {            
+            ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
+
             if (checklistTaskData.Items.Length == 0)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Checklist must include at least one item" };
