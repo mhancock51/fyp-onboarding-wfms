@@ -109,7 +109,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     throw new InvalidOperationException("Invalid task type associated with task template");
                 }
-                var response = await handler.GetTaskTypeData(taskTemplate.Id);
+                var response = await handler.FetchTaskTemplateData(taskTemplate.Id);
                 if (!response.Success) 
                 {
                     return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = response.Error, HttpCode = 500 };
