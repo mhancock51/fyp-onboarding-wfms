@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("projectasktemplate")]
-    public class ProjectTaskTemplateTable : ITableEntity
+    public class ProjectTaskTemplateTable : ITaskTypeTemplateTable
     {
         [Key]
         [JsonPropertyName("id")]

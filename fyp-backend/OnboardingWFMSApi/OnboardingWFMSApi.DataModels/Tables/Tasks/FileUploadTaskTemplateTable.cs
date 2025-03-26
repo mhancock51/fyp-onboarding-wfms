@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("fileuploadtasktemplate")]
-    public class FileUploadTaskTemplateTable : ITableEntity
+    public class FileUploadTaskTemplateTable : ITaskTypeTemplateTable
     {
         [Key]
         [JsonPropertyName("id")]
