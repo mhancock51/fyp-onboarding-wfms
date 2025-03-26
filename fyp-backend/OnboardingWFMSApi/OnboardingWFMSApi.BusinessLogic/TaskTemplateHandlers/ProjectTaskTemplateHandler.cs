@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Invalid task type data provided" };
             }
-            var validationResult = await ValidateTaskTypeMetaData(projectTaskData);
+            var validationResult = await ValidateTaskTypeData(projectTaskData);
             if (!validationResult.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
@@ -59,7 +59,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "project-task";
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
         {
             // cast object
             ProjectTaskTemplateTable projectTaskData = CastObjectToType(taskTypeData);

@@ -32,7 +32,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             // cast object
             ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
             // validate 
-            var validationResult = await ValidateTaskTypeMetaData(checklistTaskData);
+            var validationResult = await ValidateTaskTypeData(checklistTaskData);
             if (!validationResult.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
@@ -55,7 +55,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "checklist";
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
         {            
             ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
 
@@ -64,17 +64,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Checklist must include at least one item" };
             }
             return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
-        }
-
-        public ChecklistTaskTemplateTable CastObjectToType(object taskTypeData)
-        {
-            var checklistTaskData = taskTypeData as ChecklistTaskTemplateTable;
-            if (checklistTaskData == null)
-            {
-                JsonElement jsonElement = (JsonElement)taskTypeData;
-                checklistTaskData = jsonElement.Deserialize<ChecklistTaskTemplateTable>();
-            }
-            return checklistTaskData;
         }
     }
 }

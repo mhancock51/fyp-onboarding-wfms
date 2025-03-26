@@ -26,5 +26,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
+
+        public abstract Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData);
     }
 }

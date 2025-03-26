@@ -31,7 +31,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);
 
             // validate 
-            var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
+            var validationResult = await ValidateTaskTypeData(taskTypeData);
             if (!validationResult.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
@@ -55,7 +55,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "read-document";
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
         {
             // cast object            
             ReadDocumentTaskTemplateTable readDocumentTaskData = CastObjectToType(taskTypeData);

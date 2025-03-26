@@ -39,7 +39,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             FileUploadTaskTemplateTable fileUploadTaskData = CastObjectToType(taskTypeData);
 
             // validate
-            var validationResult = await ValidateTaskTypeMetaData(taskTypeData);
+            var validationResult = await ValidateTaskTypeData(taskTypeData);
             if (!validationResult.Success)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = validationResult.Error };
@@ -62,7 +62,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             return "upload-document";
         }
 
-        public async Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData)
         {
             // cast object           
             FileUploadTaskTemplateTable fileUploadTaskData = CastObjectToType(taskTypeData);

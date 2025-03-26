@@ -17,6 +17,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         /// </summary>
         /// <param name="taskTypeData"></param>
         /// <returns></returns>
-        public Task<ServerResponse<string, string>> ValidateTaskTypeMetaData(object taskTypeData);
+        public Task<ServerResponse<string, string>> ValidateTaskTypeData(object taskTypeData);
     }
 }
