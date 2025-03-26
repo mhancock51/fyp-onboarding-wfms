@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -20,7 +21,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {        
         private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
 
-        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository) : base(repository)
+        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository,
+            ILogger<ReadDocumentTaskInstanceHandler> logger) : base(repository, logger)
         {            
             _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
         }

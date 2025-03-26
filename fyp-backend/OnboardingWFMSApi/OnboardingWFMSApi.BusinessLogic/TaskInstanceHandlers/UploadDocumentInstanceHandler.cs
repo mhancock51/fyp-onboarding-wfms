@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -19,7 +20,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     {        
         private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
 
-        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository, IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository) : base(repository)
+        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository, IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository,
+            ILogger<UploadDocumentInstanceHandler> logger) : base(repository, logger)
         {            
             _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
         }

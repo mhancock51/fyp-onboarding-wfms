@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
@@ -16,12 +17,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     }
     public class ProjectTaskInstanceHandler : BaseTaskInstanceHandler<ProjectTaskInstanceTable>, IProjectTaskInstanceHandler
     {
-        private readonly IProjectTaskInstanceRepository _repository;
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
-        public ProjectTaskInstanceHandler(IProjectTaskInstanceRepository repository, IProjectTaskTemplateRepository projectTaskTemplateRepository, ITaskInstanceRepository taskInstanceRepository) : base(repository)
-        {            
+        public ProjectTaskInstanceHandler(IProjectTaskInstanceRepository repository, IProjectTaskTemplateRepository projectTaskTemplateRepository, 
+            ITaskInstanceRepository taskInstanceRepository, ILogger<ProjectTaskInstanceHandler> logger) : base(repository, logger)
+        {
             _projectTaskTemplateRepository = projectTaskTemplateRepository;
             _taskInstanceRepository = taskInstanceRepository;
         }

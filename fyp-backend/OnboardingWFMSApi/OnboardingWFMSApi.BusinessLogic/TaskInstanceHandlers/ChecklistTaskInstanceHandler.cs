@@ -24,7 +24,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
         public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository repository, 
-            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ILogger<ChecklistTaskInstanceHandler> logger) : base(repository)
+            IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ILogger<ChecklistTaskInstanceHandler> logger) : base(repository, logger)
         {            
             _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
             _logger = logger;
