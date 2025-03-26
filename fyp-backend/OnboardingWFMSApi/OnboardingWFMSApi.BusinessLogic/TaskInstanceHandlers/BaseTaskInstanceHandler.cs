@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         public BaseTaskInstanceHandler(ITaskTypeInstanceRepository<TTaskType> repository)
         {
             _repository = repository;
-        }
+        }        
 
         public async Task<ServerResponse<object, string>> FetchTaskInstanceData(string taskInstanceId)
         {
@@ -48,5 +48,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         }
 
         public abstract Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceData);
+        public abstract Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId);
+        public abstract Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData);
     }
 }

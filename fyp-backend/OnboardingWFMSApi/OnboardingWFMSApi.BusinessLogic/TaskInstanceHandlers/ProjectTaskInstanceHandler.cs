@@ -31,14 +31,14 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return "project-task";
         }
 
-        public async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
+        public override async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
         {
             var objectives = (taskTemplateMetaData as ProjectTaskTemplateTable).Objectives;
             await _repository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });            
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
         {
             var projectInstance = taskInstanceMetaData as ProjectTaskInstanceTable;
             if (projectInstance == null)

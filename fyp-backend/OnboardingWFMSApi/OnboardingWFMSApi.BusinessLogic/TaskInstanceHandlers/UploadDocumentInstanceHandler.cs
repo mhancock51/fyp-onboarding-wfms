@@ -29,13 +29,13 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             return "upload-document";
         }
 
-        public async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
+        public override async Task<ServerResponse<string, string>> InsertTaskInstanceMetaData(object taskTemplateMetaData, string taskInstanceId)
         {
             await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
         {
             var taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
