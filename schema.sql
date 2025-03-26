@@ -243,7 +243,8 @@ ALTER TABLE taskinstance
 
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+    ON DELETE CASCADE;
 
 ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_workflow_instance_id

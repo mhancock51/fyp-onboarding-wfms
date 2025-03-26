@@ -1,4 +1,5 @@
 import Api from '@/api';
+import NoResults from '@/components/NoResults';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -76,6 +77,7 @@ export default function ProjectTask(props: Props) {
     // exit if project state isn't actually set
     if (projectState.id === "") return;
     if (projectState.objectiveStates.length === 0) return;
+    if (projectState.objectiveStates === props.projectInstance.objectiveStates) return;
     // update "can complete" flag if all required objectives complete
     props.setCanCompleteTask(areAllRequiredObjectivesComplete(projectState));
     // update state server side
@@ -86,7 +88,7 @@ export default function ProjectTask(props: Props) {
     <Tabs defaultValue="brief" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="brief">Project Brief</TabsTrigger>
-        <TabsTrigger value="support">Support</TabsTrigger>
+        <TabsTrigger value="support">Support</TabsTrigger>        
       </TabsList>
       <TabsContent value="brief">
         <div className='flex flex-col gap-2 p-2'>
@@ -121,7 +123,11 @@ export default function ProjectTask(props: Props) {
       <TabsContent value="support">
         <div className='flex flex-col gap-2 p-2'>
           <Label className='font-bold'>Supporting Links</Label>
-          <div className='flex flex-col gap-2 w-full max-h-[33vh] overflow-y-scroll'>
+          <div className='flex flex-col gap-2 w-full max-h-[33vh] overflow-y-auto'>
+            {
+              props.projectTemplate.supportLinks.length === 0 &&
+              <NoResults text={'No support links provided for this project'}/>
+            }
             {
               props.projectTemplate.supportLinks.map((link, index) => (
                 <Card key={index} className='flex flex-col gap-2 w-full my-1 p-2'>
