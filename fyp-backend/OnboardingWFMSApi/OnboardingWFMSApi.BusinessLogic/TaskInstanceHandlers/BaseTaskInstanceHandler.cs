@@ -25,9 +25,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstance(object updatedTaskInstanceMetaData)
+        public async Task<ServerResponse<string, string>> UpdateTaskInstance(object taskInstanceData)
         {
-            var updatedTaskInstanceData = CastObjectToType(updatedTaskInstanceMetaData);
+            var updatedTaskInstanceData = CastObjectToType(taskInstanceData);
 
             var validationResponse = await ValidateTaskInstance(updatedTaskInstanceData);
             if (!validationResponse.Success)
@@ -46,6 +46,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             }
         }
 
-        public abstract Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceMetaData);
+        public abstract Task<ServerResponse<string, string>> ValidateTaskInstance(object taskInstanceData);
     }
 }
