@@ -336,6 +336,7 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
   const [substep, setSubstep] = useState<number>(0);
 
   const [brief, setBrief] = useState<string>("");
+  const [deliverable, setDeliverable] = useState<string>("");
   const [objectives, setObjectives] = useState<ProjectObjective[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
   const [supportLinks, setSupportLinks] = useState<ProjectSupportLink[]>([]);
@@ -345,6 +346,7 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
       id: '',
       taskTemplateId: '',
       brief: brief,
+      deliverable: deliverable,
       objectives: objectives,
       skills: skills,
       supportLinks: supportLinks
@@ -406,6 +408,10 @@ function ProjectTemplateCreationForm(props: { updateTaskTypeData: (data: any) =>
         <div className="flex flex-col gap-2">
           <Label htmlFor="name" >Project Brief</Label>
           <Textarea required className='col-span-3' value={brief} onChange={(event: any) => {setBrief(event.target.value);}}/>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="name" >Deliverable</Label>
+          <Input type='text' required className='col-span-3' value={deliverable} onChange={(event: any) => {setDeliverable(event.target.value);}}/>
         </div>
         <div className='flex flex-col gap-2 w-full'>
           <Label>Skills ({skills.length})</Label>

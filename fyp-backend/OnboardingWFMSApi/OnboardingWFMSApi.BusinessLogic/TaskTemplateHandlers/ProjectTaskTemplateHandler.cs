@@ -37,6 +37,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Please provide a project breif" };
             }
+            if (string.IsNullOrEmpty(projectTaskData.Deliverable))
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Please provide a deliverable" };
+            }
             if (projectTaskData.Objectives.Count == 0)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Please provide objectives" };

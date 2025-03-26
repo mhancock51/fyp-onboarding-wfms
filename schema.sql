@@ -93,6 +93,7 @@ CREATE TABLE projectasktemplate (
     Id VARCHAR(255) PRIMARY KEY,
     TaskTemplateId VARCHAR(255),
     Brief TEXT,
+    Deliverable VARCHAR(255),
     Objectives JSON,
     SupportLinks JSON,
     Skills JSON

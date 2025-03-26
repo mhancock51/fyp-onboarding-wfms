@@ -6,12 +6,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import ProjectObjective from '@/models/tasks/ProjectObjective';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { TabsList } from '@radix-ui/react-tabs';
-import { ExternalLink } from 'lucide-react';
+import { Asterisk, ExternalLink } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 
@@ -59,13 +60,13 @@ export default function ProjectTask(props: Props) {
     })
   }
 
-  function updateObjectiveState(complete: boolean, index: number) {
+  function updateObjectiveState(complete: boolean, objective: ProjectObjective) {
     if (props.taskStatus !== "open") return;
     // update checklist item's state through hook
     setProjectState((prevState) => ({ 
       ...prevState, 
       // find item by index and set its value
-      objectiveStates: prevState.objectiveStates.map((status, i) => (i === index ? complete : status))
+      objectiveStates: prevState.objectiveStates.map((status, i) => (props.projectTemplate.objectives[i] === objective ? complete : status))
     }));
   }
 
@@ -98,17 +99,47 @@ export default function ProjectTask(props: Props) {
           </div>
           <div className='flex flex-col'>
             <Label className='font-bold'>Deliverable</Label>
-            <Badge className='mx-2 my-1 py-2 px-4 rounded-full'>A really cool react web app</Badge>            
+            <Label className='font-normal'>
+            { props.projectTemplate.deliverable === "" ? "N/A" : props.projectTemplate.deliverable }
+            </Label>            
           </div>
           <Separator/>
           <div className='flex flex-col'>
             <Label className='font-bold'>Objectives</Label>
             <div className='flex flex-col gap-1 w-full mx-2 my-1'>
             {
-              props.projectTemplate.objectives.map((objective, index) => (
+              props.projectTemplate.objectives.filter(o => o.required).map((objective, index) => (
                 <div key={index} className='flex flex-row gap-4 items-center'>
-                  <Checkbox className='data-[state=checked]:bg-green-500' checked={projectState.objectiveStates[index]} onCheckedChange={(checked: CheckedState) => {updateObjectiveState(checked as boolean, index)}}/>
-                  <Label>{objective.objective} {objective.required ? "" : "(optional)"}</Label>
+                  <Checkbox className='data-[state=checked]:bg-green-500' 
+                    checked={projectState.objectiveStates[props.projectTemplate.objectives.findIndex(i => i === objective)]} 
+                    onCheckedChange={(checked: CheckedState) => {updateObjectiveState(checked as boolean, objective)}}
+                  />
+                  <div className='flex flex-row w-full justify-between'>
+                    <Label>{objective.objective}</Label>
+                    {
+                      objective.required &&
+                      <Asterisk size={20} className='text-red-500'/>
+                    }
+                  </div>
+
+                </div>
+              ))  
+            }
+            </div>
+            <Separator/>
+            <div className='flex flex-col gap-1 w-full mx-2 my-1'>
+            <Label className='font-bold font-medium'>Optional</Label>
+            {
+              props.projectTemplate.objectives.filter(o => !o.required).map((objective, index) => (
+                <div key={index} className='flex flex-row gap-4 items-center'>
+                  <Checkbox className='data-[state=checked]:bg-green-500' 
+                    checked={projectState.objectiveStates[props.projectTemplate.objectives.findIndex(i => i === objective)]} 
+                    onCheckedChange={(checked: CheckedState) => {updateObjectiveState(checked as boolean, objective)}}
+                  />
+                  <div className='flex flex-row w-full justify-between'>
+                    <Label>{objective.objective}</Label>
+                  </div>
+
                 </div>
               ))  
             }

@@ -22,6 +22,8 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskTemplateId { get; set; }
         [JsonPropertyName("brief")]
         public string Brief { get; set; }
+        [JsonPropertyName("deliverable")]
+        public string Deliverable { get; set; }
         [JsonPropertyName("objectives")]
         [JsonInclude]
         public List<ProjectObjective> Objectives { get; set; }
