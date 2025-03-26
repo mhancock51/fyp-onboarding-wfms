@@ -143,6 +143,26 @@ const Api = {
       supervisorAccountId,
       onboardingEmployeeDetails
     })
+  },
+  documents: {
+    uploadDocuments: async(payload: UploadDocumentPayload) => {      
+      // build form data
+      const formData = new FormData();
+      if (payload.taskInstanceId) {
+        formData.append("taskInstanceId", payload.taskInstanceId);
+      }
+      formData.append("file", payload.file);
+      formData.append("documentName", payload.documentName);
+      
+      payload.accessAccountIds.forEach(id => formData.append("accessAccountIds", id)); 
+
+      return AuthInstance.post(`${ROUTE_URL}/document/upload`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+      })
+    }
+  },
   }
 }
 

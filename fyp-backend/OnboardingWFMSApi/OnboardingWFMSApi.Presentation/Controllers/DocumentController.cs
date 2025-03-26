@@ -20,8 +20,13 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _documentLogic = documentLogic;
         }
 
+        [Authorize]
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadDocument([FromBody] UploadDocumentPayload payload)
+        public async Task<IActionResult> UploadDocument(
+            [FromForm] string taskInstanceId,
+            [FromForm] IFormFile file,
+            [FromForm] string documentName,
+            [FromForm] List<string> accessAccountIds)
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
             if (accountId == "")
@@ -31,7 +36,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
             else
             {
-                var response = await _documentLogic.UploadDocument(payload, accountId);
+                var response = await _documentLogic.UploadDocument(taskInstanceId, file, documentName, accessAccountIds, accountId);
                 return StatusCode(response.HttpCode, response);
             }
         }

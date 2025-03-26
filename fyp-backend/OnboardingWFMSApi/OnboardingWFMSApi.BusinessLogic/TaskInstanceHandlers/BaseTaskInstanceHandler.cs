@@ -34,7 +34,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
         }
 
-        public async Task<ServerResponse<string, string>> UpdateTaskInstanceData(object taskInstanceData)
+        public virtual async Task<ServerResponse<string, string>> UpdateTaskInstanceData(object taskInstanceData)
         {
             var updatedTaskInstanceData = CastObjectToType(taskInstanceData);
 

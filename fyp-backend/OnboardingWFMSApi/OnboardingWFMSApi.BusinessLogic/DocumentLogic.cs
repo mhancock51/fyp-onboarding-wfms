@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
@@ -18,7 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IDocumentLogic
     {
-        public Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
+        public Task<HTTPResponse<DocumentDTO, string>> UploadDocument(string taskInstanceId, IFormFile file, string documentName, List<string> accessAccountIds, string accountId);
         public Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId, string accountId);
         public Task<HTTPResponse<List<DocumentDTO>, string>> GetDocumentsFromWorkflowInstance(string workflowInstanceId, string accountId);
     }
@@ -93,9 +94,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<List<DocumentDTO>, string>() { Success = true, HttpCode = 200, Data = documents };
         }
 
-        public async Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
+        public async Task<HTTPResponse<DocumentDTO, string>> UploadDocument(string taskInstanceId, IFormFile file, string documentName, List<string> accessAccountIds, string accountId)
         {
-            var taskInstance = await _taskInstanceRepository.GetById(payload.TaskInstanceId);
+            var taskInstance = await _taskInstanceRepository.GetById(taskInstanceId);
             string workflowInstanceId = null;
             if (taskInstance != null)
             {
@@ -117,13 +118,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 document = new DocumentTable()
                 {
-                    TaskInstanceId = payload.TaskInstanceId,
+                    TaskInstanceId = taskInstanceId,
                     CreatorId = accountId,
                     WorkflowInstanceId = workflowInstanceId,
-                    FileExtension = Path.GetExtension(payload.File.FileName),
+                    FileExtension = Path.GetExtension(file.FileName),
                     UploadTimestamp = DateTime.Now,
-                    FileName = payload.DocumentName,
-                    DocumentData = await ConvertIFormFileToByteArray(payload.File)
+                    FileName = documentName,
+                    DocumentData = await ConvertIFormFileToByteArray(file)
                 };
                 document = await _documentRepository.AddAsync(document);
             }
@@ -132,7 +133,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
             }
             // assign access to document
-            foreach(var accessAccountId in payload.AccessAccountIds)
+            await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accountId, DocumentId = document.Id });
+            foreach(var accessAccountId in accessAccountIds)
             {
                 var link = await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accessAccountId, DocumentId = document.Id });
                 if (link == null) _logger.LogError($"Failed to provide access to document for account {accessAccountId}");
