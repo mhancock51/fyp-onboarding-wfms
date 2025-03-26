@@ -1,6 +1,7 @@
 ﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories.Interfaces;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
