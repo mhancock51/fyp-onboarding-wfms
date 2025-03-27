@@ -14,26 +14,11 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _analyticsLogic = analyticsLogic;
         }
 
-        [HttpGet("workflow-instances/completed")]
-        public async Task<IActionResult> GetOpenInstances(DateTime? from)
+        [HttpGet("onboarding")]
+        public async Task<IActionResult> GetOnboardingAnalytics(DateTime? from)
         {
-            var response = await _analyticsLogic.GetCompletedWorkflowInstances(from);
+            var response = await _analyticsLogic.GetOnboardingAnalytics(from);
             return StatusCode(response.HttpCode, response);
-        }
-
-        [HttpGet("workflow-instances/open")]
-        public async Task<IActionResult> GetCompletedInstances()
-        {
-            var response = await _analyticsLogic.GetOpenWorkflowInstances();
-            return StatusCode(response.HttpCode, response);
-        }
-
-        [HttpGet("workflow-instances/average")]
-        public async Task<IActionResult> GetAvgTimeToOnboard()
-        {
-            var response = await _analyticsLogic.GetAverageTimeToOnboard();
-            return StatusCode(response.HttpCode, response);
-        }
-
+        } 
     }
 }

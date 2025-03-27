@@ -165,18 +165,12 @@ const Api = {
     }
   },
   analytics: {
-    fetchNumberOfCompletedInstances: async(from?: Date) => {
-      return AuthInstance.get(`${ROUTE_URL}/analytics/workflow-instances/completed`, {
+    fetchOnboardingAnalytics: async(from?: Date) => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding`, {
         params: {
           from: from
         }
-      });
-    },
-    fetchNumberOfOpenInstnces: async() => {
-      return AuthInstance.get(`${ROUTE_URL}/analytics/workflow-instances/open`);
-    },
-    fetchAvgTimeToOnboard: async() => {
-      return AuthInstance.get(`${ROUTE_URL}/analytics/workflow-instances/average`);
+      })
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,11 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IAnalyticsLogic
     {
-        public Task<HTTPResponse<int, string>> GetCompletedWorkflowInstances(DateTime? from);
-        public Task<HTTPResponse<int, string>> GetOpenWorkflowInstances();
-        public Task<HTTPResponse<double, string>> GetAverageTimeToOnboard();
+        public Task<int> GetCompletedOnboardingWorkflowInstances(DateTime? from);
+        public Task<int> GetOpenOnboardingWorkflowInstances();
+        public Task<double> GetAverageTimeToOnboard();
+
+        public Task<HTTPResponse<OnboardingAnalyticsDTO, string>> GetOnboardingAnalytics(DateTime? from);
     }
 
     public class AnalyticsLogic : IAnalyticsLogic
@@ -24,9 +27,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             _workflowInstanceRepository = workflowInstanceRepository;
         }
 
-        public async Task<HTTPResponse<double, string>> GetAverageTimeToOnboard()
+        public async Task<double> GetAverageTimeToOnboard()
         {
-            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedWorkflowInstances();
+            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances();
             var totalDays = 0;            
             foreach(var instance in completedWorkflowInstances)
             {
@@ -38,25 +41,34 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             var average = (double)totalDays / completedWorkflowInstances.Count;
             average = Math.Truncate(100 * average) / 100;
-            return new HTTPResponse<double, string>() { Success = true, HttpCode = 200, Data = average };
-
+            return average;
         }
 
-        public async Task<HTTPResponse<int, string>> GetCompletedWorkflowInstances(DateTime? from)
+        public async Task<int> GetCompletedOnboardingWorkflowInstances(DateTime? from)
         {
-            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedWorkflowInstances();
+            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances();
             if (from != null)
             {
                 // get the workflow instance completed in the last month, week, etc
                 completedWorkflowInstances = completedWorkflowInstances.Where(i => i.CompletionTimestamp > from).ToList();
             }
-            return new HTTPResponse<int, string>() { Success = true, HttpCode = 200, Data = completedWorkflowInstances.Count };
+            return completedWorkflowInstances.Count;
         }
 
-        public async Task<HTTPResponse<int, string>> GetOpenWorkflowInstances()
+        public async Task<int> GetOpenOnboardingWorkflowInstances()
         {
-            var openWorkflowInstances = await _workflowInstanceRepository.GetOpenWorkflowInstances();
-            return new HTTPResponse<int, string>() { Success = true, HttpCode = 200, Data = openWorkflowInstances.Count };
+            var openWorkflowInstances = await _workflowInstanceRepository.GetOpenOnboardingWorkflowInstances();
+            return openWorkflowInstances.Count;
+        }
+
+        public async Task<HTTPResponse<OnboardingAnalyticsDTO, string>> GetOnboardingAnalytics(DateTime? from)
+        {
+            var averageTimeToOnboard = await GetAverageTimeToOnboard();
+            var completedOnboardingInstances = await GetCompletedOnboardingWorkflowInstances(from);
+            var openOnbordingInstances = await GetOpenOnboardingWorkflowInstances();
+
+            OnboardingAnalyticsDTO workflowInstanceAnalytics = new OnboardingAnalyticsDTO(averageTimeToOnboard, openOnbordingInstances, completedOnboardingInstances);
+            return new HTTPResponse<OnboardingAnalyticsDTO, string>() { Success = true, Data = workflowInstanceAnalytics, HttpCode = 200 };            
         }
     }
 }

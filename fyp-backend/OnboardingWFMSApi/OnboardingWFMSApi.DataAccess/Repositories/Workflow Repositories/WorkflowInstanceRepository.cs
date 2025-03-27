@@ -16,8 +16,8 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         public Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderAccountId(string onboarderAccountId);
         public Task<List<WorkflowInstanceTable>> GetInstancesWhereAccountIsAssignee(string accountId);
         public Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderEmailAddress(string onboarderEmailAddress);
-        public Task<List<WorkflowInstanceTable>> GetCompletedWorkflowInstances();
-        public Task<List<WorkflowInstanceTable>> GetOpenWorkflowInstances();
+        public Task<List<WorkflowInstanceTable>> GetCompletedOnboardingWorkflowInstances();
+        public Task<List<WorkflowInstanceTable>> GetOpenOnboardingWorkflowInstances();
     }
 
     public class WorkflowInstanceRepository : BaseRepository<WorkflowInstanceTable>, IWorkflowInstanceRepository
@@ -65,14 +65,14 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
             return await _dbContext.workflowInstances.Where(i => matchingEmployeeDetails.Select(j => j.WorkflowInstanceId).Contains(i.Id)).ToListAsync();
         }
 
-        public async Task<List<WorkflowInstanceTable>> GetCompletedWorkflowInstances()
+        public async Task<List<WorkflowInstanceTable>> GetCompletedOnboardingWorkflowInstances()
         {
-            return await _dbContext.workflowInstances.Where(i => i.CompletionTimestamp != null).ToListAsync();
+            return await _dbContext.workflowInstances.Where(i => i.CompletionTimestamp != null && _dbContext.workflowTemplates.FirstOrDefault(t => t.Id == i.WorkflowTemplateId).IsOnboardingWF).ToListAsync();
         }
 
-        public async Task<List<WorkflowInstanceTable>> GetOpenWorkflowInstances()
+        public async Task<List<WorkflowInstanceTable>> GetOpenOnboardingWorkflowInstances()
         {
-            return await _dbContext.workflowInstances.Where(i => i.CompletionTimestamp == null).ToListAsync();
+            return await _dbContext.workflowInstances.Where(i => i.CompletionTimestamp == null && _dbContext.workflowTemplates.FirstOrDefault(t => t.Id == i.WorkflowTemplateId).IsOnboardingWF).ToListAsync();
         }
     }
 }

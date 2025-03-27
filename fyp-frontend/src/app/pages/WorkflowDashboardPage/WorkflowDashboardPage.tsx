@@ -3,39 +3,33 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import { TrendingUpIcon } from 'lucide-react'
+import { Star, TrendingUpIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import DataCard from './DataCard';
+import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
 
 export default function WorkflowDashboardPage() {
-  const [completedInstances, setCompleteInstances] = useState<number>(0);
-  const [openInstances, setOpenInstances] = useState<number>(0);
-  const [avgOnboard, setAvgOnboard] = useState<number>(0);
+  const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
+  const [loadingOnboardingAnalytics, setLoadingOnboardingAnalytics] = useState<boolean>(false);
+  const [onboardingAnalyticsErrored, setOnboardingAnalyticsErrored] = useState<boolean>(false);
 
-  async function fetchCompleteInstances() {
-    await Api.analytics.fetchNumberOfCompletedInstances()
-    .then((response: AxiosResponse<HTTPresponse<number, string>>) => {
-      setCompleteInstances(response.data.data);
-    })    
-  }
 
-  async function fetchOpenInstances() {
-    await Api.analytics.fetchNumberOfOpenInstnces()
-    .then((response: AxiosResponse<HTTPresponse<number, string>>) => {
-      setOpenInstances(response.data.data);
-    })   
-  }
-
-  async function fetchAverageTimeToOnboard() {
-    await Api.analytics.fetchAvgTimeToOnboard()
-    .then((response: AxiosResponse<HTTPresponse<number, string>>) => {
-      setAvgOnboard(response.data.data);
-    })  
+  async function fetchOnboardingAnalytics() {
+    setLoadingOnboardingAnalytics(true);
+    await Api.analytics.fetchOnboardingAnalytics()
+    .then((response: AxiosResponse<HTTPresponse<OnboardingAnalyticsDTO, string>>) => {
+      setOnboardingAnalytics(response.data.data);
+    })
+    .catch((error) => {
+      setOnboardingAnalyticsErrored(true);
+    })
+    .finally(() => {
+      setLoadingOnboardingAnalytics(false);
+    })
   }
 
   useEffect(() => {
-    void fetchCompleteInstances();
-    void fetchOpenInstances();
-    void fetchAverageTimeToOnboard();
+    void fetchOnboardingAnalytics();
   }, [])
 
   return (
@@ -44,49 +38,25 @@ export default function WorkflowDashboardPage() {
         <div className='flex flex-row w-full justify-between'>
           <h1 className='text-lg flex-10 font-bold'>Onboarding Workflows</h1>
         </div>        
-        <div className='*:data-[slot=card]:shadow-xs grid grid-cols-3 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card'>
-          <Card className="@container/card col-3">
-            <CardHeader className="relative">
-              <CardDescription>Time to onboard</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                {avgOnboard} days
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
+        <div className='*:data-[slot=card]:shadow-xs grid grid-cols-5 grid-rows-3 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card'>
+          <DataCard label='Time to onboard' data={`${onboardingAnalytics?.averageTimeToOnboard} days`} loading={loadingOnboardingAnalytics}/>
+          <DataCard label='Employees onboarding' data={onboardingAnalytics?.employeesOnboarding} loading={loadingOnboardingAnalytics}/>
+          <DataCard label='Employees onboarded' data={onboardingAnalytics?.employeesOnboarded} loading={loadingOnboardingAnalytics}/>
+          <DataCard label='Onboarding Satisifaction rating' data={
+            <div className='flex flex-col'>
+              {"[PLACEHOLDER]"}
+              <div className='flex flex-row gap-1'>
+                <Star className='text-yellow-500'/><Star className='text-yellow-500'/><Star className='text-yellow-500'/><Star className='text-gray-300'/><Star className='text-gray-300'/>
               </div>
-            </CardHeader>
-          </Card>
-          <Card className="@container/card col-3">
-            <CardHeader className="relative">
-              <CardDescription>Employees Onboarding</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                { openInstances }
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="@container/card col-3">
-            <CardHeader className="relative">
-              <CardDescription>Employees Onboarded</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                {completedInstances}
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
-              </div>
-            </CardHeader>
-          </Card>
+            </div>
+            } 
+            loading={loadingOnboardingAnalytics} fontSize='text-[1.25em]'
+            errored={onboardingAnalyticsErrored}
+          />
+          <DataCard label='Most popular workflow' data={"[PLACEHOLDER] Junior Onboarding Workflow"} fontSize='text-[1.25em]'
+            loading={loadingOnboardingAnalytics}
+            errored={onboardingAnalyticsErrored}
+          />       
         </div>
       </div>
       <div className='flex flex-col gap-2'>
