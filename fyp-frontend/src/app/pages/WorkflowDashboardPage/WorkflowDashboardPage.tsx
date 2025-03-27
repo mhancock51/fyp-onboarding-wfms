@@ -7,6 +7,7 @@ import { Star, TrendingUpIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import DataCard from './DataCard';
 import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
+import OnboardingEmployeesTableCard from './OnboardingEmployeesTableCard';
 
 export default function WorkflowDashboardPage() {
   const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
@@ -56,7 +57,8 @@ export default function WorkflowDashboardPage() {
           <DataCard label='Most popular workflow' data={"[PLACEHOLDER] Junior Onboarding Workflow"} fontSize='text-[1.25em]'
             loading={loadingOnboardingAnalytics}
             errored={onboardingAnalyticsErrored}
-          />       
+          />
+          <OnboardingEmployeesTableCard/>       
         </div>
       </div>
       <div className='flex flex-col gap-2'>

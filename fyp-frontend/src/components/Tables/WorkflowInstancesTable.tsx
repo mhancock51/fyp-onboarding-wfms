@@ -14,6 +14,7 @@ import NoResults from '../NoResults'
 import TableActionsDropdown, { DropdownAction } from '../TableActionsDropdown'
 import { Button } from '../ui/button'
 import { ArrowDownUp } from 'lucide-react'
+import Utils from '@/util'
 
 interface Props {
   actions: DropdownAction[];
@@ -63,30 +64,6 @@ export default function WorkflowInstancesTable(props: Props) {
         return "Supervisor";
       default:
         return "other";
-    }
-  }
-
-  function getStatusDisplayName(workflowInstance: WorkflowInstanceDTO) {
-    if (workflowInstance.workflowTemplate.isOnboardingWF) {
-      if (workflowInstance.status === "MAINFLOW") return "ONBOARDING";
-      if (workflowInstance.status === "PREFLOW") return "PREBOARDING";
-      return workflowInstance.status;
-    }
-    else {
-      return workflowInstance.status;
-    }
-  }
-
-  function getStatusColor(status: string) {
-    switch(status) {
-      case "MAINFLOW":
-        return "bg-blue-500";
-      case "PREFLOW":
-        return "bg-orange-600";
-      case "COMPLETE":
-        return "bg-green-500";
-      default:
-        return "bg-purple-900";
     }
   }
 
@@ -188,8 +165,8 @@ export default function WorkflowInstancesTable(props: Props) {
               <TableRow key={index} className='cursor-pointer hover:brightness-90 hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
                 <TableCell>{instance.workflowTemplate.name}</TableCell>
                 <TableCell width={50}>
-                  <Badge className={`bg-primary py-2 px-4 w-full rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center ${getStatusColor(instance.status)}`}>
-                    {getStatusDisplayName(instance)}
+                  <Badge className={`bg-primary py-2 px-4 w-full rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center ${Utils.getWorkflowStatusColor(instance.status)}`}>
+                    {Utils.getWorkflowStatusDisplayName(instance)}
                   </Badge>
                 </TableCell>
                 <TableCell>

@@ -15,11 +15,14 @@ import Utils from './util';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
 import { Spinner } from './components/ui/spinner';
-import { SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
+import { SET_ACCOUNTS_DIRECTORY, SET_DEPARTMENTS, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
 import TaskType from './models/tasks/TaskType';
 import AccountDirectory from './models/AccountDirectory';
 import WorkflowInstancesPage from './app/pages/WorkflowInstancesPage/WorkflowInstancesPage';
 import WorkflowDashboardPage from './app/pages/WorkflowDashboardPage/WorkflowDashboardPage';
+import { AxiosResponse } from 'axios';
+import HTTPresponse from './models/HTTPresponse';
+import Department from './models/Department';
 
 export default function App() {  
 
@@ -32,6 +35,7 @@ export default function App() {
   const [loadedTaskTypes, setLoadedTaskTypes] = useState<boolean>(false);
   const [loadedAccounts, setLoadedAccounts] = useState<boolean>(false);  
   const [loadedTaskTemplates, setLoadedTaskTemplates] = useState<boolean>(false);  
+  const [loadedDepartments, setLoadedDepartments] = useState<boolean>(false);  
 
   const [validatedToken, setValidatedToken] = useState<boolean>(false);
 
@@ -100,6 +104,19 @@ export default function App() {
     })    
   }
 
+  async function fetchDepartments() {
+    Api.fetchDepartments()
+    .then((response: AxiosResponse<HTTPresponse<Department[], string>>) => {
+      dispatcher(SET_DEPARTMENTS(response.data.data as Department[]));
+    })
+    .catch((error) => {
+      toast.error("Failed to load departments");
+    })
+    .finally(() => {
+      setLoadedDepartments(true);
+    })
+  }
+
   useEffect(() => {
     if (!Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
       void testValidityOfToken();
@@ -111,6 +128,7 @@ export default function App() {
       void fetchTaskTypes();
       void fetchAccountsDirectory();
       void fetchTaskTemplates();
+      void fetchDepartments();
     }
   }, [validatedToken]);
 
@@ -118,7 +136,7 @@ export default function App() {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>    
       <Router>
         <Routes>
-          {(validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates) || user === null ? (
+          {(validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates && loadedDepartments) || user === null ? (
             <Route 
               path="/" 
               element={user !== null ? <Layout /> : <Navigate to="/login" />}

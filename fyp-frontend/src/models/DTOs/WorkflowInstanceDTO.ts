@@ -8,6 +8,6 @@ export default interface WorkflowInstanceDTO {
   id: string;
   workflowTemplateId: string;
   supervisorAccountId: string;
-  creationTimestamp: string;
+  creationTimestamp: Date;
   onboardingEmployeeDetails: OnboardingEmployeeDetailsDTO | null;
 }

@@ -1,7 +1,8 @@
 import AccountDirectory from "@/models/AccountDirectory";
 import AuthenticatedUser from "@/models/AuthenticatedUser";
+import Department from "@/models/Department";
 import TaskTemplate from "@/models/tasks/TaskTemplate";
-import TaskType from "@/models/tasks/taskType";
+import TaskType from "@/models/tasks/TaskType";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const USER_DATA_STORAGE_KEY = "USER_DATA";
@@ -15,7 +16,8 @@ export interface AppState {
     openCreateWorkflowInstanceDialog: boolean;
     taskTypes: TaskType[];
     accountsDirectory: AccountDirectory[];
-    taskTemplates: TaskTemplate[]
+    taskTemplates: TaskTemplate[];
+    departments: Department[];
 }
 
 const initialState: AppState = {
@@ -27,7 +29,8 @@ const initialState: AppState = {
     openCreateWorkflowInstanceDialog: false,
     taskTypes: [],
     accountsDirectory: [],
-    taskTemplates: []
+    taskTemplates: [],
+    departments: []
 }
 
 export const appSlice = createSlice({
@@ -61,13 +64,17 @@ export const appSlice = createSlice({
         },
         SET_TASK_TEMPLATES: (state, action: PayloadAction<TaskTemplate[]>) => {
             state.taskTemplates = action.payload;
+        },
+        SET_DEPARTMENTS: (state, action: PayloadAction<Department[]>) => {
+            state.departments = action.payload;
         }
     }
 });
 
 export const {
     SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
-    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG
+    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG,
+    SET_DEPARTMENTS
 } = appSlice.actions;
 
 export default appSlice.reducer;

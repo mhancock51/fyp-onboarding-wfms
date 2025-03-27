@@ -172,6 +172,11 @@ const Api = {
         }
       })
     }
+  },
+  workflowInstances: {
+    fetchAllOpenWorkflowInstance: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/instance/onboarding/open`);
+    }
   }
 }
 

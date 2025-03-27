@@ -19,6 +19,6 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         {
             var response = await _analyticsLogic.GetOnboardingAnalytics(from);
             return StatusCode(response.HttpCode, response);
-        } 
+        }
     }
 }
