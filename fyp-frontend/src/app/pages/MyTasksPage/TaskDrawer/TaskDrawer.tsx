@@ -118,7 +118,7 @@ export default function TaskDrawer(props: Props) {
               <div className='flex flex-col justify-center gap-1'>
                 <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
                 {
-                  user?.isAdmin &&
+                  user?.isSupervisor &&
                   <Badge className='mx-auto text-center cursor-pointer' onClick={() => {navigator.clipboard.writeText(props.task.id);}}>
                     [{props.task.id}]
                   </Badge>              

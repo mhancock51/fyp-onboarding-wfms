@@ -17,8 +17,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (open: boolean) => void}) {
-  const [onboarder, setOnboarder] = useState<boolean>(false);
-
   const [department, setDepartment] = useState<Department | null>(null);
   const [displayName, setDisplayName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -40,7 +38,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
     }
 
     setLoading(true);
-    Api.inviteUser(displayName, email, onboarder, department.id)
+    Api.inviteUser(displayName, email, department.id)
     .then((response) => {
       setLoading(false);
       toast(`Successfully invited ${displayName}!`, { duration: 600, onAutoClose: () => {
@@ -59,8 +57,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
     })
   }
 
-  function closeAndClear() {
-    setOnboarder(false);
+  function closeAndClear() {    
     setDepartment(null);
     setDisplayName("");
     setEmail("");

@@ -108,7 +108,7 @@ export function AppSidebar(props: Props) {
           </SidebarGroup>
           {
             /* change this to isSupervisor check */
-            user?.isAdmin &&
+            user?.isSupervisor &&
             <SidebarGroup>
               <SidebarGroupLabel>Supervisor</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -130,7 +130,7 @@ export function AppSidebar(props: Props) {
             </SidebarGroup>
           }
           {
-            user?.isAdmin &&
+            user?.isSupervisor &&
             <SidebarGroup>
               <SidebarGroupLabel>Admin</SidebarGroupLabel>
               <SidebarGroupContent>
