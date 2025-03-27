@@ -18,9 +18,8 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string Id { get; set; }
         public string DisplayName { get; set; }
         public string EmailAddress { get; set; }
-        public string HashedPassword { get; set; }
-        public bool IsOnboarder { get; set; }
-        public bool IsAdmin { get; set; }
+        public string HashedPassword { get; set; }        
+        public bool IsSupervisor { get; set; }
         [ForeignKey(nameof(DepartmentTable.Id))]
         public string DepartmentId { get; set; }
         [ForeignKey(nameof(OrganisationTable.Id))]

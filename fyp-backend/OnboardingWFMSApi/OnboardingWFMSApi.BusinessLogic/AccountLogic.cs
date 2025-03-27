@@ -114,7 +114,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 EmailAddress = emailAddress,
                 IsOnboarder = isOnboarder,
-                IsAdmin = false,
+                IsSupervisor = false,
                 OrganisationId = "organisation",
                 DepartmentId = departmentId,
                 DisplayName = displayName,
@@ -165,7 +165,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // if first account, make admin
             if (await _accountRepository.GetNumberOfAccounts() == 0)
             {
-                account.IsAdmin = true;
+                account.IsSupervisor = true;
             }
 
             try

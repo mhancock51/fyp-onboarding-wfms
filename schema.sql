@@ -6,9 +6,8 @@ CREATE TABLE account (
     AccountId VARCHAR(255) PRIMARY KEY,
     DisplayName VARCHAR(255) NOT NULL,
     EmailAddress VARCHAR(255) NOT NULL,
-    HashedPassword VARCHAR(255) NOT NULL,
-    IsOnboarder TINYINT(1) NOT NULL,
-    IsAdmin TINYINT(1) NOT NULL,
+    HashedPassword VARCHAR(255) NOT NULL,    
+    IsSupervisor TINYINT(1) NOT NULL,
     DepartmentId VARCHAR(255),
     OrganisationId VARCHAR(255),
     AccountStatus VARCHAR(255)

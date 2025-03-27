@@ -60,7 +60,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {                
                 await _organisationAdminLinkRepository.AddAsync(new OrganisationAdminLinkTable() { AccountId = accountId, OrganisationId = organisationId });
                 // set account to admin
-                account.IsAdmin = true;
+                account.IsSupervisor = true;
                 await _accountRepository.UpdateAsync(account);
 
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Assigned admin" };
