@@ -40,7 +40,7 @@ export default function OnboardingEmployeesTableCard() {
     <DataCard label={`Onboarding Employees ${instances.length > 0 ? `(${instances.length})` : ""}`} colSpan='md:col-span-2 sm:col-span-3' rowSpan='row-span-2' fontBold='font-normal' 
       fontSize='text-[1.25em]' loading={loading}
       data={
-        <div className='max-h-[250px] overflow-y-auto'>
+        <div className='max-h-[400px] overflow-y-auto'>
           <Table >
             <TableHeader className='border-b-1'>
               <TableCell width={100} className='text-center'>Employee</TableCell>

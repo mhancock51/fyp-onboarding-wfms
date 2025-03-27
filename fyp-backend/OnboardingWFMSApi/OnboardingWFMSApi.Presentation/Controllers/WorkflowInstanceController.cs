@@ -45,9 +45,9 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         // TODO make this admin/supervisor only
         [Authorize]
         [HttpGet("onboarding/open")]
-        public async Task<IActionResult> GetAllOpenWorkflowInstances() 
+        public async Task<IActionResult> GetAllOpenWorkflowInstances(DateTime? from, DateTime? to) 
         {
-            var response = await _workflowInstanceLogic.GetAllOpenOnboardingWorkflowInstances();
+            var response = await _workflowInstanceLogic.GetAlllOnboardingWorkflowInstances(from, to);
             return StatusCode(response.HttpCode, response);
         }
     }

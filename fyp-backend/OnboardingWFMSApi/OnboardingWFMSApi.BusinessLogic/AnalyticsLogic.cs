@@ -3,6 +3,7 @@ using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +15,9 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<int> GetCompletedOnboardingWorkflowInstances(DateTime? from);
         public Task<int> GetOpenOnboardingWorkflowInstances();
         public Task<double> GetAverageTimeToOnboard();
-
         public Task<HTTPResponse<OnboardingAnalyticsDTO, string>> GetOnboardingAnalytics(DateTime? from);
+        public Task<HTTPResponse<OnboardedEmployeesTimelineDTO, string>> GetOnboardedEmployeesTimeline();
+
     }
 
     public class AnalyticsLogic : IAnalyticsLogic
@@ -29,7 +31,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<double> GetAverageTimeToOnboard()
         {
-            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances();
+            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances(null, null);
             var totalDays = 0;            
             foreach(var instance in completedWorkflowInstances)
             {
@@ -46,12 +48,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<int> GetCompletedOnboardingWorkflowInstances(DateTime? from)
         {
-            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances();
-            if (from != null)
-            {
-                // get the workflow instance completed in the last month, week, etc
-                completedWorkflowInstances = completedWorkflowInstances.Where(i => i.CompletionTimestamp > from).ToList();
-            }
+            var completedWorkflowInstances = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances(from, null);
             return completedWorkflowInstances.Count;
         }
 
@@ -69,6 +66,23 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             OnboardingAnalyticsDTO workflowInstanceAnalytics = new OnboardingAnalyticsDTO(averageTimeToOnboard, openOnbordingInstances, completedOnboardingInstances);
             return new HTTPResponse<OnboardingAnalyticsDTO, string>() { Success = true, Data = workflowInstanceAnalytics, HttpCode = 200 };            
+        }
+
+        public async Task<HTTPResponse<OnboardedEmployeesTimelineDTO, string>> GetOnboardedEmployeesTimeline()
+        {
+            List<OnboardedEmployeesTimelineItem> timeline = new List<OnboardedEmployeesTimelineItem>();
+            // get number of employees onboarded by each month of the current year
+            int year = DateTime.Now.Year;
+            DateTime yearStart = new DateTime(year, 1, 1);
+            DateTime monthStart = yearStart;
+            for (int i = 0; i < 12; i++)
+            {
+                var instancesCompleted = await _workflowInstanceRepository.GetCompletedOnboardingWorkflowInstances(monthStart, monthStart.AddMonths(1).Subtract(TimeSpan.FromSeconds(1)));
+                var timelineItem = new OnboardedEmployeesTimelineItem(i, DateTimeFormatInfo.CurrentInfo.GetMonthName(i), instancesCompleted.Count);
+                timeline.Add(timelineItem);
+                monthStart.AddMonths(1);
+            }
+            return new HTTPResponse<OnboardedEmployeesTimelineDTO, string>() { Success = true, HttpCode = 200, Data = new OnboardedEmployeesTimelineDTO(timeline) };
         }
     }
 }

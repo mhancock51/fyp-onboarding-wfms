@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import DataCard from './DataCard';
 import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
 import OnboardingEmployeesTableCard from './OnboardingEmployeesTableCard';
+import EmployeesOnboardedChart from './EmployeesOnboardedChart';
 
 export default function WorkflowDashboardPage() {
   const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
@@ -58,7 +59,8 @@ export default function WorkflowDashboardPage() {
             loading={loadingOnboardingAnalytics}
             errored={onboardingAnalyticsErrored}
           />
-          <OnboardingEmployeesTableCard/>       
+          <OnboardingEmployeesTableCard/>
+          <EmployeesOnboardedChart/>       
         </div>
       </div>
       <div className='flex flex-col gap-2'>

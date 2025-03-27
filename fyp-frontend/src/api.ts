@@ -171,6 +171,9 @@ const Api = {
           from: from
         }
       })
+    },
+    fetchOnboardedEmployeesTimeline: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding/timeline`);s
     }
   },
   workflowInstances: {
