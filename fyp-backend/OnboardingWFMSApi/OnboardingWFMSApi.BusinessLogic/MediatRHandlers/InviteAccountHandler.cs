@@ -12,14 +12,13 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
     {
         public string displayName;
         public string emailAddress;
-        public bool isOnboarder;
+        public bool isSupervisor;
         public string departmentId;
 
-        public InviteAccountRequest(string displayName, string emailAddress, bool isOnboarder, string departmentId)
+        public InviteAccountRequest(string displayName, string emailAddress, string departmentId)
         {
             this.displayName = displayName;
             this.emailAddress = emailAddress;
-            this.isOnboarder = isOnboarder;
             this.departmentId = departmentId;            
         }
     }
@@ -35,7 +34,7 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
 
         public async Task<HTTPResponse<string, string>> Handle(InviteAccountRequest request, CancellationToken cancellationToken)
         {
-            return await _accountLogic.InviteUser(request.displayName, request.emailAddress, request.isOnboarder, request.departmentId);
+            return await _accountLogic.InviteUser(request.displayName, request.emailAddress,  request.departmentId);
         }
     }
 }

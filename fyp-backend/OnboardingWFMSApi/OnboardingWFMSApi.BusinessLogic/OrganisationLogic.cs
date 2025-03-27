@@ -49,12 +49,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account isn't associated with organisation", HttpCode = 400 };
             }      
-            
-            // check account isn't onboarder
-            if (account.IsOnboarder)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Account is an onboarder", HttpCode = 400 };
-            }
+           
 
             try
             {                

@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IAccountLogic
     {
-        public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId);
+        public Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, string departmentId);
         public Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string hashedPassword, string hashedConfirmationPassword);
         public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
         public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
@@ -94,7 +94,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId)
+        public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, string departmentId)
         {           
             // check email address doesn't already exist
             var existingAccount = await _accountRepository.GetByEmailAddress(emailAddress);
@@ -112,8 +112,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // insert user record and set status to invited
             AccountTable account = new AccountTable()
             {
-                EmailAddress = emailAddress,
-                IsOnboarder = isOnboarder,
+                EmailAddress = emailAddress,                
                 IsSupervisor = false,
                 OrganisationId = "organisation",
                 DepartmentId = departmentId,

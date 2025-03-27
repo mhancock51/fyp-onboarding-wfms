@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [HttpPost("invite")]
-        public async Task<IActionResult> InviteUser(string displayName, string emailAddress, bool isOnboarder, string departmentId)
+        public async Task<IActionResult> InviteUser(string displayName, string emailAddress, string departmentId)
         {
             if (string.IsNullOrEmpty(displayName))
             {
@@ -33,7 +33,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
 
             // TODO make organisation ID derived from user context
-            var result = await _accountLogic.InviteUser(displayName, emailAddress, isOnboarder, departmentId);
+            var result = await _accountLogic.InviteUser(displayName, emailAddress, departmentId);
             return StatusCode(result.HttpCode, result);
         }
 
