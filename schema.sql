@@ -164,7 +164,8 @@ CREATE TABLE workflowinstance (
     OnboarderAccountId VARCHAR(255),
     SupervisorAccountId VARCHAR(255),
     CreationTimestamp DATETIME,    
-    MainflowStartTimestamp DATETIME
+    MainflowStartTimestamp DATETIME,
+    CompletionTimestamp DATETIME
 );
 
 CREATE TABLE onboardingemployeedetails (

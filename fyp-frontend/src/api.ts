@@ -7,6 +7,7 @@ import { ChecklistTaskInstance } from './models/tasks/ChecklistTaskInstance';
 import FileUploadTaskInstance from './models/tasks/FileUploadTaskInstance';
 import ReadDocumentTaskInstance from './models/tasks/ReadDocumentTaskInstance';
 import ProjectTaskInstance from './models/tasks/ProjectTaskInstance';
+import { UploadDocumentPayload } from './models/payloads/UploadDocumentPayload';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -163,6 +164,20 @@ const Api = {
       })
     }
   },
+  analytics: {
+    fetchNumberOfCompletedInstances: async(from?: Date) => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/workflow-instances/completed`, {
+        params: {
+          from: from
+        }
+      });
+    },
+    fetchNumberOfOpenInstnces: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/workflow-instances/open`);
+    },
+    fetchAvgTimeToOnboard: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/workflow-instances/average`);
+    }
   }
 }
 

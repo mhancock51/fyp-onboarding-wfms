@@ -1,11 +1,43 @@
+import Api from '@/api';
 import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+import HTTPresponse from '@/models/HTTPresponse';
+import { AxiosResponse } from 'axios';
 import { TrendingUpIcon } from 'lucide-react'
-import React from 'react'
+import { useEffect, useState } from 'react'
 
 export default function WorkflowDashboardPage() {
+  const [completedInstances, setCompleteInstances] = useState<number>(0);
+  const [openInstances, setOpenInstances] = useState<number>(0);
+  const [avgOnboard, setAvgOnboard] = useState<number>(0);
+
+  async function fetchCompleteInstances() {
+    await Api.analytics.fetchNumberOfCompletedInstances()
+    .then((response: AxiosResponse<HTTPresponse<number, string>>) => {
+      setCompleteInstances(response.data.data);
+    })    
+  }
+
+  async function fetchOpenInstances() {
+    await Api.analytics.fetchNumberOfOpenInstnces()
+    .then((response: AxiosResponse<HTTPresponse<number, string>>) => {
+      setOpenInstances(response.data.data);
+    })   
+  }
+
+  async function fetchAverageTimeToOnboard() {
+    await Api.analytics.fetchAvgTimeToOnboard()
+    .then((response: AxiosResponse<HTTPresponse<number, string>>) => {
+      setAvgOnboard(response.data.data);
+    })  
+  }
+
+  useEffect(() => {
+    void fetchCompleteInstances();
+    void fetchOpenInstances();
+    void fetchAverageTimeToOnboard();
+  }, [])
+
   return (
     <div className='flex flex-col gap-2'>
       <div className='flex flex-col gap-2'>
@@ -17,7 +49,7 @@ export default function WorkflowDashboardPage() {
             <CardHeader className="relative">
               <CardDescription>Time to onboard</CardDescription>
               <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                31 days
+                {avgOnboard} days
               </CardTitle>
               <div className="absolute right-4 top-0">
                 <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
@@ -31,7 +63,7 @@ export default function WorkflowDashboardPage() {
             <CardHeader className="relative">
               <CardDescription>Employees Onboarding</CardDescription>
               <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                4
+                { openInstances }
               </CardTitle>
               <div className="absolute right-4 top-0">
                 <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
@@ -45,7 +77,7 @@ export default function WorkflowDashboardPage() {
             <CardHeader className="relative">
               <CardDescription>Employees Onboarded</CardDescription>
               <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                10
+                {completedInstances}
               </CardTitle>
               <div className="absolute right-4 top-0">
                 <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">

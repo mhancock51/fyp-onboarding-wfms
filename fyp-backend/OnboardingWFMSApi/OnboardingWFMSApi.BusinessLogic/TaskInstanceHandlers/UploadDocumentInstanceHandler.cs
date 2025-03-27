@@ -33,7 +33,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
-            await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = "", UploadedTimestamp = DateTime.MinValue });
+            await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = ""});
             return new ServerResponse<string, string>() { Success = true };
         }
 

@@ -195,12 +195,22 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (string.IsNullOrEmpty(taskInstance.WorkflowInstanceId))
             {
                 throw new Exception("Task instance isn't associated to a workflow instance");                
-            }
+            }            
 
             var workflowInstance = (await GetWorkflowInstance(taskInstance.WorkflowInstanceId)).Data ?? null;
             if (workflowInstance == null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to retrieve workflow instance" };
+            }
+
+            // check if all tasks in the whole workflow have been completed
+            if (await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id) && await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.MainflowTasks, workflowInstance.Id))
+            {
+                // mark workflow instance as complete
+                workflowInstance.CompletionTimestamp = DateTime.Now;
+                await _workflowInstanceRepository.UpdateAsync(workflowInstance);
+                _logger.LogInformation($"Workflow instance ${workflowInstance.Id} completed");
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Marked workflow instance as complete" };
             }
 
             // invite onboarder once all preflow (preboarding) tasks have been completed
