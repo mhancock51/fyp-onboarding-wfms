@@ -9,6 +9,8 @@ import DepartmentCreationDialog from "./dialogs/DepartmentCreationDialog";
 import CreateTaskTemplateDialog from "./dialogs/CreateTaskTemplateDialog";
 import TaskTemplatesListDialog from "./dialogs/TaskTemplatesListDialog";
 import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
+import OrganisationDialog from "./dialogs/OrganisationDialog";
+import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
 
 export default function layout() {
   const dispatch = useDispatch();
@@ -20,7 +22,7 @@ export default function layout() {
 
   return (
     <SidebarProvider>
-      <AppSidebar organisationName={"Ibcos"} />
+      <AppSidebar organisationName={app.organisation?.name ?? "ERROR"} />
       <main style={{padding: "8px", width: "100%"}}>
         {/* <SidebarTrigger /> */}
         <Outlet />
@@ -28,8 +30,9 @@ export default function layout() {
       <InviteUserDialog open={openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
       <DepartmentCreationDialog open={openCreateDptDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
       <CreateTaskTemplateDialog open={openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>
-      <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>
+      <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>      
       <CreateWorkflowInstanceDialog/>
+      <OrganisationDialog/>
       <ManageAccountsDialog/>
     </SidebarProvider>
   )

@@ -57,12 +57,7 @@ export function AppSidebar(props: Props) {
       icon: Users
     },
     {
-      title: "Departments",
-      onClickAction: () => { dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); },
-      icon: Users
-    },
-    {
-      title: "Organisation",
+      title: "Manage Organisation",
       onClickAction: () => { dispatch(SET_OPEN_ORGANISATION_DIALOG(true));},
       icon: Building
     }
@@ -90,8 +85,10 @@ export function AppSidebar(props: Props) {
     <>
       <Sidebar collapsible="icon" className="cursor-pointer">
         <SidebarHeader onClick={() => { navigate("/");}}>
-          <SidebarGroupLabel style={{fontSize: "1.5em", textAlign: "center", margin: "auto"}}>{props.organisationName}</SidebarGroupLabel>
-          <SidebarSeparator/>
+          <div className="w-full flex flex-col justify-center items-center gap-2 py-1">
+            <SidebarGroupLabel className="text-2xl text-center">{props.organisationName}</SidebarGroupLabel>
+            <SidebarSeparator/>
+          </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
@@ -102,8 +99,8 @@ export function AppSidebar(props: Props) {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <a onClick={() => {navigate(item.url)}}>
-                        <item.icon size={60}/>
-                        <span className="text-base">{item.title}</span>
+                        <item.icon/>
+                        <span>{item.title}</span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
