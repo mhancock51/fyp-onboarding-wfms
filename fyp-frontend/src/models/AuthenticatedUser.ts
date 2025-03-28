@@ -1,9 +1,8 @@
 export default interface AuthenticatedUser {
     id: string;
     displayName: string;
-    emailAddress: string;
-    isOnboarder: string;
-    isAdmin: string;
+    emailAddress: string;    
+    isSupervisor: boolean;
     departmentId: string;
     departmentName: string;
     organisationId: string;

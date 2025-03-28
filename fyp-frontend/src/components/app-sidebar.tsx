@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SetStateAction, useState } from "react"
 import InviteUserDialog from "@/app/dialogs/InviteUserDialog"
-import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
+import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
 import { title } from "process"
    
 const mainItems = [
@@ -45,21 +45,16 @@ export function AppSidebar(props: Props) {
 
   const dispatch = useDispatch();
 
-  const adminItems = [
-    {
-      title: "Task Templates",
-      onClickAction: () => { dispatch(SET_OPEN_TASK_TEMPLATES_LIST_DIALOG(true));},
-      icon: ListTodo
-    },
-    {
-      title: "Workflow Builder",
-      onClickAction: () => { navigate("/workflow-builder")},
-      icon: Blocks
-    },
+  const adminItems = [    
     {
       title: "Invite User",
       onClickAction: () => { dispatch(SET_OPEN_INVITE_DIALOG(true)); },
       icon: UserPlus
+    },
+    {
+      title: "Manage Accounts",
+      onClickAction: () => { dispatch(SET_OPEN_ACCOUNTS_DIALOG(true)); },
+      icon: Users
     },
     {
       title: "Departments",
@@ -68,7 +63,7 @@ export function AppSidebar(props: Props) {
     },
     {
       title: "Organisation",
-      onClickAction: () => {},
+      onClickAction: () => { dispatch(SET_OPEN_ORGANISATION_DIALOG(true));},
       icon: Building
     }
   ];
@@ -78,6 +73,16 @@ export function AppSidebar(props: Props) {
       title: "Start A Workflow Instance",
       onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
       icon: Route
+    },
+    {
+      title: "Task Templates",
+      onClickAction: () => { dispatch(SET_OPEN_TASK_TEMPLATES_LIST_DIALOG(true));},
+      icon: ListTodo
+    },
+    {
+      title: "Workflow Builder",
+      onClickAction: () => { navigate("/workflow-builder")},
+      icon: Blocks
     }
   ]
 
@@ -108,7 +113,7 @@ export function AppSidebar(props: Props) {
           </SidebarGroup>
           {
             /* change this to isSupervisor check */
-            user?.isAdmin &&
+            user?.isSupervisor &&
             <SidebarGroup>
               <SidebarGroupLabel>Supervisor</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -130,7 +135,7 @@ export function AppSidebar(props: Props) {
             </SidebarGroup>
           }
           {
-            user?.isAdmin &&
+            user?.isSupervisor &&
             <SidebarGroup>
               <SidebarGroupLabel>Admin</SidebarGroupLabel>
               <SidebarGroupContent>

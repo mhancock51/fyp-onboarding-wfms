@@ -49,18 +49,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account isn't associated with organisation", HttpCode = 400 };
             }      
-            
-            // check account isn't onboarder
-            if (account.IsOnboarder)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Account is an onboarder", HttpCode = 400 };
-            }
+           
 
             try
             {                
                 await _organisationAdminLinkRepository.AddAsync(new OrganisationAdminLinkTable() { AccountId = accountId, OrganisationId = organisationId });
                 // set account to admin
-                account.IsAdmin = true;
+                account.IsSupervisor = true;
                 await _accountRepository.UpdateAsync(account);
 
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Assigned admin" };
