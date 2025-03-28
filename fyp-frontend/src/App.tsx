@@ -16,10 +16,14 @@ import { Button } from './components/ui/button';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
 import { Spinner } from './components/ui/spinner';
-import { SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
-import TaskType from './models/tasks/taskType';
+import { SET_ACCOUNTS_DIRECTORY, SET_DEPARTMENTS, SET_ORGANISATION, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
+import TaskType from './models/tasks/TaskType';
 import AccountDirectory from './models/AccountDirectory';
 import WorkflowInstancesPage from './app/pages/WorkflowInstancesPage/WorkflowInstancesPage';
+import Department from './models/Department';
+import { AxiosResponse } from 'axios';
+import HTTPresponse from './models/HTTPresponse';
+import Organisation from './models/Organisation';
 
 function App() {  
 
@@ -31,7 +35,9 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadedTaskTypes, setLoadedTaskTypes] = useState<boolean>(false);
   const [loadedAccounts, setLoadedAccounts] = useState<boolean>(false);  
-  const [loadedTaskTemplates, setLoadedTaskTemplates] = useState<boolean>(false);  
+  const [loadedTaskTemplates, setLoadedTaskTemplates] = useState<boolean>(false); 
+  const [loadedDepartments, setLoadedDepartments] = useState<boolean>(false); 
+  const [loadedOrganisation, setLoadedOrganisation] = useState<boolean>(false);
 
   const [validatedToken, setValidatedToken] = useState<boolean>(false);
 
@@ -53,6 +59,33 @@ function App() {
       setValidatedToken(true);  
     })
   }  
+
+  async function fetchOrganisation() {
+    Api.organisation.fetchOrganisation()
+    .then((response: AxiosResponse<HTTPresponse<Organisation, string>>) => {
+      dispatcher(SET_ORGANISATION(response.data.data));
+    })
+    .catch((error) => {
+      toast.error("Failed to load organisation");
+    })
+    .finally(() => {
+      setLoadedOrganisation(true);
+    })
+  }
+
+  async function fetchAllDepartments() {    
+    Api.fetchDepartments()
+    .then((response) => {
+      console.log("TEST:", response);
+      dispatcher(SET_DEPARTMENTS(response.data.data as Department[]));            
+    })
+    .catch((error) => {
+      toast.error("Failed to load departments");      
+    })
+    .finally(() => {
+      setLoadedDepartments(true);
+    })
+  }
 
   // fetch task types
   async function fetchTaskTypes() {
@@ -108,16 +141,18 @@ function App() {
 
   useEffect(() => {
     if (validatedToken && !Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
+      void fetchAllDepartments();
       void fetchTaskTypes();
       void fetchAccountsDirectory();
       void fetchTaskTemplates();
+      void fetchOrganisation();
     }
   }, [validatedToken]);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>    
       {
-        (validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates) || user === null ? (
+        (validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates && loadedDepartments && loadedOrganisation) || user === null ? (
           <Router>
             <Routes>
               <Route element={user !== null ? <Layout/> : <Navigate to={"/login"} />}>

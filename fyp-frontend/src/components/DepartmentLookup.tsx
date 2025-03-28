@@ -5,6 +5,9 @@ import Department from '@/models/Department';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Plus } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_DEPARTMENTS, SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG } from '@/features/appSlice';
+import { RootState } from '@/store';
 
 interface Props {
   department: Department | null;
@@ -12,14 +15,16 @@ interface Props {
 }
 
 export default function DepartmentLookup(props: Props) {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [departments, setDepartments] = useState<Department[]>([]);  
+  const [loading, setLoading] = useState<boolean>(false);  
+
+  const dispatch = useDispatch();
+  const departments = useSelector((state: RootState) => state.app.departments);
 
   async function fetchAllDepartments() {
     setLoading(true);
     Api.fetchDepartments()
     .then((response) => {
-      setDepartments(response.data.data as Department[]);
+      dispatch(SET_DEPARTMENTS(response.data.data as Department[]));      
       setLoading(false);
     })
     .catch((error) => {
@@ -29,13 +34,16 @@ export default function DepartmentLookup(props: Props) {
   }
 
   useEffect(() => {
-    void fetchAllDepartments();
-  }, []);
+    console.log(departments);
+    if (departments.length === 0) {
+      void fetchAllDepartments();
+    }
+  }, [departments]);
 
   return (
-    <div className='flex flex-row gap-2 className="w-[180px] flex-8"'>
+    <div className='flex flex-row gap-2 col-span-3 w-auto'>
       <Select value={props.department?.id ?? undefined} onValueChange={(value: string) => {props.setDepartment(departments.find(i => i.id === value) ?? null);}}>
-        <SelectTrigger>
+        <SelectTrigger className='w-auto'>
           <SelectValue placeholder="Select a department" />
         </SelectTrigger>
         <SelectContent>
@@ -58,7 +66,11 @@ export default function DepartmentLookup(props: Props) {
           }
         </SelectContent>
       </Select> 
-      <Button variant={"outline"}><Plus/></Button>
+      <Button onClick={() => {
+        dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); 
+        dispatch(SET_OPEN_ORGANISATION_DIALOG(false));
+        dispatch(SET_OPEN_INVITE_DIALOG(false));
+      }} variant={"outline"}><Plus/></Button>
     </div>
   )
 }
