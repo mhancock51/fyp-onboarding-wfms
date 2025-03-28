@@ -2,6 +2,7 @@
 using MediatR;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
@@ -21,6 +22,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
         public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
         public Task<bool> DoesAccountExistByEmail(string emailAddress);
+        public Task<HTTPResponse<string, string>> MakeSupervisor(string accountId);
     }
 
     public class AccountLogic : IAccountLogic
@@ -31,16 +33,19 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IAccountRepository _accountRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IOrganisationRepository _organisationRepository;
+        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
 
-        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository, IMapper mapper, IMediator mediator)
+        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository, 
+            IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository)
         {
             _accountRepository = accountRepository;
             _departmentRepository = departmentRepository;
             _organisationRepository = organisationRepository;
             _mapper = mapper;
             _mediator = mediator;
+            _workflowInstanceRepository = workflowInstanceRepository;
         }
 
         public async Task<bool> DoesAccountExistByEmail(string emailAddress)
@@ -131,6 +136,44 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to invite user" };
             }
 
+        }
+
+        public async Task<HTTPResponse<string, string>> MakeSupervisor(string accountId)
+        {
+            // ensure account exists
+            var existingAccount = await _accountRepository.GetById(accountId);
+            if (existingAccount == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
+            }
+            // ensure account isn't already a supervisor
+            if (existingAccount.IsSupervisor)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account is already a supervisor" };
+            }
+            // ensure account is registered
+            if (existingAccount.AccountStatus != REGISTERED_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account isn't registered" };
+            }
+            // ensure account isn't onboarder of an open workflow instance
+            // TODO: filter onboarding instances for ones that are open
+            var onboardingInstances = await _workflowInstanceRepository.GetInstancesByOnboarderAccountId(accountId);
+            if (onboardingInstances.Count > 0)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account is an onboarder" };
+            }
+            // grant superviosor status
+            existingAccount.IsSupervisor = true;
+            try
+            {
+                await _accountRepository.UpdateAsync(existingAccount);
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully granted supervisor status" };
+            }
+            catch (Exception ex)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to grant supervisor status" };
+            }
         }
 
         public async Task<HTTPResponse<string, string>> RegisterUser(string emailAddress, string password, string confirmationPassword)

@@ -45,30 +45,20 @@ export function AppSidebar(props: Props) {
 
   const dispatch = useDispatch();
 
-  const adminItems = [
-    {
-      title: "Task Templates",
-      onClickAction: () => { dispatch(SET_OPEN_TASK_TEMPLATES_LIST_DIALOG(true));},
-      icon: ListTodo
-    },
-    {
-      title: "Workflow Builder",
-      onClickAction: () => { navigate("/workflow-builder")},
-      icon: Blocks
-    },
+  const adminItems = [    
     {
       title: "Invite User",
       onClickAction: () => { dispatch(SET_OPEN_INVITE_DIALOG(true)); },
       icon: UserPlus
     },
     {
-      title: "Departments",
-      onClickAction: () => { dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); },
+      title: "Manage Accounts",
+      onClickAction: () => { dispatch(SET_OPEN_ACCOUNTS_DIALOG(true)); },
       icon: Users
     },
     {
-      title: "Manage Accounts",
-      onClickAction: () => { dispatch(SET_OPEN_ACCOUNTS_DIALOG(true)); },
+      title: "Departments",
+      onClickAction: () => { dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); },
       icon: Users
     },
     {
@@ -83,7 +73,17 @@ export function AppSidebar(props: Props) {
       title: "Start A Workflow Instance",
       onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
       icon: Route
-    }    
+    },
+    {
+      title: "Task Templates",
+      onClickAction: () => { dispatch(SET_OPEN_TASK_TEMPLATES_LIST_DIALOG(true));},
+      icon: ListTodo
+    },
+    {
+      title: "Workflow Builder",
+      onClickAction: () => { navigate("/workflow-builder")},
+      icon: Blocks
+    }
   ]
 
   return (

@@ -79,5 +79,14 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             var response = await _accountLogic.GetDirectoryOfAllRegisteredAccounts();
             return StatusCode(response.HttpCode, response);
         }
+
+        [Authorize]
+        [HttpPost("make-supervisor")]
+        public async Task<IActionResult> MakeAccountSupervisor(string accountId)
+        {
+            // TODO restrict endpoint to supervisor accounts only
+            var response = await _accountLogic.MakeSupervisor(accountId);
+            return StatusCode(response.HttpCode, response);
+        }
     }
 }

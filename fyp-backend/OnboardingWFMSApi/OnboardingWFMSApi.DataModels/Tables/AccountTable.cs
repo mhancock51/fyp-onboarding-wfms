@@ -24,6 +24,6 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string DepartmentId { get; set; }
         [ForeignKey(nameof(OrganisationTable.Id))]
         public string OrganisationId { get; set; }
-        public string AccountStatus { get; set; }
+        public string AccountStatus { get; set; }        
     }
 }
