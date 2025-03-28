@@ -43,7 +43,7 @@ export default function CreateWorkflowPage() {
       name: name,
       description: description,
       isOnboardingWF: isOnboardingWf,
-      preflowTasks: preflowTasks.map((task) => (
+      preflowNodes: preflowTasks.map((task) => (
         { 
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
@@ -52,7 +52,7 @@ export default function CreateWorkflowPage() {
           daysUntilDue: task.daysUntilDue
         }
       )),
-      mainflowTasks: mainflowTasks.map((task) => (
+      mainflowNodes: mainflowTasks.map((task) => (
         { 
           id: "",
           taskTemplateId: task.taskTemplate?.id ?? "",
@@ -85,12 +85,12 @@ export default function CreateWorkflowPage() {
       setIsOnboardingWf(workflowDTO.isOnboardingWF);
 
       var preflowTasks: WorkflowTemplateNode[] = [];
-      workflowDTO.preflowTasks.forEach((task) => {
+      workflowDTO.preflowNodes.forEach((task) => {
         preflowTasks.push(workflowTemplateDTOToNode(task, preflowTasks));
       })
       setPreflowTasks(preflowTasks);
       var mainflowTasks: WorkflowTemplateNode[] = [];
-      workflowDTO.mainflowTasks.forEach((task) => {
+      workflowDTO.mainflowNodes.forEach((task) => {
         mainflowTasks.push(workflowTemplateDTOToNode(task, mainflowTasks));
       })
       setMainflowTasks(mainflowTasks);

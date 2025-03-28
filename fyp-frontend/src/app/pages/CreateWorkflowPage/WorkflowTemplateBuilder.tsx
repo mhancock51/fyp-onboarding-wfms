@@ -5,11 +5,11 @@ import EndNode from './Nodes/EndNode';
 import InviteUserNode from './Nodes/InviteUserNode';
 import StartNode from './Nodes/StartNode';
 import TaskNode from './Nodes/TaskNode';
-import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { Button } from '@/components/ui/button';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
 import AccountDirectory from '@/models/AccountDirectory';
+import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 
 interface Props {
   taskTemplates: TaskTemplate[];

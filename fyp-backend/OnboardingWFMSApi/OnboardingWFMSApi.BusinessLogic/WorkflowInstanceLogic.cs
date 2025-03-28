@@ -43,11 +43,13 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IAccountLogic _accountLogic;
 
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly IWorkflowNodeInstanceRepository _workflowNodeInstanceRepository;
+
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
 
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
             ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
-            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic)
+            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
@@ -58,6 +60,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
             _mediator = mediator;
             _accountLogic = accountLogic;
+            _workflowNodeInstanceRepository = workflowNodeInstanceRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -126,16 +129,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }
 
+            // create workflow node instances for all nodes
+
             // assign first tasks (ones with no dependencies in the preflow (if onboarding or mainflow))
             var nodeswithNoDependencies = new List<WorkflowTemplateNodeDTO>();
             if (workflowTemplate.IsOnboardingWF)
             {
                 // find preflow tasks with no dependencies
-                nodeswithNoDependencies = workflowTemplate.PreflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                nodeswithNoDependencies = workflowTemplate.PreflowNodes.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             }
             else
             {
-                nodeswithNoDependencies = workflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                nodeswithNoDependencies = workflowTemplate.MainflowNodes.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             }
             // assign tasks
             foreach (var node in nodeswithNoDependencies) 
@@ -207,7 +212,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (workflowInstance.WorkflowTemplate.IsOnboardingWF)
             {
                 // check if all preflow tasks have been completed
-                var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
+                var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowNodes, workflowInstance.Id);
                 if (isPreflowSectionComplete && workflowInstance.OnboardingEmployeeDetails.OnboarderAccountId == null)
                 {
                     var onboardingEmployeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstance.Id);
@@ -219,12 +224,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // find associated workflow node
-            var node = workflowInstance.WorkflowTemplate.PreflowTasks.Concat(workflowInstance.WorkflowTemplate.MainflowTasks)
+            var node = workflowInstance.WorkflowTemplate.PreflowNodes.Concat(workflowInstance.WorkflowTemplate.MainflowNodes)
                 .FirstOrDefault(n => n.TaskTemplateId == taskInstance.TaskTemplateId);  
 
             // ASSIGN TASKS THAT WERE DEPENDENT ON THIS TASK AND ARE NOW SATISFIED
             // get all nodes in workflow dependent on this node, if the nodes's dependencies are now statisfied, assign it 
-            var dependentNodes = workflowInstance.WorkflowTemplate.PreflowTasks.Concat(workflowInstance.WorkflowTemplate.MainflowTasks)
+            var dependentNodes = workflowInstance.WorkflowTemplate.PreflowNodes.Concat(workflowInstance.WorkflowTemplate.MainflowNodes)
                                     .Where(i => i.DependencyNodeIds.Contains(node.Id))
                                     .ToList();                        
             foreach(var dependentNode in dependentNodes)
@@ -327,7 +332,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // start mainflow tasks
             _logger.LogDebug($"Handling onboarding registration for onboarder (${accountId}) in workflow instance: {workflowInstance.Id} ({workflowInstance.WorkflowTemplate.Name})");
             
-            var nodesWithNoDependencies = workflowInstance?.WorkflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+            var nodesWithNoDependencies = workflowInstance?.WorkflowTemplate.MainflowNodes.Where(n => n.DependencyNodeIds.Count == 0).ToList();
             foreach(var node in nodesWithNoDependencies)
             {
                 await _taskInstanceLogic.CreateInstance(
@@ -374,10 +379,10 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return WORKFLOW_INSTANCE_COMPLETE_STATUS;
             }
 
-            var preflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
+            var preflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowNodes, workflowInstance.Id);
             if (!preflowTasksCompleted && workflowInstance.WorkflowTemplate.IsOnboardingWF) return WORKFLOW_INSTANCE_PREFLOW_STATUS;
             
-            var mainflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.MainflowTasks, workflowInstance.Id);
+            var mainflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.MainflowNodes, workflowInstance.Id);
             if (!mainflowTasksCompleted) return WORKFLOW_INSTANCE_MAINFLOW_STATUS;
 
             throw new Exception("Invalid condition met");
