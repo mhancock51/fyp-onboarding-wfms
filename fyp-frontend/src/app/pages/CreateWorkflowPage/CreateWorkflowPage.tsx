@@ -1,28 +1,26 @@
 import Api from '@/api';
 import WorkflowTemplateBuilder from './WorkflowTemplateBuilder';
 import { SetStateAction, useEffect, useState } from 'react';
-import TaskTemplate from '@/models/tasks/TaskTemplate';
-import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { toast } from 'sonner';
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';
-import { CheckedState } from '@radix-ui/react-checkbox';
 import { useSearchParams } from 'react-router-dom';
 import { WorkflowTemplateNodeDTO } from '@/models/DTOs/WorkflowTemplateNodeDTO';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
 import { CreateWorkflowTemplatePayload } from '@/models/payloads/CreateWorkflowTemplatePayload';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function CreateWorkflowPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [loading, setLoading] = useState<boolean>(false); 
+  const [updatingWorkflow, setUpdatingWorkflow] = useState<boolean>(false);
 
   const [errored, setErrored] = useState<boolean>(false); 
   const [error, setError] = useState<string>("");
@@ -96,6 +94,7 @@ export default function CreateWorkflowPage() {
         mainflowTasks.push(workflowTemplateDTOToNode(task, mainflowTasks));
       })
       setMainflowTasks(mainflowTasks);
+      setUpdatingWorkflow(true);
     })
     .catch((error) => {      
       setErrored(true);
@@ -125,70 +124,48 @@ export default function CreateWorkflowPage() {
     }
   }, []);
 
-  useEffect(() => {
-    // save preflow tasks
-    localStorage.setItem("PREFLOW_TASKS", JSON.stringify(preflowTasks));
-  }, [preflowTasks]);
-
-  useEffect(() => {
-    // save preflow tasks
-    localStorage.setItem("MAINFLOW_TASKS", JSON.stringify(mainflowTasks));
-  }, [mainflowTasks]);
-
-  useEffect(() => {
-    // save preflow tasks
-    localStorage.setItem("WORKFLOW_NAME", name);
-  }, [name]);
-
-  useEffect(() => {
-    // save preflow tasks
-    localStorage.setItem("WORKFLOW_DESCRIPTION", description);
-  }, [description]);
-
-  useEffect(() => {
-    // save preflow tasks
-    localStorage.setItem("IS_ONBOARDING_WORKFLOW", isOnboardingWf ? "true" : "false");
-  }, [isOnboardingWf]);
-
   return (
-    <div className='flex flex-col gap-2 w-full items-center'>
-      <div className='flex flex-col gap-2 w-1/2'>
-        <div className='flex flex-row gap-2 items-center'>
-          <div className='flex flex-col gap-1 flex-9'>
-            <Label className='flex-3 text-lg'>Workflow Name</Label>
-            <Input className='flex-9' disabled={loading}  type="text" value={name} onChange={(event: any) => {setName(event.target.value)}}/>
-          </div>
-          <div className='flex flex-col gap-1 flex-3 items-start'>
-            <Label>Is Onboarding Workflow?</Label>
-            <Checkbox checked={isOnboardingWf} disabled={loading} onCheckedChange={(checked: CheckedState) => {setIsOnboardingWf(checked as boolean);}}/>
-          </div>
-        </div>
-        <div className='flex flex-col gap-1'>
-          <Label className='flex-3 text-lg'>Description</Label>
-          <Textarea className='flex-9' disabled={loading} value={description} onChange={(event: any) => {setDescription(event.target.value);}}/>
-        </div>        
+    <div className='w-full relative'>
+      {/* Workflow name and other attributes tab */}
+      <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-99 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+        <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void createWorkflowTemplate()}}>
+          <Input required className='min-w-[350px]' disabled={loading} placeholder='Enter workflow name...' type="text" value={name} onChange={(event: any) => {setName(event.target.value)}}/>
+          <Select required onValueChange={(value: string) => { value === "onboarding-workflow" ? setIsOnboardingWf(true) : setIsOnboardingWf(false);}}>
+            <SelectTrigger className='min-w-[150px]'>
+              <SelectValue placeholder="Select a workflow type"/>
+            </SelectTrigger>
+            <SelectContent className="w-full z-99">
+              <SelectGroup>
+                <SelectItem value='onboarding-workflow'>Onboarding</SelectItem>
+                <SelectItem value='not-onboarding-workflow'>Not Onboarding</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+            <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
+              {
+                loading &&
+                <Spinner/>
+              }
+              {
+                updatingWorkflow ? "Update workflow" : "Create workflow"
+              }              
+            </Button>
+          </Select>
+        </form>
       </div>
-      <>
       {
-        errored &&
-        <div className='flex flex-col gap-2'>
-          <h2>Failed to load workflow template:</h2>
-          <Label>{error}</Label>
+        loading &&
+        <div className='w-full flex flex-row justify-center gap-2 py-100'>
+          <Spinner/>
+          Loading workflow builder...
         </div>
       }
       {
-        loading &&
-        <div className='flex flex-row gap-2'>
-          <Spinner/>
-          <span>Loading...</span>
-        </div>
-      }       
-      <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}
-        preflowTasks={preflowTasks} setPreflowTasks={setPreflowTasks}
-        mainflowTasks={mainflowTasks} setMainflowTasks={setMainflowTasks}
-      />
-      </>
-      <Button className='mx-2' onClick={createWorkflowTemplate}>Create Workflow Template</Button>
+        !loading &&
+        <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}
+          preflowTasks={preflowTasks} setPreflowTasks={setPreflowTasks}
+          mainflowTasks={mainflowTasks} setMainflowTasks={setMainflowTasks}
+        />            
+      }
     </div>
   )
 }
