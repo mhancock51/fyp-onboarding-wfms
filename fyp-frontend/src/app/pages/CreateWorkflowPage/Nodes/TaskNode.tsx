@@ -4,7 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
+import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';

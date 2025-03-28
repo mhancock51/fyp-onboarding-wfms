@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT, TEMPLATE_ACCOUNTS } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
-import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
+import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
 import { SelectLabel } from '@radix-ui/react-select';
