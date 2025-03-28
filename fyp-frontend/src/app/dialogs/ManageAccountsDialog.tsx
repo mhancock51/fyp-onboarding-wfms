@@ -126,12 +126,6 @@ export default function ManageAccountsDialog() {
                       <TableCell>
                         <TableActionsDropdown actions={[
                           {
-                            label: 'Terminate Account',
-                            onClick: function (): void {
-                              throw new Error('Function not implemented.');
-                            }
-                          },
-                          {
                             label: 'Make Supervisor',
                             onClick: () => {void makeSupervisor(account.id)}
                           }
