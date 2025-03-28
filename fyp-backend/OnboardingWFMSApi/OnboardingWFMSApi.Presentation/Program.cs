@@ -54,6 +54,8 @@ builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNode
 builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
 
 builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
+builder.Services.AddScoped<IWorkflowNodeInstanceRepository,  WorkflowNodeInstanceRepository>();
+
 builder.Services.AddScoped<IOnboardingEmployeeDetailsRepository, OnboardingEmployeeDetailsRepository>();
 
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();

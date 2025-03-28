@@ -166,6 +166,14 @@ CREATE TABLE workflowinstance (
     MainflowStartTimestamp DATETIME
 );
 
+CREATE TABLE workflowinstancenode (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowInstanceId VARCHAR(255),
+    WorkflowTemplateId VARCHAR(255),
+    WorkflowTemplateNodeId VARCHAR(255),
+    Status VARCHAR(255)
+);
+
 CREATE TABLE onboardingemployeedetails (
     Id VARCHAR(255) PRIMARY KEY,
     WorkflowInstanceId VARCHAR(255),
@@ -330,6 +338,22 @@ ALTER TABLE onboardingemployeedetails
 ALTER TABLE onboardingemployeedetails
     ADD CONSTRAINT fk_onboarder_account_id
     FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
+
+/* Workflow instance node */
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_workflow_instance_id
+    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_workflow_template_node_id
+    FOREIGN KEY (WorkflowTemplateNodeId) REFERENCES workflowtemplatenode(Id)
+    ON DELETE CASCADE;
 
 /* Comment table constraints */
 ALTER TABLE comment
