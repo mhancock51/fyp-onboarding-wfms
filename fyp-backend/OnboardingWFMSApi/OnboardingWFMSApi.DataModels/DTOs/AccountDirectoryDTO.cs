@@ -18,6 +18,9 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         [JsonPropertyName("departmentName")]
         public string DepartmentName { get; set; }
         [JsonPropertyName("isAdmin")]
-        public bool IsAdmin { get; set; }   
+        public bool IsAdmin { get; set; }
+        [JsonPropertyName("emailAddress")]   
+        public string EmailAddress { get; set; }
+        
     }
 }

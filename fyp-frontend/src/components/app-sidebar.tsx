@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SetStateAction, useState } from "react"
 import InviteUserDialog from "@/app/dialogs/InviteUserDialog"
-import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
+import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
 import { title } from "process"
    
 const mainItems = [
@@ -67,8 +67,13 @@ export function AppSidebar(props: Props) {
       icon: Users
     },
     {
+      title: "Manage Accounts",
+      onClickAction: () => { dispatch(SET_OPEN_ACCOUNTS_DIALOG(true)); },
+      icon: Users
+    },
+    {
       title: "Organisation",
-      onClickAction: () => {},
+      onClickAction: () => { dispatch(SET_OPEN_ORGANISATION_DIALOG(true));},
       icon: Building
     }
   ];
@@ -78,7 +83,7 @@ export function AppSidebar(props: Props) {
       title: "Start A Workflow Instance",
       onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
       icon: Route
-    }
+    }    
   ]
 
   return (

@@ -8,6 +8,7 @@ const USER_DATA_STORAGE_KEY = "USER_DATA";
 
 export interface AppState {
     user: AuthenticatedUser | null;
+    openAccountsDialog: boolean;
     openInviteDialog: boolean;
     openCreateDepartmentDialog: boolean;
     openCreateTaskTemplateDialog: boolean;
@@ -20,6 +21,7 @@ export interface AppState {
 
 const initialState: AppState = {
     user: loadUserFromLocalStorage(),
+    openAccountsDialog: false,
     openInviteDialog: false,
     openCreateDepartmentDialog: false,
     openCreateTaskTemplateDialog: false,
@@ -37,6 +39,9 @@ export const appSlice = createSlice({
         SET_USER: (state, action: PayloadAction<AuthenticatedUser | null>) => {
             state.user = action.payload;            
             saveUserToLocalStorage(state.user);            
+        },
+        SET_OPEN_ACCOUNTS_DIALOG: (state, action: PayloadAction<boolean>) => {
+            state.openAccountsDialog = action.payload
         },
         SET_OPEN_INVITE_DIALOG: (state, action: PayloadAction<boolean>) => {
             state.openInviteDialog = action.payload;
@@ -66,7 +71,7 @@ export const appSlice = createSlice({
 });
 
 export const {
-    SET_USER, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
+    SET_USER, SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
     SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG
 } = appSlice.actions;
 

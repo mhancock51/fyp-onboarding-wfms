@@ -30,6 +30,7 @@ export default function layout() {
       <CreateTaskTemplateDialog open={openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>
       <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>
       <CreateWorkflowInstanceDialog/>
+      <ManageAccountsDialog/>
     </SidebarProvider>
   )
 }
