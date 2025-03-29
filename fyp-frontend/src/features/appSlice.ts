@@ -21,7 +21,7 @@ export interface AppState {
     departments: Department[];
     taskTypes: TaskType[];
     accountsDirectory: AccountDirectory[];
-    taskTemplates: TaskTemplate[]
+    taskTemplates: TaskTemplate[];
 }
 
 const initialState: AppState = {
