@@ -38,6 +38,14 @@ const Api = {
       return AuthInstance.post(`${ROUTE_URL}/account/make-supervisor`, null, { params: {accountId: accountId}});
     }
   },
+  organisation: {
+    fetchOrganisation: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/organisation`);
+    },
+    renameOrganisation: async(newName: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/organisation/rename`, null, { params: {newName: newName}});
+    }
+  },
   fetchLogin: async(emailAddress: string, password: string) => {
     return axios.post(`${ROUTE_URL}/auth/login?emailAddress=${emailAddress}&password=${password}`);
   },
