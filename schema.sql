@@ -6,9 +6,8 @@ CREATE TABLE account (
     AccountId VARCHAR(255) PRIMARY KEY,
     DisplayName VARCHAR(255) NOT NULL,
     EmailAddress VARCHAR(255) NOT NULL,
-    HashedPassword VARCHAR(255) NOT NULL,
-    IsOnboarder TINYINT(1) NOT NULL,
-    IsAdmin TINYINT(1) NOT NULL,
+    HashedPassword VARCHAR(255) NOT NULL,    
+    IsSupervisor TINYINT(1) NOT NULL,
     DepartmentId VARCHAR(255),
     OrganisationId VARCHAR(255),
     AccountStatus VARCHAR(255)
@@ -71,9 +70,9 @@ CREATE TABLE taskinstance (
     TaskTemplateId VARCHAR(255),
     WorkflowInstanceId VARCHAR(255),
     CreationTimestamp DATETIME,
-    Status VARCHAR(255),
-    WorkflowNodeId VARCHAR(255),    
-    DueDate DATETIME
+    Status VARCHAR(255),    
+    DueDate DATETIME,
+    WorkflowInstanceNodeId VARCHAR(255)
 );
 
 CREATE TABLE checklisttaskinstance (
@@ -129,8 +128,7 @@ CREATE TABLE documentaccesslink (
 CREATE TABLE fileuploadtaskinstance (
     Id VARCHAR(255) PRIMARY KEY,
     TaskInstanceId VARCHAR(255),
-    DocumentId VARCHAR(255),
-    UploadedTimestamp DATETIME
+    DocumentId VARCHAR(255)
 );
 
 /* Everything workflow template related */
@@ -166,6 +164,15 @@ CREATE TABLE workflowinstance (
     CreationTimestamp DATETIME,    
     MainflowStartTimestamp DATETIME,
     CompletionTimestamp DATETIME
+);
+
+CREATE TABLE workflowinstancenode (
+    Id VARCHAR(255) PRIMARY KEY,
+    WorkflowInstanceId VARCHAR(255),
+    WorkflowTemplateId VARCHAR(255),
+    WorkflowTemplateNodeId VARCHAR(255),
+    TaskTemplateId VARCHAR(255),
+    Status VARCHAR(255)
 );
 
 CREATE TABLE onboardingemployeedetails (
@@ -252,9 +259,10 @@ ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_workflow_instance_id
     FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id);
 
-ALTER TABLE taskinstance
-    ADD CONSTRAINT fk_task_instance_workflow_node_id
-    FOREIGN KEY (WorkflowNodeId) REFERENCES workflowtemplatenode(Id);
+ALTER TABLE taskinstance    
+    ADD CONSTRAINT fk_task_instance_workflow_instance_node_id
+    FOREIGN KEY (WorkflowInstanceNodeId) REFERENCES workflowinstancenode(Id);
+
 
 ALTER TABLE checklisttaskinstance
     ADD CONSTRAINT fk_checklist_instance_task_instance_id
@@ -332,6 +340,27 @@ ALTER TABLE onboardingemployeedetails
 ALTER TABLE onboardingemployeedetails
     ADD CONSTRAINT fk_onboarder_account_id
     FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
+
+/* Workflow instance node */
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_node_instance_workflow_instance_id
+    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_node_instance_workflow_template_id
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_node_instance_workflow_template_node_id
+    FOREIGN KEY (WorkflowTemplateNodeId) REFERENCES workflowtemplatenode(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_node_instance_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
+    ON DELETE CASCADE;
 
 /* Comment table constraints */
 ALTER TABLE comment

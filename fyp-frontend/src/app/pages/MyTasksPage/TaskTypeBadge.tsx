@@ -24,7 +24,7 @@ export default function TaskTypeBadge(props: {taskTypeId: string}) {
   }
 
   return (
-    <div className='mx-2 bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-start'>
+    <div className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-start'>
       {taskTypeIcon(props.taskTypeId)}
       {taskTypes.find((taskType: TaskType) => (taskType.id === props.taskTypeId))?.taskName}
     </div>

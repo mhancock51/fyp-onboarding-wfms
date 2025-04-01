@@ -45,7 +45,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             var existingTemplate = await _workflowTemplateRepository.GetWorkflowTemplateByName(payload.Name);
             if (existingTemplate != null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Template name must be unique" };
 
-            if (payload.PreflowTasks.Count > 0 && !payload.IsOnboardingWF) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "None onboarding workflows can't have preflow tasks" };
+            if (payload.PreflowNodes.Count > 0 && !payload.IsOnboardingWF) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "None onboarding workflows can't have preflow tasks" };
             // create workflow template row
             var workflowTemplate = new WorkflowTemplateTable() { Name = payload.Name, Description = payload.Description, IsOnboardingWF = payload.IsOnboardingWF };
             try
@@ -63,7 +63,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 // add nodes and dependencies to tables
                 int index = 0;
-                foreach (var preflowTask in payload.PreflowTasks)
+                foreach (var preflowTask in payload.PreflowNodes)
                 {                
                     // TODO implement validation
                     // ensure preflow node (preboarding) isn't refererencing onboarder placeholder name before the onboarder has been invited
@@ -97,7 +97,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     }
                     index++;
                 }
-                foreach (var mainflowTask in payload.MainflowTasks)
+                foreach (var mainflowTask in payload.MainflowNodes)
                 {
                     // TODO implement validation
                     var node = new WorkflowTemplateNodeTable()
@@ -198,8 +198,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 mainflowTasks[i].DependencyNodeIds = dependencies.Where(n => n.NodeId == mainflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
             }
-            workflowTemplate.PreflowTasks = preflowTasks.ToList();
-            workflowTemplate.MainflowTasks = mainflowTasks.ToList();
+            workflowTemplate.PreflowNodes = preflowTasks.ToList();
+            workflowTemplate.MainflowNodes = mainflowTasks.ToList();
             return new HTTPResponse<WorkflowTemplateDTO, string>() { Success = true, HttpCode = 200, Data =  workflowTemplate };
         }        
     }

@@ -11,13 +11,15 @@ namespace OnboardingWFMSApi.DataModels.Payloads
 {
     public class UploadDocumentPayload
     {
-        [FromForm(Name = "taskInstanceId")]
-        public string? TaskInstanceId {  get; set; }
-        [FromForm(Name = "file")]
-        public IFormFile File { get; set; }
-        [FromForm(Name = "documentName")]
+        [JsonPropertyName("taskInstanceId")]
+        public string TaskInstanceId {  get; set; }
+        [JsonPropertyName("fileBase64")]
+        public string FileBase64 { get; set; }
+        [JsonPropertyName("fileName")]
+        public string FileName { get; set; }
+        [JsonPropertyName("documentName")]
         public string DocumentName { get; set; }
-        [FromForm(Name = "accessAccountIds")]
-        public List<string> AccessAccountIds { get; set; }
+        [JsonPropertyName("accessAccountIds")]
+        public string[] AccessAccountIds { get; set; }
     }
 }

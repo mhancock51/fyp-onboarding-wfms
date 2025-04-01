@@ -19,15 +19,15 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         [JsonPropertyName("isOnboardingWF")]
         public bool IsOnboardingWF { get; set; }
         [JsonInclude]
-        [JsonPropertyName("preflowTasks")]
-        public List<WorkflowTemplateNodeDTO> PreflowTasks { get; set; }
+        [JsonPropertyName("preflowNodes")]
+        public List<WorkflowTemplateNodeDTO> PreflowNodes { get; set; }
         [JsonInclude]
-        [JsonPropertyName("mainflowTasks")]
-        public List<WorkflowTemplateNodeDTO> MainflowTasks { get; set; }
+        [JsonPropertyName("mainflowNodes")]
+        public List<WorkflowTemplateNodeDTO> MainflowNodes { get; set; }
         [JsonPropertyName("numberOfTasks")]
         public int NumberOfTasks
         {
-            get { return PreflowTasks.Count + MainflowTasks.Count; }
+            get { return PreflowNodes.Count + MainflowNodes.Count; }
         }
     }
 }

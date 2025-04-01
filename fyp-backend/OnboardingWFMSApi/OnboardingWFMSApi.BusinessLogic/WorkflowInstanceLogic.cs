@@ -44,11 +44,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IAccountLogic _accountLogic;
 
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly IWorkflowNodeInstanceRepository _workflowNodeInstanceRepository;
+        private readonly IWorkflowTemplateNodeRepository _workflowTemplateNodeRepository;
+
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
 
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
             ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
-            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic)
+            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
@@ -59,6 +62,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
             _mediator = mediator;
             _accountLogic = accountLogic;
+            _workflowNodeInstanceRepository = workflowNodeInstanceRepository;
+            _workflowTemplateNodeRepository = workflowTemplateNodeRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -89,7 +94,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // TODO: ensure supervisor account is active            
 
-            var instance = new WorkflowInstanceTable()
+            var workflowInstance = new WorkflowInstanceTable()
             {
                 Id = "",
                 WorkflowTemplateId = payload.WorkflowTeamplateId,                    
@@ -98,11 +103,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             };
             try
             {
-                instance = await _workflowInstanceRepository.AddAsync(instance);
+                workflowInstance = await _workflowInstanceRepository.AddAsync(workflowInstance);
             }
             catch (Exception ex)
             {
-                await _workflowInstanceRepository.DeleteAsync(instance);
+                await _workflowInstanceRepository.DeleteAsync(workflowInstance);
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to create workflow instance" };
             }
             // insert employee details record
@@ -113,7 +118,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     var details = new OnboardingEmployeeDetailsTable()
                     {
                         Id = "",
-                        WorkflowInstanceId = instance.Id,
+                        WorkflowInstanceId = workflowInstance.Id,
                         DisplayName = payload.OnboardingEmployeeDetails.DisplayName,
                         EmailAddress = payload.OnboardingEmployeeDetails.EmailAddress,
                         DepartmentId = payload.OnboardingEmployeeDetails.DepartmentId,
@@ -122,39 +127,62 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
                 catch (Exception ex)
                 {
-                    await _workflowInstanceRepository.DeleteAsync(instance);
+                    await _workflowInstanceRepository.DeleteAsync(workflowInstance);
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to record onboarding employee's details" };
                 }
             }
 
+            var nodeInstances = new List<WorkflowInstanceNodeTable>();
+            // create workflow node instances for all nodes
+            foreach (var templateNode in workflowTemplate.PreflowNodes.Concat(workflowTemplate.MainflowNodes))
+            {
+                // instantiate instance of the node
+                WorkflowInstanceNodeTable nodeInstance = new WorkflowInstanceNodeTable()
+                {
+                    Id = "",
+                    WorkflowInstanceId = workflowInstance.Id,
+                    WorkflowTemplateId = workflowTemplate.Id,
+                    WorkflowTemplateNodeId = templateNode.Id,
+                    TaskTemplateId = templateNode.TaskTemplateId,
+                    Status = "unassigned"
+                };
+                await _workflowNodeInstanceRepository.AddAsync(nodeInstance);
+                nodeInstances.Add(nodeInstance);
+            }
+
             // assign first tasks (ones with no dependencies in the preflow (if onboarding or mainflow))
-            var nodeswithNoDependencies = new List<WorkflowTemplateNodeDTO>();
+            var nodesWithNoDependencies = new List<WorkflowInstanceNodeTable>();
+            
             if (workflowTemplate.IsOnboardingWF)
             {
-                // find preflow tasks with no dependencies
-                nodeswithNoDependencies = workflowTemplate.PreflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                // add all node instances that match a template node with no dependencies                
+                var templateNodes = workflowTemplate.PreflowNodes.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                nodesWithNoDependencies = nodesWithNoDependencies.Concat(nodeInstances.Where(i => templateNodes.Select(t => t.Id).Contains(i.WorkflowTemplateNodeId))).ToList();
             }
             else
             {
-                nodeswithNoDependencies = workflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                // add all node instances that match a template node with no dependencies  
+                var templateNodes = workflowTemplate.MainflowNodes.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+                nodesWithNoDependencies = nodesWithNoDependencies.Concat(nodeInstances.Where(i => templateNodes.Select(t => t.Id).Contains(i.WorkflowTemplateNodeId))).ToList();
             }
-            // assign tasks
-            foreach (var node in nodeswithNoDependencies) 
+            // assign tasks for all node instances
+            foreach(var node in nodesWithNoDependencies)
             {
+                // get associated node template
+                var nodeTemplate = workflowTemplate.PreflowNodes.Concat(workflowTemplate.MainflowNodes).FirstOrDefault(i => i.Id == node.WorkflowTemplateNodeId);
                 var taskInstancePayload = new CreateTaskInstancePayload()
                 {
                     TaskTemplateId = node.TaskTemplateId,
-                    AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, instance),
-                    AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(instance.SupervisorAccountId, instance),
-                    WorkflowInstanceId = instance.Id,
-                    WorkflowNodeId = node.Id,
-                    DueDate = GetDueDateOfTask(node, instance)
+                    AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(nodeTemplate.AssigneeId, workflowInstance),
+                    AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
+                    WorkflowInstanceId = workflowInstance.Id,
+                    WorkflowInstanceNodeId = node.Id,
+                    DueDate = GetDueDateOfTask(nodeTemplate, workflowInstance)
                 };
-                var result = await _taskInstanceLogic.CreateInstance(taskInstancePayload);
-                if (!result.Success)
-                {
-                    _logger.LogWarning($"Failed to instantiate task instance for workflow, error: {result.Error}");
-                }
+                await _taskInstanceLogic.CreateInstance(taskInstancePayload);
+                // update node instance to be "open" rather than "unassigned"
+                node.Status = "open";
+                await _workflowNodeInstanceRepository.UpdateAsync(node);
             }
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully instantiated workflow instance" };
@@ -188,15 +216,15 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 200, Data = workflowInstanceDTO };
-        }       
+        }
 
         public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance)
         {
             _logger.LogDebug($"Handling task completion event for task instance: {taskInstance.Id} ({taskInstance.template.Name}, {taskInstance.AssigneeAccountId})");
             if (string.IsNullOrEmpty(taskInstance.WorkflowInstanceId))
             {
-                throw new Exception("Task instance isn't associated to a workflow instance");                
-            }            
+                throw new Exception("Task instance isn't associated to a workflow instance");
+            }
 
             var workflowInstance = (await GetWorkflowInstance(taskInstance.WorkflowInstanceId)).Data ?? null;
             if (workflowInstance == null)
@@ -204,100 +232,101 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to retrieve workflow instance" };
             }
 
-            // check if all tasks in the whole workflow have been completed
-            if (await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id) && await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.MainflowTasks, workflowInstance.Id))
+            // update associated node instance to be marked as "complete"
+            var nodeInstance = await _workflowNodeInstanceRepository.GetById(taskInstance.WorkflowInstanceNodeId);
+            if (nodeInstance == null && taskInstance.WorkflowInstanceNodeId != null)
             {
-                // mark workflow instance as complete
-                workflowInstance.CompletionTimestamp = DateTime.Now;
-                await _workflowInstanceRepository.UpdateAsync(workflowInstance);
-                _logger.LogInformation($"Workflow instance ${workflowInstance.Id} completed");
-                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Marked workflow instance as complete" };
+                throw new Exception("Task instance is associated to a node instance that can't be found!");
             }
+            nodeInstance.Status = "complete";
+            await _workflowNodeInstanceRepository.UpdateAsync(nodeInstance);
+
+            // find associated workflow node
+            var nodeTemplate = workflowInstance.WorkflowTemplate.PreflowNodes.Concat(workflowInstance.WorkflowTemplate.MainflowNodes)
+                .FirstOrDefault(n => n.TaskTemplateId == taskInstance.TaskTemplateId);
+
 
             // invite onboarder once all preflow (preboarding) tasks have been completed
             if (workflowInstance.WorkflowTemplate.IsOnboardingWF)
             {
                 // check if all preflow tasks have been completed
-                var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
+                var isPreflowSectionComplete = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplateId, workflowInstance.Id, "preflowtasks");
                 if (isPreflowSectionComplete && workflowInstance.OnboardingEmployeeDetails.OnboarderAccountId == null)
                 {
                     var onboardingEmployeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstance.Id);
                     if (onboardingEmployeeDetails == null) throw new Exception("No onboarding employee details could be retrieved for an onboarding workflow instance");
-                    
-                    var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, true, onboardingEmployeeDetails.DepartmentId));
+
+                    var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, onboardingEmployeeDetails.DepartmentId));
                     return result;
                 }
             }
 
-            // find associated workflow node
-            var node = workflowInstance.WorkflowTemplate.PreflowTasks.Concat(workflowInstance.WorkflowTemplate.MainflowTasks)
-                .FirstOrDefault(n => n.TaskTemplateId == taskInstance.TaskTemplateId);  
-
             // ASSIGN TASKS THAT WERE DEPENDENT ON THIS TASK AND ARE NOW SATISFIED
-            // get all nodes in workflow dependent on this node, if the nodes's dependencies are now statisfied, assign it 
-            var dependentNodes = workflowInstance.WorkflowTemplate.PreflowTasks.Concat(workflowInstance.WorkflowTemplate.MainflowTasks)
-                                    .Where(i => i.DependencyNodeIds.Contains(node.Id))
-                                    .ToList();                        
-            foreach(var dependentNode in dependentNodes)
+            var workflowInstancesNodeTemplates = workflowInstance.WorkflowTemplate.PreflowNodes.Concat(workflowInstance.WorkflowTemplate.MainflowNodes).ToList();
+            var dependentNodeInstances = (await _workflowNodeInstanceRepository.GetByWorkflowInstanceId(workflowInstance.Id))
+                                            .Where(i => workflowInstancesNodeTemplates.Find(j => j.Id == i.WorkflowTemplateNodeId).DependencyNodeIds.Contains(nodeTemplate.Id));
+
+            foreach(var dependentNodeInstance in dependentNodeInstances)
             {
-                if (await AreNodesDependenciesSatisfied(dependentNode, workflowInstance, node.Id))
+                if (await AreNodeInstancesDependenciesSatisfied(dependentNodeInstance))
                 {
-                    // all dependencies have been satisfied, instantiate this task
+                    var dependentNodeTemplate = workflowInstancesNodeTemplates.FirstOrDefault(i => i.Id == dependentNodeInstance.WorkflowTemplateNodeId);
                     var payload = new CreateTaskInstancePayload()
                     {
-                        TaskTemplateId = dependentNode.TaskTemplateId,
-                        AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(dependentNode.AssigneeId, workflowInstance),
+                        TaskTemplateId = dependentNodeTemplate.TaskTemplateId,
+                        AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(dependentNodeTemplate.AssigneeId, workflowInstance),
                         AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
                         WorkflowInstanceId = workflowInstance.Id,
-                        WorkflowNodeId = dependentNode.Id,
-                        DueDate = GetDueDateOfTask(dependentNode, workflowInstance)
-                    };                                        
-
+                        WorkflowInstanceNodeId = dependentNodeInstance.Id,
+                        DueDate = GetDueDateOfTask(dependentNodeTemplate, workflowInstance)
+                    };
                     await _taskInstanceLogic.CreateInstance(payload);
+                }
+                else
+                {
+                    _logger.LogDebug("Not all of node's dependencies are satisified");
                 }
             }
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200 };
-        }
+        }        
 
-        private async Task<bool> AreNodesDependenciesSatisfied(WorkflowTemplateNodeDTO node, WorkflowInstanceDTO workflowInstance, string currentNodeId)
+        private async Task<bool> AreNodeInstancesDependenciesSatisfied(WorkflowInstanceNodeTable nodeInstance)
         {
-            var workflowTaskInstances = await _taskInstanceLogic.GetTaskInstancesByWorkflowInstance(workflowInstance.Id);
-            // check every other task dependency accept the current task (assuming it will be completed soon)
-            node.DependencyNodeIds.Remove(currentNodeId);
-            // check that each dependency task has been created and completed
-            foreach (var dependencyTaskId in node.DependencyNodeIds)
+            var workflowTemplate = (await _workflowTemplateLogic.GetWorkflowTemplate(nodeInstance.WorkflowTemplateId))?.Data ?? null;
+            if (workflowTemplate == null) throw new Exception("Node instance is associated to a workflow template that doesn't exist");
+
+            var nodeTemplate = workflowTemplate.MainflowNodes.Concat(workflowTemplate.PreflowNodes).FirstOrDefault(i => i.Id == nodeInstance.WorkflowTemplateNodeId);
+            // get node instances associated with the node's dependency node templates
+            var nodeDependencyTemplateIds = workflowTemplate.MainflowNodes.Concat(workflowTemplate.PreflowNodes).Where(i => nodeTemplate.DependencyNodeIds.Contains(i.Id)).Select(i => i.Id).ToList();
+            var nodeDependencyInstances = (await _workflowNodeInstanceRepository.GetByWorkflowInstanceId(nodeInstance.WorkflowInstanceId)).Where(i => nodeDependencyTemplateIds.Contains(i.WorkflowTemplateNodeId)).ToList();
+
+            // ensure all node instances that the node depends on are complete
+            foreach(var nodeDependencyInstance in nodeDependencyInstances)
             {
-                // get taskTemplateId
-                var taskInstance = workflowTaskInstances.FirstOrDefault(i => i.WorkflowNodeId == currentNodeId);
-                if (taskInstance == null)
+                if (nodeDependencyInstance.Status != "complete")
                 {
-                    // task instance hasn't even been created yet
-                    return false;
-                }
-                if (taskInstance.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS)
-                {
-                    // task exists, but hasn't been complete
                     return false;
                 }
             }
-            return true;
+            return true;          
         }
 
-        private async Task<bool> AreAllTasksInWorkflowSectionComplete(List<WorkflowTemplateNodeDTO> workflowSectionNodes, string workflowInstanceId)
+        private async Task<bool> AreAllTasksInWorkflowSectionComplete(string workflowTemplateId, string workflowInstanceId, string section)
         {
-            var taskTemplateIds = workflowSectionNodes.Select(t => t.TaskTemplateId);
-            var workflowTaskInstances = await _taskInstanceLogic.GetTaskInstancesByWorkflowInstance(workflowInstanceId);
-            foreach (var taskTemplateId in taskTemplateIds)
+            // get ids of all node templates from that section
+            var nodeTemplateIds = (await _workflowTemplateNodeRepository.GetAllNodesByWorkflowTemplateId(workflowTemplateId))
+                                        .Where(n => n.WorkflowSection.ToLower() == section.ToLower())
+                                        .Select(n => n.Id)
+                                        .ToList();       
+
+            var nodeInstances = await _workflowNodeInstanceRepository.GetByWorkflowInstanceId(workflowInstanceId);
+            // filter node instances to just the one relevant to the section
+            nodeInstances = nodeInstances.Where(i => nodeTemplateIds.Contains(i.WorkflowTemplateNodeId)).ToList();
+            // find the open/unassigned nodes
+            foreach(var nodeInstance in nodeInstances )
             {
-                var taskInstance = workflowTaskInstances.FirstOrDefault(i => i.TaskTemplateId == taskTemplateId);
-                if (taskInstance == null)
+                if (nodeInstance.Status.ToLower() != "complete")
                 {
-                    // a task instance hasn't been created for this task yet 
-                    return false;
-                }
-                if (taskInstance.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS)
-                {
-                    // task exists, but hasn't been complete
                     return false;
                 }
             }
@@ -307,8 +336,6 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress)
         {
             // find active worklow instance where onboarder email address is the same
-
-
             var matchingWorkflowInstance = (await _workflowInstanceRepository.GetInstancesByOnboarderEmailAddress(emailAddress)).FirstOrDefault();
             if (matchingWorkflowInstance == null)
             {
@@ -320,7 +347,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (!string.IsNullOrEmpty(workflowInstanceDTO.OnboardingEmployeeDetails.OnboarderAccountId))
             {
                 throw new Exception("OnboarderAccountId for workflow instance has already been set!");                
-            }
+            }            
+
+            _logger.LogDebug($"Handling onboarding registration for onboarder {accountId} ({emailAddress})");
 
             // get onboarder details and update it
             var employeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstanceDTO.Id);
@@ -335,23 +364,36 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Failed to retrieve DTO for workflow instance");
             }
-            // start mainflow tasks
-            _logger.LogDebug($"Handling onboarding registration for onboarder (${accountId}) in workflow instance: {workflowInstance.Id} ({workflowInstance.WorkflowTemplate.Name})");
-            
-            var nodesWithNoDependencies = workflowInstance?.WorkflowTemplate.MainflowTasks.Where(n => n.DependencyNodeIds.Count == 0).ToList();
-            foreach(var node in nodesWithNoDependencies)
+
+            var workflowTemplate = (await _workflowTemplateLogic.GetWorkflowTemplate(workflowInstance.WorkflowTemplateId)).Data ?? null;
+            if (workflowTemplate == null)
             {
-                await _taskInstanceLogic.CreateInstance(
-                    new CreateTaskInstancePayload()
-                    {
-                        TaskTemplateId = node.TaskTemplateId,
-                        AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(node.AssigneeId, workflowInstance),
-                        AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
-                        WorkflowInstanceId = workflowInstance.Id,
-                        WorkflowNodeId = node.Id,
-                        DueDate = GetDueDateOfTask(node, workflowInstance)
-                    }
-                );                
+                throw new Exception("Failed to retrieve DTO for workflow template");
+            }
+
+
+            // start mainflow tasks with no dependencies
+            var nodeInstances = (await _workflowNodeInstanceRepository.GetByWorkflowInstanceId(workflowInstance.Id));
+            var templateNodes = workflowTemplate.MainflowNodes.Where(n => n.DependencyNodeIds.Count == 0).ToList();
+            var nodesWithNoDependencies = nodeInstances.Where(i => templateNodes.Select(t => t.Id).Contains(i.WorkflowTemplateNodeId));
+            
+            foreach (var nodeInstance in nodesWithNoDependencies)
+            {
+                // get associated node template
+                var nodeTemplate = workflowTemplate.MainflowNodes.Find(i => i.Id == nodeInstance.WorkflowTemplateNodeId);
+                var taskInstancePayload = new CreateTaskInstancePayload()
+                {
+                    TaskTemplateId = nodeInstance.TaskTemplateId,
+                    AssigneeAccountId = await _utility.ReplaceAccountIdPlaceholder(nodeTemplate.AssigneeId, workflowInstance),
+                    AssignerAccountId = await _utility.ReplaceAccountIdPlaceholder(workflowInstance.SupervisorAccountId, workflowInstance),
+                    WorkflowInstanceId = workflowInstance.Id,
+                    WorkflowInstanceNodeId = nodeInstance.Id,
+                    DueDate = GetDueDateOfTask(nodeTemplate, workflowInstance)
+                };
+                await _taskInstanceLogic.CreateInstance(taskInstancePayload);
+                // update node instance to be "open" rather than "unassigned"
+                nodeInstance.Status = "open";
+                await _workflowNodeInstanceRepository.UpdateAsync(nodeInstance);
             }
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200 };
@@ -385,10 +427,10 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return WORKFLOW_INSTANCE_COMPLETE_STATUS;
             }
 
-            var preflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.PreflowTasks, workflowInstance.Id);
+            var preflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplateId, workflowInstance.Id, "preflowtasks");
             if (!preflowTasksCompleted && workflowInstance.WorkflowTemplate.IsOnboardingWF) return WORKFLOW_INSTANCE_PREFLOW_STATUS;
             
-            var mainflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplate.MainflowTasks, workflowInstance.Id);
+            var mainflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplateId, workflowInstance.Id, "mainflowtasks");
             if (!mainflowTasksCompleted) return WORKFLOW_INSTANCE_MAINFLOW_STATUS;
 
             throw new Exception("Invalid condition met");

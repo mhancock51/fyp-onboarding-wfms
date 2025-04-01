@@ -4,7 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
+import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
@@ -37,22 +37,22 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   return (
     <Popover open={openPopover} onOpenChange={setOpenPopover}>
       <PopoverTrigger asChild>
-        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", width: "24em",
+        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", minWidth: "30em",
           boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
         }} onClick={() => {setOpenPopover(true)}}>
           <Handle type="target" position={Position.Top} />
           <div className='flex flex-col justify-center gap-1'>
-            <div className='flex flex-row justify-center gap-8 text-center py-1 w-full'>
+            <div className='flex flex-row justify-center gap-8 text-center w-full'>
               <h1 className='text-base w-full font-bold'>{props.data.taskTitle}</h1>              
             </div>
             <Separator/>
-            <div className='flex flex-row gap-2 py-1 justify-center w-full'>
-              <Badge className='rounded-full'>{props.data.assignee}</Badge>
+            <div className='flex flex-row gap-2 py-1 justify-center w-full items-center'>
+              <Badge className='rounded-full py-2 px-4'>{props.data.assignee}</Badge>
               {
                 props.data.taskDependencies.length > 0 &&
                 <HoverCard>
                   <HoverCardTrigger>
-                    <Badge className='rounded-full'>{props.data.taskDependencies.length} Dependencies</Badge>
+                    <Badge className='rounded-full py-2 px-4'>{props.data.taskDependencies.length} Dependencies</Badge>
                   </HoverCardTrigger> 
                   <HoverCardContent side='top' className='p-1' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
                     <div className='flex flex-col gap-1 text-sm'>
@@ -70,7 +70,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
               <TaskTypeBadge taskTypeId={props.data.taskTypeId}/>
               {
                 props.data.daysUntilDue !== null && props.data.daysUntilDue !== undefined &&
-                <Badge className='rounded-full'>{props.data.daysUntilDue} Days</Badge>
+                <Badge className='rounded-full py-2 px-4'>{props.data.daysUntilDue} Days</Badge>
               }
             </div>
           </div>

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataModels;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,13 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
     {
         public string displayName;
         public string emailAddress;
-        public bool isOnboarder;
+        public bool isSupervisor;
         public string departmentId;
 
-        public InviteAccountRequest(string displayName, string emailAddress, bool isOnboarder, string departmentId)
+        public InviteAccountRequest(string displayName, string emailAddress, string departmentId)
         {
             this.displayName = displayName;
             this.emailAddress = emailAddress;
-            this.isOnboarder = isOnboarder;
             this.departmentId = departmentId;            
         }
     }
@@ -27,15 +27,18 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
     public class InviteAccountHandler : IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>>
     {
         private readonly IAccountLogic _accountLogic;
+        private readonly ILogger<InviteAccountHandler> _logger;
 
-        public InviteAccountHandler(IAccountLogic accountLogic)
+        public InviteAccountHandler(IAccountLogic accountLogic, ILogger<InviteAccountHandler> logger)
         {
             _accountLogic = accountLogic;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> Handle(InviteAccountRequest request, CancellationToken cancellationToken)
         {
-            return await _accountLogic.InviteUser(request.displayName, request.emailAddress, request.isOnboarder, request.departmentId);
+            _logger.LogInformation($"Handling request to invite user ({request.emailAddress}, {request.displayName})");
+            return await _accountLogic.InviteUser(request.displayName, request.emailAddress,  request.departmentId);
         }
     }
 }

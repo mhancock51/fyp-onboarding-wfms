@@ -33,7 +33,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
-            await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = ""});
+            await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = "" });
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -46,10 +46,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             }            
             // ensure document has been uploaded            
             if (taskInstance.DocumentId == "")
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "No document uploaded" };
-            }
-            if (taskInstance.UploadedTimestamp == DateTime.MinValue)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "No document uploaded" };
             }

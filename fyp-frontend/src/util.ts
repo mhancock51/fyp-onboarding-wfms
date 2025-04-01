@@ -81,6 +81,14 @@ const Utils = {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   },
+  convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  },
   dateToDDMMYYYY(date: Date) {
     date = new Date(date);
     const yyyy = date.getFullYear();

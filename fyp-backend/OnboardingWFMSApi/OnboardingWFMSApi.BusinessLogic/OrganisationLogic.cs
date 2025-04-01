@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables;
 using System;
@@ -14,18 +15,21 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> CreateOrganisation(string name);
         public Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId);
         public Task<HTTPResponse<OrganisationTable, string>> GetOrganisation();
+        public Task<HTTPResponse<string, string>> RenameOrganisation(string newName);
     }
     public class OrganisationLogic : IOrganisationLogic
     {
         private readonly IOrganisationRepository _organisationRepository;
         private readonly IOrganisationAdminLinkRepository _organisationAdminLinkRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly ILogger<OrganisationLogic> _logger;
 
-        public OrganisationLogic(IOrganisationRepository organisationRepository, IOrganisationAdminLinkRepository organisationAdminLinkRepository, IAccountRepository accountRepository)
+        public OrganisationLogic(IOrganisationRepository organisationRepository, IOrganisationAdminLinkRepository organisationAdminLinkRepository, IAccountRepository accountRepository, ILogger<OrganisationLogic> logger)
         {
             _organisationRepository = organisationRepository;
             _organisationAdminLinkRepository = organisationAdminLinkRepository;
             _accountRepository = accountRepository;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId)
@@ -49,18 +53,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account isn't associated with organisation", HttpCode = 400 };
             }      
-            
-            // check account isn't onboarder
-            if (account.IsOnboarder)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Account is an onboarder", HttpCode = 400 };
-            }
+           
 
             try
             {                
                 await _organisationAdminLinkRepository.AddAsync(new OrganisationAdminLinkTable() { AccountId = accountId, OrganisationId = organisationId });
                 // set account to admin
-                account.IsAdmin = true;
+                account.IsSupervisor = true;
                 await _accountRepository.UpdateAsync(account);
 
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Assigned admin" };
@@ -97,6 +96,28 @@ namespace OnboardingWFMSApi.BusinessLogic
                 var org = orgs.First();
                 return new HTTPResponse<OrganisationTable, string>() { Success = true, HttpCode = 200, Data = org };
             }
+        }
+
+        public async Task<HTTPResponse<string, string>> RenameOrganisation(string newName)
+        {
+            if (string.IsNullOrEmpty(newName))
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please provide a new name" };
+            }
+
+            var organisation = await _organisationRepository.GetById("organisation");
+            organisation.Name = newName;
+            try
+            {
+                await _organisationRepository.UpdateAsync(organisation);
+                _logger.LogInformation($"Renamed organisation to {newName}");
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = $"Successfully renamed organisation to {organisation.Name}" };
+            }
+            catch (Exception ex)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to rename organisation" };
+            }
+
         }
     }
 }

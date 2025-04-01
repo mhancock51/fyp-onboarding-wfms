@@ -1,5 +1,5 @@
-import AccountDirectory from "./AccountDirectory";
-import TaskTemplate from "./tasks/TaskTemplate";
+import AccountDirectory from "../AccountDirectory";
+import TaskTemplate from "../tasks/TaskTemplate";
 
 export default interface WorkflowTemplateNode {
   id: string;

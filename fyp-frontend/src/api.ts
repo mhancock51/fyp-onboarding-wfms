@@ -34,6 +34,32 @@ AuthInstance.interceptors.response.use(
 );
 
 const Api = {
+  documents: {
+   uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
+    const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];
+    const payload = {
+      taskInstanceId: taskInstanceId ?? "",
+      fileBase64: fileBase64,
+      fileName: file.name,
+      documentName: documentName || undefined,
+      accessAccountIds: accessAccountIds.length > 0 ? accessAccountIds : undefined,
+    };
+    return AuthInstance.post(`${ROUTE_URL}/document/upload`, payload);
+   }
+  },
+  account: {
+    makeSupervisor: async(accountId: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/account/make-supervisor`, null, { params: {accountId: accountId}});
+    }
+  },
+  organisation: {
+    fetchOrganisation: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/organisation`);
+    },
+    renameOrganisation: async(newName: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/organisation/rename`, null, { params: {newName: newName}});
+    }
+  },
   fetchLogin: async(emailAddress: string, password: string) => {
     return axios.post(`${ROUTE_URL}/auth/login?emailAddress=${emailAddress}&password=${password}`);
   },
@@ -43,12 +69,11 @@ const Api = {
   fetchDepartments: async() => {
     return AuthInstance.get(`${ROUTE_URL}/department/all`);    
   },
-  inviteUser: async(displayName: string, email: string, isOnboarder: boolean, departmentId: string) => {    
+  inviteUser: async(displayName: string, email: string, departmentId: string) => {    
     return AuthInstance.post(`${ROUTE_URL}/account/invite`, null, {
       params: {
         displayName:  displayName,
-        emailAddress: email,
-        isOnboarder:  isOnboarder,
+        emailAddress: email,        
         departmentId: departmentId
       }
     });

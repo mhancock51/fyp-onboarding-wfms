@@ -32,6 +32,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
+        private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
+
         private readonly IAccountLogic _accountLogic;
         private readonly ITaskInstanceLogic _taskInstanceLogic;
 
@@ -40,7 +42,9 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
             IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger,
-            IWorkflowInstanceRepository workflowInstanceRepository, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository)
+            IWorkflowInstanceRepository workflowInstanceRepository, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository,
+            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository
+        )
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
@@ -51,6 +55,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _logger = logger;
             _workflowInstanceRepository = workflowInstanceRepository;
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
+            _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -121,10 +126,10 @@ namespace OnboardingWFMSApi.BusinessLogic
                     TaskInstanceId = taskInstanceId,
                     CreatorId = accountId,
                     WorkflowInstanceId = workflowInstanceId,
-                    FileExtension = Path.GetExtension(file.FileName),
+                    FileExtension = Path.GetExtension(payload.FileName),
                     UploadTimestamp = DateTime.Now,
-                    FileName = documentName,
-                    DocumentData = await ConvertIFormFileToByteArray(file)
+                    FileName = payload.DocumentName,
+                    DocumentData = Convert.FromBase64String(payload.FileBase64)
                 };
                 document = await _documentRepository.AddAsync(document);
             }
@@ -132,6 +137,25 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
             }
+
+            if (!string.IsNullOrEmpty(payload.TaskInstanceId))
+            {
+                // update task instance
+                var uploadTaskData = await _uploadTaskInstanceRepository.GetByTaskInstanceId(payload.TaskInstanceId);
+                uploadTaskData.DocumentId = document.Id;                
+                try
+                {
+                    await _uploadTaskInstanceRepository.UpdateAsync(uploadTaskData);
+                }
+                catch(Exception ex)
+                {
+                    await _documentRepository.DeleteAsync(document);
+                    return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 400, Error = "Failed to update task instance" };
+                }
+            }
+
+
+
             // assign access to document
             await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accountId, DocumentId = document.Id });
             foreach(var accessAccountId in accessAccountIds)

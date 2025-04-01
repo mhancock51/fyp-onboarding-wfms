@@ -22,7 +22,5 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [ForeignKey(nameof(DocumentTable.Id))]
         [JsonPropertyName("documentId")]
         public string DocumentId { get; set; }
-        [JsonPropertyName("uploadedTimestamp")]
-        public DateTime? UploadedTimestamp { get; set; }
     }
 }
