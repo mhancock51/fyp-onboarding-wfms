@@ -17,11 +17,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         {
         }
 
-        public override async Task<ReadDocumentTaskTemplateTable> GetById(string id)
-        {
-            return await _dbContext.readDocumentTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
-        }
-
         public async Task<ReadDocumentTaskTemplateTable> GetByTaskInstanceId(string id)
         {
             // find checklist instance

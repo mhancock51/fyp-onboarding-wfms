@@ -8,15 +8,13 @@ import InviteUserDialog from "./dialogs/InviteUserDialog";
 import DepartmentCreationDialog from "./dialogs/DepartmentCreationDialog";
 import CreateTaskTemplateDialog from "./dialogs/CreateTaskTemplateDialog";
 import TaskTemplatesListDialog from "./dialogs/TaskTemplatesListDialog";
+import ReportIssueDialog from "./dialogs/ReportIssueDialog";
 import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
 import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
 import OrganisationDialog from "./dialogs/OrganisationDialog";
 
 export default function layout() {
   const dispatch = useDispatch();
-  const openInviteDialog = useSelector((state: RootState) => state.app.openInviteDialog);  
-  const openCreateDptDialog = useSelector((state: RootState) => state.app.openCreateDepartmentDialog);
-  const openCreateTaskTemplateDialog = useSelector((state: RootState) => state.app.openCreateTaskTemplateDialog);
   
   const app = useSelector((state: RootState) => state.app);
 
@@ -30,10 +28,11 @@ export default function layout() {
           </div>
         </div>
       </main>
-      <InviteUserDialog open={openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
-      <DepartmentCreationDialog open={openCreateDptDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
-      <CreateTaskTemplateDialog open={openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>
+      <InviteUserDialog open={app.openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
+      <DepartmentCreationDialog open={app.openCreateDepartmentDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
+      <CreateTaskTemplateDialog open={app.openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>
       <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>      
+      <ReportIssueDialog />
       <CreateWorkflowInstanceDialog/>
       <OrganisationDialog/>
       <ManageAccountsDialog/>

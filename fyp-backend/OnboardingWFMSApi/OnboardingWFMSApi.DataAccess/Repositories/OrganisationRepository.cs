@@ -25,11 +25,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             return org != null ? true : false;
         }
 
-        public override async Task<OrganisationTable> GetById(string id)
-        {
-            return await _dbContext.Organisations.FirstOrDefaultAsync(i => i.Id == id);
-        }
-
         public override async Task<OrganisationTable> AddAsync(OrganisationTable entity)
         {
             if (_dbContext.Organisations.Count() > 0)

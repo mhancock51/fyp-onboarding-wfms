@@ -86,12 +86,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public virtual async Task<TEntity> GetById(string id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == id);            
         }
 
         public virtual async Task<bool> ExistsById(string id)
         {
-            throw new NotImplementedException();
+            var entity = _dbContext.Set<TEntity>().Local.FirstOrDefault(e => e.Id == id);
+            return entity != null ? true : false;
         }
 
         public virtual async Task<List<TEntity>> GetAll()

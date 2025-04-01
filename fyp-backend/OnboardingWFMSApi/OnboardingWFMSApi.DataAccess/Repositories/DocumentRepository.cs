@@ -18,11 +18,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
         }
 
-        public override async Task<DocumentTable> GetById(string id)
-        {
-            return await _dbContext.documents.FirstOrDefaultAsync(i => i.Id == id);
-        }
-
         public async Task<List<DocumentTable>> GetDocumentsFromWorkflowInstance(string workflowInstanceId)
         {
             return await _dbContext.documents.Where(d => d.WorkflowInstanceId == workflowInstanceId).ToListAsync();

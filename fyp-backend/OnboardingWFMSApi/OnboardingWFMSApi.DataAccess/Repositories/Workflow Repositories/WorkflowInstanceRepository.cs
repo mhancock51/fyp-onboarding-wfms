@@ -31,11 +31,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
             return await _dbContext.workflowInstances.Where(i => i.WorkflowTemplateId == workflowTemplateId).ToListAsync();
         }
 
-        public async override Task<WorkflowInstanceTable> GetById(string id)
-        {
-            return await _dbContext.workflowInstances.FirstOrDefaultAsync(i => i.Id == id);            
-        }
-
         public async Task<List<WorkflowInstanceTable>> GetInstancesBySupervisorAccountId(string supervisorAccountId)
         {
             return await _dbContext.workflowInstances.Where(i => i.SupervisorAccountId == supervisorAccountId).ToListAsync();
