@@ -19,7 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IDocumentLogic
     {
-        public Task<HTTPResponse<DocumentDTO, string>> UploadDocument(string taskInstanceId, IFormFile file, string documentName, List<string> accessAccountIds, string accountId);
+        public Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId);
         public Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId, string accountId);
         public Task<HTTPResponse<List<DocumentDTO>, string>> GetDocumentsFromWorkflowInstance(string workflowInstanceId, string accountId);
     }
@@ -99,9 +99,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<List<DocumentDTO>, string>() { Success = true, HttpCode = 200, Data = documents };
         }
 
-        public async Task<HTTPResponse<DocumentDTO, string>> UploadDocument(string taskInstanceId, IFormFile file, string documentName, List<string> accessAccountIds, string accountId)
+        public async Task<HTTPResponse<DocumentDTO, string>> UploadDocument(UploadDocumentPayload payload, string accountId)
         {
-            var taskInstance = await _taskInstanceRepository.GetById(taskInstanceId);
+            var taskInstance = await _taskInstanceRepository.GetById(payload.TaskInstanceId);
             string workflowInstanceId = null;
             if (taskInstance != null)
             {
@@ -123,7 +123,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 document = new DocumentTable()
                 {
-                    TaskInstanceId = taskInstanceId,
+                    TaskInstanceId = payload.TaskInstanceId,
                     CreatorId = accountId,
                     WorkflowInstanceId = workflowInstanceId,
                     FileExtension = Path.GetExtension(payload.FileName),
@@ -158,7 +158,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // assign access to document
             await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accountId, DocumentId = document.Id });
-            foreach(var accessAccountId in accessAccountIds)
+            foreach(var accessAccountId in payload.AccessAccountIds)
             {
                 var link = await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accessAccountId, DocumentId = document.Id });
                 if (link == null) _logger.LogError($"Failed to provide access to document for account {accessAccountId}");

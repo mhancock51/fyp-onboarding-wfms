@@ -33,7 +33,7 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
 
         public async Task<HTTPResponse<DocumentDTO, string>> Handle(UploadDocumentRequest request, CancellationToken cancellationToken)
         {
-            return await _documentLogic.UploadDocument(request.payload.TaskInstanceId, request.payload.File, request.payload.DocumentName, request.payload.AccessAccountIds, request.accountId);
+            return await _documentLogic.UploadDocument(request.payload, request.accountId);
         }
     }
 }

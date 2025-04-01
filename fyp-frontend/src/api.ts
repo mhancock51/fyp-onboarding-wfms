@@ -35,18 +35,18 @@ AuthInstance.interceptors.response.use(
 
 const Api = {
   documents: {
-   uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
-    const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];
-    const payload = {
-      taskInstanceId: taskInstanceId ?? "",
-      fileBase64: fileBase64,
-      fileName: file.name,
-      documentName: documentName || undefined,
-      accessAccountIds: accessAccountIds.length > 0 ? accessAccountIds : undefined,
-    };
-    return AuthInstance.post(`${ROUTE_URL}/document/upload`, payload);
-   }
-  },
+    uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
+     const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];
+     const payload = {
+       taskInstanceId: taskInstanceId ?? "",
+       fileBase64: fileBase64,
+       fileName: file.name,
+       documentName: documentName || undefined,
+       accessAccountIds: accessAccountIds.length > 0 ? accessAccountIds : undefined,
+     };
+     return AuthInstance.post(`${ROUTE_URL}/document/upload`, payload);
+    }
+   },
   account: {
     makeSupervisor: async(accountId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/account/make-supervisor`, null, { params: {accountId: accountId}});
@@ -170,25 +170,6 @@ const Api = {
       onboardingEmployeeDetails
     })
   },
-  documents: {
-    uploadDocuments: async(payload: UploadDocumentPayload) => {      
-      // build form data
-      const formData = new FormData();
-      if (payload.taskInstanceId) {
-        formData.append("taskInstanceId", payload.taskInstanceId);
-      }
-      formData.append("file", payload.file);
-      formData.append("documentName", payload.documentName);
-      
-      payload.accessAccountIds.forEach(id => formData.append("accessAccountIds", id)); 
-
-      return AuthInstance.post(`${ROUTE_URL}/document/upload`, formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-      })
-    }
-  },
   analytics: {
     fetchOnboardingAnalytics: async(from?: Date) => {
       return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding`, {
@@ -198,7 +179,7 @@ const Api = {
       })
     },
     fetchOnboardedEmployeesTimeline: async() => {
-      return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding/timeline`);s
+      return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding/timeline`);
     }
   },
   workflowInstances: {

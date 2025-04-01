@@ -7,9 +7,6 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import DocumentLinkBadge from '../DocumentLinkBadge';
 import UploadDocumentForm from '@/components/UploadDocumentForm';
-import { AxiosResponse } from 'axios';
-import HTTPresponse from '@/models/HTTPresponse';
-import DocumentDTO from '@/models/DTOs/DocumentDTO';
 
 interface Props {
   taskInstanceId: string;
@@ -34,13 +31,6 @@ export default function UploadDocumentTask(props: Props) {
       props.setCanCompleteTask(true);
     }
   }, [props.fileUploadInstance]);
-
-  useEffect(() => {
-    if (fileUploadState.uploadedTimestamp === null) return;
-    if (fileUploadState === props.fileUploadInstance) return;
-
-    void updateTaskState();
-  }, [fileUploadState]);
 
   return (
     <div className='flex flex-col gap-2 p-2'>      

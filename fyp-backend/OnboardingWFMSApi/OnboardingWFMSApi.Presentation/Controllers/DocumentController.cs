@@ -20,13 +20,8 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _documentLogic = documentLogic;
         }
 
-        [Authorize]
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadDocument(
-            [FromForm] string taskInstanceId,
-            [FromForm] IFormFile file,
-            [FromForm] string documentName,
-            [FromForm] List<string> accessAccountIds)
+        public async Task<IActionResult> UploadDocument([FromBody] UploadDocumentPayload payload)
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
             if (accountId == "")
@@ -36,11 +31,11 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
             else
             {
-                var response = await _documentLogic.UploadDocument(taskInstanceId, file, documentName, accessAccountIds, accountId);
+                var response = await _documentLogic.UploadDocument(payload, accountId);
                 return StatusCode(response.HttpCode, response);
             }
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> GetDocument(string documentId)
         {
@@ -92,7 +87,8 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
                 return StatusCode(response.HttpCode, response);
             }
-            else {
+            else
+            {
                 var response = await _documentLogic.GetDocumentsFromWorkflowInstance(workflowInstanceId, accountId);
                 return StatusCode(response.HttpCode, response);
             }
