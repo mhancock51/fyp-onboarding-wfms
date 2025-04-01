@@ -14,5 +14,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string? WorkflowInstanceId { get; set; }
         public string? WorkflowNodeId { get; set; }
         public DateTime? DueDate { get; set; }
+        public string? WorkflowInstanceNodeId { get; set; }
     }
 }

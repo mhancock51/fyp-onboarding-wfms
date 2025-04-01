@@ -70,9 +70,9 @@ CREATE TABLE taskinstance (
     TaskTemplateId VARCHAR(255),
     WorkflowInstanceId VARCHAR(255),
     CreationTimestamp DATETIME,
-    Status VARCHAR(255),
-    WorkflowNodeId VARCHAR(255),    
-    DueDate DATETIME
+    Status VARCHAR(255),    
+    DueDate DATETIME,
+    WorkflowInstanceNodeId VARCHAR(255)
 );
 
 CREATE TABLE checklisttaskinstance (
@@ -170,6 +170,7 @@ CREATE TABLE workflowinstancenode (
     WorkflowInstanceId VARCHAR(255),
     WorkflowTemplateId VARCHAR(255),
     WorkflowTemplateNodeId VARCHAR(255),
+    TaskTemplateId VARCHAR(255),
     Status VARCHAR(255)
 );
 
@@ -257,9 +258,10 @@ ALTER TABLE taskinstance
     ADD CONSTRAINT fk_task_instance_workflow_instance_id
     FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id);
 
-ALTER TABLE taskinstance
-    ADD CONSTRAINT fk_task_instance_workflow_node_id
-    FOREIGN KEY (WorkflowNodeId) REFERENCES workflowtemplatenode(Id);
+ALTER TABLE taskinstance    
+    ADD CONSTRAINT fk_task_instance_workflow_instance_node_id
+    FOREIGN KEY (WorkflowInstanceNodeId) REFERENCES workflowinstancenode(Id);
+
 
 ALTER TABLE checklisttaskinstance
     ADD CONSTRAINT fk_checklist_instance_task_instance_id
@@ -340,18 +342,23 @@ ALTER TABLE onboardingemployeedetails
 
 /* Workflow instance node */
 ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_workflow_instance_id
+    ADD CONSTRAINT fk_node_instance_workflow_instance_id
     FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
     ON DELETE CASCADE;
 
 ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_workflow_template_id
+    ADD CONSTRAINT fk_node_instance_workflow_template_id
     FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
     ON DELETE CASCADE;
 
 ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_workflow_template_node_id
+    ADD CONSTRAINT fk_node_instance_workflow_template_node_id
     FOREIGN KEY (WorkflowTemplateNodeId) REFERENCES workflowtemplatenode(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstancenode
+    ADD CONSTRAINT fk_node_instance_task_template_id
+    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
     ON DELETE CASCADE;
 
 /* Comment table constraints */

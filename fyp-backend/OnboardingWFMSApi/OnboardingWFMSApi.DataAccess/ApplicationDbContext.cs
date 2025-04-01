@@ -40,7 +40,7 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<WorkflowTemplateTable> workflowTemplates { get; set; }
         public DbSet<WorkflowInstanceTable> workflowInstances {  get; set; }
         public DbSet<OnboardingEmployeeDetailsTable> onboardingEmployeeDetails { get; set; }
-        public DbSet<WorkflowInstanceNodeTable> workflowInstanceNodeTables { get; set; }
+        public DbSet<WorkflowInstanceNodeTable> workflowInstanceNodes { get; set; }
         
         public DbSet<CommentTable> comments { get; set; }
 
