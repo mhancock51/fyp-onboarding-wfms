@@ -40,7 +40,7 @@ export default function UploadDocumentTask(props: Props) {
           documentName={props.fileUploadTemplate.documentName} 
           accessAccountIds={props.fileUploadTemplate.accessAccountIds}
           taskInstanceId={props.taskInstanceId}
-          onSuccessfullUpload={() => {props.fetchTaskInstances()}}
+          onSuccessfullUpload={() => {props.setCanCompleteTask(true)}}
         />
       }
       {

@@ -28,6 +28,7 @@ export default function ReadDocumentTask(props: Props) {
   const [readDocState, setReadDocState] = useState<ReadDocumentTaskInstance>(DEFAULT_STATE);  
 
   async function updateReadDocStatus(readDocState: ReadDocumentTaskInstance) {
+    console.log(readDocState);
     await Api.updateTaskState(readDocState, "read-document", readDocState.taskInstanceId)    
     .then((response) => {
       toast("Successfully updated checklist task's state");
@@ -68,16 +69,35 @@ export default function ReadDocumentTask(props: Props) {
   }, [props.readDocumentInstance]);
 
   useEffect(() => {
-    props.setCanCompleteTask(readDocState.linkClicked && readDocState.checkboxChecked);
-    if (readDocState.id === "") return;
-    // exit if state is the same as when loaded
-    if (readDocState.linkClicked === props.readDocumentInstance.linkClicked && readDocState.checkboxChecked === props.readDocumentInstance.linkClicked) return;
-    void updateReadDocStatus(readDocState);
-  }, [readDocState.linkClicked, readDocState.checkboxChecked]);
+    if (readDocState.checkboxChecked && readDocState.linkClicked) {
+      console.log("test123:",readDocState);
+      updateReadDocStatus(readDocState);
+    }
+  }, [readDocState.checkboxChecked]);
   
   return (
     <div className='flex flex-col gap-2 p-2'>
       <Button disabled={props.taskStatus !== "open"} onClick={redirectToDocumentLink}>{props.readDocumentTemplate.documentName} <Link/></Button>
+      <div className='flex flex-col gap-2'>
+        <div>
+          {
+            props.readDocumentTemplate.documentUrl
+          }
+        </div>
+        <div>
+          Link Clicked: 
+          {
+            readDocState.linkClicked ? "true" : "false"
+          }
+        </div>
+        <div>
+          Checkbox clicked: 
+          {
+            readDocState.checkboxChecked ? "true" : "false"
+          }
+        </div>
+
+      </div>
       <div className='flex flex-row gap-2 mx-auto'>
         <Checkbox disabled={!readDocState.linkClicked || props.taskStatus !== "open"} checked={readDocState.checkboxChecked} onCheckedChange={(checked: CheckedState) => { updateCheckboxState(checked as boolean);}}/>
         <Label>{props.readDocumentTemplate.checkBoxLabel}</Label>

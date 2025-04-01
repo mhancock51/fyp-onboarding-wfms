@@ -21,7 +21,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskInstanceId { get; set; }
         [JsonPropertyName("checkboxChecked")]
         public bool CheckboxChecked { get; set; }
-        [JsonPropertyName("linkChecked")]
+        [JsonPropertyName("linkClicked")]
         public bool LinkClicked { get; set; }
     }
 }
