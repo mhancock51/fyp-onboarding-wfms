@@ -34,6 +34,18 @@ AuthInstance.interceptors.response.use(
 );
 
 const Api = {
+  issues: {
+    createIssue: async(taskInstanceId: string, description: string, suggestedChanges: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/issues/create`, {
+        taskInstanceId: taskInstanceId,
+        description: description,
+        suggestedChanges: suggestedChanges
+      });
+    },
+    fetchAll: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/issues/all`);
+    }
+  },
   documents: {
     uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
      const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];

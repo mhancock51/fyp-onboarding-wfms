@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
+import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog';
 
 export default function CreateWorkflowPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -105,8 +106,7 @@ export default function CreateWorkflowPage() {
     })
   }
 
-  function workflowTemplateDTOToNode(node: WorkflowTemplateNodeDTO, nodeList: WorkflowTemplateNode[]) {  
-    console.log("TEST123:", node.daysUntilDue)
+  function workflowTemplateDTOToNode(node: WorkflowTemplateNodeDTO, nodeList: WorkflowTemplateNode[]) {      
     var result: WorkflowTemplateNode = {
       id: node.id,
       taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),
@@ -167,7 +167,7 @@ export default function CreateWorkflowPage() {
           preflowTasks={preflowTasks} setPreflowTasks={setPreflowTasks}
           mainflowTasks={mainflowTasks} setMainflowTasks={setMainflowTasks}
         />            
-      }
+      }      
     </div>
   )
 }

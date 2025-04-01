@@ -31,8 +31,7 @@ export default function layout() {
       <InviteUserDialog open={app.openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
       <DepartmentCreationDialog open={app.openCreateDepartmentDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
       <CreateTaskTemplateDialog open={app.openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>
-      <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>      
-      <ReportIssueDialog />
+      <TaskTemplatesListDialog open={app.openTaskTemplatesListDialog}/>            
       <CreateWorkflowInstanceDialog/>
       <OrganisationDialog/>
       <ManageAccountsDialog/>
