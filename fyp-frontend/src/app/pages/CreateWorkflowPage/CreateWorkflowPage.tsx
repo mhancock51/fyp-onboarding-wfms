@@ -27,7 +27,7 @@ export default function CreateWorkflowPage() {
   
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(false); 
+  const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(true); 
   
   const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
   const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
@@ -130,7 +130,9 @@ export default function CreateWorkflowPage() {
       <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
         <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void createWorkflowTemplate()}}>
           <Input required className='min-w-[350px]' disabled={loading} placeholder='Enter workflow name...' type="text" value={name} onChange={(event: any) => {setName(event.target.value)}}/>
-          <Select required onValueChange={(value: string) => { value === "onboarding-workflow" ? setIsOnboardingWf(true) : setIsOnboardingWf(false);}}>
+          <Select required value={isOnboardingWf ? "onboarding-workflow" : "not-onboarding-workflow"} 
+            onValueChange={(value: string) => { value === "onboarding-workflow" ? setIsOnboardingWf(true) : setIsOnboardingWf(false);}}
+          >
             <SelectTrigger className='min-w-[150px]'>
               <SelectValue placeholder="Select a workflow type"/>
             </SelectTrigger>
