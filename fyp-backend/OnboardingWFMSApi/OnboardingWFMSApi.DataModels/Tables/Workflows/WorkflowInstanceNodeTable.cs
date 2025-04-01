@@ -22,7 +22,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         [ForeignKey(nameof(WorkflowTemplateTable.Id))]
         [JsonPropertyName("workflowTemplateId")]
         public string WorkflowTemplateId { get; set; }
-        [ForeignKey(nameof(WorkflowTemplateNodeTable))]
+        [ForeignKey(nameof(WorkflowTemplateNodeTable.Id))]
         [JsonPropertyName("workflowTemplateNodeId")]
         public string WorkflowTemplateNodeId { get; set; }
         [JsonPropertyName("status")]

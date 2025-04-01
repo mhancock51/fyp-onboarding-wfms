@@ -130,6 +130,19 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // create workflow node instances for all nodes
+            foreach(var templateNode in workflowTemplate.PreflowNodes.Concat(workflowTemplate.MainflowNodes))
+            {
+                // instantiate instance of the node
+                WorkflowInstanceNodeTable nodeInstance = new WorkflowInstanceNodeTable()
+                {
+                    Id = "",
+                    WorkflowInstanceId = instance.Id,
+                    WorkflowTemplateId = workflowTemplate.Id,
+                    WorkflowTemplateNodeId = templateNode.Id,
+                    Status = "open"
+                };
+                await _workflowNodeInstanceRepository.AddAsync(nodeInstance);
+            }
 
             // assign first tasks (ones with no dependencies in the preflow (if onboarding or mainflow))
             var nodeswithNoDependencies = new List<WorkflowTemplateNodeDTO>();
