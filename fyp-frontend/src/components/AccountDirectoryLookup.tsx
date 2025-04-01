@@ -49,7 +49,7 @@ export default function AccountDirectoryLookup(props: Props) {
 
   return (
     <Select onValueChange={(value: string) => {handleValueChange(value)}} value={props.account?.id ?? undefined}>
-      <SelectTrigger className='flex-8'>
+      <SelectTrigger className='flex-8 col-span-3'>
         <SelectValue placeholder="Select an Account" />
       </SelectTrigger>
       <SelectContent className="w-full">

@@ -33,6 +33,19 @@ AuthInstance.interceptors.response.use(
 );
 
 const Api = {
+  documents: {
+   uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
+    const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];
+    const payload = {
+      taskInstanceId: taskInstanceId ?? "",
+      fileBase64: fileBase64,
+      fileName: file.name,
+      documentName: documentName || undefined,
+      accessAccountIds: accessAccountIds.length > 0 ? accessAccountIds : undefined,
+    };
+    return AuthInstance.post(`${ROUTE_URL}/document/upload`, payload);
+   }
+  },
   account: {
     makeSupervisor: async(accountId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/account/make-supervisor`, null, { params: {accountId: accountId}});

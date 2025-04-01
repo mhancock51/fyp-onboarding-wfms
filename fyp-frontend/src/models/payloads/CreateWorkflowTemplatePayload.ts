@@ -3,8 +3,8 @@ export interface CreateWorkflowTemplatePayload {
   name: string;
   description: string;
   isOnboardingWF: boolean;
-  preflowTasks: CreateWorkflowTemplateNode[];
-  mainflowTasks: CreateWorkflowTemplateNode[];
+  preflowNodes: CreateWorkflowTemplateNode[];
+  mainflowNodes: CreateWorkflowTemplateNode[];
 }
 
 export interface CreateWorkflowTemplateNode {

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataModels;
 using System;
 using System.Collections.Generic;
@@ -26,14 +27,17 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
     public class InviteAccountHandler : IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>>
     {
         private readonly IAccountLogic _accountLogic;
+        private readonly ILogger<InviteAccountHandler> _logger;
 
-        public InviteAccountHandler(IAccountLogic accountLogic)
+        public InviteAccountHandler(IAccountLogic accountLogic, ILogger<InviteAccountHandler> logger)
         {
             _accountLogic = accountLogic;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> Handle(InviteAccountRequest request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling request to invite user ({request.emailAddress}, {request.displayName})");
             return await _accountLogic.InviteUser(request.displayName, request.emailAddress,  request.departmentId);
         }
     }

@@ -5,11 +5,11 @@ import EndNode from './Nodes/EndNode';
 import InviteUserNode from './Nodes/InviteUserNode';
 import StartNode from './Nodes/StartNode';
 import TaskNode from './Nodes/TaskNode';
-import WorkflowTemplateNode from '@/models/WorkflowTemplateNode';
 import { Button } from '@/components/ui/button';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
 import AccountDirectory from '@/models/AccountDirectory';
+import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 
 interface Props {
   taskTemplates: TaskTemplate[];
@@ -225,7 +225,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   return (
     <div className='flex flex-col gap-4'>
-      <div style={{ width: '2000px', height: '900px', margin: "auto"}}>
+      <div className='min-w-full' style={{height: '1000px', margin: "auto"}}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -233,7 +233,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
           // onNodesChange={onNodesChange}
           // onEdgesChange={onEdgesChange}
           // onConnect={onConnect}
-          defaultViewport={{x: 975, y: 200, zoom: 0.75}}
+          defaultViewport={{x: 800, y: 200, zoom: 0.75}}
           nodeOrigin={[0.5, 0.5]}
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  

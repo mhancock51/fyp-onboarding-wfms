@@ -9,8 +9,8 @@ import DepartmentCreationDialog from "./dialogs/DepartmentCreationDialog";
 import CreateTaskTemplateDialog from "./dialogs/CreateTaskTemplateDialog";
 import TaskTemplatesListDialog from "./dialogs/TaskTemplatesListDialog";
 import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
-import OrganisationDialog from "./dialogs/OrganisationDialog";
 import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
+import OrganisationDialog from "./dialogs/OrganisationDialog";
 
 export default function layout() {
   const dispatch = useDispatch();

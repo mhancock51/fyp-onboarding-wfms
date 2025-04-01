@@ -5,6 +5,7 @@ import { Document } from '@/models/Document';
 import { Badge } from '@/components/ui/badge';
 import Utils from '@/util';
 import { AxiosError } from 'axios';
+import { Download } from 'lucide-react';
 
 interface Props {
   documentId: string;
@@ -50,10 +51,11 @@ export default function DocumentLinkBadge(props: Props) {
       }
       {
         document !== null && loaded &&
-        <Badge className='cursor-pointer rounded-full p-2 min-w-25'
+        <Badge className='cursor-pointer rounded-full p-2 min-w-25 flex flex-row justify-center'
           onClick={() => {Utils.downloadFile(document?.documentData, `${document?.fileName}${document?.fileExtension}`)}}
         >
           {document.fileName}
+          <Download/>
         </Badge>
       }
     </>
