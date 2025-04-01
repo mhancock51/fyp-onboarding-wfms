@@ -128,8 +128,7 @@ CREATE TABLE documentaccesslink (
 CREATE TABLE fileuploadtaskinstance (
     Id VARCHAR(255) PRIMARY KEY,
     TaskInstanceId VARCHAR(255),
-    DocumentId VARCHAR(255),
-    UploadedTimestamp DATETIME
+    DocumentId VARCHAR(255)
 );
 
 /* Everything workflow template related */
