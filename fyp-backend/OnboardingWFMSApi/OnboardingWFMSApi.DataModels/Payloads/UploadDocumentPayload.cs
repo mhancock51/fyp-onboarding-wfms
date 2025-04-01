@@ -3,15 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataModels.Payloads
 {
     public class UploadDocumentPayload
     {
-        public required string? TaskInstanceId {  get; set; }        
-        public required IFormFile File { get; set; }
+        [JsonPropertyName("taskInstanceId")]
+        public string TaskInstanceId {  get; set; }
+        [JsonPropertyName("fileBase64")]
+        public string FileBase64 { get; set; }
+        [JsonPropertyName("fileName")]
+        public string FileName { get; set; }
+        [JsonPropertyName("documentName")]
         public string DocumentName { get; set; }
+        [JsonPropertyName("accessAccountIds")]
         public string[] AccessAccountIds { get; set; }
     }
 }

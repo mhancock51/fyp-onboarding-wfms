@@ -20,7 +20,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [JsonPropertyName("taskInstanceId")]
         public string TaskInstanceId { get; set; }
         [ForeignKey(nameof(DocumentTable.Id))]
-        [JsonPropertyName("DocumentId")]
+        [JsonPropertyName("documentId")]
         public string DocumentId { get; set; }
     }
 }
