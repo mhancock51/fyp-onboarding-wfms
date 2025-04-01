@@ -24,8 +24,11 @@ export default function layout() {
     <SidebarProvider>
       <AppSidebar organisationName={app.organisation?.name ?? "ERROR"} />
       <main style={{padding: "8px", width: "100%"}}>
-        {/* <SidebarTrigger /> */}
-        <Outlet />
+        <div className='m-4 flex flex-col gap-4'>
+          <div className='rounded-3xl bg-accent p-8' >                    
+            <Outlet />
+          </div>
+        </div>
       </main>
       <InviteUserDialog open={openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
       <DepartmentCreationDialog open={openCreateDptDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>

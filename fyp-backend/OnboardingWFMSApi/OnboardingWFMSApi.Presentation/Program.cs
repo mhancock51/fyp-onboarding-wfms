@@ -84,6 +84,7 @@ builder.Services.AddScoped<IAuthLogic, AuthLogic>();
 builder.Services.AddScoped<ITaskTemplateLogic, TaskTemplateLogic>();
 builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
 builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
+builder.Services.AddScoped<IAnalyticsLogic, AnalyticsLogic>();
 
 
 builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();

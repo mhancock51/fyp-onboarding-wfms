@@ -17,8 +17,8 @@ export default function WorkflowInstancesPage() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowInstanceDTO | null>(null);
 
   return (
-    <div className='m-4 flex flex-col gap-4'>
-      <div className='rounded-3xl bg-accent p-8' >
+    <div>
+      <div>
         <h1 className='text-xl text-foreground font-bold m-2'>Workflows Assinged To You</h1>
         <Separator/>
         <WorkflowInstancesTable actions={actions} setSelectedWorkflow={setSelectedWorkflow}/>

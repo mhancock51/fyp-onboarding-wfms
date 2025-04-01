@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 return StatusCode(response.HttpCode, response);
             }
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> GetDocument(string documentId)
         {
@@ -87,7 +87,8 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
                 return StatusCode(response.HttpCode, response);
             }
-            else {
+            else
+            {
                 var response = await _documentLogic.GetDocumentsFromWorkflowInstance(workflowInstanceId, accountId);
                 return StatusCode(response.HttpCode, response);
             }

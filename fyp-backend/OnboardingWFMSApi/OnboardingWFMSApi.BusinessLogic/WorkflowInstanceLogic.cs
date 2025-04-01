@@ -24,7 +24,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<WorkflowInstanceDTO, string>> GetWorkflowInstance(string workflowInstanceId);
         public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance);
         public Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress);
-        public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId);
+        public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId);        
+        public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAlllOnboardingWorkflowInstances(DateTime? from, DateTime? to);        
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
     {
@@ -452,6 +453,30 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Invalid state reached");
             }
+        }
+
+        public async Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAlllOnboardingWorkflowInstances(DateTime? from, DateTime? to)
+        {
+            var workflowInstances = await _workflowInstanceRepository.GetOpenOnboardingWorkflowInstances();
+            // filter for "from" and "to" values
+            if (from != null) 
+            {
+                workflowInstances = workflowInstances.Where(i => i.CreationTimestamp >= from).ToList();
+            }
+            if (to != null)
+            {
+                workflowInstances = workflowInstances.Where(i => i.CreationTimestamp <= to).ToList();
+            }
+
+            // build DTOss
+            var workflowInstanceIds = workflowInstances.Select(i => i.Id).ToList();
+            var workflowInstanceDTOs = new List<WorkflowInstanceDTO>();
+            foreach (var id in workflowInstanceIds)
+            {
+                var workflowInstance = (await GetWorkflowInstance(id)).Data ?? null;
+                if (workflowInstance != null) workflowInstanceDTOs.Add(workflowInstance);
+            }
+            return new HTTPResponse<List<WorkflowInstanceDTO>, string>() { Success = true, HttpCode = 200, Data = workflowInstanceDTOs };
         }
     }
 }

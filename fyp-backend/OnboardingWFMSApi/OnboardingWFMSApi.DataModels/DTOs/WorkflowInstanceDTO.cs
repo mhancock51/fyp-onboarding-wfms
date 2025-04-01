@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Payloads;
+﻿using Newtonsoft.Json;
+using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         [JsonPropertyName("status")]
         public string Status { get; set; }
         [JsonPropertyName("onboardingEmployeeDetails")]
-        public OnboardingEmployeeDetailsDTO OnboardingEmployeeDetails { get; set; }
+        [JsonInclude]
+        public OnboardingEmployeeDetailsDTO? OnboardingEmployeeDetails { get; set; }
     }
 }

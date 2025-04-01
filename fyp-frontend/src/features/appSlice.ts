@@ -37,7 +37,8 @@ const initialState: AppState = {
     departments: [],
     taskTypes: [],
     accountsDirectory: [],
-    taskTemplates: []
+    taskTemplates: [],
+    departments: []
 }
 
 export const appSlice = createSlice({
@@ -83,6 +84,9 @@ export const appSlice = createSlice({
         },
         SET_TASK_TEMPLATES: (state, action: PayloadAction<TaskTemplate[]>) => {
             state.taskTemplates = action.payload;
+        },
+        SET_DEPARTMENTS: (state, action: PayloadAction<Department[]>) => {
+            state.departments = action.payload;
         }
     }
 });

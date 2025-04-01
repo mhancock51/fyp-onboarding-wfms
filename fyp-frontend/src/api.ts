@@ -7,6 +7,7 @@ import { ChecklistTaskInstance } from './models/tasks/ChecklistTaskInstance';
 import FileUploadTaskInstance from './models/tasks/FileUploadTaskInstance';
 import ReadDocumentTaskInstance from './models/tasks/ReadDocumentTaskInstance';
 import ProjectTaskInstance from './models/tasks/ProjectTaskInstance';
+import { UploadDocumentPayload } from './models/payloads/UploadDocumentPayload';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -34,18 +35,18 @@ AuthInstance.interceptors.response.use(
 
 const Api = {
   documents: {
-   uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
-    const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];
-    const payload = {
-      taskInstanceId: taskInstanceId ?? "",
-      fileBase64: fileBase64,
-      fileName: file.name,
-      documentName: documentName || undefined,
-      accessAccountIds: accessAccountIds.length > 0 ? accessAccountIds : undefined,
-    };
-    return AuthInstance.post(`${ROUTE_URL}/document/upload`, payload);
-   }
-  },
+    uploadDocument: async(file: File, documentName: string, accessAccountIds: string[], taskInstanceId?: string) => {
+     const fileBase64 = (await Utils.convertFileToBase64(file)).split(",")[1];
+     const payload = {
+       taskInstanceId: taskInstanceId ?? "",
+       fileBase64: fileBase64,
+       fileName: file.name,
+       documentName: documentName || undefined,
+       accessAccountIds: accessAccountIds.length > 0 ? accessAccountIds : undefined,
+     };
+     return AuthInstance.post(`${ROUTE_URL}/document/upload`, payload);
+    }
+   },
   account: {
     makeSupervisor: async(accountId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/account/make-supervisor`, null, { params: {accountId: accountId}});
@@ -168,6 +169,23 @@ const Api = {
       supervisorAccountId,
       onboardingEmployeeDetails
     })
+  },
+  analytics: {
+    fetchOnboardingAnalytics: async(from?: Date) => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding`, {
+        params: {
+          from: from
+        }
+      })
+    },
+    fetchOnboardedEmployeesTimeline: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding/timeline`);
+    }
+  },
+  workflowInstances: {
+    fetchAllOpenWorkflowInstance: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/instance/onboarding/open`);
+    }
   }
 }
 

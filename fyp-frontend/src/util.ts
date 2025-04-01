@@ -3,6 +3,7 @@ import Api from "./api";
 import { SET_USER } from "./features/appSlice";
 import AuthenticatedUser from "./models/AuthenticatedUser";
 import { store } from "./store";
+import WorkflowInstanceDTO from "./models/DTOs/WorkflowInstanceDTO";
 
 const EMAIL_STORAGE_KEY = "EMAIL_STORAGE_KEY";
 const PASSWORD_STORAGE_KEY = "PASSWORD_STORAGE_KEY";
@@ -87,6 +88,39 @@ const Utils = {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
     });
+  },
+  dateToDDMMYYYY(date: Date) {
+    date = new Date(date);
+    const yyyy = date.getFullYear();
+    const mm = date.getMonth() + 1; // Months start at 0!
+    const dd = date.getDate();
+
+    const ddStr = dd < 10 ? '0' + dd : dd.toString();
+    const mmStr = mm < 10 ? '0' + mm : mm.toString();
+
+    return `${ddStr}/${mmStr}/${yyyy}`;
+  },
+  getWorkflowStatusDisplayName(workflowInstance: WorkflowInstanceDTO) {
+    if (workflowInstance.workflowTemplate.isOnboardingWF) {
+      if (workflowInstance.status === "MAINFLOW") return "ONBOARDING";
+      if (workflowInstance.status === "PREFLOW") return "PREBOARDING";
+      return workflowInstance.status;
+    }
+    else {
+      return workflowInstance.status;
+    }
+  },
+  getWorkflowStatusColor(status: string) {
+    switch(status) {
+      case "MAINFLOW":
+        return "bg-blue-500";
+      case "PREFLOW":
+        return "bg-orange-600";
+      case "COMPLETE":
+        return "bg-green-500";
+      default:
+        return "bg-purple-900";
+    }
   }
 }
 
