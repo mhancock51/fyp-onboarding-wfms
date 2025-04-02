@@ -1,4 +1,5 @@
 import Api from '@/api';
+import TableActionsDropdown from '@/components/TableActionsDropdown';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator'
@@ -43,9 +44,11 @@ export default function IssuesPage() {
             <TableHeader>
               <TableCell width={50}>Id</TableCell>
               <TableCell className='text-center' width={100}>Task Template</TableCell>
+              <TableCell className='text-center' width={75}>Creator</TableCell>              
+              <TableCell className='text-center' width={75}>Status</TableCell>
               <TableCell className='text-center' width={75}>Logged</TableCell>
-              <TableCell className='text-center' width={75}>Creator</TableCell>
-              <TableCell>Description</TableCell>
+              <TableCell width={1200}>Description</TableCell>
+              <TableCell></TableCell>
             </TableHeader>  
             <TableBody>
               {
@@ -57,13 +60,30 @@ export default function IssuesPage() {
                         {issue.taskInstance.template.name}
                       </Badge>
                     </TableCell>
-                    <TableCell>{new Date(issue.issueLoggedTimestamp).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <Badge className='p-2 rounded-full min-w-[200px]'>{issue.issueCreatorAccount.displayName}</Badge>  
+                      <Badge className='p-2 rounded-full min-w-[150px]'>{issue.issueCreatorAccount.displayName}</Badge>  
                     </TableCell>    
+                    <TableCell>
+                      <Badge className='p-2 rounded-full min-w-[100px] bg-blue-500'>
+                        {issue.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{new Date(issue.issueLoggedTimestamp).toLocaleDateString()}</TableCell>
                     <TableCell>
                       {issue.description}
                     </TableCell>                
+                    <TableCell>
+                      <TableActionsDropdown actions={[
+                        {
+                          label: 'Update Status',
+                          onClick: () => {}
+                        },
+                        {
+                          label: 'Edit Task Template',
+                          onClick: () => {}
+                        }
+                      ]}/>
+                    </TableCell>
                   </TableRow>
                 ))
               }

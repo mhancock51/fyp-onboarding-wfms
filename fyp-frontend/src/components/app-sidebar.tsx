@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Blocks, Building, ChartNoAxesColumn, ClipboardList, Home, ListTodo, Route, Settings, UserPlus, Users } from "lucide-react"
+import { Blocks, Building, ChartNoAxesColumn, ClipboardList, Home, ListTodo, MessageSquareWarning, Route, Settings, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
@@ -83,6 +83,11 @@ export function AppSidebar(props: Props) {
       title: "Workflows Dashboard",
       onClickAction: () => { navigate("/workflows/dashboard")},
       icon: ChartNoAxesColumn
+    },
+    {
+      title: "Task Issues",
+      onClickAction: () => { navigate("/issues")},
+      icon: MessageSquareWarning
     }
   ]
 
