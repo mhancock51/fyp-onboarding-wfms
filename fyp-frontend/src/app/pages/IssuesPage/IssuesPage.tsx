@@ -6,14 +6,23 @@ import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import IssueDTO from '@/models/DTOs/IssueDTO'
 import HTTPresponse from '@/models/HTTPresponse';
-import Utils from '@/util';
 import { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
+import { useDispatch, useSelector } from 'react-redux';
+import UpdateIssueStatusDialog from '@/app/dialogs/UpdateIssueStatusDialog';
 
-export default function IssuesPage() {
-  const [issues, setIssues] = useState<IssueDTO[]>([]);
+export default function IssuesPage() {  
+  const user = useSelector((state: RootState) => state.app.user);
+
+  const [currentIssue, setCurrentIssue] = useState<IssueDTO | null>(null);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+
+  const [issues, setIssues] = useState<IssueDTO[]>([]);  
   const [loading, setLoading] = useState<boolean>(false);
+
+
 
   async function fetchIssues() {
     setLoading(true);
@@ -35,62 +44,64 @@ export default function IssuesPage() {
 
   return (
     <div>
-      <div>
-        <h1 className='text-xl text-foreground font-bold m-2'>Reported Issues</h1>
-        <Separator/>
-        <div className='flex flex-col w-full p-2'>
-          <Label>Open Issues: {issues.filter(i => i.status === "open").length}</Label>
-          <Table>
-            <TableHeader>
-              <TableCell width={50}>Id</TableCell>
-              <TableCell className='text-center' width={100}>Task Template</TableCell>
-              <TableCell className='text-center' width={75}>Creator</TableCell>              
-              <TableCell className='text-center' width={75}>Status</TableCell>
-              <TableCell className='text-center' width={75}>Logged</TableCell>
-              <TableCell width={1200}>Description</TableCell>
-              <TableCell></TableCell>
-            </TableHeader>  
-            <TableBody>
-              {
-                issues.map((issue, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{issue.id}</TableCell>
-                    <TableCell>
-                      <Badge className='p-2 rounded-full min-w-[200px]'>
-                        {issue.taskInstance.template.name}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className='p-2 rounded-full min-w-[150px]'>{issue.issueCreatorAccount.displayName}</Badge>  
-                    </TableCell>    
-                    <TableCell>
-                      <Badge className='p-2 rounded-full min-w-[100px] bg-blue-500'>
-                        {issue.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(issue.issueLoggedTimestamp).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {issue.description}
-                    </TableCell>                
-                    <TableCell>
-                      <TableActionsDropdown actions={[
-                        {
-                          label: 'Update Status',
-                          onClick: () => {}
-                        },
-                        {
-                          label: 'Edit Task Template',
-                          onClick: () => {}
-                        }
-                      ]}/>
-                    </TableCell>
-                  </TableRow>
-                ))
-              }
-            </TableBody>
-          </Table>          
-        </div>
+      <h1 className='text-xl text-foreground font-bold m-2'>Reported Issues</h1>
+      <Separator/>
+      <div className='flex flex-col w-full p-2'>
+        <Label>Open Issues: {issues.filter(i => i.status === "open").length}</Label>
+        <Table>
+          <TableHeader>
+            <TableCell width={50}>Id</TableCell>
+            <TableCell className='text-center' width={100}>Task Template</TableCell>
+            <TableCell className='text-center' width={75}>Creator</TableCell>              
+            <TableCell className='text-center' width={75}>Status</TableCell>
+            <TableCell className='text-center' width={75}>Logged</TableCell>
+            <TableCell width={1200}>Description</TableCell>
+            <TableCell></TableCell>
+          </TableHeader>  
+          <TableBody>
+            {
+              issues.map((issue, index) => (
+                <TableRow key={index} onClick={() => { setCurrentIssue(issue);}}>
+                  <TableCell>{issue.id}</TableCell>
+                  <TableCell>
+                    <Badge className='p-2 rounded-full min-w-[200px]'>
+                      {issue.taskInstance.template.name}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className='p-2 rounded-full min-w-[150px]'>{issue.issueCreatorAccount.displayName}</Badge>  
+                  </TableCell>    
+                  <TableCell>
+                    <Badge className='p-2 rounded-full min-w-[100px] bg-blue-500'>
+                      {issue.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{new Date(issue.issueLoggedTimestamp).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {issue.description}
+                  </TableCell>                
+                  <TableCell>
+                    <TableActionsDropdown actions={[
+                      {
+                        label: 'Update Status',
+                        onClick: () => { setCurrentIssue(issue); setOpenDialog(true);}
+                      },
+                      {
+                        label: 'Edit Task Template',
+                        onClick: () => {}
+                      }
+                    ]}/>
+                  </TableCell>
+                </TableRow>
+              ))
+            }
+          </TableBody>
+        </Table>          
       </div>
+      {
+        currentIssue !== null &&
+        <UpdateIssueStatusDialog open={openDialog} setOpen={setOpenDialog} issue={currentIssue} fetchIssues={fetchIssues}/>
+      }
     </div>
   )
 }

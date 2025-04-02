@@ -201,7 +201,8 @@ CREATE TABLE reportedissue (
     IssueLoggedTimestamp DATETIME,
     Description TEXT,
     SuggestedChanges TEXT,
-    Status VARCHAR(255)
+    Status VARCHAR(255),
+    Remark VARCHAR(255)
 );
 
 

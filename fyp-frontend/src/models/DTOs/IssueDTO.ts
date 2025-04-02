@@ -12,4 +12,5 @@ export default interface IssueDTO {
   status: string;
   issueCreatorAccount: AccountDirectory;
   taskInstance: TaskInstanceDTO;
+  remark?: string;
 }

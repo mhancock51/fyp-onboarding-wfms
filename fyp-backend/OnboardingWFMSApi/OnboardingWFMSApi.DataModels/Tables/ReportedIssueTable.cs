@@ -34,5 +34,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string SuggestedChanges { get; set; }
         [JsonPropertyName("status")]
         public string Status { get; set; }
+        [JsonPropertyName("remark")]
+        public string? Remark { get; set; }
     }
 }

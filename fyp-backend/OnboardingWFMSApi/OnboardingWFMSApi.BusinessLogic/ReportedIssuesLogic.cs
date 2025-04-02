@@ -19,10 +19,13 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> CreateIssue(CreateIssuePayload payload, string accountId);
         public Task<HTTPResponse<List<IssueDTO>, string>> GetAllIssues();
         public Task<IssueDTO> GetIssue(string issueId);
+        public Task<HTTPResponse<string, string>> UpdateIssueStatus(UpdateIssueStatusPayload payload, string accountId);
     }
     public class ReportedIssuesLogic : IReportedIssuesLogic
     {
         public const string ISSUE_OPEN_STATUS = "open";
+        public const string ISSUE_RESOLVED_STATUS = "resolved";
+        public const string ISSUE_CLOSED_STATUS = "closed";
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
@@ -136,6 +139,35 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             issueDTO.TaskInstance = taskInstance;
             return issueDTO;
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateIssueStatus(UpdateIssueStatusPayload payload, string accountId)
+        {
+            // validate status
+            if (payload.Status != ISSUE_OPEN_STATUS && payload.Status != ISSUE_RESOLVED_STATUS && payload.Status != ISSUE_CLOSED_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid status given" };
+            }
+
+            // retrieve issue and make sure it exists
+            var issue = await _reportedIssueRepository.GetById(payload.IssueId);
+            if (issue == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 200, Error = "Issue doesn't exist" };
+            }
+            // update status
+            issue.Status = payload.Status;
+            issue.Remark = payload.Remark;
+            try
+            {
+                await _reportedIssueRepository.UpdateAsync(issue);
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated issue" };
+            }
+            catch(Exception ex)
+            {
+                _logger.LogWarning("Failed to update issue");
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = "Failed to update issue" };
+            }
         }
     }
 }

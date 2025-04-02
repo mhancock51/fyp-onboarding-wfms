@@ -12,6 +12,8 @@ import ReportIssueDialog from "./dialogs/ReportIssueDialog";
 import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
 import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
 import OrganisationDialog from "./dialogs/OrganisationDialog";
+import UpdateIssueStatusDialog from "./dialogs/UpdateIssueStatusDialog";
+import { SetStateAction } from "react";
 
 export default function layout() {
   const dispatch = useDispatch();

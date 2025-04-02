@@ -24,7 +24,6 @@ export default function ReportIssueDialog(props: Props) {
 
   const [issueDescription, setIssueDescription] = useState<string>("");
   const [suggestedChanges, setSuggestedChanges] = useState<string>("");
-  const [file, setFile] = useState<File | null>(null);
   const [creating, setCreating] = useState<boolean>(false);
 
 
@@ -32,13 +31,6 @@ export default function ReportIssueDialog(props: Props) {
     dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(false));
     setIssueDescription("");
     setSuggestedChanges("");
-    setFile(null);
-  }
-
-  function handleFileInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
-    }
   }
 
   async function createIssue() {
@@ -72,10 +64,6 @@ export default function ReportIssueDialog(props: Props) {
               <Label>Suggest Changes</Label>
               <Textarea required value={suggestedChanges} onChange={(event: any) => {setSuggestedChanges(event.target.value)}}/>
             </div>
-            {/* <div className="flex flex-col gap-1">
-              <Label>Upload screenshots</Label>
-              <Input type='file' onChange={handleFileInputChange}/>
-            </div> */}
             <DialogFooter>
               <Button type='submit'>
                 {
