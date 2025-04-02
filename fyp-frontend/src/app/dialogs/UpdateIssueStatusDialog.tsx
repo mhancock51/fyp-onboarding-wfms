@@ -57,26 +57,26 @@ export default function UpdateIssueStatusDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="min-w-[600px]">
+      <DialogContent className="min-w-[750px]">
         <DialogTitle>
           Update status of issue       
         </DialogTitle>
         <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); void updateIssue();}}> 
           <div className='grid grid-cols-4'>
             <Label>Issue Creator</Label>
-            <Label className='col-span-3 font-normal'>{props.issue.issueCreatorAccount.displayName} ({new Date(props.issue.issueLoggedTimestamp).toLocaleDateString()})</Label>
+            <Label className='col-span-3 font-normal'>{props.issue.issueCreatorAccount.displayName} ({props.issue.issueCreatorAccount.emailAddress})</Label>
           </div>
           <div className='grid grid-cols-4'>
             <Label>Task Template</Label>
             <Label className='col-span-3 font-normal'>{props.issue.taskInstance.template.name}</Label>
           </div>
-          <div className='grid grid-cols-4'>
-            <Label>Description</Label>
-            <Label className='col-span-3 font-normal'>{props.issue.description}</Label>
+          <div className='grid grid-cols-4 items-start'>
+            <Label>Description</Label>            
+            <Textarea className='col-span-3 font-normal resize-none'  readOnly value={props.issue.description}/>            
           </div>
-          <div className='grid grid-cols-4'>
+          <div className='grid grid-cols-4 items-start'>
             <Label>Suggested changes</Label>
-            <Label className='col-span-3 font-normal'>{props.issue.suggestedChanges}</Label>
+            <Textarea className='col-span-3 font-normal resize-none'  readOnly value={props.issue.suggestedChanges}/>            
           </div>
           <Separator/>
           <div className='grid grid-cols-4'>

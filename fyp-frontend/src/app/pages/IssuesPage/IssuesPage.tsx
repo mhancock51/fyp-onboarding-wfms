@@ -126,7 +126,7 @@ export default function IssuesPage() {
                         {issue.description}
                       </TableCell>      
                       <TableCell>
-                        { issue.remark !== undefined ? issue.remark : "N/A"}
+                        { (issue.remark !== undefined && issue.remark !== "") ? issue.remark : "N/A"}
                       </TableCell>          
                       {
                         user?.isSupervisor &&
