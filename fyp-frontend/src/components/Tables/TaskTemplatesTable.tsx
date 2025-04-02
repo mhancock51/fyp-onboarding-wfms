@@ -13,6 +13,7 @@ import NoResults from '../NoResults';
 interface Props {
   onRowClick?: (taskTemplate: TaskTemplate) => void;
   selectedTemplate: TaskTemplate | null;
+  status?: string;
 }
 
 export default function TaskTemplatesTable(props: Props) {
@@ -23,7 +24,7 @@ export default function TaskTemplatesTable(props: Props) {
 
   async function fetchTaskTemplates() {
     setLoading(true);
-    await Api.fetchAllTaskTemplates()
+    await Api.taskTemplates.fetchAllTaskTemplates(props.status)
     .then((response) => {
       dispatch(SET_TASK_TEMPLATES(taskTemplates));
       setLoading(false);

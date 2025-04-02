@@ -92,7 +92,7 @@ export default function App() {
   async function fetchTaskTypes() {
     if (taskTypes.length !== 0) return;
 
-    await Api.fetchTaskTypes()
+    await Api.taskTemplates.fetchTaskTypes()
     .then((response) => {      
       toast("Successfully loaded task types");
       const taskTypes = response.data.data as TaskType[];
@@ -123,7 +123,7 @@ export default function App() {
 
   async function fetchTaskTemplates() {
     console.log("fetching task templates");        
-    Api.fetchAllTaskTemplates()
+    Api.taskTemplates.fetchAllTaskTemplates()
     .then((response) => {
       dispatcher(SET_TASK_TEMPLATES(response.data.data));      
     })

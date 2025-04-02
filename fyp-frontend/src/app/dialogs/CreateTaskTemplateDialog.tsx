@@ -59,7 +59,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
 
   async function createTaskTemplate() {
     setLoading(true);
-    await Api.createTaskTemplate(name, description, taskType?.id ?? "", taskTypeData)
+    await Api.taskTemplates.createTaskTemplate(name, description, taskType?.id ?? "", taskTypeData)
     .then((response) => {
       setLoading(false);
       toast("Successfully created task");

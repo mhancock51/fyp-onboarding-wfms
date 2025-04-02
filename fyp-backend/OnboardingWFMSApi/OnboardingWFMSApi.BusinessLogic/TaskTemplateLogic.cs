@@ -121,7 +121,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates(string? status)
         {
             List<TaskTemplate> taskTemplates = _mapper.Map<List<TaskTemplate>>(await _taskTemplateRepository.GetAll());
-            if (status != null)
+            if (!string.IsNullOrEmpty(status))
             {
                 taskTemplates = taskTemplates.Where(t => t.Status == status).ToList();
             }

@@ -82,6 +82,22 @@ const Api = {
       return AuthInstance.post(`${ROUTE_URL}/organisation/rename`, null, { params: {newName: newName}});
     }
   },
+  taskTemplates: {
+    fetchTaskTypes: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
+    },
+    createTaskTemplate: async(name: string, description: string, taskTypeId: string, taskData: any) => {
+      return AuthInstance.post(`${ROUTE_URL}/task/templates/create`, {
+        Name: name,
+        Description: description,
+        TaskTypeId: taskTypeId,
+        TaskTypeData: taskData
+      })
+    },
+    fetchAllTaskTemplates: async(status?: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/task/templates/all?status=${status !== undefined ? status : ""}`);
+    },
+  },
   fetchLogin: async(emailAddress: string, password: string) => {
     return axios.post(`${ROUTE_URL}/auth/login?emailAddress=${emailAddress}&password=${password}`);
   },
@@ -140,23 +156,9 @@ const Api = {
       }
     });
   },
-  fetchTaskTypes: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
-  },
-  createTaskTemplate: async(name: string, description: string, taskTypeId: string, taskData: any) => {
-    return AuthInstance.post(`${ROUTE_URL}/task/templates/create`, {
-      Name: name,
-      Description: description,
-      TaskTypeId: taskTypeId,
-      TaskTypeData: taskData
-    })
-  },
   fetchDocumentData: async(documentId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/data?documentId=${documentId}`);
-  },
-  fetchAllTaskTemplates: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/task/templates/all`);
-  },
+  }, 
   fetchAccountsDirectory: async() => {
     return AuthInstance.get(`${ROUTE_URL}/account/directory`);
   },
