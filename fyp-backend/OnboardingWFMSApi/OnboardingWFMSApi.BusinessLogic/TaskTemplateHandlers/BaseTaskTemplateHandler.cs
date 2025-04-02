@@ -63,6 +63,21 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Task templates must match" };
             }
+            var validationResponse = await ValidateTaskTemplateData(updatedTaskData);
+            if (!validationResponse.Success)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = validationResponse.Error };
+            }
+            // update row
+            try
+            {
+                await _repository.UpdateAsync(updatedTaskData);
+                return new ServerResponse<string, string>() { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Failed to update record" };
+            }
         }
     }
 }

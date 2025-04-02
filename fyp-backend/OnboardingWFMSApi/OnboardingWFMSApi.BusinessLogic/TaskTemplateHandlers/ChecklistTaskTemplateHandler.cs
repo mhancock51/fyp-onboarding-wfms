@@ -30,22 +30,17 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
         public override async Task<ServerResponse<string, string>> UpdateTaskTemplateData(object updatedData, object existingData, bool hasActiveInstances)
         {
-            // call method for base checks
-            await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
-
+            // context related checks
             ChecklistTaskTemplateTable updatedChecklistData = CastObjectToType(updatedData);
             ChecklistTaskTemplateTable checklistData = CastObjectToType(existingData);
             if (hasActiveInstances && updatedChecklistData.Items.Length != checklistData.Items.Length)
             {
-                // length change but has active instances, don't allow this
+                // length changes but has active instances, don't allow this
                 return new ServerResponse<string, string>() { Success = false, Error = "Number of items can't be changed" };
             }
-            // check that new version passes validation checks
-            var validationResponse = await ValidateTaskTemplateData(updatedChecklistData);
-            // passed all checks, update record
-            await _repository.UpdateAsync(updatedChecklistData);
 
-            return new ServerResponse<string, string>() { Success = true };
+            // run base method to do base validation checks and then update record
+            return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
         }
         
 
