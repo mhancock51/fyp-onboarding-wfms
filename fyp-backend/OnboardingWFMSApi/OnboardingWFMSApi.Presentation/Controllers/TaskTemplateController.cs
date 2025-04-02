@@ -19,9 +19,9 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllTemplates()
+        public async Task<IActionResult> GetAllTemplates(string? status)
         {
-            var response = await _taskTemplateLogic.GetAllTaskTemplates();
+            var response = await _taskTemplateLogic.GetAllTaskTemplates(status);
             return StatusCode(response.HttpCode, response);
         }
 

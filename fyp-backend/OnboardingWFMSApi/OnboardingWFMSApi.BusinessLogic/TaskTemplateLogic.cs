@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface ITaskTemplateLogic
     {
-        public Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates();
+        public Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates(string? status);
         public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId);
         public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
         public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
@@ -118,9 +118,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<string, string>() { Success = true, Data = "Created task template", HttpCode = 200 };
         }
 
-        public async Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates()
+        public async Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates(string? status)
         {
             List<TaskTemplate> taskTemplates = _mapper.Map<List<TaskTemplate>>(await _taskTemplateRepository.GetAll());
+            if (status != null)
+            {
+                taskTemplates = taskTemplates.Where(t => t.Status == status).ToList();
+            }
             for (int i = 0; i < taskTemplates.Count; i++)
             {
                 var response = await GetTaskTemplateById(taskTemplates[i].Id);
