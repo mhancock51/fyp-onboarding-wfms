@@ -97,6 +97,9 @@ const Api = {
     fetchAllTaskTemplates: async(status?: string) => {
       return AuthInstance.get(`${ROUTE_URL}/task/templates/all?status=${status !== undefined ? status : ""}`);
     },
+    archiveTemplate: async(taskTemplateId: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/task/templates/archive?taskTemplateId=${taskTemplateId}`);
+    }
   },
   fetchLogin: async(emailAddress: string, password: string) => {
     return axios.post(`${ROUTE_URL}/auth/login?emailAddress=${emailAddress}&password=${password}`);

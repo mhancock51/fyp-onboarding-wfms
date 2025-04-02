@@ -9,6 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { SET_TASK_TEMPLATES } from '@/features/appSlice';
 import NoResults from '../NoResults';
+import TableActionsDropdown from '../TableActionsDropdown';
+import { AxiosResponse } from 'axios';
+import HTTPresponse from '@/models/HTTPresponse';
+import { Badge } from '../ui/badge';
 
 interface Props {
   onRowClick?: (taskTemplate: TaskTemplate) => void;
@@ -35,10 +39,29 @@ export default function TaskTemplatesTable(props: Props) {
     })
   }
 
-  useEffect(() => {
-    if (taskTemplates.length === 0) {
+  async function archiveTemplate(templateId: string) {
+    await Api.taskTemplates.archiveTemplate(templateId)
+    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
       void fetchTaskTemplates();
+      toast.success("Successfully archived template");
+    })
+    .catch((error) => {
+      toast.error("Failed to archive template");
+    })
+
+  }
+
+  function statusToColour(status: string) {
+    switch(status.toLowerCase()) {
+      case "active":
+        return "bg-primary";
+      case "archived":
+        return "bg-gray-300";
     }
+  }
+
+  useEffect(() => {
+    void fetchTaskTemplates();    
   }, [taskTemplates]);
 
   return (
@@ -50,6 +73,8 @@ export default function TaskTemplatesTable(props: Props) {
             <TableCell width={200}>Name</TableCell>
             <TableCell className='text-center' width={25}>Task Type</TableCell>
             <TableCell className='text-center' width={25}>Date Created</TableCell>
+            <TableCell className='text-center' width={75}>Status</TableCell>
+            <TableCell width={25}></TableCell>
           </TableHeader>
           <TableBody>
             {
@@ -60,6 +85,17 @@ export default function TaskTemplatesTable(props: Props) {
                     <TaskTypeBadge taskTypeId={row.taskTypeId}/>                  
                   </TableCell>
                   <TableCell>{new Date(row.dateCreated).toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Badge className={`p-2 w-full rounded-full ${statusToColour(row.status)}`}>{row.status.toUpperCase()}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <TableActionsDropdown actions={[
+                      {
+                        label: 'Archive Template',
+                        onClick: () => {void archiveTemplate(row.id)}
+                      }                      
+                    ]}/>
+                  </TableCell>
                 </TableRow>
               ))
             }
