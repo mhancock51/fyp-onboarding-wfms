@@ -23,6 +23,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
         public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
         public Task<HTTPResponse<string, string>> ArchiveTaskTemplate(string taskTemplateId);
+        public Task<HTTPResponse<string, string>> UpdateTaskTemplate(UpdateTaskTemplatePayload payload);
     }
 
     public class TaskTemplateLogic : ITaskTemplateLogic
@@ -37,6 +38,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly ITaskTypeRepository _taskTypeRepository;
+        private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         private readonly ITaskTemplateHandlerFactory _taskTemplateHandlerFactory;
 
@@ -44,13 +46,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ILogger<TaskTemplateLogic> _logger;
 
         public TaskTemplateLogic(ITaskTemplateRepository taskTemplateRepository, IMapper mapper,
-            ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory, ILogger<TaskTemplateLogic> logger)
+            ITaskTypeRepository taskTypeRepository, ITaskTemplateHandlerFactory taskTemplateHandlerFactory, ILogger<TaskTemplateLogic> logger, ITaskInstanceRepository taskInstanceRepository)
         {
             _mapper = mapper;
             _taskTemplateRepository = taskTemplateRepository;
             _taskTypeRepository = taskTypeRepository;
             _taskTemplateHandlerFactory = taskTemplateHandlerFactory;
             _logger = logger;
+            _taskInstanceRepository = taskInstanceRepository;
         }
 
         public async Task<HTTPResponse<string, string>> ArchiveTaskTemplate(string taskTemplateId)
@@ -167,6 +170,66 @@ namespace OnboardingWFMSApi.BusinessLogic
             taskTemplate.taskType = _mapper.Map<TaskType>(await _taskTypeRepository.GetById(taskTemplate.TaskTypeId));
 
             return new HTTPResponse<TaskTemplate, string>() { Success = true, Data = taskTemplate, HttpCode = 200 };
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateTaskTemplate(UpdateTaskTemplatePayload payload)
+        {
+            // get task template
+            var taskTemplateDTO = (await GetTaskTemplateById(payload.Id)).Data ?? null;
+            if (taskTemplateDTO == null) 
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template doesn't exist" };
+            }            
+            
+            // check that it hasn't been archived
+            if (taskTemplateDTO.Status != ACTIVE_TASK_TEMPLATE_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template isn't active" };
+            }
+
+            // figure out if instances of the task exist
+            var taskInstances = await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(payload.Id);
+            var hasActiveInstances = false;
+            foreach (var taskInstance in taskInstances)
+            {
+                if (taskInstance.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS)
+                {
+                    hasActiveInstances = true;
+                }
+            }
+
+            // update task type data using handler
+            var handler = _taskTemplateHandlerFactory.GetHandler(taskTemplateDTO.TaskTypeId);
+            if (handler == null)
+            {
+                _logger.LogError($"Task template {taskTemplateDTO.Id} is not associated with a valid task type Id");
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to update task type data" };
+            }
+            var response = await handler.UpdateTaskTemplateData(payload.UpdateTaskTypeData, taskTemplateDTO.TaskTypeData, hasActiveInstances);
+            if (!response.Success)
+            {
+                return new HTTPResponse<string, string>() { Success = false, Error = response.Error, HttpCode = 500 };
+            }
+            // retrive current record
+            var taskTemplateRow = await _taskTemplateRepository.GetById(taskTemplateDTO.Id);
+
+            // update description if changed
+            if (!string.IsNullOrEmpty(payload.UpdatedDescription))
+            {
+                taskTemplateRow.Description = payload.UpdatedDescription;
+            }
+            // update last modified
+            taskTemplateRow.LastModifiedTimestamp = DateTime.Now;
+            try
+            {
+                await _taskTemplateRepository.UpdateAsync(taskTemplateRow);
+                return new HTTPResponse<string, string>() { Success = true, Data = "Successfully updated task template", HttpCode = 200 };
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("Failed to update task template");
+                return new HTTPResponse<string, string>() { Success = false, Error = "Failed to update task template", HttpCode = 500 };
+            }
         }
     }
 

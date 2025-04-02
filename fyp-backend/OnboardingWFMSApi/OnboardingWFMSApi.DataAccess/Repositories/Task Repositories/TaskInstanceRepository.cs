@@ -12,6 +12,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
     {
         public Task<List<TaskInstanceTable>> GetUsersTaskInstances(string accountId);
         public Task<List<TaskInstanceTable>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId);
+        public Task<List<TaskInstanceTable>> GetTaskInstancesByTaskTemplateId(string taskTemplateId);
     }
     public class TaskInstanceRepository : BaseRepository<TaskInstanceTable>, ITaskInstanceRepository
     {
@@ -27,6 +28,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public async Task<List<TaskInstanceTable>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId)
         {
             return await _dbContext.taskInstances.Where(i => i.WorkflowInstanceId == workflowInstanceId).ToListAsync();
+        }
+
+        public async Task<List<TaskInstanceTable>> GetTaskInstancesByTaskTemplateId(string taskTemplateId)
+        {
+            return await _dbContext.taskInstances.Where(i => i.TaskTemplateId == taskTemplateId).ToListAsync();
         }
     }
 

@@ -31,5 +31,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string TaskTypeId { get; set; }
         [JsonPropertyName("status")]
         public string Status { get; set; }
+        [JsonPropertyName("lastModifiedTimestamp")]
+        public DateTime? LastModifiedTimestamp { get; set; }
     }
 }

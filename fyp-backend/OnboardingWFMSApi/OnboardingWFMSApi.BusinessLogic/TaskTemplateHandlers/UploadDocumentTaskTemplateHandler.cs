@@ -63,5 +63,16 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
             return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
         }
+
+        public override async Task<ServerResponse<string, string>> UpdateTaskTemplateData(object updatedData, object existingData, bool hasActiveInstances)
+        {
+            var updatedTaskData = CastObjectToType(updatedData);
+            var existingTaskData = CastObjectToType(existingData);
+            
+            // No contextual validation to be done
+
+            // run base method to do base validation checks and then update record
+            return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
+        }
     }
 }

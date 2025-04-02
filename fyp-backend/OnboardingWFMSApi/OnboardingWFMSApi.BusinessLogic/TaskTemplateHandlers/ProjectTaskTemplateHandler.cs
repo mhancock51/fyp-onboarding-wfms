@@ -52,5 +52,24 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 
             return new ServerResponse<string, string>() { Success = true };
         }
+
+        public override async Task<ServerResponse<string, string>> UpdateTaskTemplateData(object updatedData, object existingData, bool hasActiveInstances)
+        {
+            var updatedProjectData = CastObjectToType(updatedData);
+            var existingProjectData = CastObjectToType(existingData);
+            // don't allow deliverable to change if instances exist
+            if (updatedProjectData.Deliverable != existingProjectData.Deliverable)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Deliverable can't change if instances exist" };
+            }
+            // don't allow change to objectives length if instances exist
+            if (updatedProjectData.Objectives.Count != existingProjectData.Objectives.Count)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Objectives can't be changed if instances exist" };
+            }            
+
+            // run base method to do base validation checks and then update record
+            return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
+        }
     }
 }
