@@ -35,6 +35,7 @@ import CommentSection from '@/components/CommentSection';
 import ProjectTask from './ProjectTask';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
+import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
 
 interface Props {
   open: boolean;
@@ -186,7 +187,7 @@ export default function TaskDrawer(props: Props) {
           </div>
         }
         <DrawerFooter className='flex-1'>
-          <Button variant={"outline"}>
+          <Button variant={"outline"} onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
             <Flag/>
             Flag an issue with this task
           </Button>

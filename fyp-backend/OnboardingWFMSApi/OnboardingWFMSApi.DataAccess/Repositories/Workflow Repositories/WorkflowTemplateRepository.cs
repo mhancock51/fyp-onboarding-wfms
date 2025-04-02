@@ -23,10 +23,5 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         {
             return await _dbContext.workflowTemplates.FirstOrDefaultAsync(i => i.Name == name);
         }
-
-        public override async Task<WorkflowTemplateTable> GetById(string id)
-        {
-            return await _dbContext.workflowTemplates.FirstOrDefaultAsync(i => i.Id == id);
-        }
     }
 }

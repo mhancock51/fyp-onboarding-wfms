@@ -10,16 +10,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
     public interface ITaskTemplateRepository : IRepository<TaskTemplateTable>
     {
+        
     }
     public class TaskTemplateRepository : BaseRepository<TaskTemplateTable>, ITaskTemplateRepository
     {
         public TaskTemplateRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-        }
-
-        public override async Task<TaskTemplateTable> GetById(string id)
-        {
-            return await _dbContext.taskTemplates.FirstOrDefaultAsync(i => i.Id == id);
         }
     }
 

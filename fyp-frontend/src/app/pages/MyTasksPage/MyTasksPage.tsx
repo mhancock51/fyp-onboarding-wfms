@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 import NoResults from '@/components/NoResults'
 import { useDispatch } from 'react-redux'
 import TaskStatusBadge from './TaskStatusBadge'
+import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
 
 export default function MyTasksPage() {
   const dispatcher = useDispatch(); 
@@ -158,6 +159,10 @@ export default function MyTasksPage() {
       {
         currentTask !== null &&
         <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
+      }
+      {
+        currentTask !== null &&
+        <ReportIssueDialog taskInstance={currentTask} />
       }
     </div>
   )

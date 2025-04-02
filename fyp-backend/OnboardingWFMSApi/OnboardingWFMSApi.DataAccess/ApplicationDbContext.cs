@@ -46,6 +46,8 @@ namespace OnboardingWFMSApi.DataAccess
 
         public DbSet<DocumentTable> documents { get; set; }
         public DbSet<DocumentAccessLinkTable> documentAccessLinks { get; set; }
+
+        public DbSet<ReportedIssueTable> reportedIssues { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {             
         
         }

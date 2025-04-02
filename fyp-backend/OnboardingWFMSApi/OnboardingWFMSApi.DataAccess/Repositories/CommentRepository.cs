@@ -19,11 +19,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         {
         }
 
-        public override async Task<CommentTable> GetById(string id)
-        {
-            return await _dbContext.comments.FirstOrDefaultAsync(i => i.Id == id);
-        }
-
         public async Task<List<CommentTable>> GetCommentsByTaskTemplateId(string taskTemplateId)
         {
             return await _dbContext.comments.Where(c => c.TaskTemplateId == taskTemplateId).ToListAsync();

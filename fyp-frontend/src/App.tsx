@@ -24,6 +24,7 @@ import { AxiosResponse } from 'axios';
 import HTTPresponse from './models/HTTPresponse';
 import Department from './models/Department';
 import Organisation from './models/Organisation';
+import IssuesPage from './app/pages/IssuesPage/IssuesPage';
 
 export default function App() {  
 
@@ -175,10 +176,12 @@ export default function App() {
               <>
                 <Route path="/" element={<MyTasksPage />} />
                 <Route path="/workflows" element={<WorkflowInstancesPage />} />
-                <Route path="/workflows/dashboard" element={<WorkflowDashboardPage />} />
-                <Route path="/workflow-builder" element={<CreateWorkflowPage />} />
                 <Route path="/settings" element={<div><h1>Settings</h1></div>} />
-              </>
+                <Route path='/issues' element={<IssuesPage/>}/>
+                {/* Supervisor only paths */}
+                <Route path="/workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/"/>} />
+                <Route path="/workflow-builder" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/"/>} />
+              </>        
             </Route>
           ) : (
             <Route index element={<AppLoading validatedToken={validatedToken} 
