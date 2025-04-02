@@ -66,8 +66,8 @@ export default function CreateWorkflowInstanceDialog() {
       toast.success("Successfully created workflow instance");
       closeAndClear();
     })
-    .catch((error) => {
-      toast.error("Failed to create workflow instance");      
+    .catch((error) => {      
+      toast.error(error.response.data?.error); 
     })
     .finally(() => {
       setLoading(false);
