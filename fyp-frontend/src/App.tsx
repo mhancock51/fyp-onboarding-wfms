@@ -177,15 +177,11 @@ export default function App() {
                 <Route path="/" element={<MyTasksPage />} />
                 <Route path="/workflows" element={<WorkflowInstancesPage />} />
                 <Route path="/settings" element={<div><h1>Settings</h1></div>} />
-                {
-                  user?.isSupervisor &&
-                  <>
-                    <Route path="/workflows/dashboard" element={<WorkflowDashboardPage />} />
-                    <Route path="/workflow-builder" element={<CreateWorkflowPage />} />
-                    <Route path='/issues' element={<IssuesPage/>}/>
-                  </>                  
-                }
-              </>
+                <Route path='/issues' element={<IssuesPage/>}/>
+                {/* Supervisor only paths */}
+                <Route path="/workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/"/>} />
+                <Route path="/workflow-builder" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/"/>} />
+              </>        
             </Route>
           ) : (
             <Route index element={<AppLoading validatedToken={validatedToken} 

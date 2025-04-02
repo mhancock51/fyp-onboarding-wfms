@@ -45,6 +45,9 @@ const Api = {
     fetchAll: async() => {
       return AuthInstance.get(`${ROUTE_URL}/issues/all`);
     },
+    fetchUsersIssues: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/issues`);
+    },
     updateStatus: async(status: string, remark: string, issueId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/issues/update`, {
         status: status,

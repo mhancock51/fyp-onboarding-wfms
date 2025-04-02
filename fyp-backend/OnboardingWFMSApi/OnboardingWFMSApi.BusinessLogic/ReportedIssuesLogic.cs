@@ -20,6 +20,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<IssueDTO>, string>> GetAllIssues();
         public Task<IssueDTO> GetIssue(string issueId);
         public Task<HTTPResponse<string, string>> UpdateIssueStatus(UpdateIssueStatusPayload payload, string accountId);
+        public Task<HTTPResponse<List<IssueDTO>, string>> GetUsersIssues(string accountId);
     }
     public class ReportedIssuesLogic : IReportedIssuesLogic
     {
@@ -139,6 +140,21 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             issueDTO.TaskInstance = taskInstance;
             return issueDTO;
+        }
+
+        public async Task<HTTPResponse<List<IssueDTO>, string>> GetUsersIssues(string accountId)
+        {
+            var issueIds = (await _reportedIssueRepository.GetAll()).Where(i => i.IssueCreatorId == accountId).Select(i => i.Id).ToList();
+            var issueDTOs = new List<IssueDTO>();
+            foreach (var id in issueIds)
+            {
+                var dto = await GetIssue(id);
+                if (dto != null)
+                {
+                    issueDTOs.Add(dto);
+                }
+            }
+            return new HTTPResponse<List<IssueDTO>, string>() { Success = true, HttpCode = 200, Data = issueDTOs };
         }
 
         public async Task<HTTPResponse<string, string>> UpdateIssueStatus(UpdateIssueStatusPayload payload, string accountId)
