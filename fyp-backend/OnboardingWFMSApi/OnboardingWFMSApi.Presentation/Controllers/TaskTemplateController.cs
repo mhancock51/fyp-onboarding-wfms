@@ -57,5 +57,14 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             var response = await _taskTemplateLogic.GetAllTaskTypes();
             return StatusCode(response.HttpCode, response);
         }
+
+        [Authorize]
+        [HttpPost("archive")]
+        public async Task<IActionResult> ArchiveTemplate(string taskTemplateId)
+        {
+            // TODO make this endpoint only accessible to supervisors
+            var response = await _taskTemplateLogic.ArchiveTaskTemplate(taskTemplateId);
+            return StatusCode(response.HttpCode, response);
+        }
     }
 }

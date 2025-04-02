@@ -22,10 +22,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId);
         public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
         public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
+        public Task<HTTPResponse<string, string>> ArchiveTaskTemplate(string taskTemplateId);
     }
 
     public class TaskTemplateLogic : ITaskTemplateLogic
     {
+        public const string ACTIVE_TASK_TEMPLATE_STATUS = "active";
+        public const string ARCHIVED_TASK_TEMPLATE_STATUS = "archived";
+
         // TODO: separate these const from this class, put in constants class
         public const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";
         public const string READ_DOCUMENT_TASK_TYPE_ID = "read-document";
@@ -49,9 +53,41 @@ namespace OnboardingWFMSApi.BusinessLogic
             _logger = logger;
         }
 
+        public async Task<HTTPResponse<string, string>> ArchiveTaskTemplate(string taskTemplateId)
+        {
+            // get task template
+            var taskTemplate = await _taskTemplateRepository.GetById(taskTemplateId);
+            if (taskTemplate == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "No task template found" };
+            }
+            if (taskTemplate.Status == ARCHIVED_TASK_TEMPLATE_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template is already archived" };
+            }
+
+            taskTemplate.Status = ARCHIVED_TASK_TEMPLATE_STATUS;
+            try
+            {
+                await _taskTemplateRepository.UpdateAsync(taskTemplate);
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 200, Data = "Successfully archived task template" };
+            }
+            catch (Exception ex)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to archive task template" };
+            }
+        }
+
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId)
         {           
-            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { CreatorAccountId = accountId, Name = payload.Name, Description = payload.Description, DateCreated = DateTime.Now, TaskTypeId = payload.TaskTypeId });          
+            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { 
+                CreatorAccountId = accountId, 
+                Name = payload.Name, 
+                Description = payload.Description, 
+                DateCreated = DateTime.Now, 
+                TaskTypeId = payload.TaskTypeId,
+                Status = ACTIVE_TASK_TEMPLATE_STATUS
+            });          
 
             HTTPResponse<string, string> invalidTaskDataResponse = new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task data" };
 
