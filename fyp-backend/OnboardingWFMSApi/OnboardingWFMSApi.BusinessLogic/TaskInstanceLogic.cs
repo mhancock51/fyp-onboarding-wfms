@@ -263,12 +263,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             // create audit log
             if (taskInstance.WorkflowInstanceId != null)
             {
-                var taskTemplate = (await _taskTemplateLogic.GetTaskTemplateById(taskInstance.WorkflowInstanceId)).Data;
+                var taskTemplate = (await _taskTemplateLogic.GetTaskTemplateById(taskInstance.TaskTemplateId)).Data;
                 var log = new CreateWorkflowInstanceAuditLogPayload()
                 {
                     WorkflowInstanceId = taskInstance.WorkflowInstanceId,
                     Log = $"{taskTemplate.Name} Task completed by user",
-                    AccountId = taskInstance.AssigneeAccountId
+                    AccountId = accountId
                 };
                 await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
             }

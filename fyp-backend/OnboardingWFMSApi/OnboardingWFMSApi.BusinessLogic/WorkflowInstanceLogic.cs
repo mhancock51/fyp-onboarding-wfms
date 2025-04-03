@@ -263,6 +263,13 @@ namespace OnboardingWFMSApi.BusinessLogic
                     if (onboardingEmployeeDetails == null) throw new Exception("No onboarding employee details could be retrieved for an onboarding workflow instance");
 
                     var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, onboardingEmployeeDetails.DepartmentId));
+                    // create audit log
+                    var log = new CreateWorkflowInstanceAuditLogPayload()
+                    {
+                        WorkflowInstanceId = workflowInstance.Id,
+                        Log = $"Onboarder invited to organisation",
+                    };
+                    await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
                     return result;
                 }
             }

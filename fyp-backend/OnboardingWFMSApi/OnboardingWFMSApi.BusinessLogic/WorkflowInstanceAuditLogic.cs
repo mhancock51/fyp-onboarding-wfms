@@ -40,7 +40,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                 Id = "", 
                 WorkflowInstanceId = payload.WorkflowInstanceId,
                 Log = payload.Log,
-                Timestamp = DateTime.Now
+                Timestamp = DateTime.Now,
+                AccountId = payload.AccountId,
             };
             try
             {
