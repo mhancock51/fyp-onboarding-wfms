@@ -8,6 +8,10 @@ import FileUploadTaskInstance from './models/tasks/FileUploadTaskInstance';
 import ReadDocumentTaskInstance from './models/tasks/ReadDocumentTaskInstance';
 import ProjectTaskInstance from './models/tasks/ProjectTaskInstance';
 import { UploadDocumentPayload } from './models/payloads/UploadDocumentPayload';
+import { FileUploadTaskTemplate } from './models/tasks/FileUploadTaskTemplate';
+import { ReadDocumentTaskTemplate } from './models/tasks/ReadDocumentTaskTemplate';
+import ProjectTaskTemplate from './models/tasks/ProjectTaskTemplate';
+import { ChecklistTaskTemplate } from './models/tasks/ChecklistTaskTemplate';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -99,6 +103,16 @@ const Api = {
     },
     archiveTemplate: async(taskTemplateId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/task/templates/archive?taskTemplateId=${taskTemplateId}`);
+    },
+    updateTemplate: async(taskTemplateId: string, updatedDescription: string, updatedTaskTypeData: FileUploadTaskTemplate | ReadDocumentTaskTemplate | ProjectTaskTemplate | ChecklistTaskTemplate) => {
+      return AuthInstance.put(`${ROUTE_URL}/task/templates/update`, {
+        id: taskTemplateId,
+        updatedDescription: updatedDescription,
+        updateTaskTypeData: updatedTaskTypeData
+      });
+    },
+    fetchTemplateHasActiveInstances: async(taskTemplateId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/task/templates/has-active-instances?taskTemplateId=${taskTemplateId}`);
     }
   },
   fetchLogin: async(emailAddress: string, password: string) => {

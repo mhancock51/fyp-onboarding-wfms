@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Payloads;
 using System.Security.Claims;
 
@@ -64,6 +65,24 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         {
             // TODO make this endpoint only accessible to supervisors
             var response = await _taskTemplateLogic.ArchiveTaskTemplate(taskTemplateId);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateTemplate([FromBody] UpdateTaskTemplatePayload payload)
+        {
+            // TODO make this endpoint only accessible to supervisors
+            var response = await _taskTemplateLogic.UpdateTaskTemplate(payload);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize]
+        [HttpGet("has-active-instances")]
+        public async Task<IActionResult> GetHasActiveInstances(string taskTemplateId)
+        {
+            // TODO make this endpoint only accessible to supervisors
+            var response = await _taskTemplateLogic.DoesTaskTemplateHaveActiveInstances(taskTemplateId);
             return StatusCode(response.HttpCode, response);
         }
     }

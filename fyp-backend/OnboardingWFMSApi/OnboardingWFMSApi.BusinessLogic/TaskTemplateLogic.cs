@@ -24,6 +24,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
         public Task<HTTPResponse<string, string>> ArchiveTaskTemplate(string taskTemplateId);
         public Task<HTTPResponse<string, string>> UpdateTaskTemplate(UpdateTaskTemplatePayload payload);
+        public Task<HTTPResponse<bool, string>> DoesTaskTemplateHaveActiveInstances(string taskTemplateId);
     }
 
     public class TaskTemplateLogic : ITaskTemplateLogic
@@ -119,6 +120,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             
             return new HTTPResponse<string, string>() { Success = true, Data = "Created task template", HttpCode = 200 };
+        }
+
+        public async Task<HTTPResponse<bool, string>> DoesTaskTemplateHaveActiveInstances(string taskTemplateId)
+        {
+            var activeInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplateId)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS);
+            return new HTTPResponse<bool, string>() { Success = true, Data = activeInstances.Count() > 0, HttpCode = 200 };
         }
 
         public async Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates(string? status)

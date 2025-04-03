@@ -38,7 +38,8 @@ CREATE TABLE tasktemplate (
     DateCreated DATETIME NOT NULL,
     TaskTypeId VARCHAR(255) NOT NULL,
     PRIMARY KEY (TaskTemplateId),
-    Status VARCHAR(255) NOT NULL
+    Status VARCHAR(255) NOT NULL,
+    LastModifiedTimestamp DATETIME
 );
 
 CREATE TABLE fileuploadtasktemplate (
