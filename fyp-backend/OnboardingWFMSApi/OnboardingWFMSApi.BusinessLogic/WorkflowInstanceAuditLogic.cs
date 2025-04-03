@@ -46,7 +46,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 await _workflowInstanceAuditLogRepository.AddAsync(log);
                 _logger.LogDebug($"Successfully inserted log for workflow instance {log.WorkflowInstanceId}");
-                return new ServerResponse<string, string>() { Success = true }
+                return new ServerResponse<string, string>() { Success = true };
             }
             catch (Exception ex)
             {

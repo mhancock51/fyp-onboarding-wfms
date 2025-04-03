@@ -24,5 +24,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string Log {  get; set; }
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
+        [ForeignKey(nameof(AccountTable.Id))]
+        public string? AccountId { get; set; }  
     }
 }

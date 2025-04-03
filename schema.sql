@@ -209,9 +209,9 @@ CREATE TABLE workflowinstanceauditlog (
     Id VARCHAR(255) PRIMARY KEY,
     WorkflowInstanceId VARCHAR(255),
     Log TEXT,
-    Timestamp DATETIME
+    Timestamp DATETIME,
+    AccountId VARCHAR(255)
 );
-
 
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
@@ -428,6 +428,11 @@ ALTER TABLE reportedissue
 
 /* Workflow instance Audit Log constraints */
 ALTER TABLE workflowinstanceauditlog
-    ADD CONSTRAINT fk_workflow_instance
+    ADD CONSTRAINT fk_workflow_audit_logworkflow_instance_id
     FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
+    ON DELETE CASCADE;
+
+ALTER TABLE workflowinstanceauditlog
+    ADD CONSTRAINT fk_workflow_audit_log_account_id
+    FOREIGN KEY (AccountId) REFERENCES account(AccountId)
     ON DELETE CASCADE;

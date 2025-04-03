@@ -14,6 +14,8 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string WorkflowInstanceId { get; set; }
         [JsonPropertyName("log")]
         public string Log { get; set; }
+        [JsonPropertyName("accountId")]
+        public string? AccountId { get; set; }
 
     }
 }

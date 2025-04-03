@@ -46,30 +46,21 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly IAccountRepository _accountRepository;
 
-        private readonly IChecklistTaskInstanceRepository _checklistTaskInstanceRepository;
-        private readonly IReadDocumentTaskInstanceRepository _readDocumentTaskInstanceRepository;
-        private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
-
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
 
         private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
-            IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository,
-            IChecklistTaskInstanceRepository checklistTaskInstanceRepository, IReadDocumentTaskInstanceRepository readDocumentTaskInstanceRepository,
-            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory,
+            IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory,
             IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository, IMediator mediator
-, ILogger<TaskInstanceLogic> logger)
+            , ILogger<TaskInstanceLogic> logger)
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
             _taskTemplateLogic = taskTemplateLogic;
             _accountRepository = accountRepository;
-            _checklistTaskInstanceRepository = checklistTaskInstanceRepository;
             _taskTemplateRepository = taskTemplateRepository;
-            _readDocumentTaskInstanceRepository = readDocumentTaskInstanceRepository;
-            _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
             _taskInstanceHandlerFactory = taskInstanceHandlerFactory;
             _workflowTemplateRepository = workflowTemplateRepository;
             _workflowInstanceRepository = workflowInstanceRepository;
@@ -139,6 +130,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     await _taskInstanceRepository.DeleteAsync(taskInstance);
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = result.Error };
+                }
+
+                // create audit log
+                if (payload.WorkflowInstanceId != null)
+                {
+                    var log = new CreateWorkflowInstanceAuditLogPayload()
+                    {
+                        WorkflowInstanceId = payload.WorkflowInstanceId,
+                        Log = $"{taskTemplate.Name} Task asssigned to user",
+                        AccountId = taskInstance.AssigneeAccountId,
+                    };
+                    await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
                 }
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created task instance" };
             }
@@ -257,9 +260,20 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             var mediatorResponse = await _mediator.Send(new TaskCompletedRequest(taskInstance));
 
-            // TODO implement logic to notify correct users           
+            // create audit log
+            if (taskInstance.WorkflowInstanceId != null)
+            {
+                var taskTemplate = (await _taskTemplateLogic.GetTaskTemplateById(taskInstance.WorkflowInstanceId)).Data;
+                var log = new CreateWorkflowInstanceAuditLogPayload()
+                {
+                    WorkflowInstanceId = taskInstance.WorkflowInstanceId,
+                    Log = $"{taskTemplate.Name} Task completed by user",
+                    AccountId = taskInstance.AssigneeAccountId
+                };
+                await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
+            }
 
-            // TODO implement logging of event for workflow
+            // TODO implement logic to notify correct users                       
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
         }

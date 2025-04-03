@@ -185,6 +185,12 @@ namespace OnboardingWFMSApi.BusinessLogic
                 await _workflowNodeInstanceRepository.UpdateAsync(node);
             }
 
+            var log = new CreateWorkflowInstanceAuditLogPayload()
+            {
+                WorkflowInstanceId = workflowInstance.Id,
+                Log = "Workflow instance started",
+            };
+            await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully instantiated workflow instance" };
         }
 
@@ -259,6 +265,22 @@ namespace OnboardingWFMSApi.BusinessLogic
                     var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, onboardingEmployeeDetails.DepartmentId));
                     return result;
                 }
+            }
+
+            // mark workflow instance as complete if complete
+            if (await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplateId, workflowInstance.Id, "preflowtasks") 
+                && await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplateId, workflowInstance.Id, "mainflowtasks"))
+            {
+                workflowInstance.CompletionTimestamp = DateTime.Now;
+                await _workflowInstanceRepository.UpdateAsync(workflowInstance);
+                _logger.LogInformation("Workflow instance completed");
+                // create audit log
+                var log = new CreateWorkflowInstanceAuditLogPayload()
+                {
+                    WorkflowInstanceId = workflowInstance.Id,
+                    Log = $"Workflow instance completed",                    
+                };
+                await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
             }
 
             // ASSIGN TASKS THAT WERE DEPENDENT ON THIS TASK AND ARE NOW SATISFIED
@@ -395,6 +417,15 @@ namespace OnboardingWFMSApi.BusinessLogic
                 nodeInstance.Status = "open";
                 await _workflowNodeInstanceRepository.UpdateAsync(nodeInstance);
             }
+
+            // create audit log
+            var log = new CreateWorkflowInstanceAuditLogPayload()
+            {
+                WorkflowInstanceId = workflowInstance.Id,
+                Log = $"Onboarder registered their account",
+                AccountId = employeeDetails.OnboarderAccountId  
+            };
+            await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200 };
         }
