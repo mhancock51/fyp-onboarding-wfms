@@ -48,6 +48,8 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<DocumentAccessLinkTable> documentAccessLinks { get; set; }
 
         public DbSet<ReportedIssueTable> reportedIssues { get; set; }
+        public DbSet<WorkflowInstanceAuditLogTable> workflowInstanceAuditLogs { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {             
         
         }
