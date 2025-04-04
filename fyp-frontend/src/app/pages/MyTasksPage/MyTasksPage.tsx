@@ -114,17 +114,17 @@ export default function MyTasksPage() {
                       <TaskTypeBadge taskTypeId={task.template.taskTypeId}/>
                     </TableCell>
                     <TableCell width={"100px"}>
-                      <TaskStatusBadge status={task.status}/>
+                      <TaskStatusBadge status={task.status}/>                      
                     </TableCell>
                     <TableCell width={"50px"}>
                       {
-                        task.dueDate === null &&
-                        <div className='text-foreground w-full flex flex-row justify-center'>
+                        task.dueDate === null || task.status.toLowerCase() === "complete" &&
+                        <div className='text-foreground w-full flex flex-row justify-center text-xs'>
                           N/A
                         </div>
                       }
                       {
-                        task.dueDate !== null &&
+                        task.dueDate !== null && task.status.toLowerCase() !== "complete" &&
                         <Badge className={`mx-2 py-2 px-4 rounded-full w-full ${dueInColor(daysUntil(task.dueDate))}`}> 
                           {
                             dueDisplayValue(daysUntil(task.dueDate))

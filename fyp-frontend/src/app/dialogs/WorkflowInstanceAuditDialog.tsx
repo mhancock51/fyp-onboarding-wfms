@@ -13,7 +13,8 @@ import { toast } from 'sonner';
 import moment from 'moment';
 import { Spinner } from '@/components/ui/spinner';
 import NoResults from '@/components/NoResults';
-import { CircleCheckBig, FileUp, Flag, Rocket, UserPlus } from 'lucide-react';
+import { CircleCheckBig, FileUp, Flag, Mail, Rocket, UserCheck, UserPlus } from 'lucide-react';
+import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
 
 interface Props {
   open: boolean;
@@ -69,8 +70,11 @@ export default function WorkflowInstanceAuditDialog(props: Props) {
     if (props.log.toLowerCase().includes("uploaded")) {
       return <FileUp size={ICON_SIZE}/>
     }
-    if (props.log.toLowerCase().includes("onboarder registered their account") || props.log.toLowerCase().includes("onboarder invited to organisation")) {
-      return <UserPlus size={ICON_SIZE}/>
+    if (props.log.toLowerCase().includes("onboarder registered their account")) {
+      return <UserCheck size={ICON_SIZE}/>
+    }
+    if (props.log.toLowerCase().includes("onboarder invited to organisation")) {
+      return <Mail size={ICON_SIZE}/>
     }
     if (props.log.toLowerCase().includes("task completed")) {
       return <CircleCheckBig size={ICON_SIZE}/>
@@ -102,8 +106,8 @@ export default function WorkflowInstanceAuditDialog(props: Props) {
             <Table>
               <TableHeader>
                 <TableCell className='text-center'>Timestamp</TableCell>
-                <TableCell width={1000}>Log</TableCell>
                 <TableCell width={100} className='text-center'></TableCell>
+                <TableCell width={1000}>Log</TableCell>
                 <TableCell width={200} className='text-center'>Account</TableCell>
               </TableHeader>
               <TableBody>
@@ -120,21 +124,16 @@ export default function WorkflowInstanceAuditDialog(props: Props) {
 
                         }
                       </TableCell>
-                      <TableCell>{auditLog.log}</TableCell>
                       <TableCell className='text-center flex flex-row w-full justify-center items-center h-full'>
                         <div className='py-2'>
                           <LogDescriptionToIcon log={auditLog.log}/>
                         </div>
                       </TableCell>
+                      <TableCell>{auditLog.log}</TableCell>
                       <TableCell className='text-center'>
                         {
-                          auditLog.accountId !== null ? (
-                            <Badge className='p-2 w-full rounded-full'>
-                              {accounts.find(i => i.id === auditLog.accountId)?.displayName}
-                            </Badge>
-                          ) : (
-                            <div className='text-xs'>N/A</div>                            
-                          )
+                          auditLog.accountId !== null && accounts.find(i => i.id === auditLog.accountId) !== undefined &&
+                          <AccountDirectoryBadge accountDirectory={accounts.find(i => i.id === auditLog.accountId)}/>                          
                         }
                       </TableCell>
                     </TableRow>

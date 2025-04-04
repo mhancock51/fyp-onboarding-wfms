@@ -23,8 +23,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         }
 
         public async Task<ServerResponse<object, string>> FetchTaskInstanceData(string taskInstanceId)
-        {
-            _logger.LogDebug("Retrieving task instance data");
+        {            
             var taskInstanceMetaData = await _repository.GetByTaskInstanceId(taskInstanceId);
             if (taskInstanceMetaData == null)
             {
