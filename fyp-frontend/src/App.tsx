@@ -168,7 +168,7 @@ export default function App() {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>    
       <Router>
         <Routes>
-          {(validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates && loadedDepartments) || user === null ? (
+          {(validatedToken && loadedAccounts && loadedTaskTypes && loadedTaskTemplates && loadedDepartments && loadedOrganisation) || user === null ? (
             <Route 
               path="/" 
               element={user !== null ? <Layout /> : <Navigate to="/login" />}

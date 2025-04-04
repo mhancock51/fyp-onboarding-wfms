@@ -171,7 +171,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 var log = new CreateWorkflowInstanceAuditLogPayload()
                 {
                     WorkflowInstanceId = taskInstance.WorkflowInstanceId,
-                    Log = $"Onboarder registered their account",
+                    Log = $"{document.FileName} uploaded",
                     AccountId = accountId
                 };
                 await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
