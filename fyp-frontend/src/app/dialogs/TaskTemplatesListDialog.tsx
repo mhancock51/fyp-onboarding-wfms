@@ -24,7 +24,7 @@ export default function TaskTemplatesListDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[800px] max-h-[70vh]">
+      <DialogContent className="min-w-[850px] max-h-[70vh]">
         <DialogHeader>
           <DialogTitle>Task Templates</DialogTitle>          
         </DialogHeader>

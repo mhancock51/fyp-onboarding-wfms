@@ -1,21 +1,17 @@
 import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
-import { MultiSelect } from '@/components/multi-select';
+import MultiSelect from '@/components/multi-select';
 import TaskTemplatesTable from '@/components/Tables/TaskTemplatesTable';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT, TEMPLATE_ACCOUNTS } from '@/constants';
+import { TEMPLATE_ACCOUNTS } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
-import { CheckedState } from '@radix-ui/react-checkbox';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
-import { SelectLabel } from '@radix-ui/react-select';
 import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
 
@@ -88,7 +84,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
               </HoverCard>
               <MultiSelect className='col-span-3'
                 options={props.existingTaskNodes.map((node) => ({ label: node.taskTemplate?.name ?? "ERROR", value: node.id}))} 
-                onValueChange={(taskIds: string[]) => { setTaskNodeDependencies(props.existingTaskNodes.filter(i => taskIds.includes(i.id))) }}
+                onChange={(options: any[]) => { setTaskNodeDependencies(props.existingTaskNodes.filter(i => options.map(option => (option.value)).includes(i.id)))}}                
               />
             </div>
             <div className="grid grid-cols-4 gap-4">

@@ -66,7 +66,7 @@ export default function TaskTemplatesTable(props: Props) {
 
   useEffect(() => {
     void fetchTaskTemplates();    
-  }, [taskTemplates]);
+  }, []);
 
   return (
     <div className='min-h-[50vh] overflow-y-auto'>
@@ -78,6 +78,7 @@ export default function TaskTemplatesTable(props: Props) {
             <TableCell className='text-center' width={25}>Task Type</TableCell>
             <TableCell className='text-center' width={25}>Date Created</TableCell>
             <TableCell className='text-center' width={75}>Status</TableCell>
+            <TableCell className='text-center' width={75}>Active Instances</TableCell>
             <TableCell width={25}></TableCell>
           </TableHeader>
           <TableBody>
@@ -91,6 +92,9 @@ export default function TaskTemplatesTable(props: Props) {
                   <TableCell>{new Date(taskTemplate.dateCreated).toLocaleString()}</TableCell>
                   <TableCell>
                     <Badge className={`p-2 w-full rounded-full ${statusToColour(taskTemplate.status)}`}>{taskTemplate.status?.toUpperCase()}</Badge>
+                  </TableCell>
+                  <TableCell className='text-center'>
+                    {taskTemplate.activeInstances}
                   </TableCell>
                   <TableCell>
                     <TableActionsDropdown actions={[

@@ -14,4 +14,5 @@ export default interface TaskTemplate {
     taskType: TaskType;
     taskTypeData: FileUploadTaskTemplate | ChecklistTaskTemplate | ReadDocumentTaskTemplate | ProjectTaskTemplate;
     status: string;
+    activeInstances: number;
 }
