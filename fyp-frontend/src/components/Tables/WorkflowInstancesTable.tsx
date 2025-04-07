@@ -15,6 +15,7 @@ import TableActionsDropdown, { DropdownAction } from '../TableActionsDropdown'
 import { Button } from '../ui/button'
 import { ArrowDownUp } from 'lucide-react'
 import Utils from '@/util'
+import AccountDirectoryBadge from '../AccountDirectoryBadge'
 
 interface Props {
   actions: DropdownAction[];
@@ -191,15 +192,13 @@ export default function WorkflowInstancesTable(props: Props) {
                 </TableCell>
                 <TableCell>
                   {
-                    instance.onboardingEmployeeDetails?.onboarderAccountId !== undefined &&
-                    <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
-                      {accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)?.displayName ?? instance.onboardingEmployeeDetails.displayName}
-                    </Badge>              
+                    instance.onboardingEmployeeDetails?.onboarderAccountId !== null &&
+                    <AccountDirectoryBadge accountDirectory={accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)}/>         
                   }
                   {
-                    instance.onboardingEmployeeDetails?.onboarderAccountId === undefined &&
+                    instance.onboardingEmployeeDetails?.onboarderAccountId === null &&
                     <span className='py-2 px-4 rounded-full text-[12px] flex flex-row gap-2 items-center justify-center'>
-                      N/A
+                      {instance.onboardingEmployeeDetails.displayName}
                     </span>                    
                   }
                 </TableCell>                                
