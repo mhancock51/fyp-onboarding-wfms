@@ -121,8 +121,7 @@ export default function App() {
     })
   }
 
-  async function fetchTaskTemplates() {
-    console.log("fetching task templates");        
+  async function fetchTaskTemplates() {      
     Api.taskTemplates.fetchAllTaskTemplates()
     .then((response) => {
       dispatcher(SET_TASK_TEMPLATES(response.data.data));      

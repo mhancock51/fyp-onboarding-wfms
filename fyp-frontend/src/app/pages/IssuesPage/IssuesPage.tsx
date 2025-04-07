@@ -14,16 +14,24 @@ import UpdateIssueStatusDialog from '@/app/dialogs/UpdateIssueStatusDialog';
 import { RootState } from '@/store';
 import { Spinner } from '@/components/ui/spinner';
 import NoResults from '@/components/NoResults';
+import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE } from '@/features/appSlice';
 
 export default function IssuesPage() {  
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.app.user);
+  const templates = useSelector((state: RootState) => state.app.taskTemplates);
 
   const [currentIssue, setCurrentIssue] = useState<IssueDTO | null>(null);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [issues, setIssues] = useState<IssueDTO[]>([]);  
   const [loading, setLoading] = useState<boolean>(false);
 
-
+  function handleEditTaskTemplateActionClick(issue: IssueDTO) {
+    const taskTemplate = templates.find(t => t.id === issue.taskTemplateId);
+    if (taskTemplate === undefined) return;    
+    dispatch(SET_SELECTED_TASK_TEMPLATE(taskTemplate));
+    dispatch(SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG(true));    
+  }
 
   async function fetchAllIssues() {
     setLoading(true);
@@ -138,7 +146,7 @@ export default function IssuesPage() {
                             },
                             {
                               label: 'Edit Task Template',
-                              onClick: () => {}
+                              onClick: () => { handleEditTaskTemplateActionClick(issue)}
                             }
                           ]}/>
                         </TableCell>

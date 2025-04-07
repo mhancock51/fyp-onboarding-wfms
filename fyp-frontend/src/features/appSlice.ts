@@ -20,10 +20,12 @@ export interface AppState {
     openTaskTemplatesListDialog: boolean;
     openReportIssueDialog: boolean;
     openCreateWorkflowInstanceDialog: boolean;
+    openUpdateTaskTemplateDialog: boolean;
     departments: Department[];
     taskTypes: TaskType[];
     accountsDirectory: AccountDirectory[];
     taskTemplates: TaskTemplate[];
+    selectedTaskTemplate: TaskTemplate | null;
 }
 
 const initialState: AppState = {
@@ -37,10 +39,12 @@ const initialState: AppState = {
     openTaskTemplatesListDialog: false,
     openReportIssueDialog: false,
     openCreateWorkflowInstanceDialog: false,
+    openUpdateTaskTemplateDialog: false,
     taskTypes: [],
     accountsDirectory: [],
     taskTemplates: [],
-    departments: []
+    departments: [],
+    selectedTaskTemplate: null
 }
 
 export const appSlice = createSlice({
@@ -78,6 +82,9 @@ export const appSlice = createSlice({
         SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG: (state, action: PayloadAction<boolean>) => {
             state.openCreateWorkflowInstanceDialog = action.payload;
         },
+        SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG: (state, action: PayloadAction<boolean>) => {
+            state.openUpdateTaskTemplateDialog = action.payload;
+        },
         SET_DEPARTMENTS: (state, action: PayloadAction<Department[]>) => {
             state.departments = action.payload;
         },
@@ -90,12 +97,16 @@ export const appSlice = createSlice({
         SET_TASK_TEMPLATES: (state, action: PayloadAction<TaskTemplate[]>) => {
             state.taskTemplates = action.payload;
         },
+        SET_SELECTED_TASK_TEMPLATE: (state, action: PayloadAction<TaskTemplate | null>) => {
+            state.selectedTaskTemplate = action.payload;
+        }
     }
 });
 
 export const {
     SET_USER, SET_ORGANISATION, SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
-    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_REPORT_ISSUE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_DEPARTMENTS,
+    SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_REPORT_ISSUE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_DEPARTMENTS, SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG,
+    SET_SELECTED_TASK_TEMPLATE    
 } = appSlice.actions;
 
 export default appSlice.reducer;

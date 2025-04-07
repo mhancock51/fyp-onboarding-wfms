@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import TaskTemplate from '@/models/tasks/TaskTemplate';
 import React, { SetStateAction, useEffect, useState } from 'react'
 import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
@@ -15,15 +14,19 @@ import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import { toast } from 'sonner';
 import TaskTemplateView from '@/components/TaskTemplateView';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_TASK_TEMPLATES } from '@/features/appSlice';
 
 interface Props {
-  open: boolean;
-  setOpen: React.Dispatch<SetStateAction<boolean>>;
-  taskTemplate: TaskTemplate;
-  fetchTaskTemplates: () => Promise<void>;
+  fetchTaskTemplates?: () => Promise<void>;
 }
 
 export default function UpdateTaskTemplateDialog(props: Props) {
+  const dispatch = useDispatch();
+  const open = useSelector((state: RootState) => state.app.openUpdateTaskTemplateDialog);
+  const taskTemplate = useSelector((state: RootState) => state.app.selectedTaskTemplate);
+
   const [step, setStep] = useState<number>(0);
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,7 +36,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
   const [fetchedHasActiveInstances, setFetchedHasActiveInstances] = useState<boolean>(false);
 
   function closeAndClear() {
-    props.setOpen(false);
+    dispatch(SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG(false));    
     setStep(0);
     setDescription("");
     setUpdatedData(null);
@@ -49,13 +52,28 @@ export default function UpdateTaskTemplateDialog(props: Props) {
       setStep(2);
     }
   }
+
+  async function fetchTaskTemplates() {
+    setLoading(true);
+    Api.taskTemplates.fetchAllTaskTemplates()
+    .then((response) => {
+      dispatch(SET_TASK_TEMPLATES(response.data.data));      
+    })
+    .catch((error) => {      
+    })
+    .finally(() => {
+      setLoading(false);      
+    }) 
+  }
   
   async function updateTaskTemplate() {    
+    if (taskTemplate === null) return;
+
     setLoading(true);
-    await Api.taskTemplates.updateTemplate(props.taskTemplate.id, description, updatedData)
+    await Api.taskTemplates.updateTemplate(taskTemplate.id, description, updatedData)
     .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
       toast.success("Task template updated successfully");
-      void props.fetchTaskTemplates();
+      void fetchTaskTemplates();
       closeAndClear();
     })
     .catch((error) => {
@@ -67,8 +85,10 @@ export default function UpdateTaskTemplateDialog(props: Props) {
   }
 
   async function fetchHasActiveInstances() {
+    if (taskTemplate === null) return;
+
     setLoading(true);
-    await Api.taskTemplates.fetchTemplateHasActiveInstances(props.taskTemplate.id)
+    await Api.taskTemplates.fetchTemplateHasActiveInstances(taskTemplate.id)
     .then((response: AxiosResponse<HTTPresponse<boolean, string>>) => {
       setHasActiveInstance(response.data.data);
       setFetchedHasActiveInstances(true);
@@ -83,14 +103,15 @@ export default function UpdateTaskTemplateDialog(props: Props) {
   }
 
   useEffect(() => {
+    if (taskTemplate === null) return;
     setFetchedHasActiveInstances(false);
-    setDescription(props.taskTemplate.description);
+    setDescription(taskTemplate.description);
     setUpdatedData(null);
     void fetchHasActiveInstances();
-  }, [props.taskTemplate]);
+  }, [taskTemplate]);
   
   return (
-    <Dialog open={props.open} onOpenChange={closeAndClear}>
+    <Dialog open={open} onOpenChange={closeAndClear}>
       <DialogContent className="min-w-[750px]">
         <DialogHeader>
           <h1>
@@ -108,7 +129,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
           <form className='flex flex-col gap-3' onSubmit={(event: any) => {event.preventDefault(); setStep(1)}}>
             <div className='grid grid-cols-4'>
               <Label>Task Template Name</Label>
-              <Label className='col-span-3 font-normal'>{props.taskTemplate.name}</Label>                        
+              <Label className='col-span-3 font-normal'>{taskTemplate?.name}</Label>                        
             </div>
             <div className='grid grid-cols-4'>
               <Label>Description</Label>
@@ -116,7 +137,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
             </div>
             <div className='grid grid-cols-4'>
               <Label>Task Type</Label>
-              <Label className='col-span-3 font-normal'>{props.taskTemplate.taskType.taskName}</Label>                        
+              <Label className='col-span-3 font-normal'>{taskTemplate?.taskType.taskName}</Label>                        
             </div>
             <div className='grid grid-cols-4'>
               <Label>Has Active Instances</Label>              
@@ -126,9 +147,9 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <Label>Last Modified</Label>                   
               <Label className='col-span-3 font-normal'>
                 {
-                  props.taskTemplate.lastModifiedTimestamp !== null ? (
+                  taskTemplate?.lastModifiedTimestamp !== null && taskTemplate?.lastModifiedTimestamp !== undefined ? (
                     <>
-                    {new Date(props.taskTemplate.lastModifiedTimestamp).toLocaleTimeString()} {new Date(props.taskTemplate.lastModifiedTimestamp).toLocaleDateString()}
+                    {new Date(taskTemplate.lastModifiedTimestamp).toLocaleTimeString()} {new Date(taskTemplate?.lastModifiedTimestamp).toLocaleDateString()}
                     </>
                   ) : (
                     "Never"
@@ -149,40 +170,40 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }          
         {
           step === 1 &&
-          props.taskTemplate.taskTypeId === "checklist" &&
+          taskTemplate?.taskTypeId === "checklist" &&
           <ChecklistTemplateCreationForm 
             restrictInputs={hasActiveInstances}
-            initialTaskData={props.taskTemplate.taskTypeData as ChecklistTaskTemplate} 
+            initialTaskData={taskTemplate?.taskTypeData as ChecklistTaskTemplate} 
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {setStep(0)}}
           />            
         }   
         {
           step === 1 &&
-          props.taskTemplate.taskTypeId === "read-document" &&
+          taskTemplate?.taskTypeId === "read-document" &&
           <ReadDocumentTemplateCreationForm 
             restrictInputs={hasActiveInstances}
-            initialTaskData={props.taskTemplate.taskTypeData as ReadDocumentTaskTemplate}
+            initialTaskData={taskTemplate?.taskTypeData as ReadDocumentTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {setStep(0)}}
           />
         }     
         {
           step === 1 &&
-          props.taskTemplate.taskTypeId === "upload-document" &&
+          taskTemplate?.taskTypeId === "upload-document" &&
           <UploadDocumentTemplateCreationForm 
             restrictInputs={hasActiveInstances}                        
-            initialTaskData={props.taskTemplate.taskTypeData as FileUploadTaskTemplate}
+            initialTaskData={taskTemplate?.taskTypeData as FileUploadTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {setStep(0)}}
           />
         }
         {
           step === 1 &&
-          props.taskTemplate.taskTypeId === "project-task" &&
+          taskTemplate?.taskTypeId === "project-task" &&
           <ProjectTemplateCreationForm 
             restrictInputs={hasActiveInstances}            
-            initialTaskData={props.taskTemplate.taskTypeData as ProjectTaskTemplate}
+            initialTaskData={taskTemplate?.taskTypeData as ProjectTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {setStep(0)}}
           />
@@ -191,8 +212,8 @@ export default function UpdateTaskTemplateDialog(props: Props) {
           step === 2 &&
           <form className='flex flex-col gap-3' onSubmit={(event: any) => {event.preventDefault(); void updateTaskTemplate()}}>         
             {
-              updatedData !== null &&
-              <TaskTemplateView taskTemplate={{...props.taskTemplate, taskTypeData: updatedData}}/>           
+              updatedData !== null && taskTemplate !== null &&
+              <TaskTemplateView taskTemplate={{...taskTemplate, taskTypeData: updatedData}}/>           
             }
             <DialogFooter>
               <Button type='button' onClick={() => {setStep(1)}}>Back</Button>

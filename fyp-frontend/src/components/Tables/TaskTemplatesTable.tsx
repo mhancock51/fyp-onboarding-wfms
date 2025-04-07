@@ -150,10 +150,6 @@ export default function TaskTemplatesTable(props: Props) {
             <Spinner/> Loading templates...
           </div>
         }
-        {
-          selectedTaskTemplate !== null &&
-          <UpdateTaskTemplateDialog open={openUpdateDialog} setOpen={setOpenUpdateDialog} taskTemplate={selectedTaskTemplate} fetchTaskTemplates={fetchTaskTemplates}/>
-        }
       </div>
     </div>
   )

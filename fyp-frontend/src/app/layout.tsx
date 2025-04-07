@@ -14,6 +14,7 @@ import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
 import OrganisationDialog from "./dialogs/OrganisationDialog";
 import UpdateIssueStatusDialog from "./dialogs/UpdateIssueStatusDialog";
 import { SetStateAction } from "react";
+import UpdateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/UpdateTaskTemplateDialog";
 
 export default function layout() {
   const dispatch = useDispatch();
@@ -37,6 +38,7 @@ export default function layout() {
       <CreateWorkflowInstanceDialog/>
       <OrganisationDialog/>
       <ManageAccountsDialog/>
+      <UpdateTaskTemplateDialog/>      
     </SidebarProvider>
   )
 }
