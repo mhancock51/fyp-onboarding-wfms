@@ -24,13 +24,11 @@ export default function TaskTemplatesListDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="min-w-[850px] max-h-[70vh]">
+      <DialogContent className="min-w-[900px]">
         <DialogHeader>
           <DialogTitle>Task Templates</DialogTitle>          
         </DialogHeader>
-        <ScrollArea className='max-h-[55vh]'>
-          <TaskTemplatesTable selectedTemplate={null}/>
-        </ScrollArea>
+        <TaskTemplatesTable selectedTemplate={null}/>
         <DialogFooter>
           <Button type='button' onClick={openCreateTemplateMenu}>Create Template</Button>
         </DialogFooter>
