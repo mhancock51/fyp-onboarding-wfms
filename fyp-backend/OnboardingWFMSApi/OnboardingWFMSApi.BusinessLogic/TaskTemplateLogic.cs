@@ -124,7 +124,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<bool, string>> DoesTaskTemplateHaveActiveInstances(string taskTemplateId)
         {
-            var activeInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplateId)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS);
+            var activeInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplateId)).Where(i => i.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS);
             return new HTTPResponse<bool, string>() { Success = true, Data = activeInstances.Count() > 0, HttpCode = 200 };
         }
 

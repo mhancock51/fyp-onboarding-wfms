@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
@@ -14,7 +13,6 @@ import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplat
 import Api from '@/api';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
-import ChecklistForm from '@/components/ChecklistForm';
 import { toast } from 'sonner';
 
 interface Props {
@@ -30,6 +28,8 @@ export default function UpdateTaskTemplateDialog(props: Props) {
   const [loading, setLoading] = useState<boolean>(false);
   const [hasActiveInstances, setHasActiveInstance] = useState<boolean>(false);
   const [updatedData, setUpdatedData] = useState<ChecklistTaskTemplate | ProjectTaskTemplate | FileUploadTaskTemplate | ReadDocumentTaskTemplate | null>(null);
+  
+  const [fetchedHasActiveInstances, setFetchedHasActiveInstances] = useState<boolean>(false);
 
   function closeAndClear() {
     props.setOpen(false);
@@ -70,6 +70,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
     await Api.taskTemplates.fetchTemplateHasActiveInstances(props.taskTemplate.id)
     .then((response: AxiosResponse<HTTPresponse<boolean, string>>) => {
       setHasActiveInstance(response.data.data);
+      setFetchedHasActiveInstances(true);
     })
     .catch(() => {
       // assume its true
@@ -81,6 +82,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
   }
 
   useEffect(() => {
+    setFetchedHasActiveInstances(false);
     setDescription(props.taskTemplate.description);
     setUpdatedData(null);
     void fetchHasActiveInstances();
@@ -111,7 +113,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <Label>Has Active Instances</Label>              <Label className='col-span-3 font-normal'>{hasActiveInstances ? "yes" : "no"}</Label>                        
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading || !fetchedHasActiveInstances}>
                 {
                   loading &&
                   <Spinner className='text-primary-foreground'/>
@@ -155,8 +157,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
           step === 1 &&
           props.taskTemplate.taskTypeId === "project-task" &&
           <ProjectTemplateCreationForm 
-            restrictProperties={hasActiveInstances}
-            hideNavButtons={false}
+            restrictInputs={hasActiveInstances}            
             initialTaskData={props.taskTemplate.taskTypeData as ProjectTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {}}

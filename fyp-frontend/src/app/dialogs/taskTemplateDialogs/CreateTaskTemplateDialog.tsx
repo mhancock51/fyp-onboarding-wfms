@@ -120,8 +120,9 @@ export default function CreateTaskTemplateDialog(props: Props) {
         {
           step === 1 && taskType?.id === "project-task" &&
           <ProjectTemplateCreationForm 
-            updateTaskTypeData={updateTaskTypeData} 
-            backButtonClick={() => {setStep(0)}}
+            updateTaskTypeData={updateTaskTypeData}
+            backButtonClick={() => { setStep(0); } } 
+            restrictInputs={false}          
           />
         }
         {

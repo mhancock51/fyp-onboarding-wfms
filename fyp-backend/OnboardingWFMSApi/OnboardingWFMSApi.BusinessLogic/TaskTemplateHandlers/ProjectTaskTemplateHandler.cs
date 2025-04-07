@@ -63,7 +63,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Deliverable can't change if instances exist" };
             }
             // don't allow change to objectives length if instances exist
-            if (updatedProjectData.Objectives.Count != existingProjectData.Objectives.Count)
+            if (updatedProjectData.Objectives.Count != existingProjectData.Objectives.Count && hasActiveInstances)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Objectives can't be changed if instances exist" };
             }            

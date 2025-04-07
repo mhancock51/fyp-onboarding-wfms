@@ -183,7 +183,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
   )
 }
 
-export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTaskTemplate, restrictProperties?: boolean, hideNavButtons?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [substep, setSubstep] = useState<number>(0);
 
   const [brief, setBrief] = useState<string>("");
@@ -194,8 +194,8 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
   
   function submitProject() {
     var data: ProjectTaskTemplate = {
-      id: '',
-      taskTemplateId: '',
+      id: props.initialTaskData?.id ?? "",
+      taskTemplateId: props.initialTaskData?.taskTemplateId ?? "",
       brief: brief,
       deliverable: deliverable,
       objectives: objectives,
@@ -278,53 +278,50 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="name" >Deliverable</Label>
-          <Input type='text' required readOnly={props.restrictProperties} className='col-span-3' value={deliverable} onChange={(event: any) => {setDeliverable(event.target.value);}}/>
+          <Input type='text' required readOnly={props.restrictInputs} className='col-span-3' value={deliverable} onChange={(event: any) => {setDeliverable(event.target.value);}}/>
         </div>
         <div className='flex flex-col gap-2 w-full'>
           <Label>Skills ({skills.length})</Label>
           <Label className='font-normal'>Awarded to user on completion of the project</Label>
-          <MultiSelect options={SKILLS} onChange={(options: any[]) => {setSkills(options.map(option => (option.value)))}}/>
+          <MultiSelect options={SKILLS} 
+            value={
+              skills.map((skill) => SKILLS.find(i => i.value == skill) ?? {label: "", value: ""})
+            } 
+            onChange={(options: any[]) => {setSkills(options.map(option => (option.value)))}}
+          />
         </div>
         <div className='flex flex-col gap-2 w-full'>
           <Label htmlFor="name" >Objectives ({objectives.length})</Label>
-          {
-            !props.restrictProperties &&
-            <>
-            <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input bg-sidebar rounded-[15px]'>
-              {
-                objectives.length === 0 &&
-                <div className='w-full text-center'>No Objectives</div>
-              }
-              {
-                objectives.map((objective, index) => (
-                  <div key={index} className='flex flex-row justify-between items-center w-full gap-2'>
-                    <Input disabled={props.restrictProperties} required placeholder='Enter objective...' className="flex-11 bg-background" value={objective.objective} onChange={(event: any) => {updateObjectiveText(event.target.value, index);}}/>
-                    <HoverCard>
-                      <HoverCardTrigger>
-                        <Checkbox disabled={props.restrictProperties} checked={objective.required} onCheckedChange={(checked: CheckedState) => {updateObjectiveRequirement(checked as boolean, index)}}/>
-                      </HoverCardTrigger>
-                      <HoverCardContent className='p-2 my-1 w-[175px] flex flex-row justify-center text-center'>
-                        <Label className='text-sm'>Required to complete project?</Label>                    
-                      </HoverCardContent>
-                    </HoverCard>
-                    <Button disabled={props.restrictProperties} className='my-1 mx-2 flex-1' onClick={() => {deleteObjective(index);}} variant={"destructive"}><Trash2/></Button>
-                  </div>
-                ))
-              }
-            </div>
-            <div className="grid grid-row items-center gap-4">
-              <Button onClick={addEmptyObjective}>Add Objective</Button>
-            </div>
-            </>
-          }
+          <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input bg-sidebar rounded-[15px]'>
+            {
+              objectives.length === 0 &&
+              <div className='w-full text-center'>No Objectives</div>
+            }
+            {
+              objectives.map((objective, index) => (
+                <div key={index} className='flex flex-row justify-between items-center w-full gap-2'>
+                  <Input disabled={props.restrictInputs} required placeholder='Enter objective...' className="flex-11 bg-background" value={objective.objective} onChange={(event: any) => {updateObjectiveText(event.target.value, index);}}/>
+                  <HoverCard>
+                    <HoverCardTrigger>
+                      <Checkbox disabled={props.restrictInputs} checked={objective.required} onCheckedChange={(checked: CheckedState) => {updateObjectiveRequirement(checked as boolean, index)}}/>
+                    </HoverCardTrigger>
+                    <HoverCardContent className='p-2 my-1 w-[175px] flex flex-row justify-center text-center'>
+                      <Label className='text-sm'>Required to complete project?</Label>                    
+                    </HoverCardContent>
+                  </HoverCard>
+                  <Button disabled={props.restrictInputs} className='my-1 mx-2 flex-1' onClick={() => {deleteObjective(index);}} variant={"destructive"}><Trash2/></Button>
+                </div>
+              ))
+            }
+          </div>
+          <div className="grid grid-row items-center gap-4">
+            <Button onClick={addEmptyObjective} disabled={props.restrictInputs}>Add Objective</Button>
+          </div>
         </div>
-        {
-          props.hideNavButtons == false &&
-          <DialogFooter>
-            <Button type='button' onClick={(props.backButtonClick)}>Back</Button>
-            <Button type="submit">Next</Button>
-          </DialogFooter>
-        }
+        <DialogFooter>
+          <Button type='button' onClick={(props.backButtonClick)}>Back</Button>
+          <Button type="submit">Next</Button>
+        </DialogFooter>
       </form>
     }
     {
@@ -356,13 +353,10 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
             <Button onClick={addEmptySupprtLink}>Add Support Link</Button>
           </div>
         </div>
-        {
-          props.hideNavButtons == false &&
-          <DialogFooter>
-            <Button type='button' onClick={() => {setSubstep(0);}}>Back</Button>
-            <Button type="submit">Next</Button>
-          </DialogFooter>
-        }
+        <DialogFooter>
+          <Button type='button' onClick={() => {setSubstep(0);}}>Back</Button>
+          <Button type="submit">Next</Button>
+        </DialogFooter>
       </form>
     }
     </>
