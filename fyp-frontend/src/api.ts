@@ -37,7 +37,7 @@ AuthInstance.interceptors.response.use(
   }
 );
 
-const Api = {
+const Api = {  
   issues: {
     createIssue: async(taskInstanceId: string, description: string, suggestedChanges: string) => {
       return AuthInstance.post(`${ROUTE_URL}/issues/create`, {
@@ -84,6 +84,11 @@ const Api = {
     },
     renameOrganisation: async(newName: string) => {
       return AuthInstance.post(`${ROUTE_URL}/organisation/rename`, null, { params: {newName: newName}});
+    }
+  },
+  audit: {
+    fetchWorkflowInstanceAuditLogs: async(workflowInstanceId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/audit/workflow-instance-logs?workflowInstanceId=${workflowInstanceId}`);
     }
   },
   taskTemplates: {

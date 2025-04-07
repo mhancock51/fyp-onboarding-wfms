@@ -1,9 +1,6 @@
 import Api from '@/api';
-import NoResults from '@/components/NoResults';
 import DocumentsTable from '@/components/Tables/DocumentsTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
 import DocumentDTO from '@/models/DTOs/DocumentDTO';
 import HTTPresponse from '@/models/HTTPresponse';
 import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO';
@@ -27,8 +24,7 @@ export default function DocumentsDialog(props: Props) {
     if (props.workflowInstance === null) return;
     setLoading(true);
     Api.fetchWorkflowsDocuments(props.workflowInstance?.id)
-    .then((response: AxiosResponse<HTTPresponse<DocumentDTO[], string>>) => {
-      console.log("TEST 12345:", response);
+    .then((response: AxiosResponse<HTTPresponse<DocumentDTO[], string>>) => {      
       setDocuments(response.data.data);
     })
     .catch((error) => {

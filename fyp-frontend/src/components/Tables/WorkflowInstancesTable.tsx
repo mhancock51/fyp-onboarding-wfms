@@ -15,6 +15,7 @@ import TableActionsDropdown, { DropdownAction } from '../TableActionsDropdown'
 import { Button } from '../ui/button'
 import { ArrowDownUp } from 'lucide-react'
 import Utils from '@/util'
+import AccountDirectoryBadge from '../AccountDirectoryBadge'
 
 interface Props {
   actions: DropdownAction[];
@@ -114,7 +115,7 @@ export default function WorkflowInstancesTable(props: Props) {
   }, []);
 
   return (
-    <>
+    <div className='min-h-[65vh]'>
     {
       loading && !loaded &&
       <div className='flex flex-row gap-2 items-center justify-center py-2'>
@@ -154,7 +155,10 @@ export default function WorkflowInstancesTable(props: Props) {
             </div>
           </TableCell>
           <TableCell width={50} className='text-center'>Your Role</TableCell>
-          <TableCell width={50} className='text-center'>Supervisor</TableCell>
+          {
+            user?.isSupervisor === false &&
+            <TableCell width={50} className='text-center'>Supervisor</TableCell>
+          }
           <TableCell width={50} className='text-center'>Onboarder</TableCell>
           <TableCell width={1000}>Overdue Tasks</TableCell>  
           <TableCell width={50}></TableCell>        
@@ -184,22 +188,21 @@ export default function WorkflowInstancesTable(props: Props) {
                     {getRoleFromUserId(instance)}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
-                    {accounts.find(a => a.id === instance.supervisorAccountId)?.displayName ?? "ERROR"}
-                  </Badge>
-                </TableCell>
+                {
+                  user?.isSupervisor === false &&
+                  <TableCell>
+                    <AccountDirectoryBadge accountDirectory={accounts.find(a => a.id === instance.supervisorAccountId)}/>                  
+                  </TableCell>
+                }
                 <TableCell>
                   {
-                    instance.onboardingEmployeeDetails?.onboarderAccountId !== undefined &&
-                    <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
-                      {accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)?.displayName ?? instance.onboardingEmployeeDetails.displayName}
-                    </Badge>              
+                    instance.onboardingEmployeeDetails?.onboarderAccountId !== null &&
+                    <AccountDirectoryBadge accountDirectory={accounts.find(a => a.id === instance.onboardingEmployeeDetails?.onboarderAccountId)}/>         
                   }
                   {
-                    instance.onboardingEmployeeDetails?.onboarderAccountId === undefined &&
+                    instance.onboardingEmployeeDetails?.onboarderAccountId === null &&
                     <span className='py-2 px-4 rounded-full text-[12px] flex flex-row gap-2 items-center justify-center'>
-                      N/A
+                      {instance.onboardingEmployeeDetails.displayName}
                     </span>                    
                   }
                 </TableCell>                                
@@ -215,6 +218,6 @@ export default function WorkflowInstancesTable(props: Props) {
         </TableBody>
       </Table>
     }
-    </>
+    </div>
   )
 }
