@@ -15,5 +15,5 @@ export default interface TaskInstanceDTO {
     workflowInstanceTemplateName: string;
     workflowInstanceId?: string;
     instanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | ProjectTaskInstance | null;
-    dueDate : Date | null;
+    dueDate : Date | null;    
 }

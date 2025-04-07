@@ -125,7 +125,7 @@ export default function TaskDrawer(props: Props) {
                   </Badge>              
                 }
               </div>
-              <div className='flex flex-row justify-center' style={{gap: "2px"}}>
+              <div className='flex flex-row justify-between' style={{gap: "2px"}}>
                 <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
                 {
                   props.task.workflowInstanceId &&
@@ -135,8 +135,12 @@ export default function TaskDrawer(props: Props) {
                 }
                 <TaskStatusBadge status={props.task.status}/>
               </div>
-              <Separator/>            
-              <DrawerDescription>{props.task.template.description}</DrawerDescription>
+              <DrawerDescription className='p-1'>
+                <div className='flex flex-col w-full justify-center text-center'>     
+                  <Label className='font-normal'>{props.task.template.description}</Label>
+                </div>
+              </DrawerDescription>                     
+              <Separator/>
             </DrawerHeader>
             <div className='flex-11'>
               {
@@ -213,7 +217,12 @@ export default function TaskDrawer(props: Props) {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-          
+          <div className='flex flex-row justify-center'>
+            {
+              props.task.template.lastModifiedTimestamp !== null &&
+              <Label className='font-normal text-gray-500'>Task Template last modified {new Date(props.task.template.lastModifiedTimestamp).toLocaleTimeString()} {new Date(props.task.template.lastModifiedTimestamp).toLocaleDateString()}</Label>                
+            }
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

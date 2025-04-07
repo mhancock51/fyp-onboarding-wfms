@@ -110,7 +110,22 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <Label className='col-span-3 font-normal'>{props.taskTemplate.taskType.taskName}</Label>                        
             </div>
             <div className='grid grid-cols-4'>
-              <Label>Has Active Instances</Label>              <Label className='col-span-3 font-normal'>{hasActiveInstances ? "yes" : "no"}</Label>                        
+              <Label>Has Active Instances</Label>              
+              <Label className='col-span-3 font-normal'>{hasActiveInstances ? "Yes" : "No"}</Label>                        
+            </div>
+            <div className='grid grid-cols-4'>
+              <Label>Last Modified</Label>                   
+              <Label className='col-span-3 font-normal'>
+                {
+                  props.taskTemplate.lastModifiedTimestamp !== null ? (
+                    <>
+                    {new Date(props.taskTemplate.lastModifiedTimestamp).toLocaleTimeString()} {new Date(props.taskTemplate.lastModifiedTimestamp).toLocaleDateString()}
+                    </>
+                  ) : (
+                    "Never"
+                  )
+                }
+              </Label>                        
             </div>
             <DialogFooter>
               <Button type="submit" disabled={loading || !fetchedHasActiveInstances}>
