@@ -61,6 +61,8 @@ builder.Services.AddScoped<IOnboardingEmployeeDetailsRepository, OnboardingEmplo
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IReportedIssueRepository, ReportedIssueRepository>();
 
+builder.Services.AddScoped<IWorkflowInstanceAuditLogRepository, WorkflowInstanceAuditLogRepository>();
+
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
@@ -95,6 +97,7 @@ builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
 builder.Services.AddScoped<ICommentLogic, CommentLogic>();
 
 builder.Services.AddScoped<IReportedIssuesLogic, ReportedIssuesLogic>();
+builder.Services.AddScoped<IWorkflowInstanceAuditLogic, WorkflowInstanceAuditLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies
@@ -103,6 +106,7 @@ builder.Services.AddScoped<IRequestHandler<TaskCompletedRequest, HTTPResponse<st
 builder.Services.AddScoped<IRequestHandler<AccountRegistrationRequest, HTTPResponse<string, string>>, AccountRegistrationHandler>();
 builder.Services.AddScoped<IRequestHandler<UploadDocumentRequest, HTTPResponse<DocumentDTO, string>>, UploadDocumentHandler>();
 builder.Services.AddScoped<IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>>, InviteAccountHandler>();
+builder.Services.AddScoped<IRequestHandler<CreateWorkflowInstanceAuditLogRequest, ServerResponse<string, string>>, CreateWorkflowInstanceAuditLogHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

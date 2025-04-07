@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -39,12 +41,12 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IMapper _mapper;
         private readonly ILogger<DocumentLogic> _logger;
+        private readonly IMediator _mediator;
 
         public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
             IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger,
             IWorkflowInstanceRepository workflowInstanceRepository, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository,
-            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository
-        )
+            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, IMediator mediator)
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
@@ -56,6 +58,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _workflowInstanceRepository = workflowInstanceRepository;
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
+            _mediator = mediator;
         }
 
         public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
@@ -154,8 +157,6 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
             }
 
-
-
             // assign access to document
             await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accountId, DocumentId = document.Id });
             foreach(var accessAccountId in payload.AccessAccountIds)
@@ -163,6 +164,19 @@ namespace OnboardingWFMSApi.BusinessLogic
                 var link = await _documentAccessLinkRepository.AddAsync(new DocumentAccessLinkTable() { Id = "", AccountId = accessAccountId, DocumentId = document.Id });
                 if (link == null) _logger.LogError($"Failed to provide access to document for account {accessAccountId}");
             }
+
+            // create audit log            
+            if (taskInstance?.WorkflowInstanceId != null)
+            {
+                var log = new CreateWorkflowInstanceAuditLogPayload()
+                {
+                    WorkflowInstanceId = taskInstance.WorkflowInstanceId,
+                    Log = $"{document.FileName} uploaded",
+                    AccountId = accountId
+                };
+                await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
+            }
+
             return new HTTPResponse<DocumentDTO, string>() { Success = true, HttpCode = 200, Data = _mapper.Map<DocumentDTO>(document) };
         }
 

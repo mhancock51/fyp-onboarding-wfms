@@ -4,5 +4,5 @@ export default interface OnboardingEmployeeDetailsDTO {
   displayName: string;
   emailAddress: string;
   departmentId: string;
-  onboarderAccountId?: string;
+  onboarderAccountId: string | null;
 }
