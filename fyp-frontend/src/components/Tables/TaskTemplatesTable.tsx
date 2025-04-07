@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Spinner } from '../ui/spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { SET_TASK_TEMPLATES } from '@/features/appSlice';
+import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE, SET_TASK_TEMPLATES } from '@/features/appSlice';
 import NoResults from '../NoResults';
 import TableActionsDropdown from '../TableActionsDropdown';
 import { AxiosResponse } from 'axios';
@@ -27,9 +27,6 @@ interface Props {
 export default function TaskTemplatesTable(props: Props) {
   const baseTaskTemplates = useSelector((state: RootState) => state.app.taskTemplates);
   const dispatch = useDispatch();
-
-  const [selectedTaskTemplate, setSelectedTaskTemplate] = useState<TaskTemplate | null>(null);
-  const [openUpdateDialog, setOpenUpdateDialog] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [filteredTemplates, setFilteredTemplates] = useState<TaskTemplate[]>([]);
 
@@ -79,6 +76,11 @@ export default function TaskTemplatesTable(props: Props) {
     setFilteredTemplates(filteredTemplates);
   }
 
+  function handleUpdateTemplateActionClick(taskTemplate: TaskTemplate) {
+    dispatch(SET_SELECTED_TASK_TEMPLATE(taskTemplate));
+    dispatch(SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG(true));
+  }
+
   useEffect(() => {
     void fetchTaskTemplates();    
   }, []);
@@ -126,7 +128,7 @@ export default function TaskTemplatesTable(props: Props) {
                       <TableActionsDropdown actions={[
                         {
                           label: 'Update Template',
-                          onClick: () => {setSelectedTaskTemplate(taskTemplate); setOpenUpdateDialog(true);}
+                          onClick: () => {handleUpdateTemplateActionClick(taskTemplate);}
                         },                 
                         {
                           label: 'Archive Template',

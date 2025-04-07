@@ -79,7 +79,7 @@ export default function MyTasksPage() {
   return (
     <div>
       <div>
-        <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
+        <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks ({tasks.filter(t => t.status === "open").length} open)</h1>
         <Separator/>
         {
           loading && tasks.length === 0 &&
