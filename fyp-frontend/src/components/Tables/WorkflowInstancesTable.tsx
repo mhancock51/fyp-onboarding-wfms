@@ -115,7 +115,7 @@ export default function WorkflowInstancesTable(props: Props) {
   }, []);
 
   return (
-    <>
+    <div className='min-h-[65vh]'>
     {
       loading && !loaded &&
       <div className='flex flex-row gap-2 items-center justify-center py-2'>
@@ -155,7 +155,10 @@ export default function WorkflowInstancesTable(props: Props) {
             </div>
           </TableCell>
           <TableCell width={50} className='text-center'>Your Role</TableCell>
-          <TableCell width={50} className='text-center'>Supervisor</TableCell>
+          {
+            user?.isSupervisor === false &&
+            <TableCell width={50} className='text-center'>Supervisor</TableCell>
+          }
           <TableCell width={50} className='text-center'>Onboarder</TableCell>
           <TableCell width={1000}>Overdue Tasks</TableCell>  
           <TableCell width={50}></TableCell>        
@@ -185,11 +188,12 @@ export default function WorkflowInstancesTable(props: Props) {
                     {getRoleFromUserId(instance)}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center w-full'>
-                    {accounts.find(a => a.id === instance.supervisorAccountId)?.displayName ?? "ERROR"}
-                  </Badge>
-                </TableCell>
+                {
+                  user?.isSupervisor === false &&
+                  <TableCell>
+                    <AccountDirectoryBadge accountDirectory={accounts.find(a => a.id === instance.supervisorAccountId)}/>                  
+                  </TableCell>
+                }
                 <TableCell>
                   {
                     instance.onboardingEmployeeDetails?.onboarderAccountId !== null &&
@@ -214,6 +218,6 @@ export default function WorkflowInstancesTable(props: Props) {
         </TableBody>
       </Table>
     }
-    </>
+    </div>
   )
 }

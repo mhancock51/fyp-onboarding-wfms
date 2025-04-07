@@ -22,14 +22,14 @@ export default function AccountDirectoryBadge(props: Props) {
   return  (
     <HoverCard>
       <HoverCardTrigger>
-        <Badge className='p-2 w-full rounded-full cursor-pointer'>
+        <Badge className='p-2 w-full rounded-full cursor-pointer min-w-[125px]'>
           {props.accountDirectory?.displayName}
         </Badge>
       </HoverCardTrigger>
-      <HoverCardContent>
-        <div className='p-2 flex flex-col gap-2 min-w-[200px]'>
+      <HoverCardContent className='p-2'>
+        <div className='flex flex-col gap-1 min-w-[250px]'>
           <div className='flex flex-row gap-2 items-center'>
-            <h1 className='text-start'>{props.accountDirectory?.displayName}</h1>
+            <h1 className='text-start text-base'>{props.accountDirectory?.displayName}</h1>
             {props.accountDirectory?.isSupervisor ? <ShieldUser className='text-blue-500' size={20}/> : ""}
           </div>
           <Separator/>
