@@ -154,7 +154,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
             restrictInputs={hasActiveInstances}
             initialTaskData={props.taskTemplate.taskTypeData as ChecklistTaskTemplate} 
             updateTaskTypeData={updateTaskTypeData} 
-            backButtonClick={() => {}}
+            backButtonClick={() => {setStep(0)}}
           />            
         }   
         {
@@ -164,7 +164,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
             restrictInputs={hasActiveInstances}
             initialTaskData={props.taskTemplate.taskTypeData as ReadDocumentTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
-            backButtonClick={() => {}}
+            backButtonClick={() => {setStep(0)}}
           />
         }     
         {
@@ -174,7 +174,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
             restrictInputs={hasActiveInstances}                        
             initialTaskData={props.taskTemplate.taskTypeData as FileUploadTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
-            backButtonClick={() => {}}
+            backButtonClick={() => {setStep(0)}}
           />
         }
         {
@@ -184,7 +184,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
             restrictInputs={hasActiveInstances}            
             initialTaskData={props.taskTemplate.taskTypeData as ProjectTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
-            backButtonClick={() => {}}
+            backButtonClick={() => {setStep(0)}}
           />
         }
         {
@@ -195,6 +195,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <TaskTemplateView taskTemplate={{...props.taskTemplate, taskTypeData: updatedData}}/>           
             }
             <DialogFooter>
+              <Button type='button' onClick={() => {setStep(1)}}>Back</Button>
               <Button type="submit">
                 {
                   loading &&
