@@ -14,6 +14,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         [JsonPropertyName("updatedDescription")]
         public string UpdatedDescription { get; set; }
         [JsonPropertyName("updateTaskTypeData")]
-        public object UpdateTaskTypeData { get; set; }
+        public object? UpdateTaskTypeData { get; set; }
     }
 }

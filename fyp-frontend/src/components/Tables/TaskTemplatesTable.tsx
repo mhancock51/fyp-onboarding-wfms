@@ -55,6 +55,7 @@ export default function TaskTemplatesTable(props: Props) {
   }
 
   function statusToColour(status: string) {
+    if (status === undefined) { return ""}
     switch(status.toLowerCase()) {
       case "active":
         return "bg-primary";
@@ -89,18 +90,18 @@ export default function TaskTemplatesTable(props: Props) {
                   </TableCell>
                   <TableCell>{new Date(taskTemplate.dateCreated).toLocaleString()}</TableCell>
                   <TableCell>
-                    <Badge className={`p-2 w-full rounded-full ${statusToColour(taskTemplate.status)}`}>{taskTemplate.status.toUpperCase()}</Badge>
+                    <Badge className={`p-2 w-full rounded-full ${statusToColour(taskTemplate.status)}`}>{taskTemplate.status?.toUpperCase()}</Badge>
                   </TableCell>
                   <TableCell>
                     <TableActionsDropdown actions={[
                       {
+                        label: 'Update Template',
+                        onClick: () => {setSelectedTaskTemplate(taskTemplate); setOpenUpdateDialog(true);}
+                      },                 
+                      {
                         label: 'Archive Template',
                         onClick: () => {void archiveTemplate(taskTemplate.id)}
                       },
-                      {
-                        label: 'Update Template',
-                        onClick: () => {setSelectedTaskTemplate(taskTemplate); setOpenUpdateDialog(true);}
-                      }                 
                     ]}/>
                   </TableCell>
                 </TableRow>
@@ -121,7 +122,7 @@ export default function TaskTemplatesTable(props: Props) {
       }
       {
         selectedTaskTemplate !== null &&
-        <UpdateTaskTemplateDialog open={openUpdateDialog} setOpen={setOpenUpdateDialog} taskTemplate={selectedTaskTemplate}/>
+        <UpdateTaskTemplateDialog open={openUpdateDialog} setOpen={setOpenUpdateDialog} taskTemplate={selectedTaskTemplate} fetchTaskTemplates={fetchTaskTemplates}/>
       }
     </div>
   )

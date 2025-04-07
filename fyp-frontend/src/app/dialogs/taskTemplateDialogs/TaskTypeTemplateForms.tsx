@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
 
-export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictProperties?: boolean, hideNavButtons?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictProperties?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
 
   function submitChecklist() {
@@ -31,8 +31,8 @@ export function ChecklistTemplateCreationForm(props: { initialTaskData?: Checkli
       return;
     }
     var data: ChecklistTaskTemplate = {
-      id: '',
-      taskTemplateId: '',
+      id: props.initialTaskData?.id ?? '',
+      taskTemplateId: props.initialTaskData?.taskTemplateId ?? '',
       items: items
     }
     props.updateTaskTypeData(data);
@@ -47,18 +47,15 @@ export function ChecklistTemplateCreationForm(props: { initialTaskData?: Checkli
   return (
     <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitChecklist();}}>
       <ChecklistForm items={items} setItems={setItems}/>
-      {
-        props.hideNavButtons == false &&
-        <DialogFooter>
-          <Button type='button' onClick={props.backButtonClick}>Back</Button>
-          <Button type="submit">Next</Button>
-        </DialogFooter>
-      }
+      <DialogFooter>
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
+        <Button type="submit">Next</Button>
+      </DialogFooter>
     </form>
   )
 }
 
-export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: ReadDocumentTaskTemplate, restrictProperties?: boolean, hideNavButtons?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: ReadDocumentTaskTemplate, restrictProperties?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [documentLink, setDocumentLink] = useState<string>("");
   const [documentName, setDocumentName] = useState<string>("");
   const [checkboxLabel, setCheckboxLabel] =  useState<string>("");;
@@ -68,8 +65,8 @@ export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: Read
     if (checkboxLabel === "") return;
 
     const data: ReadDocumentTaskTemplate = {
-      id: '',
-      taskTemplateId: '',
+      id: props.initialTaskData?.id ?? '',
+      taskTemplateId: props.initialTaskData?.taskTemplateId ?? '',
       documentName: documentName,
       documentUrl: documentLink,
       checkBoxLabel: checkboxLabel
@@ -101,13 +98,10 @@ export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: Read
           value={checkboxLabel} onChange={(event: any) => {setCheckboxLabel(event.target.value);}}
         />
       </div> 
-      {
-        props.hideNavButtons == false &&
-        <DialogFooter>
-          <Button type='button' onClick={props.backButtonClick}>Back</Button>
-          <Button type="submit">Next</Button>
-        </DialogFooter> 
-      }
+      <DialogFooter>
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
+        <Button type="submit">Next</Button>
+      </DialogFooter> 
     </form>
   )
 }

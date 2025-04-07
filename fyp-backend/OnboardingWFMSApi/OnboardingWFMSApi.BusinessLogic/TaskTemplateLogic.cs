@@ -206,16 +206,19 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // update task type data using handler
-            var handler = _taskTemplateHandlerFactory.GetHandler(taskTemplateDTO.TaskTypeId);
-            if (handler == null)
+            if (payload.UpdateTaskTypeData != null)
             {
-                _logger.LogError($"Task template {taskTemplateDTO.Id} is not associated with a valid task type Id");
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to update task type data" };
-            }
-            var response = await handler.UpdateTaskTemplateData(payload.UpdateTaskTypeData, taskTemplateDTO.TaskTypeData, hasActiveInstances);
-            if (!response.Success)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = response.Error, HttpCode = 500 };
+                var handler = _taskTemplateHandlerFactory.GetHandler(taskTemplateDTO.TaskTypeId);
+                if (handler == null)
+                {
+                    _logger.LogError($"Task template {taskTemplateDTO.Id} is not associated with a valid task type Id");
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to update task type data" };
+                }
+                var response = await handler.UpdateTaskTemplateData(payload.UpdateTaskTypeData, taskTemplateDTO.TaskTypeData, hasActiveInstances);
+                if (!response.Success)
+                {
+                    return new HTTPResponse<string, string>() { Success = false, Error = response.Error, HttpCode = 500 };
+                }
             }
             // retrive current record
             var taskTemplateRow = await _taskTemplateRepository.GetById(taskTemplateDTO.Id);

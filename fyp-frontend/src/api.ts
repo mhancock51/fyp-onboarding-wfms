@@ -109,7 +109,7 @@ const Api = {
     archiveTemplate: async(taskTemplateId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/task/templates/archive?taskTemplateId=${taskTemplateId}`);
     },
-    updateTemplate: async(taskTemplateId: string, updatedDescription: string, updatedTaskTypeData: FileUploadTaskTemplate | ReadDocumentTaskTemplate | ProjectTaskTemplate | ChecklistTaskTemplate) => {
+    updateTemplate: async(taskTemplateId: string, updatedDescription: string, updatedTaskTypeData: FileUploadTaskTemplate | ReadDocumentTaskTemplate | ProjectTaskTemplate | ChecklistTaskTemplate | null) => {
       return AuthInstance.put(`${ROUTE_URL}/task/templates/update`, {
         id: taskTemplateId,
         updatedDescription: updatedDescription,

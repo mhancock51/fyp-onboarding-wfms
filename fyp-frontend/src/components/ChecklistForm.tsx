@@ -21,7 +21,7 @@ export default function ChecklistForm(props: { items: string[]; setItems: React.
     }
 
   return (
-    <div>
+    <div className='w-full flex flex-col gap-2'>
       <div className='max-h-150 overflow-y-auto grid grid-col gap-4'>
         {
           props.items.map((item, index) => (
