@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import TaskTemplateView from '@/components/TaskTemplateView';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_TASK_TEMPLATES } from '@/features/appSlice';
+import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE, SET_TASK_TEMPLATES } from '@/features/appSlice';
 
 interface Props {
   fetchTaskTemplates?: () => Promise<void>;
@@ -36,7 +36,8 @@ export default function UpdateTaskTemplateDialog(props: Props) {
   const [fetchedHasActiveInstances, setFetchedHasActiveInstances] = useState<boolean>(false);
 
   function closeAndClear() {
-    dispatch(SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG(false));    
+    dispatch(SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG(false));   
+    dispatch(SET_SELECTED_TASK_TEMPLATE(null)); 
     setStep(0);
     setDescription("");
     setUpdatedData(null);
@@ -62,7 +63,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
     .catch((error) => {      
     })
     .finally(() => {
-      setLoading(false);      
+      setLoading(false);     
     }) 
   }
   
@@ -108,7 +109,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
     setDescription(taskTemplate.description);
     setUpdatedData(null);
     void fetchHasActiveInstances();
-  }, [taskTemplate]);
+  }, [taskTemplate, open]);
   
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>

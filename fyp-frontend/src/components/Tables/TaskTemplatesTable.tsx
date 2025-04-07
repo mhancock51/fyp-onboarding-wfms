@@ -87,7 +87,7 @@ export default function TaskTemplatesTable(props: Props) {
 
   useEffect(() => {
     filterTemplates();
-  }, [searchTerm]);
+  }, [searchTerm, baseTaskTemplates]);
 
   return (
     <div className='flex flex-col gap-2'>
