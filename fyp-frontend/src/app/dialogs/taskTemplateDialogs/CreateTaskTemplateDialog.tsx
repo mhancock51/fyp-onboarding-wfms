@@ -10,7 +10,7 @@ import TaskType from '@/models/tasks/TaskType';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './taskTypeTemplateForms';
+import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
 
 interface Props {
   open: boolean;
@@ -98,20 +98,23 @@ export default function CreateTaskTemplateDialog(props: Props) {
           <ChecklistTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData}
             backButtonClick={() => { setStep(0)}}
+            restrictInputs={false}
           />
         }
         {
           step === 1 && taskType?.id === "read-document" &&
           <ReadDocumentTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData}
-            backButtonClick={() => {setStep(0)}}            
+            backButtonClick={() => {setStep(0)}}    
+            restrictInputs={false}        
           />
         }
         {
           step === 1 && taskType?.id === "upload-document" &&
           <UploadDocumentTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData} 
-            backButtonClick={() => {setStep(0)}}     
+            backButtonClick={() => {setStep(0)}}    
+            restrictInputs={false} 
           />
         }
         {

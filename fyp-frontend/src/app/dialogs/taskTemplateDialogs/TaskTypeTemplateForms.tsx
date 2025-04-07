@@ -13,7 +13,6 @@ import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplat
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { MultiSelect } from '@/components/multi-select';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,8 +20,9 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
+import MultiSelect from '@/components/multi-select';
 
-export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictProperties?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
 
   function submitChecklist() {
@@ -46,7 +46,7 @@ export function ChecklistTemplateCreationForm(props: { initialTaskData?: Checkli
 
   return (
     <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitChecklist();}}>
-      <ChecklistForm items={items} setItems={setItems}/>
+      <ChecklistForm items={items} setItems={setItems} restrictInputs={props.restrictInputs}/>
       <DialogFooter>
         <Button type='button' onClick={props.backButtonClick}>Back</Button>
         <Button type="submit">Next</Button>
@@ -55,7 +55,7 @@ export function ChecklistTemplateCreationForm(props: { initialTaskData?: Checkli
   )
 }
 
-export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: ReadDocumentTaskTemplate, restrictProperties?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: ReadDocumentTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [documentLink, setDocumentLink] = useState<string>("");
   const [documentName, setDocumentName] = useState<string>("");
   const [checkboxLabel, setCheckboxLabel] =  useState<string>("");;
@@ -90,11 +90,11 @@ export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: Read
       </div>  
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">Document Name</Label>
-        <Input required className="col-span-3" readOnly={props.restrictProperties} value={documentName} onChange={(event: any) => {setDocumentName(event.target.value);}}/>
+        <Input required className="col-span-3" readOnly={props.restrictInputs} value={documentName} onChange={(event: any) => {setDocumentName(event.target.value);}}/>
       </div>  
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">Checkbox Label</Label>
-        <Input required readOnly={props.restrictProperties} className="col-span-3" placeholder='e.g. I have read coding guidelines...'
+        <Input required readOnly={props.restrictInputs} className="col-span-3" placeholder='e.g. I have read coding guidelines...'
           value={checkboxLabel} onChange={(event: any) => {setCheckboxLabel(event.target.value);}}
         />
       </div> 
@@ -106,7 +106,7 @@ export function ReadDocumentTemplateCreationForm(props: { initialTaskData?: Read
   )
 }
 
-export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: FileUploadTaskTemplate, restrictProperties?: boolean, hideNavButtons?: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
+export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: FileUploadTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [documentName, setDocumentName] = useState<string>("");
   const [fileExtensions, setFileExtensions] = useState<string[]>([]);
   const [accessAccountIds, setAccessAccountIds] = useState<string[]>([]);
@@ -119,8 +119,8 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
       return;
     }
     const data: FileUploadTaskTemplate = {
-      id: '',
-      taskTemplateId: '',
+      id: props.initialTaskData?.id ?? "",
+      taskTemplateId: props.initialTaskData?.taskTemplateId ?? "",
       supportedDocumentType: fileExtensions.join(";"),
       documentName: documentName,
       accessAccountIds: accessAccountIds
@@ -130,53 +130,55 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
 
   useEffect(() => {
     if (props.initialTaskData) {
-      setDocumentName(props.initialTaskData.documentName);
-      setFileExtensions(props.initialTaskData.supportedDocumentType.split(";"));
+      setDocumentName(props.initialTaskData.documentName);      
+      const fileExtensions = props.initialTaskData.supportedDocumentType.split(";");
+      setFileExtensions(fileExtensions);
       setAccessAccountIds(props.initialTaskData.accessAccountIds);
     }
   }, [props.initialTaskData]);
 
+  const FILE_EXTENSION_OPTIONS = [
+    { label: ".pdf", value: ".pdf"},
+    { label: ".png", value: ".png"},
+    { label: ".jpeg", value: ".jpeg"},
+    { label: ".docx", value: ".odt"}
+  ]  
+
+  const ACCOUNTS = TEMPLATE_ACCOUNTS.concat(accountDirectories).map((account) => (
+    {
+      value: account.id,
+      label: `${account.displayName} ${account.departmentName !== "" ? `(${account.departmentName})` : ""}`
+    }
+  ))
+
   return (
-    <form className="grid gap-4 py-4" onSubmit={(event: any) => { event.preventDefault(); submitUploadDocTask();}}>
+    <form className="grid gap-4 py-4 w-full" onSubmit={(event: any) => { event.preventDefault(); submitUploadDocTask();}}>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">Document Name</Label>
         <Input required className="col-span-3" value={documentName} onChange={(event: any) => {setDocumentName(event.target.value);}}/>
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">Support Document Types</Label>
-        <MultiSelect           
+        <MultiSelect                   
           className='w-100'
-          variant={"inverted"}
-          options={[
-            { label: ".pdf", value: ".pdf"},
-            { label: ".png", value: ".png"},
-            { label: ".jpeg", value: ".jpeg"},
-            { label: ".docx", value: ".odt"}
-          ]} 
-          onValueChange={(value: string[]) => { setFileExtensions(value);}}
+          options={FILE_EXTENSION_OPTIONS} 
+          value={FILE_EXTENSION_OPTIONS.filter(o => fileExtensions.includes(o.value))}
+          onChange={(options: any[]) => { setFileExtensions(options.map((option) => (option.value)));}}          
         />        
       </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="name" className="text-right">Account Access</Label>
+      <div className="grid grid-cols-4 items-center gap-4 w-full">
+        <Label htmlFor="name">Account Access</Label>
         <MultiSelect           
           className='w-100'
-          variant={"inverted"}
-          options={TEMPLATE_ACCOUNTS.concat(accountDirectories).map((account) => (
-            {
-              value: account.id,
-              label: `${account.displayName} ${account.departmentName !== "" ? `(${account.departmentName})` : ""}`
-            }
-          ))} 
-          onValueChange={(value: string[]) => { setAccessAccountIds(value)}}
-        />        
+          options={ACCOUNTS} 
+          onChange={(options: any[]) => { setAccessAccountIds(options.map((option) => (option.value)));}} 
+          value={accessAccountIds.map((accountId) => ({ value: accountId, label: ACCOUNTS.find(a => a.value === accountId)?.label ?? ""}))}          
+          />        
       </div>
-      {
-        props.hideNavButtons == false &&
-        <DialogFooter className='flex flex-row justify-between'> 
-          <Button type='button' onClick={props.backButtonClick}>Back</Button>
-          <Button type="submit">Next</Button>
-        </DialogFooter> 
-      }
+      <DialogFooter className='flex flex-row justify-between'> 
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
+        <Button type="submit">Next</Button>
+      </DialogFooter> 
     </form>
   )
 }
@@ -259,6 +261,12 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
     }
   }, [props.initialTaskData]);
 
+  const SKILLS = [
+    { label: "Frontend", value: "frontend"},
+    { label: "Backend", value: "backend"},
+    { label: "React.js", value: "reactjs"},
+  ]
+
   return (
     <>
     {
@@ -275,12 +283,7 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
         <div className='flex flex-col gap-2 w-full'>
           <Label>Skills ({skills.length})</Label>
           <Label className='font-normal'>Awarded to user on completion of the project</Label>
-          <MultiSelect options={[
-            { label: "Frontend", value: "frontend"},
-            { label: "Backend", value: "backend"},
-            { label: "React.js", value: "reactjs"},
-
-          ]} onValueChange={(value: string[]) => {setSkills(value);}}/>
+          <MultiSelect options={SKILLS} onChange={(options: any[]) => {setSkills(options.map(option => (option.value)))}}/>
         </div>
         <div className='flex flex-col gap-2 w-full'>
           <Label htmlFor="name" >Objectives ({objectives.length})</Label>

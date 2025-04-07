@@ -3,7 +3,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Trash2 } from 'lucide-react';
 
-export default function ChecklistForm(props: { items: string[]; setItems: React.Dispatch<React.SetStateAction<string[]>>}) {
+export default function ChecklistForm(props: { items: string[]; setItems: React.Dispatch<React.SetStateAction<string[]>>, restrictInputs: boolean}) {
   function addEmptyItem() {
     props.setItems((prevState) => ([
       ...prevState, ""
@@ -26,14 +26,14 @@ export default function ChecklistForm(props: { items: string[]; setItems: React.
         {
           props.items.map((item, index) => (
             <div className='flex flex-row justify-between items-center'>
-              <Input required placeholder='Enter description of task...' className="col-span-3" value={item} onChange={(event: any) => {updateItem(event.target.value, index);}}/>
-              <Button className='my-1 mx-2' onClick={() => {deleteItem(index);}} variant={"destructive"}><Trash2/></Button>
+              <Input disabled={props.restrictInputs} required placeholder='Enter description of task...' className="col-span-3" value={item} onChange={(event: any) => {updateItem(event.target.value, index);}}/>
+              <Button disabled={props.restrictInputs} className='my-1 mx-2' onClick={() => {deleteItem(index);}} variant={"destructive"}><Trash2/></Button>
             </div>
           ))
         }
       </div>
       <div className="grid grid-row items-center gap-4">
-        <Button onClick={addEmptyItem}>Add Item</Button>
+        <Button onClick={addEmptyItem} disabled={props.restrictInputs}>Add Item</Button>
       </div>
     </div>
   )

@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import React, { SetStateAction, useEffect, useState } from 'react'
-import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './taskTypeTemplateForms';
+import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
@@ -108,11 +108,10 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <Label className='col-span-3 font-normal'>{props.taskTemplate.taskType.taskName}</Label>                        
             </div>
             <div className='grid grid-cols-4'>
-              <Label>Has Active Instances</Label>
-              <Label className='col-span-3 font-normal'>{hasActiveInstances ? "yes" : "no"}</Label>                        
+              <Label>Has Active Instances</Label>              <Label className='col-span-3 font-normal'>{hasActiveInstances ? "yes" : "no"}</Label>                        
             </div>
             <DialogFooter>
-              <Button type="submit">
+              <Button type="submit" disabled={loading}>
                 {
                   loading &&
                   <Spinner className='text-primary-foreground'/>
@@ -126,7 +125,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
           step === 1 &&
           props.taskTemplate.taskTypeId === "checklist" &&
           <ChecklistTemplateCreationForm 
-            restrictProperties={hasActiveInstances}
+            restrictInputs={hasActiveInstances}
             initialTaskData={props.taskTemplate.taskTypeData as ChecklistTaskTemplate} 
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {}}
@@ -136,7 +135,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
           step === 1 &&
           props.taskTemplate.taskTypeId === "read-document" &&
           <ReadDocumentTemplateCreationForm 
-            restrictProperties={hasActiveInstances}
+            restrictInputs={hasActiveInstances}
             initialTaskData={props.taskTemplate.taskTypeData as ReadDocumentTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {}}
@@ -146,8 +145,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
           step === 1 &&
           props.taskTemplate.taskTypeId === "upload-document" &&
           <UploadDocumentTemplateCreationForm 
-            restrictProperties={hasActiveInstances}
-            hideNavButtons={true}
+            restrictInputs={hasActiveInstances}                        
             initialTaskData={props.taskTemplate.taskTypeData as FileUploadTaskTemplate}
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {}}
@@ -180,19 +178,5 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }
       </DialogContent>
     </Dialog>
-  )
-}
-
-export function UpdateChecklistDataForm(props: {initialTaskData: ChecklistTaskTemplate, restrictProperties: boolean}) {
-  const [items, setItems] = useState<string[]>([""]);
-
-  useEffect(() => {
-    setItems(props.initialTaskData.items);
-  }, [props.initialTaskData]);
-
-  return (
-    <div>
-      <ChecklistForm items={items} setItems={setItems}/>
-    </div>
   )
 }
