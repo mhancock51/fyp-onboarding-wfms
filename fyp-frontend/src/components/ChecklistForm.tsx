@@ -25,7 +25,7 @@ export default function ChecklistForm(props: { items: string[]; setItems: React.
       <div className='max-h-150 overflow-y-auto grid grid-col gap-4'>
         {
           props.items.map((item, index) => (
-            <div className='flex flex-row justify-between items-center'>
+            <div key={index} className='flex flex-row justify-between items-center'>
               <Input disabled={props.restrictInputs} required placeholder='Enter description of task...' className="col-span-3" value={item} onChange={(event: any) => {updateItem(event.target.value, index);}}/>
               <Button disabled={props.restrictInputs} className='my-1 mx-2' onClick={() => {deleteItem(index);}} variant={"destructive"}><Trash2/></Button>
             </div>

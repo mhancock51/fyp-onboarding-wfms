@@ -14,6 +14,7 @@ import Api from '@/api';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import { toast } from 'sonner';
+import TaskTemplateView from '@/components/TaskTemplateView';
 
 interface Props {
   open: boolean;
@@ -92,7 +93,15 @@ export default function UpdateTaskTemplateDialog(props: Props) {
     <Dialog open={props.open} onOpenChange={closeAndClear}>
       <DialogContent className="min-w-[750px]">
         <DialogHeader>
-          <h1>Update Task Template {hasActiveInstances ? "(has active instances)" : ""}</h1>
+          <h1>
+            {
+              step !== 2 ? (
+                <>Update Task Template {hasActiveInstances ? "(has active instances)" : ""}</>
+              ) : (
+                <>Review Changes</>
+              )
+            }
+          </h1>
         </DialogHeader>
         {
           step === 0 &&
@@ -180,7 +189,11 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }
         {
           step === 2 &&
-          <form className='flex flex-col gap-3' onSubmit={(event: any) => {event.preventDefault(); void updateTaskTemplate()}}>
+          <form className='flex flex-col gap-3' onSubmit={(event: any) => {event.preventDefault(); void updateTaskTemplate()}}>         
+            {
+              updatedData !== null &&
+              <TaskTemplateView taskTemplate={{...props.taskTemplate, taskTypeData: updatedData}}/>           
+            }
             <DialogFooter>
               <Button type="submit">
                 {
