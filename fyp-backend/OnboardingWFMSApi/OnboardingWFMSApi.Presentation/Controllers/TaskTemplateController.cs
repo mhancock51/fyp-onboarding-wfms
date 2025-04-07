@@ -47,7 +47,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         [HttpGet("get")]
         public async Task<IActionResult> GetTaskTemplate(string id)
         {
-            var response = await _taskTemplateLogic.GetTaskTemplateById(id);
+            var response = await _taskTemplateLogic.GetTaskTemplateDTOById(id);
             return StatusCode(response.HttpCode, response);
         }
 

@@ -241,7 +241,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance)
         {
-            _logger.LogDebug($"Handling task completion event for task instance: {taskInstance.Id} ({taskInstance.template.Name}, {taskInstance.AssigneeAccountId})");
+            _logger.LogDebug($"Handling task completion event for task instance: {taskInstance.Id} ({taskInstance.Template.Name}, {taskInstance.AssigneeAccountId})");
             if (string.IsNullOrEmpty(taskInstance.WorkflowInstanceId))
             {
                 throw new Exception("Task instance isn't associated to a workflow instance");

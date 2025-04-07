@@ -20,7 +20,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         public Task<HTTPResponse<List<TaskTemplate>, string>> GetAllTaskTemplates(string? status);
         public Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId);
-        public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id);
+        public Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateDTOById(string id);
         public Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes();
         public Task<HTTPResponse<string, string>> ArchiveTaskTemplate(string taskTemplateId);
         public Task<HTTPResponse<string, string>> UpdateTaskTemplate(UpdateTaskTemplatePayload payload);
@@ -137,7 +137,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             for (int i = 0; i < taskTemplates.Count; i++)
             {
-                var response = await GetTaskTemplateById(taskTemplates[i].Id);
+                var response = await GetTaskTemplateDTOById(taskTemplates[i].Id);
                 if (response.Success)
                 {
                     taskTemplates[i] = response.Data;
@@ -152,29 +152,30 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<List<TaskType>, string>() { Success = true, Data = taskTypes, HttpCode = 200 };            
         }
 
-        public async Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateById(string id)
+        public async Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateDTOById(string id)
         {
             TaskTemplate taskTemplate = _mapper.Map<TaskTemplate>(await _taskTemplateRepository.GetById(id));
             if (taskTemplate == null)
             {
                 return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = "Task template doesn't exist", HttpCode = 400 };
             }
-            else
+            // retrieve task type meta data using handler
+            var handler = _taskTemplateHandlerFactory.GetHandler(taskTemplate.TaskTypeId);
+            if (handler == null)
             {
-                // retrieve task type meta data using handler
-                var handler = _taskTemplateHandlerFactory.GetHandler(taskTemplate.TaskTypeId);
-                if (handler == null)
-                {
-                    throw new InvalidOperationException("Invalid task type associated with task template");
-                }
-                var response = await handler.FetchTaskTemplateData(taskTemplate.Id);
-                if (!response.Success) 
-                {
-                    return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = response.Error, HttpCode = 500 };
-                }
-                taskTemplate.TaskTypeData = response.Data;
+                throw new InvalidOperationException("Invalid task type associated with task template");
             }
-            taskTemplate.taskType = _mapper.Map<TaskType>(await _taskTypeRepository.GetById(taskTemplate.TaskTypeId));
+            var response = await handler.FetchTaskTemplateData(taskTemplate.Id);
+            if (!response.Success) 
+            {
+                return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = response.Error, HttpCode = 500 };
+            }
+            taskTemplate.TaskTypeData = response.Data;            
+            taskTemplate.TaskType = _mapper.Map<TaskType>(await _taskTypeRepository.GetById(taskTemplate.TaskTypeId));
+
+            // retrieve number of active instances
+            taskTemplate.ActiveInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplate.Id))
+                                    .Where(i => i.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS).Count();
 
             return new HTTPResponse<TaskTemplate, string>() { Success = true, Data = taskTemplate, HttpCode = 200 };
         }
@@ -182,7 +183,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<string, string>> UpdateTaskTemplate(UpdateTaskTemplatePayload payload)
         {
             // get task template
-            var taskTemplateDTO = (await GetTaskTemplateById(payload.Id)).Data ?? null;
+            var taskTemplateDTO = (await GetTaskTemplateDTOById(payload.Id)).Data ?? null;
             if (taskTemplateDTO == null) 
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template doesn't exist" };
@@ -196,14 +197,8 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // figure out if instances of the task exist
             var taskInstances = await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(payload.Id);
-            var hasActiveInstances = false;
-            foreach (var taskInstance in taskInstances)
-            {
-                if (taskInstance.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS)
-                {
-                    hasActiveInstances = true;
-                }
-            }
+            // if any instances aren't complete set "hasActiveInstance" to true;
+            var hasActiveInstances = taskInstances.Where(i => i.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS).Count() > 0 ? true : false;
 
             // update task type data using handler
             if (payload.UpdateTaskTypeData != null)
