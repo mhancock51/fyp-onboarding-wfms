@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TEMPLATE_ACCOUNTS } from '@/constants';
+import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT, TEMPLATE_ACCOUNTS } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
@@ -14,22 +14,26 @@ import { HoverCardContent } from '@radix-ui/react-hover-card';
 import Select, { MultiValue } from 'react-select';
 import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>
-  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null) => void;
+  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) => void;
   isOnboardingWorkflow: boolean;
   existingTaskNodes: WorkflowTemplateNode[];
   section: string;
 }
 
 export default function AddTaskToWorkflowDialog(props: Props) {  
-
+  const accounts = useSelector((state: RootState) => state.app.accountsDirectory);
   const [step, setStep] = useState<number>(0);
   const [taskTemplate, setTaskTemplate] = useState<TaskTemplate | null>(null);
   const [assignee, setAssignee] = useState<AccountDirectory | null>(null);
   const [taskNodeDependencies, setTaskNodeDependencies] = useState<WorkflowTemplateNode[]>([]);
+
+  const [accountsToNotify, setAccountsToNotify] = useState<AccountDirectory[]>([]);
 
   const [daysUntilDue, setDaysUntilDue] = useState<number | null>(null);
  
@@ -38,19 +42,31 @@ export default function AddTaskToWorkflowDialog(props: Props) {
     setTaskTemplate(null);
     setAssignee(null);
     setTaskNodeDependencies([]);
+    setAccountsToNotify([]);
     props.setOpen(false);
   }
 
   function addTaskToWorkflow() {
     if (taskTemplate === null) return;
     if (assignee === null) return;
-    props.onAddTask(taskTemplate, assignee, taskNodeDependencies, daysUntilDue);
+    props.onAddTask(taskTemplate, assignee, taskNodeDependencies, daysUntilDue, accountsToNotify);
     closeAndClear();
+  }
+
+  function handleAccountsToNotifyChange(options: MultiValue<{label: string; value: string}>) {
+    var accountsToNotify: AccountDirectory[] = [];
+    options.forEach((option) => {
+      const account = accounts.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id === option.value);
+      if (account !== undefined) {
+        accountsToNotify.push(account);
+      }
+    }) 
+    setAccountsToNotify(accountsToNotify);
   }
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent style={{minWidth: step === 0 ? "900px" : "400px"}}>
+      <DialogContent style={{minWidth: step === 0 ? "900px" : "600px"}}>
         <DialogHeader>
           <DialogTitle>Add Task to Workflow Template</DialogTitle>
         </DialogHeader>
@@ -101,6 +117,18 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                 />
               </div>
             }
+            <div className="grid grid-cols-4 gap-4">
+              <Label>Notify On Task Completion</Label>
+              <Select className='col-span-3' isMulti
+                options={
+                  [PLACEHOLDER_SUPERVISORS_ACCOUNT, PLACEHOLDER_ONBOARDERS_ACCOUNT].concat(accounts)
+                    .filter(a => a.id !== assignee?.id)
+                    .map((account) => ({label: account.displayName, value: account.id}))
+                }
+                value={accountsToNotify.map((account) => ({label: account.displayName, value: account.id}))}
+                onChange={handleAccountsToNotifyChange}
+              />
+            </div>
             <div className="grid grid-cols-4 gap-4">
               <div className='flex flex-col gap-2'>
                 <Label>Days Until Due</Label>

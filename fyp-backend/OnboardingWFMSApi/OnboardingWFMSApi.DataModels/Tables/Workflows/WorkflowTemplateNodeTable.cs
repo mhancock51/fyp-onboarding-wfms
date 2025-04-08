@@ -23,5 +23,6 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public int Order { get; set; }
         public string WorkflowSection {  get; set; }
         public int? DaysUntilDue { get; set; }
+        public string[]? AccountsToNotify { get; set; }
     }
 }

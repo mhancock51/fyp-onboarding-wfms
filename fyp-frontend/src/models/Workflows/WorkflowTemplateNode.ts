@@ -8,4 +8,5 @@ export default interface WorkflowTemplateNode {
   // tasks that must be completed before this task can be started
   taskDependencies: WorkflowTemplateNode[];
   daysUntilDue: number | null;
+  accountsToNotify?: string[];
 }

@@ -146,6 +146,7 @@ CREATE TABLE workflowtemplatenode (
     WorkflowTemplateId VARCHAR(255),
     TaskTemplateId VARCHAR(255),
     AssigneeId VARCHAR(255),
+    AccountsToNotify JSON,
     `Order` INT,
     WorkflowSection VARCHAR(255)
 );
