@@ -2,6 +2,7 @@ import AccountDirectory from "@/models/AccountDirectory";
 import AuthenticatedUser from "@/models/AuthenticatedUser";
 import Department from "@/models/Department";
 import IssueDTO from "@/models/DTOs/IssueDTO";
+import NotificationDTO from "@/models/DTOs/NotificationDTO";
 import Organisation from "@/models/Organisation";
 import TaskTemplate from "@/models/tasks/TaskTemplate";
 import TaskType from "@/models/tasks/TaskType";
@@ -26,6 +27,7 @@ export interface AppState {
     accountsDirectory: AccountDirectory[];
     taskTemplates: TaskTemplate[];
     selectedTaskTemplate: TaskTemplate | null;
+    notifications: NotificationDTO[];
 }
 
 const initialState: AppState = {
@@ -44,7 +46,8 @@ const initialState: AppState = {
     accountsDirectory: [],
     taskTemplates: [],
     departments: [],
-    selectedTaskTemplate: null
+    selectedTaskTemplate: null,
+    notifications: []
 }
 
 export const appSlice = createSlice({
@@ -99,6 +102,9 @@ export const appSlice = createSlice({
         },
         SET_SELECTED_TASK_TEMPLATE: (state, action: PayloadAction<TaskTemplate | null>) => {
             state.selectedTaskTemplate = action.payload;
+        },
+        SET_NOTIFICATIONS: (state, action: PayloadAction<NotificationDTO[]>) => {
+            state.notifications = action.payload;
         }
     }
 });
@@ -106,7 +112,7 @@ export const appSlice = createSlice({
 export const {
     SET_USER, SET_ORGANISATION, SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
     SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_REPORT_ISSUE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_DEPARTMENTS, SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG,
-    SET_SELECTED_TASK_TEMPLATE    
+    SET_SELECTED_TASK_TEMPLATE, SET_NOTIFICATIONS   
 } = appSlice.actions;
 
 export default appSlice.reducer;

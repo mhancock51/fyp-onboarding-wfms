@@ -33,5 +33,22 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 return StatusCode(response.HttpCode, response);
             }
         }
+
+        [Authorize]
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteNotification(string notificationId)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _notificationLogic.DeleteNotificaion(notificationId, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
     }
 }

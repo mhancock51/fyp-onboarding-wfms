@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<ServerResponse<string, string>> CreateNotification(CreateNotificationPayload payload);
         public Task<NotificationDTO> GetNotificationDTO(string notificationId);
         public Task<HTTPResponse<List<NotificationDTO>, string>> GetAccountsNotification(string accountId);
-        public Task<HTTPResponse<string, string>> DeleteNotificaion(string notificationId);
+        public Task<HTTPResponse<string, string>> DeleteNotificaion(string notificationId, string accountId);
     }
     public class NotificationLogic : INotificationLogic
     {
@@ -60,12 +60,16 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
         }
 
-        public async Task<HTTPResponse<string, string>> DeleteNotificaion(string notificationId)
+        public async Task<HTTPResponse<string, string>> DeleteNotificaion(string notificationId, string accountId)
         {
             var notification = await _notificationRepository.GetById(notificationId);
             if (notification == null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Notification doesn't exist" };
+            }
+            if (notification.RecipientId != accountId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have permisssion to do this" };
             }
             if (notification.Status != NOTIFICATION_SEEN_STATUS)
             {

@@ -19,24 +19,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
 import NotificationsSidebarMenu from "./NotificationSidebarMenu"
-   
-const mainItems = [  
-  {
-    title: "Tasks",
-    url: "",
-    icon: ClipboardList,
-  },
-  {
-    title: "Workflows",
-    url: "/workflows",
-    icon: Route,
-  },
-  {
-    title: "Task Issues",
-    url: "/issues",
-    icon: MessageSquareWarning
-  }
-];
+  
 
 interface Props {
   organisationName: string;
@@ -48,6 +31,24 @@ export function AppSidebar(props: Props) {
   const user = useSelector((state: RootState) => state.app.user);
 
   const dispatch = useDispatch();
+
+  const mainItems = [  
+    {
+      title: "Tasks",
+      url: "",
+      icon: ClipboardList,
+    },
+    {
+      title: "Workflows",
+      url: "/workflows",
+      icon: Route,
+    },
+    {
+      title: "Task Issues",
+      url: "/issues",
+      icon: MessageSquareWarning
+    }
+  ];
 
   const adminItems = [    
     {
