@@ -45,5 +45,24 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             }
             return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
         }
+
+        public override async Task<ServerResponse<string, string>> UpdateTaskTemplateData(object updatedData, object existingData, bool hasActiveInstances)
+        {
+            var updatedTaskData = CastObjectToType(updatedData);
+            var existingTaskData = CastObjectToType(existingData);
+
+            if (updatedTaskData.CheckBoxLabel != existingTaskData.CheckBoxLabel)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Checkbox label can't be changed" };
+            }
+            if (updatedTaskData.DocumentName != updatedTaskData.DocumentName)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Document name can't be changed" };
+            }
+
+
+            // run base method to do base validation checks and then update record
+            return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
+        }
     }
 }

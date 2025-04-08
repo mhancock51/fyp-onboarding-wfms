@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router";
 import InviteUserDialog from "./dialogs/InviteUserDialog";
 import DepartmentCreationDialog from "./dialogs/DepartmentCreationDialog";
-import CreateTaskTemplateDialog from "./dialogs/CreateTaskTemplateDialog";
+import CreateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/CreateTaskTemplateDialog";
 import TaskTemplatesListDialog from "./dialogs/TaskTemplatesListDialog";
 import ReportIssueDialog from "./dialogs/ReportIssueDialog";
 import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
@@ -14,6 +14,7 @@ import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
 import OrganisationDialog from "./dialogs/OrganisationDialog";
 import UpdateIssueStatusDialog from "./dialogs/UpdateIssueStatusDialog";
 import { SetStateAction } from "react";
+import UpdateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/UpdateTaskTemplateDialog";
 
 export default function layout() {
   const dispatch = useDispatch();
@@ -37,6 +38,7 @@ export default function layout() {
       <CreateWorkflowInstanceDialog/>
       <OrganisationDialog/>
       <ManageAccountsDialog/>
+      <UpdateTaskTemplateDialog/>      
     </SidebarProvider>
   )
 }

@@ -107,7 +107,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     return serverErrorResponse;
                 }
                 // load template
-                var response = await _taskTemplateLogic.GetTaskTemplateById(instance.TaskTemplateId);
+                var response = await _taskTemplateLogic.GetTaskTemplateDTOById(instance.TaskTemplateId);
                 taskTemplate = response.Data;                
             }
             catch (Exception ex)
@@ -181,17 +181,17 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // get template data
-            var response = await _taskTemplateLogic.GetTaskTemplateById(taskInstance.TaskTemplateId);
+            var response = await _taskTemplateLogic.GetTaskTemplateDTOById(taskInstance.TaskTemplateId);
             if (response.Success)
             {
-                taskInstance.template = response.Data;
+                taskInstance.Template = response.Data;
             }
             else
             {
                 throw new Exception("Task instance isn't associated with a valid task template");
             }
             // get task type data            
-            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.template.TaskTypeId);
+            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.Template.TaskTypeId);
             if (handler == null)
             {
                 throw new Exception("Task instance is associated with an invalid task type id");
@@ -206,7 +206,6 @@ namespace OnboardingWFMSApi.BusinessLogic
                 _logger.LogError($"Error fetching task type data: {ex.Message}");
                 return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to create task instance data" };
             }
-
 
             if (taskInstance.WorkflowInstanceId != null)
             {
@@ -243,7 +242,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             // make sure task meets conditions to be complete using handler
-            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.template.TaskTypeId);
+            var handler = _taskInstanceHandlerFactory.GetHandler(taskInstance.Template.TaskTypeId);
             if (handler == null)
             {
                 throw new Exception("Task template isn't associated with a valid task type id");
@@ -263,7 +262,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // create audit log
             if (taskInstance.WorkflowInstanceId != null)
             {
-                var taskTemplate = (await _taskTemplateLogic.GetTaskTemplateById(taskInstance.TaskTemplateId)).Data;
+                var taskTemplate = (await _taskTemplateLogic.GetTaskTemplateDTOById(taskInstance.TaskTemplateId)).Data;
                 var log = new CreateWorkflowInstanceAuditLogPayload()
                 {
                     WorkflowInstanceId = taskInstance.WorkflowInstanceId,

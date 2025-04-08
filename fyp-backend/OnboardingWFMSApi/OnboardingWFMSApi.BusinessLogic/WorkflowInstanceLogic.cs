@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -49,9 +50,11 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
 
+        private readonly ITaskTemplateRepository _taskTemplateRepository;
+
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
             ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
-            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository)
+            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
@@ -64,6 +67,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _accountLogic = accountLogic;
             _workflowNodeInstanceRepository = workflowNodeInstanceRepository;
             _workflowTemplateNodeRepository = workflowTemplateNodeRepository;
+            _taskTemplateRepository = taskTemplateRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -74,6 +78,17 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (workflowTemplate == null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
+            }
+
+            // make sure all task templates in the workflow template are active/not archived
+            var taskTemplateIds = workflowTemplate.MainflowNodes.Concat(workflowTemplate.PreflowNodes).Select(n => n.TaskTemplateId).ToList();
+            foreach(var id in taskTemplateIds)
+            {
+                var taskTemplate = await _taskTemplateRepository.GetById(id);
+                if (taskTemplate.Status != TaskTemplateLogic.ACTIVE_TASK_TEMPLATE_STATUS)
+                {
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = $"Workflow template contains a task template that is archived or inactive ({taskTemplate.Name})" };
+                }
             }
             
             if (workflowTemplate.IsOnboardingWF && (payload.OnboardingEmployeeDetails == null || payload.SupervisorAccountId == null))
@@ -226,7 +241,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance)
         {
-            _logger.LogDebug($"Handling task completion event for task instance: {taskInstance.Id} ({taskInstance.template.Name}, {taskInstance.AssigneeAccountId})");
+            _logger.LogDebug($"Handling task completion event for task instance: {taskInstance.Id} ({taskInstance.Template.Name}, {taskInstance.AssigneeAccountId})");
             if (string.IsNullOrEmpty(taskInstance.WorkflowInstanceId))
             {
                 throw new Exception("Task instance isn't associated to a workflow instance");

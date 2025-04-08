@@ -55,5 +55,29 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         }
 
         public abstract Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData);
+        public virtual async Task<ServerResponse<string, string>> UpdateTaskTemplateData(object updatedData, object existingData, bool hasActiveInstances)
+        {
+            TTaskType updatedTaskData = CastObjectToType(updatedData);
+            TTaskType existingTaskData = CastObjectToType(existingData);
+            if (updatedTaskData.TaskTemplateId != existingTaskData.TaskTemplateId)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Task templates must match" };
+            }
+            var validationResponse = await ValidateTaskTemplateData(updatedTaskData);
+            if (!validationResponse.Success)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = validationResponse.Error };
+            }
+            // update row
+            try
+            {
+                await _repository.UpdateAsync(updatedTaskData);
+                return new ServerResponse<string, string>() { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Failed to update record" };
+            }
+        }
     }
 }

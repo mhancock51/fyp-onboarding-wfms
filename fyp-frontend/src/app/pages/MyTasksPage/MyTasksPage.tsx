@@ -12,6 +12,7 @@ import NoResults from '@/components/NoResults'
 import { useDispatch } from 'react-redux'
 import TaskStatusBadge from './TaskStatusBadge'
 import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
+import WorkflowInstanceBadge from '@/components/WorkflowInstanceBadge'
 
 export default function MyTasksPage() {
   const dispatcher = useDispatch(); 
@@ -79,7 +80,7 @@ export default function MyTasksPage() {
   return (
     <div>
       <div>
-        <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
+        <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks ({tasks.filter(t => t.status === "open").length} open)</h1>
         <Separator/>
         {
           loading && tasks.length === 0 &&
@@ -140,10 +141,8 @@ export default function MyTasksPage() {
                         </div>
                       }
                       {
-                        task.workflowInstanceTemplateName !== "" &&
-                        <Badge className='mx-2 py-2 px-4 rounded-full w-full'>
-                          {task.workflowInstanceTemplateName === "" ? "N/A" : task.workflowInstanceTemplateName}
-                        </Badge>
+                        task.workflowInstanceId !== "" && task.workflowInstanceId !== undefined &&
+                        <WorkflowInstanceBadge workflowInstanceId={task.workflowInstanceId}/>
                       }
                     </TableCell>
                     <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>

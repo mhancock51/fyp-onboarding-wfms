@@ -37,7 +37,9 @@ CREATE TABLE tasktemplate (
     CreatorAccountId VARCHAR(255) NOT NULL,
     DateCreated DATETIME NOT NULL,
     TaskTypeId VARCHAR(255) NOT NULL,
-    PRIMARY KEY (TaskTemplateId)
+    PRIMARY KEY (TaskTemplateId),
+    Status VARCHAR(255) NOT NULL,
+    LastModifiedTimestamp DATETIME
 );
 
 CREATE TABLE fileuploadtasktemplate (
@@ -193,17 +195,6 @@ CREATE TABLE comment (
     ParentCommentId VARCHAR(255)
 );
 
-CREATE TABLE reportedissue (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskTemplateId VARCHAR(255),
-    TaskInstanceId VARCHAR(255),
-    IssueCreatorId VARCHAR(255),
-    IssueLoggedTimestamp DATETIME,
-    Description TEXT,
-    SuggestedChanges TEXT,
-    Status VARCHAR(255),
-    Remark VARCHAR(255)
-);
 
 CREATE TABLE workflowinstanceauditlog (
     Id VARCHAR(255) PRIMARY KEY,
@@ -408,22 +399,6 @@ ALTER TABLE projectasktemplate
 ALTER TABLE projecttaskinstance
     ADD CONSTRAINT fk_task_instance_id
     FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
-    ON DELETE CASCADE;
-
-/* Reported Issue constraints */
-ALTER TABLE reportedissue
-    ADD CONSTRAINT fk_reported_issue_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE reportedissue
-    ADD CONSTRAINT fk_reported_issue_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
-    ON DELETE CASCADE;
-
-ALTER TABLE reportedissue
-    ADD CONSTRAINT fk_reported_issue_issue_creator_id
-    FOREIGN KEY (IssueCreatorId) REFERENCES account(AccountId)
     ON DELETE CASCADE;
 
 /* Workflow instance Audit Log constraints */

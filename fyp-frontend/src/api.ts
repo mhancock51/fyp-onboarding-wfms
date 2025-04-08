@@ -8,6 +8,10 @@ import FileUploadTaskInstance from './models/tasks/FileUploadTaskInstance';
 import ReadDocumentTaskInstance from './models/tasks/ReadDocumentTaskInstance';
 import ProjectTaskInstance from './models/tasks/ProjectTaskInstance';
 import { UploadDocumentPayload } from './models/payloads/UploadDocumentPayload';
+import { FileUploadTaskTemplate } from './models/tasks/FileUploadTaskTemplate';
+import { ReadDocumentTaskTemplate } from './models/tasks/ReadDocumentTaskTemplate';
+import ProjectTaskTemplate from './models/tasks/ProjectTaskTemplate';
+import { ChecklistTaskTemplate } from './models/tasks/ChecklistTaskTemplate';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -87,6 +91,35 @@ const Api = {
       return AuthInstance.get(`${ROUTE_URL}/audit/workflow-instance-logs?workflowInstanceId=${workflowInstanceId}`);
     }
   },
+  taskTemplates: {
+    fetchTaskTypes: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
+    },
+    createTaskTemplate: async(name: string, description: string, taskTypeId: string, taskData: any) => {
+      return AuthInstance.post(`${ROUTE_URL}/task/templates/create`, {
+        Name: name,
+        Description: description,
+        TaskTypeId: taskTypeId,
+        TaskTypeData: taskData
+      })
+    },
+    fetchAllTaskTemplates: async(status?: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/task/templates/all?status=${status !== undefined ? status : ""}`);
+    },
+    archiveTemplate: async(taskTemplateId: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/task/templates/archive?taskTemplateId=${taskTemplateId}`);
+    },
+    updateTemplate: async(taskTemplateId: string, updatedDescription: string, updatedTaskTypeData: FileUploadTaskTemplate | ReadDocumentTaskTemplate | ProjectTaskTemplate | ChecklistTaskTemplate | null) => {
+      return AuthInstance.put(`${ROUTE_URL}/task/templates/update`, {
+        id: taskTemplateId,
+        updatedDescription: updatedDescription,
+        updateTaskTypeData: updatedTaskTypeData
+      });
+    },
+    fetchTemplateHasActiveInstances: async(taskTemplateId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/task/templates/has-active-instances?taskTemplateId=${taskTemplateId}`);
+    }
+  },
   fetchLogin: async(emailAddress: string, password: string) => {
     return axios.post(`${ROUTE_URL}/auth/login?emailAddress=${emailAddress}&password=${password}`);
   },
@@ -145,23 +178,9 @@ const Api = {
       }
     });
   },
-  fetchTaskTypes: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/task/templates/task-types`);
-  },
-  createTaskTemplate: async(name: string, description: string, taskTypeId: string, taskData: any) => {
-    return AuthInstance.post(`${ROUTE_URL}/task/templates/create`, {
-      Name: name,
-      Description: description,
-      TaskTypeId: taskTypeId,
-      TaskTypeData: taskData
-    })
-  },
   fetchDocumentData: async(documentId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/data?documentId=${documentId}`);
-  },
-  fetchAllTaskTemplates: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/task/templates/all`);
-  },
+  }, 
   fetchAccountsDirectory: async() => {
     return AuthInstance.get(`${ROUTE_URL}/account/directory`);
   },
@@ -180,10 +199,7 @@ const Api = {
       text: comment,
       parentCommentId: parentCommentId
     });
-  },
-  fetchWorkflowInstances: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/workflow/instance/get`);
-  },
+  },  
   fetchWorkflowsDocuments: async(workflowInstanceId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/workflow-instance/data?workflowInstanceId=${workflowInstanceId}`);
   },
@@ -212,7 +228,13 @@ const Api = {
   workflowInstances: {
     fetchAllOpenWorkflowInstance: async() => {
       return AuthInstance.get(`${ROUTE_URL}/workflow/instance/onboarding/open`);
-    }
+    },
+    fetchWorkflowInstance: async(workflowInstanceId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/instance?workflowInstanceId=${workflowInstanceId}`);
+    },
+    fetchWorkflowInstances: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/instance/all`);
+    },
   }
 }
 

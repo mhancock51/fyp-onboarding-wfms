@@ -3,17 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataModels.Models
 {
     public class TaskInstanceDTO : TaskInstanceTable
     {
-        public TaskTemplate template { get; set; }
+        [JsonPropertyName("template")]
+        public TaskTemplate Template { get; set; }
         /// <summary>
         /// Name of the workflow template that the task is associated to an instance of
         /// </summary>
+        [JsonPropertyName("workflowInstanceTemplateName")]
         public string? WorkflowInstanceTemplateName { get; set; }
-        public object InstanceData { get; set; }
+        [JsonPropertyName("instanceData")]
+        public object InstanceData { get; set; }        
     }
 }
