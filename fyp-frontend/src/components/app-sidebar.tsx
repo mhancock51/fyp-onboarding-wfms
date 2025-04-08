@@ -10,15 +10,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import { Blocks, Building, ChartNoAxesColumn, ClipboardList, Home, ListTodo, MessageSquareWarning, Route, Settings, UserPlus, Users } from "lucide-react"
+import { Bell, Blocks, Building, ChartNoAxesColumn, ClipboardList, Dot, Home, ListTodo, MessageSquareWarning, Route, Settings, Trash2, UserPlus, Users, X } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
+import NotificationsSidebarMenu from "./NotificationSidebarMenu"
    
-const mainItems = [
+const mainItems = [  
   {
     title: "Tasks",
     url: "",
@@ -102,16 +104,17 @@ export function AppSidebar(props: Props) {
             <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
+                <NotificationsSidebarMenu/>
                 {mainItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a onClick={() => {navigate(item.url)}}>
+                    <SidebarMenuButton asChild>                    
+                      <a onClick={() => {navigate(item.url)}} >
                         <item.icon/>
                         <span>{item.title}</span>
-                      </a>
+                      </a>                      
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
+                ))}                
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -159,7 +162,7 @@ export function AppSidebar(props: Props) {
             </SidebarGroup>
           }
         </SidebarContent>
-        <SidebarFooter style={{padding: 0}}>
+        <SidebarFooter style={{padding: 0}}>          
           <SidebarUser user={{
             name: user?.displayName ?? "",
             email: user?.emailAddress ?? "",
@@ -170,3 +173,4 @@ export function AppSidebar(props: Props) {
     </>
   )
 }
+
