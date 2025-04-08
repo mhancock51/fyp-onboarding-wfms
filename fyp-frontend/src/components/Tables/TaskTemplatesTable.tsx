@@ -90,7 +90,7 @@ export default function TaskTemplatesTable(props: Props) {
   }, [searchTerm, baseTaskTemplates]);
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-2 w-auto'>
       <div className='flex flex-row w-full gap-2'>
         <Input disabled={loading} className='flex-11' value={searchTerm} onChange={(event: any) => {setSearchTerm(event.target.value)}}
           type='text' placeholder='Enter search term...' 

@@ -1,5 +1,4 @@
 import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
-import MultiSelect from '@/components/multi-select';
 import TaskTemplatesTable from '@/components/Tables/TaskTemplatesTable';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import AccountDirectory from '@/models/AccountDirectory';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
+import Select, { MultiValue } from 'react-select';
 import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
 
@@ -50,13 +50,13 @@ export default function AddTaskToWorkflowDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className={`${step === 0 ? "min-w-[800px]" : "min-w-[550px]" }`}>
+      <DialogContent style={{minWidth: step === 0 ? "900px" : "400px"}}>
         <DialogHeader>
           <DialogTitle>Add Task to Workflow Template</DialogTitle>
         </DialogHeader>
         {
           step === 0 &&
-          <div className='flex flex-col gap-2 max-h-[65vh]'>
+          <div className='flex flex-col gap-2 max-h-[70vh] w-auto'>
             <TaskTemplatesTable onRowClick={(taskTemplate: TaskTemplate) => {setTaskTemplate(taskTemplate);}} selectedTemplate={taskTemplate} status='active'/>
             <Button>Create Task Template</Button>
             <Button disabled={taskTemplate === null} onClick={() => {setStep(1)}}>Next</Button>
@@ -71,22 +71,36 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                 additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []}
               />                     
             </div>  
-            <div className="grid grid-cols-4 gap-4">
-              <HoverCard>
-                <HoverCardTrigger>
-                  <Label>Task Dependencies</Label>
-                </HoverCardTrigger>
-                <HoverCardContent>
-                  <Card className='w-75 text-xs p-1.5' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
-                    Select the tasks that must be completed before this task can be started
-                  </Card>
-                </HoverCardContent>
-              </HoverCard>
-              <MultiSelect className='col-span-3'
-                options={props.existingTaskNodes.map((node) => ({ label: node.taskTemplate?.name ?? "ERROR", value: node.id}))} 
-                onChange={(options: any[]) => { setTaskNodeDependencies(props.existingTaskNodes.filter(i => options.map(option => (option.value)).includes(i.id)))}}                
-              />
-            </div>
+            {
+              props.existingTaskNodes.length > 0 &&
+              <div className="grid grid-cols-4 gap-4 w-full">
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Label>Task Dependencies</Label>
+                  </HoverCardTrigger>
+                  <HoverCardContent>
+                    <Card className='w-75 text-xs p-1.5' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                      Select the tasks that must be completed before this task can be started
+                    </Card>
+                  </HoverCardContent>
+                </HoverCard>
+                <Select isMulti className='col-span-3 rounded-lg'
+                  value={taskNodeDependencies.map((dependency) => ({
+                    label: dependency.taskTemplate?.name ?? "ERROR",
+                    value: dependency.id
+                  }))}
+                  options={props.existingTaskNodes.map((node) => ({
+                    label: node.taskTemplate?.name ?? "ERROR",
+                    value: node.id
+                  }))}
+                  onChange={(options: MultiValue<{label: string; value: string}>) => {
+                    const selectedIds = options.map(option => option.value);
+                    const selectedNodes = props.existingTaskNodes.filter(node => selectedIds.includes(node.id));
+                    setTaskNodeDependencies(selectedNodes);
+                  }}
+                />
+              </div>
+            }
             <div className="grid grid-cols-4 gap-4">
               <div className='flex flex-col gap-2'>
                 <Label>Days Until Due</Label>

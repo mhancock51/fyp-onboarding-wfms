@@ -14,6 +14,5 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         [JsonPropertyName("description")]
         public string Description { get; set; }
         public string[] Tags { get; set; }
-        [JsonPropertyName("timestamp")]
     }
 }
