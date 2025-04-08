@@ -266,6 +266,26 @@ namespace OnboardingWFMSApi.BusinessLogic
             var nodeTemplate = workflowInstance.WorkflowTemplate.PreflowNodes.Concat(workflowInstance.WorkflowTemplate.MainflowNodes)
                 .FirstOrDefault(n => n.TaskTemplateId == taskInstance.TaskTemplateId);
 
+            // check if a user needs to be notified
+            if (nodeTemplate.AccountsToNotify != null)
+            {
+                // notify user
+                string notificationText = $"'{taskInstance.Template.Name}' task completed for workflow";
+                if (workflowInstance.WorkflowTemplate.IsOnboardingWF && workflowInstance.OnboardingEmployeeDetails != null)
+                {
+                    notificationText += $" to onboard {workflowInstance.OnboardingEmployeeDetails.DisplayName}";
+                }
+                foreach(var accountId in nodeTemplate.AccountsToNotify)
+                {
+                    var parsedAccountId = await _utility.ReplaceAccountIdPlaceholder(accountId, workflowInstance);
+                    var response = await _mediator.Send(new CreateNotificationRequest(new CreateNotificationPayload(parsedAccountId, notificationText, new string[] { "Worfklow Instance", "Onboarding"})));
+                    if (response.Success == false)
+                    {
+                        _logger.LogWarning("Failed to send notification");
+                    } 
+                }
+            }
+
 
             // invite onboarder once all preflow (preboarding) tasks have been completed
             if (workflowInstance.WorkflowTemplate.IsOnboardingWF)

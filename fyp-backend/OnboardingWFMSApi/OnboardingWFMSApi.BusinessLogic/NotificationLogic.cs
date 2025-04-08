@@ -43,6 +43,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 Id = "",
                 RecipientId = payload.RecipientId,
+                Description = payload.Description,
                 Status = NOTIFICATION_UNSEEN_STATUS,
                 Tags = payload.Tags,
                 Timestamp = DateTime.Now
