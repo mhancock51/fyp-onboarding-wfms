@@ -14,7 +14,7 @@ export default function TaskStatusBadge(props: {status: string}) {
   }
 
   return (
-    <Badge className={`mx-2 rounded-full text-white ${statusToColor(props.status)} text-center p-2`} style={{minWidth: "90px"}}>
+    <Badge className={`rounded-full text-white ${statusToColor(props.status)} text-center p-2 min-w-[90px]`}>
       {props.status.toUpperCase()}
     </Badge>
   )

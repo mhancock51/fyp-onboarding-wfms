@@ -36,6 +36,7 @@ import ProjectTask from './ProjectTask';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
+import WorkflowInstanceBadge from '@/components/WorkflowInstanceBadge';
 
 interface Props {
   open: boolean;
@@ -125,13 +126,11 @@ export default function TaskDrawer(props: Props) {
                   </Badge>              
                 }
               </div>
-              <div className='flex flex-row justify-between' style={{gap: "2px"}}>
+              <div className='flex flex-row justify-center gap-2'>
                 <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
                 {
-                  props.task.workflowInstanceId &&
-                  <Badge className='mx-2 py-2 px-4 rounded-full'>
-                    {props.task.workflowInstanceTemplateName === "" ? "N/A" : props.task.workflowInstanceTemplateName}
-                  </Badge>
+                  props.task.workflowInstanceId !== undefined &&
+                  <WorkflowInstanceBadge workflowInstanceId={props.task.workflowInstanceId}/>
                 }
                 <TaskStatusBadge status={props.task.status}/>
               </div>

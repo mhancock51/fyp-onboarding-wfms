@@ -26,7 +26,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [Authorize]
-        [HttpGet("get")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAccountsWorkflowInstances()
         {
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
@@ -40,6 +40,14 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 var response = await _workflowInstanceLogic.GetAccountsWorkflowInstances(accountId);                    
                 return StatusCode(response.HttpCode, response);
             }
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetWorkflowInstance(string workflowInstanceId)
+        {
+            var response = await _workflowInstanceLogic.GetWorkflowInstance(workflowInstanceId);
+            return StatusCode(response.HttpCode, response);
         }
 
         // TODO make this admin/supervisor only

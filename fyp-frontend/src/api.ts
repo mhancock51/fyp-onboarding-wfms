@@ -199,10 +199,7 @@ const Api = {
       text: comment,
       parentCommentId: parentCommentId
     });
-  },
-  fetchWorkflowInstances: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/workflow/instance/get`);
-  },
+  },  
   fetchWorkflowsDocuments: async(workflowInstanceId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/workflow-instance/data?workflowInstanceId=${workflowInstanceId}`);
   },
@@ -231,7 +228,13 @@ const Api = {
   workflowInstances: {
     fetchAllOpenWorkflowInstance: async() => {
       return AuthInstance.get(`${ROUTE_URL}/workflow/instance/onboarding/open`);
-    }
+    },
+    fetchWorkflowInstance: async(workflowInstanceId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/instance?workflowInstanceId=${workflowInstanceId}`);
+    },
+    fetchWorkflowInstances: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/instance/all`);
+    },
   }
 }
 

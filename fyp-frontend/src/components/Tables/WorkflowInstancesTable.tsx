@@ -36,7 +36,7 @@ export default function WorkflowInstancesTable(props: Props) {
 
   async function fetchWorkflowInstances() {
     setLoading(true);
-    await Api.fetchWorkflowInstances()
+    await Api.workflowInstances.fetchWorkflowInstances()
     .then((response: AxiosResponse<HTTPresponse<WorkflowInstanceDTO[], string>>) => {
       setWorkflowInstances(response.data.data as WorkflowInstanceDTO[]);
     })
