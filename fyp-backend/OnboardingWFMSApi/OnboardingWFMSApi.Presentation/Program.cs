@@ -63,6 +63,8 @@ builder.Services.AddScoped<IReportedIssueRepository, ReportedIssueRepository>();
 
 builder.Services.AddScoped<IWorkflowInstanceAuditLogRepository, WorkflowInstanceAuditLogRepository>();
 
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
@@ -89,8 +91,6 @@ builder.Services.AddScoped<ITaskInstanceLogic, TaskInstanceLogic>();
 builder.Services.AddScoped<IDocumentLogic, DocumentLogic>();
 builder.Services.AddScoped<IAnalyticsLogic, AnalyticsLogic>();
 
-
-
 builder.Services.AddScoped<IWorkflowTemplateLogic, WorkflowTemplateLogic>();
 builder.Services.AddScoped<IWorkflowInstanceLogic, WorkflowInstanceLogic>();
 
@@ -98,6 +98,8 @@ builder.Services.AddScoped<ICommentLogic, CommentLogic>();
 
 builder.Services.AddScoped<IReportedIssuesLogic, ReportedIssuesLogic>();
 builder.Services.AddScoped<IWorkflowInstanceAuditLogic, WorkflowInstanceAuditLogic>();
+
+builder.Services.AddScoped<INotificationLogic, NotificationLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies

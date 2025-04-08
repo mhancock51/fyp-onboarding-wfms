@@ -204,6 +204,14 @@ CREATE TABLE workflowinstanceauditlog (
     AccountId VARCHAR(255)
 );
 
+CREATE TABLE notification (
+    Id VARCHAR(255) PRIMARY KEY,
+    RecipientId VARCHAR(255),
+    Status VARCHAR(255),
+    Description TEXT,
+    Tags JSON,
+    Timestamp DATETIME
+);
 
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
@@ -410,4 +418,10 @@ ALTER TABLE workflowinstanceauditlog
 ALTER TABLE workflowinstanceauditlog
     ADD CONSTRAINT fk_workflow_audit_log_account_id
     FOREIGN KEY (AccountId) REFERENCES account(AccountId)
+    ON DELETE CASCADE;
+    
+/* Notification constraints */
+ALTER TABLE notification
+    ADD CONSTRAINT fk_recipient_id
+    FOREIGN KEY (RecipientId) REFERENCES account(AccountId)
     ON DELETE CASCADE;

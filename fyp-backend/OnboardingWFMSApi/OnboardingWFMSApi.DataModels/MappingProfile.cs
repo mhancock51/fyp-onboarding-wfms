@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.DataModels
             CreateMap<OnboardingEmployeeDetailsTable, OnboardingEmployeeDetailsDTO>();
 
             CreateMap<ReportedIssueTable, IssueDTO>();
-
+            CreateMap<NotificationTable, NotificationDTO>();
         }
     }
 }
