@@ -8,12 +8,9 @@ import InviteUserDialog from "./dialogs/InviteUserDialog";
 import DepartmentCreationDialog from "./dialogs/DepartmentCreationDialog";
 import CreateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/CreateTaskTemplateDialog";
 import TaskTemplatesListDialog from "./dialogs/TaskTemplatesListDialog";
-import ReportIssueDialog from "./dialogs/ReportIssueDialog";
 import CreateWorkflowInstanceDialog from "./dialogs/CreateWorkflowInstanceDialog";
 import ManageAccountsDialog from "./dialogs/ManageAccountsDialog";
 import OrganisationDialog from "./dialogs/OrganisationDialog";
-import UpdateIssueStatusDialog from "./dialogs/UpdateIssueStatusDialog";
-import { SetStateAction } from "react";
 import UpdateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/UpdateTaskTemplateDialog";
 
 export default function layout() {
@@ -24,12 +21,8 @@ export default function layout() {
   return (
     <SidebarProvider>
       <AppSidebar organisationName={app.organisation?.name ?? "ERROR"} />
-      <main style={{width: "100%"}}>
-        <div className='m-4 flex flex-col gap-4'>
-          <div>                    
-            <Outlet />
-          </div>
-        </div>
+      <main className='m-4 m-b-0 flex flex-col h-[96vh] w-[100%]'>
+        <Outlet />                  
       </main>
       <InviteUserDialog open={app.openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
       <DepartmentCreationDialog open={app.openCreateDepartmentDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
