@@ -18,6 +18,7 @@ interface Props {
   setPreflowTasks: React.Dispatch<React.SetStateAction<WorkflowTemplateNode[]>>;
   mainflowTasks: WorkflowTemplateNode[];
   setMainflowTasks: React.Dispatch<React.SetStateAction<WorkflowTemplateNode[]>>;
+  isReadonly: boolean;
 }
 
 export default function WorkflowTemplateBuilder(props: Props) {  
@@ -64,8 +65,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
     nodes.push(startNode);  
     if (props.isOnboardingWorkflow) {
       // render preflow tasks (preboarding tasks)
-      props.preflowTasks.forEach((task, index) => {
-        console.log("TEST:", task.daysUntilDue);
+      props.preflowTasks.forEach((task, index) => {        
         // add task node
         const prevNode = nodes[nodes.length - 1]
         const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
@@ -80,23 +80,26 @@ export default function WorkflowTemplateBuilder(props: Props) {
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
             assignee: task.assignee?.displayName,
             taskDependencies: task.taskDependencies,
-            daysUntilDue: task.daysUntilDue ?? null
+            daysUntilDue: task.daysUntilDue ?? null,
+            isReadOnly: props.isReadonly
           } 
         };
         nodes.push(taskNode);
         // add edge between node and previous node
         edges.push(createEdge(prevNode, taskNode));
       });
-      // add button node to append a task
-      prevNode = nodes[nodes.length - 1]    
-      let addTaskNode: Node = {
-        id: `preflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
-        data: {
-          onClick: () => {setSelectedSection("preflow"); setOpenAddTaskDialog(true);}
+      if (!props.isReadonly) {
+        // add button node to append a task
+        prevNode = nodes[nodes.length - 1]    
+        let addTaskNode: Node = {
+          id: `preflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
+          data: {
+            onClick: () => {setSelectedSection("preflow"); setOpenAddTaskDialog(true);}
+          }
         }
+        nodes.push(addTaskNode);
+        edges.push(createEdge(prevNode, addTaskNode));
       }
-      nodes.push(addTaskNode);
-      edges.push(createEdge(prevNode, addTaskNode));
       // add mainflow triggering task node
       var prevNode = nodes[nodes.length - 1]
       var nodeYPosition = prevNode.position.y + 100; 
@@ -125,23 +128,26 @@ export default function WorkflowTemplateBuilder(props: Props) {
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
           assignee: task.assignee?.displayName,
-          taskDependencies: task.taskDependencies
+          taskDependencies: task.taskDependencies,
+          isReadOnly: props.isReadonly
         } 
       };
       nodes.push(taskNode);
       // add edge between node and previous node
       edges.push(createEdge(prevNode, taskNode));
     })
-    // add button node to append a task
-    prevNode = nodes[nodes.length - 1]    
-    var addTaskNode = {
-      id: `mainflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
-      data: {
-        onClick: () => {setSelectedSection("mainflow"); setOpenAddTaskDialog(true);}
+    if (!props.isReadonly) {
+      // add button node to append a task
+      prevNode = nodes[nodes.length - 1]    
+      var addTaskNode = {
+        id: `mainflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
+        data: {
+          onClick: () => {setSelectedSection("mainflow"); setOpenAddTaskDialog(true);}
+        }
       }
+      nodes.push(addTaskNode);
+      edges.push(createEdge(prevNode, addTaskNode));
     }
-    nodes.push(addTaskNode);
-    edges.push(createEdge(prevNode, addTaskNode));
     // add end of workflow node
     prevNode = nodes[nodes.length - 1]
     nodeYPosition = prevNode.position.y + 100; 
@@ -213,7 +219,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   useEffect(() => {    
     renderWorkflowNodes();
-  }, [props.preflowTasks, props.mainflowTasks, props.isOnboardingWorkflow]);
+  }, [props.preflowTasks, props.mainflowTasks, props.isOnboardingWorkflow, props.isReadonly]);
 
   return (
     <div className='flex flex-col gap-4'>

@@ -8,7 +8,7 @@ import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import TaskTypeBadge from '../../MyTasksPage/TaskTypeBadge';
 
 export type TaskNode = Node<
@@ -22,6 +22,7 @@ export type TaskNode = Node<
     moveTaskUp: () => void;
     moveTaskDown: () => void;
     daysUntilDue: number | null;
+    isReadOnly: boolean;
   }
 >;
 
@@ -32,10 +33,10 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
     console.log(evt.target.value);
   }, []);
 
-  const [openPopover, setOpenPopover] = useState<boolean>(false);
+  const [openPopover, setOpenPopover] = useState<boolean>(false);  
   
   return (
-    <Popover open={openPopover} onOpenChange={setOpenPopover}>
+    <Popover open={openPopover && !props.data.isReadOnly} onOpenChange={setOpenPopover}>
       <PopoverTrigger asChild>
         <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", minWidth: "30em",
           boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
