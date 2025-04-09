@@ -13,6 +13,7 @@ import { Label } from 'recharts'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
+import WorkflowTemplateTable from '@/components/Tables/WorkflowTemplateTable'
 
 export default function ViewWorkflowTemplateDialog() {
   const open = useSelector((state: RootState) => state.app.openViewWorkflowTemplateDialog);
@@ -20,7 +21,10 @@ export default function ViewWorkflowTemplateDialog() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false); 
+  const [step, setStep] = useState<number>(0); 
+  const [selectedWorkflowTemplateId, setSelectedWorkflowTemplateId] = useState<string | null>(null);
 
+  // workflow data
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(true); 
@@ -29,8 +33,7 @@ export default function ViewWorkflowTemplateDialog() {
   const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
 
   const accountsDirectory = useSelector((state: RootState) => state.app.accountsDirectory);
-  const taskTemplates = useSelector((state: RootState) => state.app.taskTemplates);
-  const selectedWorkflowTemplateId = useSelector((state: RootState) => state.app.selectedWorkflowTemplateId);
+  const taskTemplates = useSelector((state: RootState) => state.app.taskTemplates);  
 
   async function fetchWorkflowTemplate(workflowTemplateId: string) {    
     setLoading(true);
@@ -59,6 +62,10 @@ export default function ViewWorkflowTemplateDialog() {
 
   function closeAndClear() {
     dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(false));
+    setSelectedWorkflowTemplateId(null);
+    setPreflowTasks([]);
+    setMainflowTasks([]);
+    setStep(0);
   }
 
   useEffect(() => {
@@ -73,36 +80,63 @@ export default function ViewWorkflowTemplateDialog() {
         <DialogHeader>
           <DialogTitle>View Workflow Template</DialogTitle>
         </DialogHeader>
-        <div className='p-2 flex flex-col gap-2'>
-          {
-            loading &&
-            <div className='w-full flex flex-row justify-center gap-2 py-100'>
-              <Spinner/>
-              Loading workflow...
-            </div>
-          }
-          {
-            !loading &&
-            <>                     
-            <WorkflowTemplateBuilder className='h-[70vh]' taskTemplates={[]} 
-              isOnboardingWorkflow={isOnboardingWf} 
-              preflowTasks={preflowTasks} 
-              setPreflowTasks={setPreflowTasks} 
-              mainflowTasks={mainflowTasks} 
-              setMainflowTasks={setMainflowTasks} 
-              isReadonly={true}
+        {
+          step === 0 &&
+          <>
+            <WorkflowTemplateTable 
+              onTemplateSelected={(workflowTemplate: WorkflowTemplateDTO) => {setSelectedWorkflowTemplateId(workflowTemplate.id)}}
+              selectedTemplateId={selectedWorkflowTemplateId}
             />
-            </>
-          }
-          
-        </div>        
-        <DialogFooter>
-          <div className='flex flex-row w-full justify-end'>
-            <Button onClick={() => {navigate(`/workflows/build?id=${selectedWorkflowTemplateId}`)}} >
-              Update Workflow
-            </Button>
-          </div>
-        </DialogFooter>
+            <DialogFooter>
+              <div className='flex flex-row w-full justify-end'>
+                <Button disabled={selectedWorkflowTemplateId === null} onClick={() => {setStep(1)}} >
+                  View Workflow
+                </Button>
+              </div>
+            </DialogFooter>
+          </>
+        }
+        {
+          step === 1 &&
+          <>
+            <div className='p-2 flex flex-col gap-2'>
+              {
+                loading &&
+                <div className='w-full flex flex-row justify-center gap-2 py-100'>
+                  <Spinner/>
+                  Loading workflow...
+                </div>
+              }
+              {
+                !loading &&
+                <>               
+                <div className='flex flex-col w-full gap-1'>
+                  <span>{name}</span>  
+                </div>      
+                <WorkflowTemplateBuilder className='h-[60vh]' taskTemplates={[]} 
+                  isOnboardingWorkflow={isOnboardingWf} 
+                  preflowTasks={preflowTasks} 
+                  setPreflowTasks={setPreflowTasks} 
+                  mainflowTasks={mainflowTasks} 
+                  setMainflowTasks={setMainflowTasks} 
+                  isReadonly={true}
+                />
+                </>
+            }
+            </div>        
+            <DialogFooter>
+              <div className='flex flex-row w-full justify-end gap-2'>
+                <Button onClick={() => {setStep(0)}} >
+                  Back
+                </Button>
+                <Button onClick={() => {navigate(`/workflows/build?id=${selectedWorkflowTemplateId}`); closeAndClear()}} >
+                  Update Workflow
+                </Button>
+              </div>
+            </DialogFooter>
+          </>
+            
+        }
       </DialogContent>
     </Dialog>
   )

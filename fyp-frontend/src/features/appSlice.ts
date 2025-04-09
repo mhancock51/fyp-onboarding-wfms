@@ -30,7 +30,7 @@ export interface AppState {
     taskTemplates: TaskTemplate[];
     selectedTaskTemplate: TaskTemplate | null;
     notifications: NotificationDTO[];
-    selectedWorkflowTemplateId: string | null;
+    workflowTemplates: WorkflowTemplateDTO[];
 }
 
 const initialState: AppState = {
@@ -49,10 +49,10 @@ const initialState: AppState = {
     taskTypes: [],
     accountsDirectory: [],
     taskTemplates: [],
+    workflowTemplates: [],
     departments: [],
     selectedTaskTemplate: null,
-    notifications: [],
-    selectedWorkflowTemplateId: null
+    notifications: []
 }
 
 export const appSlice = createSlice({
@@ -114,8 +114,8 @@ export const appSlice = createSlice({
         SET_NOTIFICATIONS: (state, action: PayloadAction<NotificationDTO[]>) => {
             state.notifications = action.payload;
         },
-        SET_SELECTED_WORKFLOW_TEMPLATE_ID: (state, action: PayloadAction<string | null>) => {
-            state.selectedWorkflowTemplateId = action.payload;
+        SET_WORKFLOW_TEMPLATES: (state, action: PayloadAction<WorkflowTemplateDTO[]>) => {
+            state.workflowTemplates = action.payload;
         }
     }
 });
@@ -123,7 +123,7 @@ export const appSlice = createSlice({
 export const {
     SET_USER, SET_ORGANISATION, SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
     SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_REPORT_ISSUE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_DEPARTMENTS, SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG,
-    SET_SELECTED_TASK_TEMPLATE, SET_NOTIFICATIONS, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG, SET_SELECTED_WORKFLOW_TEMPLATE_ID
+    SET_SELECTED_TASK_TEMPLATE, SET_NOTIFICATIONS, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG, SET_WORKFLOW_TEMPLATES
 } = appSlice.actions;
 
 export default appSlice.reducer;

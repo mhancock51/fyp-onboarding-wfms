@@ -143,11 +143,11 @@ export default function TaskTemplatesTable(props: Props) {
           </Table>
         }
         {
-          !loading && baseTaskTemplates.length === 0 &&
+          !loading && filteredTemplates.length === 0 &&
           <NoResults text={'No task templates found'}/>
         }
         {
-          loading && baseTaskTemplates.length === 0 &&
+          loading && filteredTemplates.length === 0 &&
           <div className='w-full flex flex-row justify-center gap-2'>
             <Spinner/> Loading templates...
           </div>

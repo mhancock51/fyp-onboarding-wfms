@@ -17,7 +17,7 @@ import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
+import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG } from "@/features/appSlice"
 import NotificationsSidebarMenu from "./NotificationSidebarMenu"
   
 
@@ -88,7 +88,12 @@ export function AppSidebar(props: Props) {
       title: "Workflows Dashboard",
       onClickAction: () => { navigate("/workflows/dashboard")},
       icon: ChartNoAxesColumn
-    },    
+    }, 
+    {
+      title: "Workflow Templates",
+      onClickAction: () => { dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(true));},
+      icon: Blocks
+    }   
   ]
 
   return (
