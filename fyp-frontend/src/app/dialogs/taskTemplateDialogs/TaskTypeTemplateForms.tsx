@@ -20,7 +20,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
-import MultiSelect from '@/components/multi-select';
+import Select from 'react-select';
 
 export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
@@ -159,7 +159,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">Support Document Types</Label>
-        <MultiSelect                   
+        <Select                   
           className='w-100'
           options={FILE_EXTENSION_OPTIONS} 
           value={FILE_EXTENSION_OPTIONS.filter(o => fileExtensions.includes(o.value))}
@@ -168,7 +168,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
       </div>
       <div className="grid grid-cols-4 items-center gap-4 w-full">
         <Label htmlFor="name">Account Access</Label>
-        <MultiSelect           
+        <Select           
           className='w-100'
           options={ACCOUNTS} 
           onChange={(options: any[]) => { setAccessAccountIds(options.map((option) => (option.value)));}} 
@@ -283,7 +283,7 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
         <div className='flex flex-col gap-2 w-full'>
           <Label>Skills ({skills.length})</Label>
           <Label className='font-normal'>Awarded to user on completion of the project</Label>
-          <MultiSelect options={SKILLS} 
+          <Select options={SKILLS} 
             value={
               skills.map((skill) => SKILLS.find(i => i.value == skill) ?? {label: "", value: ""})
             } 

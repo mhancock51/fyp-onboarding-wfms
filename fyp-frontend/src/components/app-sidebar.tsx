@@ -10,31 +10,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import { Blocks, Building, ChartNoAxesColumn, ClipboardList, Home, ListTodo, MessageSquareWarning, Route, Settings, UserPlus, Users } from "lucide-react"
+import { Bell, Blocks, Building, ChartNoAxesColumn, ClipboardList, Dot, Home, ListTodo, MessageSquareWarning, Route, Settings, Trash2, UserPlus, Users, X } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG } from "@/features/appSlice"
-   
-const mainItems = [
-  {
-    title: "Tasks",
-    url: "",
-    icon: ClipboardList,
-  },
-  {
-    title: "Workflows",
-    url: "/workflows",
-    icon: Route,
-  },
-  {
-    title: "Task Issues",
-    url: "/issues",
-    icon: MessageSquareWarning
-  }
-];
+import NotificationsSidebarMenu from "./NotificationSidebarMenu"
+  
 
 interface Props {
   organisationName: string;
@@ -46,6 +31,24 @@ export function AppSidebar(props: Props) {
   const user = useSelector((state: RootState) => state.app.user);
 
   const dispatch = useDispatch();
+
+  const mainItems = [  
+    {
+      title: "Tasks",
+      url: "",
+      icon: ClipboardList,
+    },
+    {
+      title: "Workflows",
+      url: "/workflows",
+      icon: Route,
+    },
+    {
+      title: "Task Issues",
+      url: "/issues",
+      icon: MessageSquareWarning
+    }
+  ];
 
   const adminItems = [    
     {
@@ -97,21 +100,22 @@ export function AppSidebar(props: Props) {
             <SidebarSeparator/>
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="gap-0">
+          <NotificationsSidebarMenu/>
           <SidebarGroup>
             <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {mainItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a onClick={() => {navigate(item.url)}}>
+                    <SidebarMenuButton asChild className="min-h-[34px]">                    
+                      <a onClick={() => {navigate(item.url)}} >
                         <item.icon/>
-                        <span>{item.title}</span>
-                      </a>
+                        {item.title}
+                      </a>                      
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
+                ))}                
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -125,7 +129,7 @@ export function AppSidebar(props: Props) {
                   {
                     supervisorItems.map((item, index) => (
                       <SidebarMenuItem key={index}>
-                        <SidebarMenuButton asChild>
+                        <SidebarMenuButton asChild className="min-h-[34px]"> 
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
@@ -146,7 +150,7 @@ export function AppSidebar(props: Props) {
                 <SidebarMenu>
                   {adminItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton asChild className="min-h-[38px]"> 
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
@@ -159,7 +163,7 @@ export function AppSidebar(props: Props) {
             </SidebarGroup>
           }
         </SidebarContent>
-        <SidebarFooter style={{padding: 0}}>
+        <SidebarFooter style={{padding: 0}}>          
           <SidebarUser user={{
             name: user?.displayName ?? "",
             email: user?.emailAddress ?? "",
@@ -170,3 +174,4 @@ export function AppSidebar(props: Props) {
     </>
   )
 }
+

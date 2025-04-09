@@ -158,19 +158,16 @@ export default function WorkflowTemplateBuilder(props: Props) {
     setEdges(edges);
   }
 
-  function addWorkflowNode(taskId: string, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], type: "preflow" | "mainflow", daysUntilDue: number | null) {
-    const taskTemplate = props.taskTemplates.find(i => i.id === taskId);
-    if (taskTemplate == null) {
-      return
-    }
+  function addWorkflowNode(taskTemplate: TaskTemplate, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) {
     const node: WorkflowTemplateNode = {
       id: crypto.randomUUID(),
       taskTemplate: taskTemplate,
       assignee: assignee,
       taskDependencies: taskDependencies,
-      daysUntilDue: daysUntilDue      
+      daysUntilDue: daysUntilDue,
+      accountsToNotify: accountsToNotifyOnCompletion.map((account) => account.id)    
     };
-    switch(type) {
+    switch(selectedSection) {
       case "preflow":
         props.setPreflowTasks((prevState) => ([...prevState, node]));
         break;
@@ -214,11 +211,6 @@ export default function WorkflowTemplateBuilder(props: Props) {
     props.setMainflowTasks((prevState) => (prevState.filter(i => i.id !== id)));
   }
 
-  function addTaskToWorkflow(taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null) {
-    taskDependencies = taskDependencies.filter(i => i !== null);
-    addWorkflowNode(taskTemplate.id, assingee, taskDependencies, selectedSection, daysUntilDue);
-  }
-
   useEffect(() => {    
     renderWorkflowNodes();
   }, [props.preflowTasks, props.mainflowTasks, props.isOnboardingWorkflow]);
@@ -240,7 +232,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
           <Controls />
         </ReactFlow> 
       </div>
-      <AddTaskToWorkflowDialog open={openAddTaskDialog} setOpen={setOpenAddTaskDialog} onAddTask={addTaskToWorkflow} 
+      <AddTaskToWorkflowDialog open={openAddTaskDialog} setOpen={setOpenAddTaskDialog} onAddTask={addWorkflowNode} 
         isOnboardingWorkflow={props.isOnboardingWorkflow}
         existingTaskNodes={props.preflowTasks.concat(props.mainflowTasks)}
         section={selectedSection}

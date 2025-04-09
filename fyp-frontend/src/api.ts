@@ -38,6 +38,14 @@ AuthInstance.interceptors.response.use(
 );
 
 const Api = {  
+  notifications: {
+    fetchNotifications: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/notifications/all`);
+    },
+    deleteNotification: async(notificationId: string) => {
+      return AuthInstance.delete(`${ROUTE_URL}/notifications/delete?notificationId=${notificationId}`);
+    }
+  },
   issues: {
     createIssue: async(taskInstanceId: string, description: string, suggestedChanges: string) => {
       return AuthInstance.post(`${ROUTE_URL}/issues/create`, {

@@ -13,9 +13,7 @@ import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from 
 import { CreateWorkflowTemplatePayload } from '@/models/payloads/CreateWorkflowTemplatePayload';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
-import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog';
 
 export default function CreateWorkflowPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,7 +48,8 @@ export default function CreateWorkflowPage() {
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
           dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? [],
-          daysUntilDue: task.daysUntilDue
+          daysUntilDue: task.daysUntilDue,
+          accountsToNotify: task.accountsToNotify
         }
       )),
       mainflowNodes: mainflowTasks.map((task) => (
@@ -59,7 +58,8 @@ export default function CreateWorkflowPage() {
           taskTemplateId: task.taskTemplate?.id ?? "",
           assigneeId: task.assignee?.id ?? "",
           dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? [],
-          daysUntilDue: task.daysUntilDue
+          daysUntilDue: task.daysUntilDue,
+          accountsToNotify: task.accountsToNotify
         }
       )),
     }
@@ -112,7 +112,8 @@ export default function CreateWorkflowPage() {
       taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),
       assignee: accountsDirectory.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id == node.assigneeId),
       taskDependencies: nodeList.filter(i => node.dependencyNodeIds.includes(i.id)),
-      daysUntilDue: node.daysUntilDue
+      daysUntilDue: node.daysUntilDue,
+      accountsToNotify: node.accountsToNotify
     }    
     return result;
   }

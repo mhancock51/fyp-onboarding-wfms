@@ -4,4 +4,5 @@ export interface WorkflowTemplateNodeDTO {
   assigneeId: string;
   dependencyNodeIds: string[];
   daysUntilDue: number | null;
+  accountsToNotify: string[];
 }

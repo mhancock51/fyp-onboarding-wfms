@@ -79,7 +79,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                         AssigneeId = preflowTask.AssigneeId,
                         WorkflowSection = "preflowtasks",
                         WorkflowTemplateId = workflowTemplate.Id,
-                        DaysUntilDue = preflowTask.DaysUntilDue
+                        DaysUntilDue = preflowTask.DaysUntilDue,
+                        AccountsToNotify = preflowTask.AccountsToNotify,
                     };
                     nodes.Add(node);
                     // TODO implement validation                                    
@@ -108,7 +109,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                         AssigneeId = mainflowTask.AssigneeId,
                         WorkflowSection = "mainflowtasks",
                         WorkflowTemplateId = workflowTemplate.Id,
-                        DaysUntilDue = mainflowTask.DaysUntilDue
+                        DaysUntilDue = mainflowTask.DaysUntilDue,
+                        AccountsToNotify = mainflowTask.AccountsToNotify,
                     };
                     nodes.Add(node);
                     // TODO implement validation                                    

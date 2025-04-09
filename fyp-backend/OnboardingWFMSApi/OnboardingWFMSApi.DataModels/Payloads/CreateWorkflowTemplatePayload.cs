@@ -39,6 +39,8 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public List<string> DependencyNodeIds = new List<string>();
         [JsonPropertyName("daysUntilDue")]
         public int? DaysUntilDue { get; set; }
+        [JsonPropertyName("accountsToNotify")]
+        public string[] AccountsToNotify { get; set; }
 
     }
 }

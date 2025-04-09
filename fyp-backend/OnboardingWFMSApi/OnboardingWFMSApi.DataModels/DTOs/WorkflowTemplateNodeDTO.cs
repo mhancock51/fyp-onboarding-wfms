@@ -23,5 +23,7 @@ namespace OnboardingWFMSApi.DataModels.DTOs
         public int? DaysUntilDue { get; set; }
         [JsonPropertyName("workflowSection")]
         public string WorkflowSection { get; set; }
+        [JsonPropertyName("accountsToNotify")]
+        public string[]? AccountsToNotify { get; set; }
     }
 }
