@@ -81,7 +81,7 @@ export function AppSidebar(props: Props) {
     },
     {
       title: "Workflow Builder",
-      onClickAction: () => { navigate("/workflow-builder")},
+      onClickAction: () => { navigate("/workflows/build")},
       icon: Blocks
     },
     {

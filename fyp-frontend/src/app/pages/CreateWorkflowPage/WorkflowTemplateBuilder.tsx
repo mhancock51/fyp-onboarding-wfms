@@ -223,7 +223,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   return (
     <div className='flex flex-col gap-4'>
-      <div className='min-w-full' style={{height: '1000px', margin: "auto"}}>
+      <div className='min-w-full h-[96vh]'>
         <ReactFlow
           nodes={nodes}
           edges={edges}

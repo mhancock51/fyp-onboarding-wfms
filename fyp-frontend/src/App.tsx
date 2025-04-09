@@ -148,7 +148,7 @@ export default function App() {
         <Route path="/settings" element={<div><h1>Settings</h1></div>} />
         <Route path="/issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
         <Route path="/workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
-        <Route path="/workflow-builder" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />
+        <Route path="/workflows/build" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />
       </Route>
     );
   }, [user]);
