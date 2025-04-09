@@ -24,9 +24,9 @@ export default function layout() {
   return (
     <SidebarProvider>
       <AppSidebar organisationName={app.organisation?.name ?? "ERROR"} />
-      <main style={{padding: "8px", width: "100%"}}>
+      <main style={{width: "100%"}}>
         <div className='m-4 flex flex-col gap-4'>
-          <div className='rounded-3xl bg-accent p-8' >                    
+          <div>                    
             <Outlet />
           </div>
         </div>
