@@ -108,8 +108,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (notification == null) return null;
 
             // if status is unseen, mark it as seen
+            string previousStatus = notification.Status;
             if (notification.Status == NOTIFICATION_UNSEEN_STATUS)
-            {
+            {                
                 notification.Status = NOTIFICATION_SEEN_STATUS;
                 try
                 {
@@ -119,6 +120,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     _logger.LogWarning("Failed to mark unseen notification as seen");
                 }
+                notification.Status = previousStatus;
             }
 
             var notificationDTO = _mapper.Map<NotificationDTO>(notification);

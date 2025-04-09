@@ -100,12 +100,12 @@ export function AppSidebar(props: Props) {
             <SidebarSeparator/>
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="gap-0">
+          <NotificationsSidebarMenu/>
           <SidebarGroup>
             <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <NotificationsSidebarMenu/>
                 {mainItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild className="min-h-[34px]">                    
@@ -150,7 +150,7 @@ export function AppSidebar(props: Props) {
                 <SidebarMenu>
                   {adminItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild className="min-h-[34px]"> 
+                      <SidebarMenuButton asChild className="min-h-[38px]"> 
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
