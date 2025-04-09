@@ -108,10 +108,10 @@ export function AppSidebar(props: Props) {
                 <NotificationsSidebarMenu/>
                 {mainItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>                    
+                    <SidebarMenuButton asChild className="min-h-[34px]">                    
                       <a onClick={() => {navigate(item.url)}} >
                         <item.icon/>
-                        <span>{item.title}</span>
+                        {item.title}
                       </a>                      
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -129,7 +129,7 @@ export function AppSidebar(props: Props) {
                   {
                     supervisorItems.map((item, index) => (
                       <SidebarMenuItem key={index}>
-                        <SidebarMenuButton asChild>
+                        <SidebarMenuButton asChild className="min-h-[34px]"> 
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
@@ -150,7 +150,7 @@ export function AppSidebar(props: Props) {
                 <SidebarMenu>
                   {adminItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton asChild className="min-h-[34px]"> 
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>

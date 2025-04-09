@@ -270,7 +270,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (nodeTemplate.AccountsToNotify != null)
             {
                 // notify user
-                string notificationText = $"'{taskInstance.Template.Name}' task completed for workflow";
+                var assigneesAccount = await _accountLogic.GetDirectoryByAccountId(taskInstance.AssigneeAccountId);
+                string notificationText = $"'{taskInstance.Template.Name}' task completed by {assigneesAccount.DisplayName} for workflow {workflowInstance.WorkflowTemplate.Name}";
                 if (workflowInstance.WorkflowTemplate.IsOnboardingWF && workflowInstance.OnboardingEmployeeDetails != null)
                 {
                     notificationText += $" to onboard {workflowInstance.OnboardingEmployeeDetails.DisplayName}";
@@ -297,14 +298,17 @@ namespace OnboardingWFMSApi.BusinessLogic
                     var onboardingEmployeeDetails = await _onboardingEmployeeDetailsRepository.GetDetailsByWorkflowInstance(workflowInstance.Id);
                     if (onboardingEmployeeDetails == null) throw new Exception("No onboarding employee details could be retrieved for an onboarding workflow instance");
 
-                    var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, onboardingEmployeeDetails.DepartmentId));
+                    var result = await _mediator.Send(new InviteAccountRequest(onboardingEmployeeDetails.DisplayName, onboardingEmployeeDetails.EmailAddress, onboardingEmployeeDetails.DepartmentId));                    
+                    
                     // create audit log
                     var log = new CreateWorkflowInstanceAuditLogPayload()
                     {
                         WorkflowInstanceId = workflowInstance.Id,
                         Log = $"Onboarder invited to organisation",
                     };
-                    await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
+                    await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));                    
+                    // send notification to supervisor
+                    await _mediator.Send(new CreateNotificationRequest(new CreateNotificationPayload(workflowInstance.SupervisorAccountId, $"Onboarder '{workflowInstance.OnboardingEmployeeDetails.DisplayName}' has been invited to the organisation", ["Workflow", "Onboarding", "Registration"])));
                     return result;
                 }
             }
@@ -323,6 +327,20 @@ namespace OnboardingWFMSApi.BusinessLogic
                     Log = $"Workflow instance completed",                    
                 };
                 await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
+
+                var accountsToNotify = new List<string>() { workflowInstance.SupervisorAccountId };
+
+                var notificationText = $"'{workflowInstance.WorkflowTemplate.Name}' workflow instance completed!";
+                if (workflowInstance.WorkflowTemplate.IsOnboardingWF)
+                {
+                    // send completion notification to supervisor and onboarder
+                    notificationText = $"Workflow to onboard {workflowInstance.OnboardingEmployeeDetails.DisplayName} has been completed";
+
+                }
+                foreach (var accountId in accountsToNotify)
+                {
+                    await _mediator.Send(new CreateNotificationRequest(new CreateNotificationPayload(accountId, notificationText, ["Workflow", "Completed"])));
+                }
             }
 
             // ASSIGN TASKS THAT WERE DEPENDENT ON THIS TASK AND ARE NOW SATISFIED
@@ -434,6 +452,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 throw new Exception("Failed to retrieve DTO for workflow template");
             }
+
+            // send notification to supervisor
+            await _mediator.Send(new CreateNotificationRequest(new CreateNotificationPayload(workflowInstance.SupervisorAccountId, $"Onboarder '{workflowInstance.OnboardingEmployeeDetails.DisplayName}' has registered their account", ["Workflow", "Onboarding", "Registration"])));
 
 
             // start mainflow tasks with no dependencies

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { SET_NOTIFICATIONS } from "@/features/appSlice";
+import { Separator } from "./ui/separator";
 
 export default function NotificationsSidebarMenu() {
   const notifications = useSelector((state: RootState) => state.app.notifications);
@@ -25,7 +26,8 @@ export default function NotificationsSidebarMenu() {
     setLoading(true);
     await Api.notifications.fetchNotifications()
     .then((response: AxiosResponse<HTTPresponse<NotificationDTO[], string>>) => {
-      dispatch(SET_NOTIFICATIONS(response.data.data as NotificationDTO[]));
+      var notifications = (response.data.data as NotificationDTO[]).sort((a: NotificationDTO, b: NotificationDTO) => (new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+      dispatch(SET_NOTIFICATIONS(notifications));
     })
     .catch((error) => {
       toast.error("Failed to load notifications");
@@ -73,7 +75,7 @@ export default function NotificationsSidebarMenu() {
           <DropdownMenuContent
             className="mx-1 p-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
           >
-            <DropdownMenuGroup>
+            <DropdownMenuGroup className="gap-2 flex flex-col">
               {
                 loading &&
                 <div className="flex flex-row gap-2 w-full items-center justify-center my-4">
@@ -86,9 +88,9 @@ export default function NotificationsSidebarMenu() {
               }
               {
                 !loading && notifications.map((notification, index) => (
-                  <DropdownMenuItem key={index} className="cursor-pointer flex flex-col gap-2 rounded-lg" onSelect={(e) => {e.preventDefault();}}>
-                    <div className="p-1 flex flex-col w-full relative">
-                      <div className="p-[6px] rounded-lg right absolute top-0 right-0 bg-background" onClick={() => {removeNotification(index);}}>
+                  <DropdownMenuItem key={index} className="cursor-pointer border-accent rounded-none" onSelect={(e) => {e.preventDefault();}}>
+                    <div className="p-1 flex flex-col w-full relative flex flex-col gap-1 justify-between min-h-[50px]">
+                      <div className="p-[6px] rounded-lg right absolute top-1 right-1 bg-background" onClick={() => {removeNotification(index);}}>
                         <X/>
                       </div>
                       <div className="flex flex-row w-full justify-between gap-4 items-start">
@@ -96,26 +98,17 @@ export default function NotificationsSidebarMenu() {
                           notification.status === "unseen" &&
                           <Badge className="p-1 rounded-full bg-blue-500 text-white">NEW</Badge>
                         }
-                        <h1 className="text-base font-semibold max-w-[425px] line-clamp-2">{notification.description}</h1>
+                        <h1 className="text-base max-w-[435px] line-clamp-2">{notification.description}</h1>
                       </div>    
-                      <div className="flex flex-row gap-2 w-full justify-center items-center text-sm my-1">
-                        {
-                          moment(notification.timestamp).fromNow()
-                        }
-                        {
-                          notification.tags.length > 0 && <Dot/>
-                        }
+                      <div className="flex flex-row w-full justify-start">
+                        <span key={index} className="text-gray-500 text-xs">{moment(notification.timestamp).fromNow()}</span>                        
+                      </div>
+                      <div className="flex flex-row gap-4 justify-start my-1 items-center">
                         {
                           notification.tags.map((tag, index) => (
-                            <>
-                              <span key={index} className="text-gray-700">{tag}</span> 
-                              {
-                                index !== notification.tags.length - 1 &&
-                                <div key={index}>
-                                  <Dot/>
-                                </div>
-                              } 
-                            </>
+                            <div key={index} className="bg-background border-blue-400 border-2 rounded-md px-4 py-[2px] min-w-[120px] flex flex-row justify-center">
+                              <span key={index} className="text-xs text-blue-500">{tag}</span> 
+                            </div>
                           ))
                         }
                       </div>
