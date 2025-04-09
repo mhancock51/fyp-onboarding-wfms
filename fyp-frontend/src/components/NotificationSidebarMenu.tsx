@@ -2,7 +2,7 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
 import { Badge } from "./ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import NotificationDTO from "@/models/DTOs/NotificationDTO"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import NoResults from "./NoResults"
 import { Bell, Dot, X } from "lucide-react";
 import moment from 'moment';
@@ -14,20 +14,23 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { SET_NOTIFICATIONS } from "@/features/appSlice";
-import { Separator } from "./ui/separator";
 
 export default function NotificationsSidebarMenu() {
   const notifications = useSelector((state: RootState) => state.app.notifications);
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState<boolean>(false);
+  
 
-  async function fetchNotifications() {
+  async function fetchNotifications() {  
     setLoading(true);
+
     await Api.notifications.fetchNotifications()
-    .then((response: AxiosResponse<HTTPresponse<NotificationDTO[], string>>) => {
-      var notifications = (response.data.data as NotificationDTO[]).sort((a: NotificationDTO, b: NotificationDTO) => (new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
-      dispatch(SET_NOTIFICATIONS(notifications));
+    .then((response: AxiosResponse<HTTPresponse<NotificationDTO[], string>>) => {      
+      const fetchedNotifications = (response.data.data as NotificationDTO[])
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      dispatch(SET_NOTIFICATIONS([...fetchedNotifications]));        
     })
     .catch((error) => {
       toast.error("Failed to load notifications");
@@ -56,8 +59,13 @@ export default function NotificationsSidebarMenu() {
     void deleteNotification(notifications[index]);
   }
 
-  useEffect(() => {
+  useEffect(() => {    
     void fetchNotifications();
+    // start refresh timer
+    const interval = setInterval(() => {
+      void fetchNotifications();
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -67,13 +75,13 @@ export default function NotificationsSidebarMenu() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"               
             >
-              <Bell/> Notifications  <Badge className="p-1 min-w-[18px] bg-blue-500 rounded-full">{notifications.length}</Badge>
+              <Bell/> Notifications  <Badge className="py-[2px] w-[32px] bg-blue-500 rounded-full">{notifications.length}</Badge>              
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="mx-1 p-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
+            className="py-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
           >
             <DropdownMenuGroup className="gap-2 flex flex-col">
               {
@@ -88,7 +96,7 @@ export default function NotificationsSidebarMenu() {
               }
               {
                 !loading && notifications.map((notification, index) => (
-                  <DropdownMenuItem key={index} className="cursor-pointer border-accent rounded-none" onSelect={(e) => {e.preventDefault();}}>
+                  <DropdownMenuItem key={notification.id} className="cursor-pointer border-accent rounded-none" onSelect={(e) => {e.preventDefault();}}>
                     <div className="p-1 flex flex-col w-full relative flex flex-col gap-1 justify-between min-h-[50px]">
                       <div className="p-[6px] rounded-lg right absolute top-1 right-1 bg-background" onClick={() => {removeNotification(index);}}>
                         <X/>
@@ -101,7 +109,7 @@ export default function NotificationsSidebarMenu() {
                         <h1 className="text-base max-w-[435px] line-clamp-2">{notification.description}</h1>
                       </div>    
                       <div className="flex flex-row w-full justify-start">
-                        <span key={index} className="text-gray-500 text-xs">{moment(notification.timestamp).fromNow()}</span>                        
+                        <span className="text-gray-500 text-xs">{moment(notification.timestamp).fromNow()}</span>                        
                       </div>
                       <div className="flex flex-row gap-4 justify-start my-1 items-center">
                         {
