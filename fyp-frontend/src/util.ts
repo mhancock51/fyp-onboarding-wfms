@@ -4,6 +4,11 @@ import { SET_USER } from "./features/appSlice";
 import AuthenticatedUser from "./models/AuthenticatedUser";
 import { store } from "./store";
 import WorkflowInstanceDTO from "./models/DTOs/WorkflowInstanceDTO";
+import { WorkflowTemplateNodeDTO } from "./models/DTOs/WorkflowTemplateNodeDTO";
+import WorkflowTemplateNode from "./models/Workflows/WorkflowTemplateNode";
+import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from "./constants";
+import TaskTemplate from "./models/tasks/TaskTemplate";
+import AccountDirectory from "./models/AccountDirectory";
 
 const EMAIL_STORAGE_KEY = "EMAIL_STORAGE_KEY";
 const PASSWORD_STORAGE_KEY = "PASSWORD_STORAGE_KEY";
@@ -121,7 +126,19 @@ const Utils = {
       default:
         return "bg-purple-900";
     }
+  },
+  workflowTemplateDTOToNode(node: WorkflowTemplateNodeDTO, nodeList: WorkflowTemplateNode[], taskTemplates: TaskTemplate[], accountsDirectory: AccountDirectory[]) {
+    var result: WorkflowTemplateNode = {
+      id: node.id,
+      taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),
+      assignee: accountsDirectory.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id == node.assigneeId),
+      taskDependencies: nodeList.filter(i => node.dependencyNodeIds.includes(i.id)),
+      daysUntilDue: node.daysUntilDue,
+      accountsToNotify: node.accountsToNotify
+    }    
+    return result;
   }
+
 }
 
 export default Utils;

@@ -10,6 +10,7 @@ import TaskTemplate from '@/models/tasks/TaskTemplate';
 import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
 import AccountDirectory from '@/models/AccountDirectory';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
+import clsx from 'clsx';
 
 interface Props {
   taskTemplates: TaskTemplate[];
@@ -19,6 +20,7 @@ interface Props {
   mainflowTasks: WorkflowTemplateNode[];
   setMainflowTasks: React.Dispatch<React.SetStateAction<WorkflowTemplateNode[]>>;
   isReadonly: boolean;
+  className?: string;
 }
 
 export default function WorkflowTemplateBuilder(props: Props) {  
@@ -222,8 +224,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
   }, [props.preflowTasks, props.mainflowTasks, props.isOnboardingWorkflow, props.isReadonly]);
 
   return (
-    <div className='flex flex-col gap-4'>
-      <div className='min-w-full h-[96vh]'>
+    <div>
+      <div className={clsx('min-w-full', props.className)}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
