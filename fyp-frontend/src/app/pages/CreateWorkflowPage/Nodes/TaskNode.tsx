@@ -21,7 +21,9 @@ export type TaskNode = Node<
     taskDependencies: WorkflowTemplateNode[];
     taskTypeId: string;
     deleteTask: () => void;
+    canMoveUp: boolean;
     moveTaskUp: () => void;
+    canMoveDown: boolean;
     moveTaskDown: () => void;
     daysUntilDue: number | null;
     isReadOnly: boolean;
@@ -32,12 +34,6 @@ export type TaskNode = Node<
 >;
 
 export default function TaskNode(props: NodeProps<TaskNode>) {
-  const handleStyle = {};
-
-  const onChange = useCallback((evt: { target: { value: any; }; }) => {
-    console.log(evt.target.value);
-  }, []);
-
   const [openPopover, setOpenPopover] = useState<boolean>(false);  
   
   function handleClick() {
@@ -65,7 +61,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   return (
     <Popover open={openPopover && !props.data.isReadOnly} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <div className={`p-2 rounded-[10px] min-w-[30em] color-foreground bg-background ${openPopover ? "border-yellow-500 border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
+        <div className={`p-2 rounded-[10px] min-w-[30em] color-foreground bg-background ${openPopover ? "border-blue-500 border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
           style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}} onClick={handleClick}
         >
           <Handle type="target" position={Position.Top} />
@@ -103,18 +99,13 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             </div>
           </div>
           <Handle type="source" position={Position.Bottom} id="a" />
-          <Handle
-            type="source"
-            position={Position.Bottom}
-            id="b"
-            style={handleStyle}
-          />
+          <Handle type="source" position={Position.Bottom} id="b" />
         </div>
       </PopoverTrigger>
       <PopoverContent side="right" className='rounded-full w-[40px] p-0 py-2'>
         <div className='flex flex-col gap-2 w-full justify-center items-center'>
-          <ChevronUp className='cursor-pointer hover:text-blue-700' onClick={() => {props.data.moveTaskUp(); setOpenPopover(false);}}/>
-          <ChevronDown className='cursor-pointer hover:text-blue-700' onClick={() => {props.data.moveTaskDown(); setOpenPopover(false);}}/>
+          <ChevronUp className={`cursor-pointer hover:${props.data.canMoveUp ? 'text-blue-700' : 'text-gray-200'}`}   onClick={() => { if(!props.data.canMoveUp) return; props.data.moveTaskUp(); setOpenPopover(false);}}/>
+          <ChevronDown className={`cursor-pointer hover:${props.data.canMoveDown ? 'text-blue-700' : 'text-gray-200'}`} onClick={() => { if(!props.data.canMoveDown) return; props.data.moveTaskDown(); setOpenPopover(false);}}/>
           <Trash2 className='cursor-pointer hover:text-destructive' onClick={() => {props.data.deleteTask(); setOpenPopover(false);}}/>
         </div>        
       </PopoverContent>

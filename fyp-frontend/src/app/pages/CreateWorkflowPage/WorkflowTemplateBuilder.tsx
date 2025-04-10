@@ -11,6 +11,7 @@ import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
 import AccountDirectory from '@/models/AccountDirectory';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import clsx from 'clsx';
+import { toast } from 'sonner';
 
 interface Props {
   taskTemplates: TaskTemplate[];
@@ -57,6 +58,25 @@ export default function WorkflowTemplateBuilder(props: Props) {
     return edge;
   }
 
+  function canNodeMoveUp(node: WorkflowTemplateNode, nodes: WorkflowTemplateNode[], currentIndex: number): boolean {
+    if (currentIndex === 0) return false;
+    // if node before current node is one of the nodes dependency nodes then it cant
+    if (node.taskDependencies.includes(nodes[currentIndex - 1])) return false;
+
+    return true;
+  }
+
+  function canNodeMoveDown(node: WorkflowTemplateNode, nodes: WorkflowTemplateNode[], currentIndex: number): boolean {
+    if (currentIndex === nodes.length - 1) return false;
+    // if node before current node is one of the nodes dependency nodes then it cant
+    if (node.taskDependencies.includes(nodes[currentIndex + 1])) return false;
+    // check that a node that is dependent on this node isn't just below it
+    var dependentNodesIndexes = nodes.map((n, index) => (n.taskDependencies.includes(node) ? index : null)).filter(n => n !== null);
+    if (dependentNodesIndexes.includes(currentIndex + 1)) return false; 
+
+    return true;
+  }
+
   function renderWorkflowNodes() {
     // loop through workflow nodes 
     let nodes: Node[] = [];
@@ -80,6 +100,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
             taskTypeId: node.taskTemplate?.taskTypeId,
             description: node.taskTemplate?.description,
             deleteTask: () => { removeWorkflowNode(node.id) },
+            canMoveUp: canNodeMoveUp(node, props.mainflowNodes, index),
+            canMoveDown: canNodeMoveDown(node, props.mainflowNodes, index),
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
             assignee: node.assignee,
@@ -132,6 +154,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
           taskTypeId: node.taskTemplate?.taskTypeId,
           description: node.taskTemplate?.description,
           deleteTask: () => { removeWorkflowNode(node.id) },
+          canMoveUp: canNodeMoveUp(node, props.mainflowNodes, index),
+          canMoveDown: canNodeMoveDown(node, props.mainflowNodes, index),
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
           assignee: node.assignee,
@@ -221,14 +245,53 @@ export default function WorkflowTemplateBuilder(props: Props) {
     }
   }
 
-  function removeWorkflowNode(id: string) {
+  function removeWorkflowNode(workflowNodeId: string) {
+    var updatedPreflowNodes = [...props.preflowNodes];
+    var updateMainflowNodes = [...props.mainflowNodes];
+    // find nodes that are dependent on that task
+    var preflowDependentNodes = props.preflowNodes.filter(n => n.taskDependencies.map(d => d.id).includes(workflowNodeId));
+    var mainflowDependentNodes = props.mainflowNodes.filter(n => n.taskDependencies.map(d => d.id).includes(workflowNodeId));
+    if (preflowDependentNodes.length > 0 || mainflowDependentNodes.length > 0) {
+      const confirmation = confirm(`${preflowDependentNodes.length + mainflowDependentNodes.length} nodes are dependent on this node are you sure you want to delete it?`);
+      if (!confirmation) return;     
+      // update these nodes to node be dependent on them      
+      // remove task dependency in matching preflow nodes      
+      updatedPreflowNodes = updatedPreflowNodes.map(node => {
+        if (preflowDependentNodes.includes(node)) {
+          // console.log(`Found dependent preflow node (removing dependency from list)`, node);          
+          var updatedNode = {...node, taskDependencies: node.taskDependencies.filter(d => d.id !== workflowNodeId)}
+          // console.log("Updated node:", updatedNode);
+          return updatedNode;
+        }
+        else {
+          return node;
+        }
+      })
+      // remove task dependency in matching mainflow nodes      
+      updateMainflowNodes = updateMainflowNodes.map(node => {
+        if (mainflowDependentNodes.includes(node)) {
+          // console.log(`Found dependent mainflow node (removing dependency from list)`, node);          
+          var updatedNode = {...node, taskDependencies: node.taskDependencies.filter(d => d.id !== workflowNodeId)}
+          // console.log("Updated node:", updatedNode);
+          return updatedNode;
+        }
+        else {
+          return node;
+        }
+      });
+
+    }
+    // remove node from lists
+    updatedPreflowNodes = updatedPreflowNodes.filter(i => i.id !== workflowNodeId);
+    updateMainflowNodes = updateMainflowNodes.filter(i => i.id !== workflowNodeId);
     // attempt to find node in preflow tasks
-    props.setPreflowNodes((prevState) => (prevState.filter(i => i.id !== id)));
-    props.setMainflowNodes((prevState) => (prevState.filter(i => i.id !== id)));
+    props.setPreflowNodes(updatedPreflowNodes);
+    props.setMainflowNodes(updateMainflowNodes);
   }
 
   useEffect(() => {    
     renderWorkflowNodes();
+    toast.success("Rerendering");
   }, [props.preflowNodes, props.mainflowNodes, props.isOnboardingWorkflow, props.isReadonly, dependencyNodes]);
 
   return (
