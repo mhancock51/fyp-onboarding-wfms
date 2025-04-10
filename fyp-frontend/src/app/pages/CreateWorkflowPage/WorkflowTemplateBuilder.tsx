@@ -291,7 +291,6 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   useEffect(() => {    
     renderWorkflowNodes();
-    toast.success("Rerendering");
   }, [props.preflowNodes, props.mainflowNodes, props.isOnboardingWorkflow, props.isReadonly, dependencyNodes]);
 
   return (

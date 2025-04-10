@@ -61,9 +61,13 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   return (
     <Popover open={openPopover && !props.data.isReadOnly} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <div className={`p-2 rounded-[10px] min-w-[30em] color-foreground bg-background ${openPopover ? "border-blue-500 border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
+        <div className={`relative p-2 rounded-[20px] min-w-[30em] color-foreground bg-background ${openPopover ? "border-blue-500 border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
           style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}} onClick={handleClick}
         >
+          {
+            props.data.isADependency &&
+            <span className='absolute top-[-30px] text-red-300'>Dependency</span>
+          }
           <Handle type="target" position={Position.Top} />
           <div className='flex flex-col justify-center gap-1'>
             <div className='flex flex-row justify-center gap-8 text-center w-full'>
