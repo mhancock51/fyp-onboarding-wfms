@@ -150,7 +150,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             int index = 0;
             // build nodes and dependencies for preflow tasks
-            var result = await BuildNodeAndNodeDependencies(payload.PreflowNodes, "preflowtasks", "", index);
+            var result = await BuildNodeAndNodeDependencies(payload.PreflowNodes, "preflowtasks", workflowTemplate.Id, index);
             if (!result.Success)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = result.Error };
@@ -161,7 +161,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             dependencies.AddRange(result.Data.Dependencies);
 
             // do the same for mainflow tasks
-            result = await BuildNodeAndNodeDependencies(payload.MainflowNodes, "mainflowtasks", "", index);
+            result = await BuildNodeAndNodeDependencies(payload.MainflowNodes, "mainflowtasks", workflowTemplate.Id, index);
             // add build nodes and dependencies to list
             nodes.AddRange(result.Data.Nodes);
             dependencies.AddRange(result.Data.Dependencies);
@@ -188,6 +188,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 // insert additional data not in payload
                 node.Order = index;
                 node.WorkflowSection = workflowSection;
+                node.WorkflowTemplateId = workflowTemplateId;
                 // add node to list
                 nodesAndDependencies.Nodes.Add(node);
 

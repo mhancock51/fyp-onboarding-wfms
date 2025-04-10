@@ -237,7 +237,7 @@ const Api = {
   },
   workflowTemplates: {
     updateWorkflowTemplate: async(payload: CreateWorkflowTemplatePayload) => {
-      return AuthInstance.post(`${ROUTE_URL}/workflow/template/update`);
+      return AuthInstance.post(`${ROUTE_URL}/workflow/template/update`, payload);
     },
     createWorkflowTemplate: async(payload: CreateWorkflowTemplatePayload) => {
       return AuthInstance.post(`${ROUTE_URL}/workflow/template/create`, payload);

@@ -87,7 +87,19 @@ export default function CreateWorkflowPage() {
 
   async function updateWorkflowTemplate() {
     if (workflowTemplateId === null) return;
-    // 
+    
+    setLoading(true);
+    const payload = buildCreateWorkflowTemplatePayload();
+    await Api.workflowTemplates.updateWorkflowTemplate(payload)
+    .then((response) => {
+      toast.success("Successfully created workflow template");
+    })
+    .catch((error) => {
+      toast.error("Failed to create workflow template");
+    })
+    .finally(() => {
+      setLoading(false);
+    })
   }
 
   async function fetchWorkflowTemplate(workflowTemplateId: string) {    
@@ -120,6 +132,15 @@ export default function CreateWorkflowPage() {
     })
   }
 
+  function handleFormSubmission() {
+    if (workflowTemplateId === null) {
+      void createWorkflowTemplate();
+    }
+    else {
+      void updateWorkflowTemplate();
+    }
+  }
+
   useEffect(() => {
     dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(false));
     var workflowTemplateId = searchParams.get("id");
@@ -131,7 +152,7 @@ export default function CreateWorkflowPage() {
   function WorkflowTemplateBar() {
     return (
       <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
-        <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void createWorkflowTemplate()}}>
+        <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); handleFormSubmission();}}>
           <Input required className='min-w-[350px]' placeholder='Enter workflow name...' value={name} onChange={(event: any) => {setName(event.target.value)}}/>
           <Select required value={isOnboardingWf ? "onboarding-workflow" : "not-onboarding-workflow"} 
             onValueChange={(value: string) => { value === "onboarding-workflow" ? setIsOnboardingWf(true) : setIsOnboardingWf(false);}}

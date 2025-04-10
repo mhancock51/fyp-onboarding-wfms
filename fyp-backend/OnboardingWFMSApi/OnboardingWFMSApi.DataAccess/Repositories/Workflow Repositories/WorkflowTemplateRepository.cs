@@ -80,12 +80,40 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
                 // update base template data
                 _dbContext.workflowTemplates.Update(workflowTemplate);
                 await _dbContext.SaveChangesAsync();
-                // update nodes
-                _dbContext.workflowTemplateNodes.UpdateRange(nodes);
+
+                // UPDATE NODES
+                // get existing nodes
+                var existingNodes = _dbContext.workflowTemplateNodes.Where(n => n.WorkflowTemplateId == workflowTemplate.Id);
+                var updatedExistingNodes = nodes.Where(n => existingNodes.Contains(n));
+                // update data of nodes that already exist
+                _dbContext.workflowTemplateNodes.UpdateRange(updatedExistingNodes);
                 await _dbContext.SaveChangesAsync();
-                // update dependencies
-                _dbContext.workflowTemplateNodeDependencies.UpdateRange(dependencies);
+
+                // find new nodes and insert
+                var newNodes = nodes.Where(n => !existingNodes.Contains(n));
+                await _dbContext.workflowTemplateNodes.AddRangeAsync(newNodes);
                 await _dbContext.SaveChangesAsync();
+                // remove deleted nodes
+                var deletedNodes = existingNodes.Where(n => !nodes.Contains(n));
+                _dbContext.workflowTemplateNodes.RemoveRange(deletedNodes);
+                await _dbContext.SaveChangesAsync();
+
+                // UPDATE DEPENDENCIES
+                // get existing dependencies
+                var existingDependencies = _dbContext.workflowTemplateNodeDependencies.Where(d => d.WorkflowTemplateId == workflowTemplate.Id);
+                var updatedExistingDependencies = dependencies.Where(d => existingDependencies.Contains(d));
+                // update data of dependencies that already exist
+                _dbContext.workflowTemplateNodeDependencies.UpdateRange(updatedExistingDependencies);
+                await _dbContext.SaveChangesAsync();
+
+                // find new dependencies and insert
+                var newDependencies = dependencies.Where(d => !existingDependencies.Contains(d));
+                await _dbContext.workflowTemplateNodeDependencies.AddRangeAsync(newDependencies);
+                await _dbContext.SaveChangesAsync();
+                // remove deleted dependencies
+                var deletedDependencies = existingDependencies.Where(n => !dependencies.Contains(n));
+                await _dbContext.SaveChangesAsync();
+                
                 await transaction.CommitAsync();
                 return new ServerResponse<string, string>() { Success = true };
             }
