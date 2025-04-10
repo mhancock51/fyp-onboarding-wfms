@@ -80,7 +80,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
             deleteTask: () => { removeWorkflowNode(task.id) },
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
-            assignee: task.assignee?.displayName,
+            assignee: task.assignee,
             taskDependencies: task.taskDependencies,
             daysUntilDue: task.daysUntilDue ?? null,
             isReadOnly: props.isReadonly
@@ -129,7 +129,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
           deleteTask: () => { removeWorkflowNode(task.id) },
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
-          assignee: task.assignee?.displayName,
+          assignee: task.assignee,
           taskDependencies: task.taskDependencies,
           isReadOnly: props.isReadonly
         } 

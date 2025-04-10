@@ -10,12 +10,14 @@ import { Position } from '@xyflow/system';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react'
 import TaskTypeBadge from '../../MyTasksPage/TaskTypeBadge';
+import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
+import AccountDirectory from '@/models/AccountDirectory';
 
 export type TaskNode = Node<
   {    
     taskTitle: string;
     description: string;
-    assignee: string;
+    assignee: AccountDirectory;
     taskDependencies: WorkflowTemplateNode[];
     taskTypeId: string;
     deleteTask: () => void;
@@ -35,6 +37,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
 
   const [openPopover, setOpenPopover] = useState<boolean>(false);  
   
+  
   return (
     <Popover open={openPopover && !props.data.isReadOnly} onOpenChange={setOpenPopover}>
       <PopoverTrigger asChild>
@@ -48,7 +51,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             </div>
             <Separator/>
             <div className='flex flex-row gap-2 py-1 justify-center w-full items-center'>
-              <Badge className='rounded-full py-2 px-4'>{props.data.assignee}</Badge>
+              <AccountDirectoryBadge accountDirectory={props.data.assignee}/>              
               {
                 props.data.taskDependencies.length > 0 &&
                 <HoverCard>

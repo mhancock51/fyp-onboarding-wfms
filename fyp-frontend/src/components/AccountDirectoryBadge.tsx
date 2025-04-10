@@ -33,10 +33,13 @@ export default function AccountDirectoryBadge(props: Props) {
             {props.accountDirectory?.isSupervisor ? <ShieldUser className='text-blue-500' size={20}/> : ""}
           </div>
           <Separator/>
-          <div className='flex flex-row gap-2 items-center justify-start'>
-            <Label className='font-normal text-sm'>{props.accountDirectory?.emailAddress}</Label>
-            <Copy size={16} className='text-gray-500 cursor-pointer' onClick={copyEmailToClipboard}/>
-          </div>
+          {
+            props.accountDirectory?.emailAddress !== undefined &&
+            <div className='flex flex-row gap-2 items-center justify-start'>
+              <Label className='font-normal text-sm'>{props.accountDirectory?.emailAddress}</Label>
+              <Copy size={16} className='text-gray-500 cursor-pointer' onClick={copyEmailToClipboard}/>
+            </div>
+          }
           <Label className='font-normal text-sm'>{props.accountDirectory?.departmentName}</Label>
         </div>
       </HoverCardContent>

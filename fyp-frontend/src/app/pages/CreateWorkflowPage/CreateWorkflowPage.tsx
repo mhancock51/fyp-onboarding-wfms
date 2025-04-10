@@ -78,7 +78,12 @@ export default function CreateWorkflowPage() {
       toast.success("Successfully created workflow template");
     })
     .catch((error) => {
-      toast.error("Failed to create workflow template");
+      if (error.response.data.error) {
+        toast.error(error.response.data.error);
+      }
+      else {
+        toast.error("Failed to create workflow template");
+      } 
     })
     .finally(() => {
       setLoading(false);
@@ -95,7 +100,12 @@ export default function CreateWorkflowPage() {
       toast.success("Successfully created workflow template");
     })
     .catch((error) => {
-      toast.error("Failed to create workflow template");
+      if (error.response.data.error) {
+        toast.error(error.response.data.error);
+      }
+      else {
+        toast.error("Failed to update workflow template");
+      }            
     })
     .finally(() => {
       setLoading(false);

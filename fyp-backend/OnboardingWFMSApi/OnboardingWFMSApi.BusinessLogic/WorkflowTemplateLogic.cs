@@ -162,6 +162,10 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // do the same for mainflow tasks
             result = await BuildNodeAndNodeDependencies(payload.MainflowNodes, "mainflowtasks", workflowTemplate.Id, index);
+            if (!result.Success)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = result.Error };
+            }
             // add build nodes and dependencies to list
             nodes.AddRange(result.Data.Nodes);
             dependencies.AddRange(result.Data.Dependencies);
@@ -198,8 +202,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                     // check node that this node is dependent upon actually exists
                     var otherNode = nodesAndDependencies.Nodes.FirstOrDefault(n => n.Id == nodeDependency);
                     if (otherNode == null)
-                    {
-                        return new ServerResponse<NodesAndNodeDependencies, string>() { Success = false, Error = "Node dependency with node that doesn't exist" };
+                    {                        
+                        return new ServerResponse<NodesAndNodeDependencies, string>() { Success = false, Error = $"Invalid task node dependency" };
                     }
                     var dependency = new NodeTaskDependencyTable()
                     {
