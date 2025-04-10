@@ -114,10 +114,10 @@ export default function ViewWorkflowTemplateDialog() {
                   </div>      
                   <WorkflowTemplateBuilder className='h-[60vh]' taskTemplates={[]} 
                     isOnboardingWorkflow={isOnboardingWf} 
-                    preflowTasks={preflowTasks} 
-                    setPreflowTasks={setPreflowTasks} 
-                    mainflowTasks={mainflowTasks} 
-                    setMainflowTasks={setMainflowTasks} 
+                    preflowNodes={preflowTasks} 
+                    setPreflowNodes={setPreflowTasks} 
+                    mainflowNodes={mainflowTasks} 
+                    setMainflowNodes={setMainflowTasks} 
                     isReadonly={true}
                   />
                 </div>

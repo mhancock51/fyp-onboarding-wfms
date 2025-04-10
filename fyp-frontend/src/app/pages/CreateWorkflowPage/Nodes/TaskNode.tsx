@@ -25,6 +25,9 @@ export type TaskNode = Node<
     moveTaskDown: () => void;
     daysUntilDue: number | null;
     isReadOnly: boolean;
+    isADependency: boolean;
+    setDependencyNodes: () => void;
+    clearDependencyNodes: () => void;
   }
 >;
 
@@ -37,13 +40,34 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
 
   const [openPopover, setOpenPopover] = useState<boolean>(false);  
   
-  
+  function handleClick() {
+    // toggle highlighting of dependency nodes
+    if (openPopover) {
+      props.data.clearDependencyNodes();
+    }
+    else {
+      props.data.setDependencyNodes();
+    }
+    setOpenPopover(!openPopover);
+  }
+
+  function handleOpenChange(open: boolean) {
+    // toggle highlighting of dependency nodes
+    if (open) {
+      props.data.setDependencyNodes();
+    }
+    else {
+      props.data.clearDependencyNodes();
+    }
+    setOpenPopover(open);
+  }
+
   return (
-    <Popover open={openPopover && !props.data.isReadOnly} onOpenChange={setOpenPopover}>
+    <Popover open={openPopover && !props.data.isReadOnly} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <div className='p-2' style={{color: "var(--foreground)", backgroundColor: "var(--background)", borderRadius: "10px", minWidth: "30em",
-          boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
-        }} onClick={() => {setOpenPopover(true)}}>
+        <div className={`p-2 rounded-[10px] min-w-[30em] color-foreground bg-background ${openPopover ? "border-yellow-500 border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
+          style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}} onClick={handleClick}
+        >
           <Handle type="target" position={Position.Top} />
           <div className='flex flex-col justify-center gap-1'>
             <div className='flex flex-row justify-center gap-8 text-center w-full'>

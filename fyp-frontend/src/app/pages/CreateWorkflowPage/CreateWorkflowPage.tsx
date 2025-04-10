@@ -218,8 +218,8 @@ export default function CreateWorkflowPage() {
       {
         !loading &&
         <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}
-          preflowTasks={preflowNodes} setPreflowTasks={setPreflowNodes}
-          mainflowTasks={mainflowNodes} setMainflowTasks={setMainflowNodes}
+          preflowNodes={preflowNodes} setPreflowNodes={setPreflowNodes}
+          mainflowNodes={mainflowNodes} setMainflowNodes={setMainflowNodes}
           isReadonly={false}
           className='h-[96vh]'
         />            
