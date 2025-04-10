@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -16,6 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic
     public interface IWorkflowTemplateLogic
     {
         public Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> UpdateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId);
         public Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id);
         public Task<HTTPResponse<List<WorkflowTemplateDTO>, string>> GetAllWorkflowTemplates();
     }
@@ -47,118 +49,86 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             if (payload.PreflowNodes.Count > 0 && !payload.IsOnboardingWF) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "None onboarding workflows can't have preflow tasks" };
             // create workflow template row
-            var workflowTemplate = new WorkflowTemplateTable() { Name = payload.Name, Description = payload.Description, IsOnboardingWF = payload.IsOnboardingWF };
-            try
-            {
-                workflowTemplate = await _workflowTemplateRepository.AddAsync(workflowTemplate);                
-            }
-            catch (Exception ex)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to create workflow template" };
-            }
+            var workflowTemplate = new WorkflowTemplateTable() { Id = "", Name = payload.Name, Description = payload.Description, IsOnboardingWF = payload.IsOnboardingWF };
 
             var nodes = new List<WorkflowTemplateNodeTable>();
             var dependencies = new List<NodeTaskDependencyTable>();            
-            try
-            {
-                // add nodes and dependencies to tables
-                int index = 0;
-                foreach (var preflowTask in payload.PreflowNodes)
-                {                
-                    // TODO implement validation
-                    // ensure preflow node (preboarding) isn't refererencing onboarder placeholder name before the onboarder has been invited
-                    if (preflowTask.AssigneeId == Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER)
-                    {
-                        throw new Exception("Onboarder placeholder account Id used in preflow task");
-                    }
-                    var node = new WorkflowTemplateNodeTable()
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Order = index,
-                        TaskTemplateId = preflowTask.TaskTemplateId,
-                        AssigneeId = preflowTask.AssigneeId,
-                        WorkflowSection = "preflowtasks",
-                        WorkflowTemplateId = workflowTemplate.Id,
-                        DaysUntilDue = preflowTask.DaysUntilDue,
-                        AccountsToNotify = preflowTask.AccountsToNotify,
-                    };
-                    nodes.Add(node);
-                    // TODO implement validation                                    
 
-                    foreach (var nodeDependency in preflowTask.DependencyNodeIds)
-                    {
-                        var dependency = new NodeTaskDependencyTable()
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            NodeId = node.Id,
-                            DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == nodeDependency).Id,
-                            WorkflowTemplateId = workflowTemplate.Id
-                        };
-                        dependencies.Add(dependency);
-                    }
-                    index++;
-                }
-                foreach (var mainflowTask in payload.MainflowNodes)
+            // loop through the preflow node list and main flow node list
+            // for each node:
+            // - create a node table class and add it to the list          
+            // - look at dependency nodes and create a dependency entity for each dependency
+            int index = 0;
+            foreach (var preflowNode in payload.PreflowNodes)
+            {
+                // validate data
+                // ensure preflow node (preboarding) isn't refererencing onboarder placeholder name before the onboarder has been invited
+                if (preflowNode.AssigneeId == Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER)
                 {
-                    // TODO implement validation
-                    var node = new WorkflowTemplateNodeTable()
+                    throw new Exception("Onboarder placeholder account Id used in preflow task");
+                }
+                var node = _mapper.Map<WorkflowTemplateNodeTable>(preflowNode);
+                // insert additional data not in payload
+                node.Order = index;
+                node.WorkflowSection = "preflowtasks";
+                // add node to list
+                nodes.Add(node);
+
+                // build dependencies between this node and the nodes its dependent on
+                foreach(var nodeDependency in preflowNode.DependencyNodeIds)
+                {
+                    // check node that this node is dependent upon actually exists
+                    var otherNode = nodes.FirstOrDefault(n => n.Id == nodeDependency);
+                    if (otherNode == null)
+                    {
+                        return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Node dependency with node that doesn't exist" };
+                    }
+                    var dependency = new NodeTaskDependencyTable()
                     {
                         Id = Guid.NewGuid().ToString(),
-                        Order = index,
-                        TaskTemplateId = mainflowTask.TaskTemplateId,
-                        AssigneeId = mainflowTask.AssigneeId,
-                        WorkflowSection = "mainflowtasks",
-                        WorkflowTemplateId = workflowTemplate.Id,
-                        DaysUntilDue = mainflowTask.DaysUntilDue,
-                        AccountsToNotify = mainflowTask.AccountsToNotify,
+                        NodeId = node.Id,
+                        DependencyNodeId = otherNode.Id,
+                        WorkflowTemplateId = workflowTemplate.Id
                     };
-                    nodes.Add(node);
-                    // TODO implement validation                                    
-                    // remove null values
-                    foreach (var nodeDependency in mainflowTask.DependencyNodeIds)
-                    {
-                        if (nodeDependency == null) continue;
-                        var dependency = new NodeTaskDependencyTable()
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            NodeId = node.Id,
-                            DependencyNodeId = nodes.FirstOrDefault(n => n.TaskTemplateId == nodeDependency).Id,
-                            WorkflowTemplateId = workflowTemplate.Id                            
-                        };
-                        dependencies.Add(dependency);
-                    }
-                    index++;
+                    dependencies.Add(dependency);
                 }
             }
-            catch(Exception ex)
-            {
-                await _workflowTemplateRepository.DeleteAsync(workflowTemplate);
-                return new HTTPResponse<string, string>() { Success = false, Error = "Failed to process nodes and dependencies", HttpCode = 500 };
+
+            // build models for mainflow nodes as well
+            foreach(var mainflowNode in payload.MainflowNodes)
+            {                
+                var node = _mapper.Map<WorkflowTemplateNodeTable>(mainflowNode);
+                // insert additional data not in payload
+                node.Order = index;
+                node.WorkflowSection = "mainflowtasks";
+                // add node to list
+                nodes.Add(node);
+
+                // build dependencies between this node and the nodes its dependent on
+                foreach (var nodeDependency in mainflowNode.DependencyNodeIds)
+                {
+                    // check node that this node is dependent upon actually exists
+                    var otherNode = nodes.FirstOrDefault(n => n.Id == nodeDependency);
+                    if (otherNode == null)
+                    {
+                        return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Node dependency with node that doesn't exist" };
+                    }
+                    var dependency = new NodeTaskDependencyTable()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        NodeId = node.Id,
+                        DependencyNodeId = otherNode.Id,
+                        WorkflowTemplateId = workflowTemplate.Id
+                    };
+                    dependencies.Add(dependency);
+                }
             }
 
-
-
-            // securely insert nodes
-            try
+            // securely insert data
+            var response = await _workflowTemplateRepository.InsertWorkflowTemplate(workflowTemplate, nodes, dependencies);
+            if (response.Success == false)
             {
-                nodes = await _workflowTemplateNodeRepository.AddManyAsync(nodes);
-            }
-            catch (Exception ex)
-            {
-                await _workflowTemplateRepository.DeleteAsync(workflowTemplate);
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to insert nodes" };
-            }
-
-            // securely insert dependencies
-            try
-            {
-                dependencies = await _nodeTaskDependencyRepository.AddManyAsync(dependencies);
-            }
-            catch (Exception ex)
-            {
-                await _workflowTemplateRepository.DeleteAsync(workflowTemplate);
-                // TODO: delete nodes
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to save dependencies" };
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = response.Error };
             }
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created workflow template" };
         }
@@ -203,6 +173,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             workflowTemplate.PreflowNodes = preflowTasks.ToList();
             workflowTemplate.MainflowNodes = mainflowTasks.ToList();
             return new HTTPResponse<WorkflowTemplateDTO, string>() { Success = true, HttpCode = 200, Data =  workflowTemplate };
-        }        
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId)
+        {
+
+
+            return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated workflow template" };
+        }
     }
 }
