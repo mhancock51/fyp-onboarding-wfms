@@ -31,7 +31,7 @@ export default function WorkflowTemplateTable(props: Props) {
 
   async function fetchWorkflowTemplates() {
     setLoading(true);
-    await Api.fetchAllWorkflowTemplates()
+    await Api.workflowTemplates.fetchAllWorkflowTemplates()
     .then((response: AxiosResponse<HTTPresponse<WorkflowTemplateDTO[], string>>) => {
       dispatch(SET_WORKFLOW_TEMPLATES(response.data.data as WorkflowTemplateDTO[]));
     })

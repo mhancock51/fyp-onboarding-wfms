@@ -24,8 +24,8 @@ export default function CreateWorkflowPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const [loading, setLoading] = useState<boolean>(false); 
-  const [updatingWorkflow, setUpdatingWorkflow] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);     
+  const [workflowTemplateId, setWorkflowTemplateId] = useState<string | null>(null);
 
   const [errored, setErrored] = useState<boolean>(false); 
   const [error, setError] = useState<string>("");
@@ -40,11 +40,9 @@ export default function CreateWorkflowPage() {
   const accountsDirectory = useSelector((state: RootState) => state.app.accountsDirectory);
   const taskTemplates = useSelector((state: RootState) => state.app.taskTemplates);
 
-
-  async function createWorkflowTemplate() {    
-    setLoading(true);
+  function buildCreateWorkflowTemplatePayload() {  
     const payload: CreateWorkflowTemplatePayload = {
-      id: "",
+      id: workflowTemplateId !== null ? workflowTemplateId : "",
       name: name,
       description: description,
       isOnboardingWF: isOnboardingWf,
@@ -69,7 +67,13 @@ export default function CreateWorkflowPage() {
         }
       )),
     }
-    await Api.createWorkflowTemplate(payload)
+    return payload;
+  }
+
+  async function createWorkflowTemplate() {    
+    setLoading(true);
+    const payload = buildCreateWorkflowTemplatePayload();
+    await Api.workflowTemplates.createWorkflowTemplate(payload)
     .then((response) => {
       toast.success("Successfully created workflow template");
     })
@@ -81,9 +85,14 @@ export default function CreateWorkflowPage() {
     })
   }
 
+  async function updateWorkflowTemplate() {
+    if (workflowTemplateId === null) return;
+    // 
+  }
+
   async function fetchWorkflowTemplate(workflowTemplateId: string) {    
     setLoading(true);
-    await Api.fetchWorkflowTemplate(workflowTemplateId)
+    await Api.workflowTemplates.fetchWorkflowTemplate(workflowTemplateId)
     .then((response) => {      
       var workflowDTO = response.data.data as WorkflowTemplateDTO;
       setName(workflowDTO.name);
@@ -100,7 +109,7 @@ export default function CreateWorkflowPage() {
         mainflowTasks.push(Utils.workflowTemplateDTOToNode(task, mainflowTasks, taskTemplates, accountsDirectory));
       })
       setMainflowNodes(mainflowTasks);
-      setUpdatingWorkflow(true);
+      setWorkflowTemplateId(workflowDTO.id);      
     })
     .catch((error) => {      
       setErrored(true);
@@ -137,7 +146,7 @@ export default function CreateWorkflowPage() {
               </SelectGroup>
             </SelectContent>
             {
-              updatingWorkflow ? (
+              workflowTemplateId !== null ? (
                 <HoverCard>
                   <HoverCardTrigger>
                     <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>

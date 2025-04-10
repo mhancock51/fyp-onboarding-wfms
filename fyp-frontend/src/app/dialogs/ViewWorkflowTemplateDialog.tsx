@@ -38,7 +38,7 @@ export default function ViewWorkflowTemplateDialog() {
 
   async function fetchWorkflowTemplate(workflowTemplateId: string) {    
     setLoading(true);
-    await Api.fetchWorkflowTemplate(workflowTemplateId)
+    await Api.workflowTemplates.fetchWorkflowTemplate(workflowTemplateId)
     .then((response) => {      
       var workflowDTO = response.data.data as WorkflowTemplateDTO;
       setName(workflowDTO.name);

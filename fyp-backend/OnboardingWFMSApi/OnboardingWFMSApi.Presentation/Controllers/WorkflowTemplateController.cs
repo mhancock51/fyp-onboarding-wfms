@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace OnboardingWFMSApi.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/workflow-template")]
+    [Route("api/workflow/template")]
     public class WorkflowTemplateController : ControllerBase
     {
         private readonly IWorkflowTemplateLogic _workflowTemplateLogic;
@@ -22,6 +22,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateWorkflowTemplate([FromBody] CreateWorkflowTemplatePayload payload)
         {
+            // TODO make endpoints supervisor only 
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
             if (accountId == "")
             {
@@ -33,6 +34,23 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 var response = await _workflowTemplateLogic.CreateWorkflowTemplate(payload, accountId);
                 return StatusCode(response.HttpCode, response);
             }            
+        }
+
+        [Authorize]
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateWorkflowTemplate([FromBody] CreateWorkflowTemplatePayload payload)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _workflowTemplateLogic.UpdateWorkflowTemplate(payload, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
         }
 
         [Authorize]

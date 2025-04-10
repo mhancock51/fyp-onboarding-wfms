@@ -143,10 +143,35 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (string.IsNullOrEmpty(workflowTemplate.Id))
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "No workflow template ID provided" };
-            } 
+            }
+
+            var nodes = new List<WorkflowTemplateNodeTable>();
+            var dependencies = new List<NodeTaskDependencyTable>();
+
+            int index = 0;
+            // build nodes and dependencies for preflow tasks
+            var result = await BuildNodeAndNodeDependencies(payload.PreflowNodes, "preflowtasks", "", index);
+            if (!result.Success)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = result.Error };
+            }
+            index = result.Data.EndIndex;
+            // add build nodes and dependencies to list
+            nodes.AddRange(result.Data.Nodes);
+            dependencies.AddRange(result.Data.Dependencies);
+
+            // do the same for mainflow tasks
+            result = await BuildNodeAndNodeDependencies(payload.MainflowNodes, "mainflowtasks", "", index);
+            // add build nodes and dependencies to list
+            nodes.AddRange(result.Data.Nodes);
+            dependencies.AddRange(result.Data.Dependencies);
 
             // call method to update data
-            //_workflowTemplateRepository.UpdateWorkflowTemplate(workflowTemplate, )
+            var dbResult = await _workflowTemplateRepository.UpdateWorkflowTemplate(workflowTemplate, nodes, dependencies);
+            if (!dbResult.Success)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = result.Error };
+            }
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated workflow template" };
         }
