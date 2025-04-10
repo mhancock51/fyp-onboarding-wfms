@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import WorkflowTemplateTable from '@/components/Tables/WorkflowTemplateTable'
+import { Badge } from '@/components/ui/badge'
 
 export default function ViewWorkflowTemplateDialog() {
   const open = useSelector((state: RootState) => state.app.openViewWorkflowTemplateDialog);
@@ -99,7 +100,7 @@ export default function ViewWorkflowTemplateDialog() {
         {
           step === 1 &&
           <>
-            <div className='p-2 flex flex-col gap-2'>
+            <div className='px-2 flex flex-col gap-2'>
               {
                 loading &&
                 <div className='w-full flex flex-row justify-center gap-2 py-100'>
@@ -110,8 +111,9 @@ export default function ViewWorkflowTemplateDialog() {
               {
                 !loading &&
                 <>               
-                <div className='flex flex-col w-full gap-1'>
+                <div className='flex flex-row w-full gap-2 justify-center items-center'>
                   <span>{name}</span>  
+                  <Badge className='rounded-full p-2'>{isOnboardingWf ? "ONBOARDING" : "NONONBOARDING"}</Badge>
                 </div>      
                 <WorkflowTemplateBuilder className='h-[60vh]' taskTemplates={[]} 
                   isOnboardingWorkflow={isOnboardingWf} 

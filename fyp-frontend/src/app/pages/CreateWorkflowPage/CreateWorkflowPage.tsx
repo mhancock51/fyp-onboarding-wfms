@@ -6,16 +6,22 @@ import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { toast } from 'sonner';
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';
 import { useSearchParams } from 'react-router-dom';
-import { WorkflowTemplateNodeDTO } from '@/models/DTOs/WorkflowTemplateNodeDTO';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
 import { CreateWorkflowTemplatePayload } from '@/models/payloads/CreateWorkflowTemplatePayload';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import Utils from '@/util';
+import { SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG } from '@/features/appSlice';
+import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
+import { HoverCardContent } from '@radix-ui/react-hover-card';
+import { Label } from '@/components/ui/label';
+import { Info } from 'lucide-react';
 
 export default function CreateWorkflowPage() {
+  const dispatch = useDispatch();
+
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [loading, setLoading] = useState<boolean>(false); 
@@ -75,8 +81,7 @@ export default function CreateWorkflowPage() {
     })
   }
 
-  async function fetchWorkflowTemplate(workflowTemplateId: string) {
-    console.log("fetching workflow template");
+  async function fetchWorkflowTemplate(workflowTemplateId: string) {    
     setLoading(true);
     await Api.fetchWorkflowTemplate(workflowTemplateId)
     .then((response) => {      
@@ -87,12 +92,12 @@ export default function CreateWorkflowPage() {
 
       var preflowTasks: WorkflowTemplateNode[] = [];
       workflowDTO.preflowNodes.forEach((task) => {
-        preflowTasks.push(workflowTemplateDTOToNode(task, preflowTasks));
+        preflowTasks.push(Utils.workflowTemplateDTOToNode(task, preflowTasks, taskTemplates, accountsDirectory));
       })
       setPreflowTasks(preflowTasks);
       var mainflowTasks: WorkflowTemplateNode[] = [];
       workflowDTO.mainflowNodes.forEach((task) => {
-        mainflowTasks.push(workflowTemplateDTOToNode(task, mainflowTasks));
+        mainflowTasks.push(Utils.workflowTemplateDTOToNode(task, mainflowTasks, taskTemplates, accountsDirectory));
       })
       setMainflowTasks(mainflowTasks);
       setUpdatingWorkflow(true);
@@ -106,28 +111,16 @@ export default function CreateWorkflowPage() {
     })
   }
 
-  function workflowTemplateDTOToNode(node: WorkflowTemplateNodeDTO, nodeList: WorkflowTemplateNode[]) {      
-    var result: WorkflowTemplateNode = {
-      id: node.id,
-      taskTemplate: taskTemplates.find(t => t.id == node.taskTemplateId),
-      assignee: accountsDirectory.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id == node.assigneeId),
-      taskDependencies: nodeList.filter(i => node.dependencyNodeIds.includes(i.id)),
-      daysUntilDue: node.daysUntilDue,
-      accountsToNotify: node.accountsToNotify
-    }    
-    return result;
-  }
-
   useEffect(() => {
+    dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(false));
     var workflowTemplateId = searchParams.get("id");
     if (workflowTemplateId) {
       void fetchWorkflowTemplate(workflowTemplateId);
     }
   }, []);
 
-  return (
-    <div className='w-full relative'>
-      {/* Workflow name and other attributes tab */}
+  function WorkflowTemplateBar() {
+    return (
       <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
         <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void createWorkflowTemplate()}}>
           <Input required className='min-w-[350px]' disabled={loading} placeholder='Enter workflow name...' type="text" value={name} onChange={(event: any) => {setName(event.target.value)}}/>
@@ -143,18 +136,38 @@ export default function CreateWorkflowPage() {
                 <SelectItem value='not-onboarding-workflow'>Not Onboarding</SelectItem>
               </SelectGroup>
             </SelectContent>
-            <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
-              {
-                loading &&
-                <Spinner/>
-              }
-              {
-                updatingWorkflow ? "Update workflow" : "Create workflow"
-              }              
-            </Button>
+            {
+              updatingWorkflow ? (
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
+                      { loading && <Spinner className='text-primary-foreground'/> }
+                      Update Workflow
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent>
+                    <div className='p-2 bg-background rounded-xl max-w-[300px] my-2 flex flex-row gap-2 w-full items-center' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                      <Info size={40}/>
+                      <Label className='font-normal text-sm'>Changes won't affect existing instances of this workflow template</Label>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              ) : (
+                <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
+                  { loading && <Spinner className='text-primary-foreground'/> }
+                  Create workflow
+                </Button>
+              )
+            }
           </Select>
         </form>
       </div>
+    )
+  }
+
+  return (
+    <div className='w-full relative'>      
+      <WorkflowTemplateBar/>
       {
         loading &&
         <div className='w-full flex flex-row justify-center gap-2 py-100'>
@@ -167,6 +180,8 @@ export default function CreateWorkflowPage() {
         <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}
           preflowTasks={preflowTasks} setPreflowTasks={setPreflowTasks}
           mainflowTasks={mainflowTasks} setMainflowTasks={setMainflowTasks}
+          isReadonly={false}
+          className='h-[96vh]'
         />            
       }      
     </div>
