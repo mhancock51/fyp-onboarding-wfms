@@ -61,7 +61,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   function canNodeMoveUp(node: WorkflowTemplateNode, nodes: WorkflowTemplateNode[], currentIndex: number): boolean {
     if (currentIndex === 0) return false;
     // if node before current node is one of the nodes dependency nodes then it cant
-    if (node.taskDependencies.includes(nodes[currentIndex - 1])) return false;
+    if (node.taskDependencies.map((d => d.id)).includes(nodes[currentIndex - 1].id)) return false;
 
     return true;
   }
@@ -69,7 +69,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
   function canNodeMoveDown(node: WorkflowTemplateNode, nodes: WorkflowTemplateNode[], currentIndex: number): boolean {
     if (currentIndex === nodes.length - 1) return false;
     // if node before current node is one of the nodes dependency nodes then it cant
-    if (node.taskDependencies.includes(nodes[currentIndex + 1])) return false;
+    if (node.taskDependencies.map(d => d.id).includes(nodes[currentIndex + 1].id)) return false;
     // check that a node that is dependent on this node isn't just below it
     var dependentNodesIndexes = nodes.map((n, index) => (n.taskDependencies.includes(node) ? index : null)).filter(n => n !== null);
     if (dependentNodesIndexes.includes(currentIndex + 1)) return false; 
@@ -100,8 +100,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
             taskTypeId: node.taskTemplate?.taskTypeId,
             description: node.taskTemplate?.description,
             deleteTask: () => { removeWorkflowNode(node.id) },
-            canMoveUp: canNodeMoveUp(node, props.mainflowNodes, index),
-            canMoveDown: canNodeMoveDown(node, props.mainflowNodes, index),
+            canMoveUp: canNodeMoveUp(node, props.preflowNodes, index),
+            canMoveDown: canNodeMoveDown(node, props.preflowNodes, index),
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
             assignee: node.assignee,

@@ -108,8 +108,12 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
       </PopoverTrigger>
       <PopoverContent side="right" className='rounded-full w-[40px] p-0 py-2'>
         <div className='flex flex-col gap-2 w-full justify-center items-center'>
-          <ChevronUp className={`cursor-pointer hover:${props.data.canMoveUp ? 'text-blue-700' : 'text-gray-200'}`}   onClick={() => { if(!props.data.canMoveUp) return; props.data.moveTaskUp(); setOpenPopover(false);}}/>
-          <ChevronDown className={`cursor-pointer hover:${props.data.canMoveDown ? 'text-blue-700' : 'text-gray-200'}`} onClick={() => { if(!props.data.canMoveDown) return; props.data.moveTaskDown(); setOpenPopover(false);}}/>
+          <div className={`cursor-pointer ${!props.data.canMoveUp ? "text-gray-200" : "" } hover:${props.data.canMoveUp ? 'text-blue-700' : ''}`}   onClick={() => { if(!props.data.canMoveUp) return; props.data.moveTaskUp(); setOpenPopover(false);}}>
+            <ChevronUp />
+          </div>
+          <div className={`cursor-pointer ${!props.data.canMoveDown ? "text-gray-200" : "" } hover:${props.data.canMoveDown ? 'text-blue-700' : 'text-gray-200'}`} onClick={() => { if(!props.data.canMoveDown) return; props.data.moveTaskDown(); setOpenPopover(false);}}>
+            <ChevronDown />
+          </div>
           <Trash2 className='cursor-pointer hover:text-destructive' onClick={() => {props.data.deleteTask(); setOpenPopover(false);}}/>
         </div>        
       </PopoverContent>
