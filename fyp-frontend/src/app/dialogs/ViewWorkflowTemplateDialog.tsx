@@ -78,9 +78,6 @@ export default function ViewWorkflowTemplateDialog() {
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>
       <DialogContent className='min-w-[1200px]'>
-        <DialogHeader>
-          <DialogTitle>View Workflow Template</DialogTitle>
-        </DialogHeader>
         {
           step === 0 &&
           <>
@@ -100,7 +97,7 @@ export default function ViewWorkflowTemplateDialog() {
         {
           step === 1 &&
           <>
-            <div className='px-2 flex flex-col gap-2'>
+            <div className='p-2 py-3 flex flex-col gap-2'>
               {
                 loading &&
                 <div className='w-full flex flex-row justify-center gap-2 py-100'>
@@ -110,20 +107,20 @@ export default function ViewWorkflowTemplateDialog() {
               }
               {
                 !loading &&
-                <>               
-                <div className='flex flex-row w-full gap-2 justify-center items-center'>
-                  <span>{name}</span>  
-                  <Badge className='rounded-full p-2'>{isOnboardingWf ? "ONBOARDING" : "NONONBOARDING"}</Badge>
-                </div>      
-                <WorkflowTemplateBuilder className='h-[60vh]' taskTemplates={[]} 
-                  isOnboardingWorkflow={isOnboardingWf} 
-                  preflowTasks={preflowTasks} 
-                  setPreflowTasks={setPreflowTasks} 
-                  mainflowTasks={mainflowTasks} 
-                  setMainflowTasks={setMainflowTasks} 
-                  isReadonly={true}
-                />
-                </>
+                <div className='w-full relative'>               
+                  <div className='flex flex-row gap-4 items-center justify-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-2 px-4 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                    <h1>{name}</h1>  
+                    <Badge className='rounded-full px-6 py-2'>{isOnboardingWf ? "ONBOARDING" : "NONONBOARDING"}</Badge>
+                  </div>      
+                  <WorkflowTemplateBuilder className='h-[60vh]' taskTemplates={[]} 
+                    isOnboardingWorkflow={isOnboardingWf} 
+                    preflowTasks={preflowTasks} 
+                    setPreflowTasks={setPreflowTasks} 
+                    mainflowTasks={mainflowTasks} 
+                    setMainflowTasks={setMainflowTasks} 
+                    isReadonly={true}
+                  />
+                </div>
             }
             </div>        
             <DialogFooter>

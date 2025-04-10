@@ -34,8 +34,8 @@ export default function CreateWorkflowPage() {
   const [description, setDescription] = useState<string>("");
   const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(true); 
   
-  const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
-  const [mainflowTasks, setMainflowTasks] = useState<WorkflowTemplateNode[]>([]);
+  const [preflowNodes, setPreflowNodes] = useState<WorkflowTemplateNode[]>([]);
+  const [mainflowNodes, setMainflowNodes] = useState<WorkflowTemplateNode[]>([]);
 
   const accountsDirectory = useSelector((state: RootState) => state.app.accountsDirectory);
   const taskTemplates = useSelector((state: RootState) => state.app.taskTemplates);
@@ -48,24 +48,24 @@ export default function CreateWorkflowPage() {
       name: name,
       description: description,
       isOnboardingWF: isOnboardingWf,
-      preflowNodes: preflowTasks.map((task) => (
+      preflowNodes: preflowNodes.map((node) => (
         { 
-          id: "",
-          taskTemplateId: task.taskTemplate?.id ?? "",
-          assigneeId: task.assignee?.id ?? "",
-          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? [],
-          daysUntilDue: task.daysUntilDue,
-          accountsToNotify: task.accountsToNotify
+          id: node.id,
+          taskTemplateId: node.taskTemplate?.id ?? "",
+          assigneeId: node.assignee?.id ?? "",
+          dependencyNodeIds: node.taskDependencies.map((dependency) => dependency.id),
+          daysUntilDue: node.daysUntilDue,
+          accountsToNotify: node.accountsToNotify
         }
       )),
-      mainflowNodes: mainflowTasks.map((task) => (
+      mainflowNodes: mainflowNodes.map((node) => (
         { 
-          id: "",
-          taskTemplateId: task.taskTemplate?.id ?? "",
-          assigneeId: task.assignee?.id ?? "",
-          dependencyNodeIds: task.taskDependencies.map((dependency) => dependency.taskTemplate?.id ?? "") ?? [],
-          daysUntilDue: task.daysUntilDue,
-          accountsToNotify: task.accountsToNotify
+          id: node.id,
+          taskTemplateId: node.taskTemplate?.id ?? "",
+          assigneeId: node.assignee?.id ?? "",
+          dependencyNodeIds: node.taskDependencies.map((dependency) => dependency.id),
+          daysUntilDue: node.daysUntilDue,
+          accountsToNotify: node.accountsToNotify
         }
       )),
     }
@@ -94,12 +94,12 @@ export default function CreateWorkflowPage() {
       workflowDTO.preflowNodes.forEach((task) => {
         preflowTasks.push(Utils.workflowTemplateDTOToNode(task, preflowTasks, taskTemplates, accountsDirectory));
       })
-      setPreflowTasks(preflowTasks);
+      setPreflowNodes(preflowTasks);
       var mainflowTasks: WorkflowTemplateNode[] = [];
       workflowDTO.mainflowNodes.forEach((task) => {
         mainflowTasks.push(Utils.workflowTemplateDTOToNode(task, mainflowTasks, taskTemplates, accountsDirectory));
       })
-      setMainflowTasks(mainflowTasks);
+      setMainflowNodes(mainflowTasks);
       setUpdatingWorkflow(true);
     })
     .catch((error) => {      
@@ -123,7 +123,7 @@ export default function CreateWorkflowPage() {
     return (
       <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
         <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void createWorkflowTemplate()}}>
-          <Input required className='min-w-[350px]' disabled={loading} placeholder='Enter workflow name...' type="text" value={name} onChange={(event: any) => {setName(event.target.value)}}/>
+          <Input required className='min-w-[350px]' placeholder='Enter workflow name...' value={name} onChange={(event: any) => {setName(event.target.value)}}/>
           <Select required value={isOnboardingWf ? "onboarding-workflow" : "not-onboarding-workflow"} 
             onValueChange={(value: string) => { value === "onboarding-workflow" ? setIsOnboardingWf(true) : setIsOnboardingWf(false);}}
           >
@@ -178,8 +178,8 @@ export default function CreateWorkflowPage() {
       {
         !loading &&
         <WorkflowTemplateBuilder taskTemplates={taskTemplates} isOnboardingWorkflow={isOnboardingWf}
-          preflowTasks={preflowTasks} setPreflowTasks={setPreflowTasks}
-          mainflowTasks={mainflowTasks} setMainflowTasks={setMainflowTasks}
+          preflowTasks={preflowNodes} setPreflowTasks={setPreflowNodes}
+          mainflowTasks={mainflowNodes} setMainflowTasks={setMainflowNodes}
           isReadonly={false}
           className='h-[96vh]'
         />            
