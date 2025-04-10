@@ -13,7 +13,8 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
     public interface IWorkflowTemplateRepository : IRepository<WorkflowTemplateTable>
     {
         public Task<WorkflowTemplateTable?> GetWorkflowTemplateByName(string name);
-        public Task<ServerResponse<string, string>> InsertWorkflowTemplate(WorkflowTemplateTable workflowTemplate, List<WorkflowTemplateNodeTable> nodes, List<NodeTaskDependencyTable> dependencies);        
+        public Task<ServerResponse<string, string>> InsertWorkflowTemplate(WorkflowTemplateTable workflowTemplate, List<WorkflowTemplateNodeTable> nodes, List<NodeTaskDependencyTable> dependencies);
+        public Task<ServerResponse<string, string>> UpdateWorkflowTemplate(WorkflowTemplateTable workflowTemplate, List<WorkflowTemplateNodeTable> nodes, List<NodeTaskDependencyTable> dependencies);
     }
 
     public class WorkflowTemplateRepository : BaseRepository<WorkflowTemplateTable>, IWorkflowTemplateRepository
@@ -65,7 +66,33 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
             catch(Exception ex)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError($"Failed to insert workflow template data: {ex.Message}, rolledback transaction");
+                _logger.LogError($"Failed to insert workflow template: {ex.Message}, rolledback transaction");
+                return new ServerResponse<string, string>() { Success = false, Error = ex.Message };
+            }
+        }
+
+        public async Task<ServerResponse<string, string>> UpdateWorkflowTemplate(WorkflowTemplateTable workflowTemplate, List<WorkflowTemplateNodeTable> nodes, List<NodeTaskDependencyTable> dependencies)
+        {
+            // start transaction
+            var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                // update base template data
+                _dbContext.workflowTemplates.Update(workflowTemplate);
+                await _dbContext.SaveChangesAsync();
+                // update nodes
+                _dbContext.workflowTemplateNodes.UpdateRange(nodes);
+                await _dbContext.SaveChangesAsync();
+                // update dependencies
+                _dbContext.workflowTemplateNodeDependencies.UpdateRange(dependencies);
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return new ServerResponse<string, string>() { Success = true };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Failed to update workflow template: {ex.Message}");
                 return new ServerResponse<string, string>() { Success = false, Error = ex.Message };
             }
         }
