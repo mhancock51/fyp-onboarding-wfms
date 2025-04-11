@@ -78,6 +78,9 @@ export default function ViewWorkflowTemplateDialog() {
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>
       <DialogContent className='min-w-[1200px]'>
+        <DialogHeader>
+          <DialogTitle>Workflow Templates</DialogTitle>
+        </DialogHeader>
         {
           step === 0 &&
           <>

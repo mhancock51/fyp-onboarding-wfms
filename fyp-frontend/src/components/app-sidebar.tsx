@@ -70,6 +70,11 @@ export function AppSidebar(props: Props) {
 
   const supervisorItems = [
     {
+      title: "Workflows Dashboard",
+      onClickAction: () => { navigate("/workflows/dashboard")},
+      icon: ChartNoAxesColumn
+    }, 
+    {
       title: "Start A Workflow Instance",
       onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
       icon: Route
@@ -80,20 +85,15 @@ export function AppSidebar(props: Props) {
       icon: ListTodo
     },
     {
-      title: "Workflow Builder",
+      title: "Workflow Templates",
+      onClickAction: () => { dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(true));},
+      icon: Route
+    },  
+    {
+      title: "Build a Workflow",
       onClickAction: () => { navigate("/workflows/build")},
       icon: Blocks
     },
-    {
-      title: "Workflows Dashboard",
-      onClickAction: () => { navigate("/workflows/dashboard")},
-      icon: ChartNoAxesColumn
-    }, 
-    {
-      title: "Workflow Templates",
-      onClickAction: () => { dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(true));},
-      icon: Blocks
-    }   
   ]
 
   return (

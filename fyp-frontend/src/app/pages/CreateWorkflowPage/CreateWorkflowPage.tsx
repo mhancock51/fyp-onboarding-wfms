@@ -159,55 +159,17 @@ export default function CreateWorkflowPage() {
     }
   }, []);
 
-  function WorkflowTemplateBar() {
-    return (
-      <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
-        <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); handleFormSubmission();}}>
-          <Input required className='min-w-[350px]' placeholder='Enter workflow name...' value={name} onChange={(event: any) => {setName(event.target.value)}}/>
-          <Select required value={isOnboardingWf ? "onboarding-workflow" : "not-onboarding-workflow"} 
-            onValueChange={(value: string) => { value === "onboarding-workflow" ? setIsOnboardingWf(true) : setIsOnboardingWf(false);}}
-          >
-            <SelectTrigger className='min-w-[150px]'>
-              <SelectValue placeholder="Select a workflow type"/>
-            </SelectTrigger>
-            <SelectContent className="w-full z-99">
-              <SelectGroup>
-                <SelectItem value='onboarding-workflow'>Onboarding</SelectItem>
-                <SelectItem value='not-onboarding-workflow'>Not Onboarding</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-            {
-              workflowTemplateId !== null ? (
-                <HoverCard>
-                  <HoverCardTrigger>
-                    <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
-                      { loading && <Spinner className='text-primary-foreground'/> }
-                      Update Workflow
-                    </Button>
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    <div className='p-2 bg-background rounded-xl max-w-[300px] my-2 flex flex-row gap-2 w-full items-center' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
-                      <Info size={40}/>
-                      <Label className='font-normal text-sm'>Changes won't affect existing instances of this workflow template</Label>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              ) : (
-                <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
-                  { loading && <Spinner className='text-primary-foreground'/> }
-                  Create workflow
-                </Button>
-              )
-            }
-          </Select>
-        </form>
-      </div>
-    )
-  }
-
   return (
     <div className='w-full relative'>      
-      <WorkflowTemplateBar/>
+      <WorkflowTemplateBar
+        name={name}
+        setName={setName}
+        isOnboardingWf={isOnboardingWf}
+        setIsOnboardingWf={setIsOnboardingWf}
+        workflowTemplateId={workflowTemplateId}
+        loading={loading}
+        handleFormSubmission={handleFormSubmission}
+      />
       {
         loading &&
         <div className='w-full flex flex-row justify-center gap-2 py-100'>
@@ -224,6 +186,62 @@ export default function CreateWorkflowPage() {
           className='h-[96vh]'
         />            
       }      
+    </div>
+  )
+}
+
+interface WorkflowTemplateBarProps {
+  name: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  isOnboardingWf: boolean;
+  setIsOnboardingWf: React.Dispatch<React.SetStateAction<boolean>>;
+  workflowTemplateId: string | null;
+  loading: boolean;
+  handleFormSubmission: () => void;
+}
+
+function WorkflowTemplateBar(props: WorkflowTemplateBarProps) {
+  return (
+    <div className='flex flex-col gap-2 items-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-4 px-6 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+      <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); props.handleFormSubmission();}}>
+        <Input required className='min-w-[350px]' placeholder='Enter workflow name...' value={props.name} onChange={(event: any) => {props.setName(event.target.value)}}/>
+        <Select required value={props.isOnboardingWf ? "onboarding-workflow" : "not-onboarding-workflow"} 
+          onValueChange={(value: string) => { value === "onboarding-workflow" ? props.setIsOnboardingWf(true) : props.setIsOnboardingWf(false);}}
+        >
+          <SelectTrigger className='min-w-[150px]'>
+            <SelectValue placeholder="Select a workflow type"/>
+          </SelectTrigger>
+          <SelectContent className="w-full z-99">
+            <SelectGroup>
+              <SelectItem value='onboarding-workflow'>Onboarding</SelectItem>
+              <SelectItem value='not-onboarding-workflow'>Not Onboarding</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+          {
+            props.workflowTemplateId !== null ? (
+              <HoverCard>
+                <HoverCardTrigger>
+                  <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
+                    { props.loading && <Spinner className='text-primary-foreground'/> }
+                    Update Workflow
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent>
+                  <div className='p-2 bg-background rounded-xl max-w-[300px] my-2 flex flex-row gap-2 w-full items-center' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                    <Info size={40}/>
+                    <Label className='font-normal text-sm'>Changes won't affect existing instances of this workflow template</Label>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            ) : (
+              <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
+                { props.loading && <Spinner className='text-primary-foreground'/> }
+                Create workflow
+              </Button>
+            )
+          }
+        </Select>
+      </form>
     </div>
   )
 }
