@@ -6,9 +6,11 @@ import { Separator } from './ui/separator';
 import { Label } from './ui/label';
 import { ClipboardCopy, Copy, ShieldUser } from 'lucide-react';
 import { toast } from 'sonner';
+import clsx from 'clsx';
 
 interface Props {
   accountDirectory: AccountDirectory | undefined;
+  className?: string;
 }
 
 export default function AccountDirectoryBadge(props: Props) {
@@ -22,7 +24,7 @@ export default function AccountDirectoryBadge(props: Props) {
   return  (
     <HoverCard>
       <HoverCardTrigger>
-        <Badge className='p-2 w-full rounded-full cursor-pointer min-w-[125px]'>
+        <Badge className={clsx('p-2 w-full rounded-full cursor-pointer min-w-[125px]', props.className)}>
           {props.accountDirectory?.displayName}
         </Badge>
       </HoverCardTrigger>

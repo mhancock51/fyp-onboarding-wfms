@@ -95,24 +95,22 @@ export default function WorkflowTemplateBuilder(props: Props) {
         const taskNode: Node = {
           id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
           data: {
+            node: node,
             setSelectedNode: () => setSelectedNode(node),
-            selectedNode: node.id === selectedNode?.id,
-            taskTitle: node.taskTemplate?.name,
-            taskTypeId: node.taskTemplate?.taskTypeId,
-            description: node.taskTemplate?.description,
+            isSelectedNode: node.id === selectedNode?.id,
+            selectedNode: selectedNode,            
             deleteTask: () => { removeWorkflowNode(node.id) },
             canMoveUp: canNodeMoveUp(node, props.preflowNodes, index),
             canMoveDown: canNodeMoveDown(node, props.preflowNodes, index),
             moveTaskUp: () => { moveNodeUp(index, "preflow");},
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
-            assignee: node.assignee,
-            taskDependencies: node.taskDependencies,
-            daysUntilDue: node.daysUntilDue ?? null,
             isReadOnly: props.isReadonly,
             isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
             setDependencyNodes: () => {},
             clearDependencyNodes: () => {},
             removeDependency: () => removeDependencyOnNode(node),
+            addDependency: () => addDependencyOnNode(node),
+            nodes: props.preflowNodes
           } 
         };
         nodes.push(taskNode);
@@ -152,23 +150,22 @@ export default function WorkflowTemplateBuilder(props: Props) {
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
+          node: node,
           setSelectedNode: () => setSelectedNode(node),
-          selectedNode: node.id === selectedNode?.id,
-          taskTitle: node.taskTemplate?.name,
-          taskTypeId: node.taskTemplate?.taskTypeId,
-          description: node.taskTemplate?.description,
+          isSelectedNode: node.id === selectedNode?.id,
+          selectedNode: selectedNode,          
           deleteTask: () => { removeWorkflowNode(node.id) },
           canMoveUp: canNodeMoveUp(node, props.mainflowNodes, index),
           canMoveDown: canNodeMoveDown(node, props.mainflowNodes, index),
           moveTaskUp: () => { moveNodeUp(index, "mainflow");},
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
-          assignee: node.assignee,
-          taskDependencies: node.taskDependencies,
           isReadOnly: props.isReadonly,
           isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
           setDependencyNodes: () => {},
           clearDependencyNodes: () => {},
           removeDependency: () => removeDependencyOnNode(node),
+          addDependency: () => addDependencyOnNode(node),
+          nodes: props.mainflowNodes
         } 
       };
       nodes.push(taskNode);
@@ -302,6 +299,20 @@ export default function WorkflowTemplateBuilder(props: Props) {
     // update node in both lists (it will be in one or the other)
     props.setPreflowNodes((prevState) => prevState.map(node => node.id === selectedNode.id ? {...node, taskDependencies: node.taskDependencies.filter(d => d.id !== workflowNode.id)} : node))
     props.setMainflowNodes((prevState) => prevState.map(node => node.id === selectedNode.id ? {...node, taskDependencies: node.taskDependencies.filter(d => d.id !== workflowNode.id)} : node))    
+
+    toast.success("Remove depedency between selected node and clicked node");
+  }
+
+  function addDependencyOnNode(workflowNode: WorkflowTemplateNode) {
+    if (selectedNode === null) return;    
+    // ensure selected node isn't dependent on this node
+    if (selectedNode.taskDependencies.some(d => d.id === workflowNode.id)) return;
+
+    // update node in both lists (it will be in one or the other)
+    props.setPreflowNodes((prevState) => prevState.map(node => node.id === selectedNode.id ? {...node, taskDependencies: [...node.taskDependencies, workflowNode]} : node))
+    props.setMainflowNodes((prevState) => prevState.map(node => node.id === selectedNode.id ? {...node, taskDependencies: [...node.taskDependencies, workflowNode]} : node))    
+  
+    toast.success("Created a depedency between selected node and clicked node");
   }
 
   useEffect(() => {
