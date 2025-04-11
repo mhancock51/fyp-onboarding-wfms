@@ -111,7 +111,7 @@ export default function ViewWorkflowTemplateDialog() {
               {
                 !loading &&
                 <div className='w-full relative'>               
-                  <div className='flex flex-row gap-4 items-center justify-center absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-2 px-4 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+                  <div className='flex flex-row gap-4 items-center min-w-[200px] justify-between absolute top-4 left-1/2 transform -translate-x-1/2 bg-background p-2 px-4 min-w-[400px] z-1 rounded-full' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
                     <h1>{name}</h1>  
                     <Badge className='rounded-full px-6 py-2'>{isOnboardingWf ? "ONBOARDING" : "NONONBOARDING"}</Badge>
                   </div>      

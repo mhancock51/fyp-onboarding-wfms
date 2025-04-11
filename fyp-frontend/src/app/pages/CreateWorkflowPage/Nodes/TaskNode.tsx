@@ -138,9 +138,9 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
           <Handle type="source" position={Position.Bottom} id="b" />
         </div>
       </PopoverTrigger>
-      <PopoverContent side="right" className='rounded-full w-[40px] p-0 py-2'>
-        {
-          props.data.isSelectedNode &&
+      {
+        props.data.isSelectedNode &&
+        <PopoverContent side="right" className='rounded-full w-[40px] p-0 py-2'>
           <div className='flex flex-col gap-2 w-full justify-center items-center'>
             <div className={`cursor-pointer ${!props.data.canMoveUp ? "text-gray-200" : "" } hover:${props.data.canMoveUp ? 'text-blue-700' : ''}`}   onClick={() => { if(!props.data.canMoveUp) return; props.data.moveTaskUp(); setOpenPopover(false);}}>
               <ChevronUp />
@@ -157,8 +157,8 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
               <Trash2/>
             </div>
           </div>        
-        }        
-      </PopoverContent>
+        </PopoverContent>
+      }        
     </Popover>
   );
 }
