@@ -106,10 +106,9 @@ export default function WorkflowTemplateBuilder(props: Props) {
             moveTaskDown: () => { moveNodeDown(index, "preflow");},
             isReadOnly: props.isReadonly,
             isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
-            setDependencyNodes: () => {},
-            clearDependencyNodes: () => {},
             removeDependency: () => removeDependencyOnNode(node),
             addDependency: () => addDependencyOnNode(node),
+            clearSelectedNode: () => setSelectedNode(null),
             nodes: props.preflowNodes
           } 
         };
@@ -161,10 +160,9 @@ export default function WorkflowTemplateBuilder(props: Props) {
           moveTaskDown: () => { moveNodeDown(index, "mainflow");},
           isReadOnly: props.isReadonly,
           isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
-          setDependencyNodes: () => {},
-          clearDependencyNodes: () => {},
           removeDependency: () => removeDependencyOnNode(node),
           addDependency: () => addDependencyOnNode(node),
+          clearSelectedNode: () => setSelectedNode(null),
           nodes: props.mainflowNodes
         } 
       };

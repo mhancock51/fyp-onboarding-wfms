@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
-import { ChevronDown, ChevronUp, Plus, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, EyeOff, Plus, Trash2, X, XCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react'
 import TaskTypeBadge from '../../MyTasksPage/TaskTypeBadge';
 import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
@@ -21,11 +21,10 @@ export type TaskNode = Node<
     moveTaskDown: () => void;
     isReadOnly: boolean;
     isADependency: boolean;
-    setDependencyNodes: () => void;
-    clearDependencyNodes: () => void;
     removeDependency: () => void;
     addDependency: () => void;
     setSelectedNode: () => void;
+    clearSelectedNode: () => void;
     isSelectedNode: boolean;
     selectedNode: WorkflowTemplateNode | null;
     nodes: WorkflowTemplateNode[];
@@ -38,10 +37,9 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   function handleClick() {
     // toggle highlighting of dependency nodes
     if (openPopover) {
-      props.data.clearDependencyNodes();
+      props.data.clearSelectedNode();
     }
     else {
-      props.data.setDependencyNodes();
       props.data.setSelectedNode();
     }
     setOpenPopover(!openPopover);
@@ -50,12 +48,8 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   function handleOpenChange(open: boolean) {
     // toggle highlighting of dependency nodes
     if (open) {
-      props.data.setDependencyNodes();
       props.data.setSelectedNode();
-    }
-    else {
-      // props.data.clearDependencyNodes();
-    }
+    }    
     setOpenPopover(open);
   }
 
@@ -76,6 +70,12 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
   }
 
   const BADGE_SIZE = "w-[140px]";
+
+  useEffect(() => {
+    if (openPopover && !props.data.isSelectedNode) {
+      setOpenPopover(false);
+    }
+  }, [props.data.isSelectedNode]);
 
   return (
     <Popover open={openPopover && !props.data.isReadOnly}
@@ -148,7 +148,14 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             <div className={`cursor-pointer ${!props.data.canMoveDown ? "text-gray-200" : "" } hover:${props.data.canMoveDown ? 'text-blue-700' : 'text-gray-200'}`} onClick={() => { if(!props.data.canMoveDown) return; props.data.moveTaskDown(); setOpenPopover(false);}}>
               <ChevronDown />
             </div>
-            <Trash2 className='cursor-pointer hover:text-destructive' onClick={() => {props.data.deleteTask(); setOpenPopover(false);}}/>
+            <div className={`cursor-pointer hover:text-blue-700`} 
+              onClick={props.data.clearSelectedNode}
+            >
+              <EyeOff/>
+            </div>
+            <div className={'cursor-pointer hover:text-destructive'} onClick={() => {props.data.deleteTask(); setOpenPopover(false);}}>
+              <Trash2/>
+            </div>
           </div>        
         }        
       </PopoverContent>
