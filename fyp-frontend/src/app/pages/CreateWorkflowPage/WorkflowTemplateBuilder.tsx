@@ -42,11 +42,10 @@ export default function WorkflowTemplateBuilder(props: Props) {
 
   const nodeTypes = useMemo(() => ({ taskNode: TaskNode, startNode: StartNode, endNode: EndNode, addTaskNode: AddTaskNode, inviteUserNode: InviteUserNode }), []);
 
-
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState<boolean>(false);
   const [selectedSection, setSelectedSection] = useState<"preflow" | "mainflow">("preflow");
 
-  const [dependencyNodes, setDependencyNodes] = useState<string[]>([]);
+  const [selectedNode, setSelectedNode] = useState<WorkflowTemplateNode | null>(null);
 
 
   function createEdge(prevNode: Node, node: Node) {
@@ -96,6 +95,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
         const taskNode: Node = {
           id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
           data: {
+            setSelectedNode: () => setSelectedNode(node),
+            selectedNode: node.id === selectedNode?.id,
             taskTitle: node.taskTemplate?.name,
             taskTypeId: node.taskTemplate?.taskTypeId,
             description: node.taskTemplate?.description,
@@ -108,9 +109,10 @@ export default function WorkflowTemplateBuilder(props: Props) {
             taskDependencies: node.taskDependencies,
             daysUntilDue: node.daysUntilDue ?? null,
             isReadOnly: props.isReadonly,
-            isADependency: dependencyNodes.includes(node.id),
-            setDependencyNodes: () => {setDependencyNodes(node.taskDependencies.map(d => d.id))},
-            clearDependencyNodes: () => setDependencyNodes([])
+            isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
+            setDependencyNodes: () => {},
+            clearDependencyNodes: () => {},
+            removeDependency: () => removeDependencyOnNode(node),
           } 
         };
         nodes.push(taskNode);
@@ -150,6 +152,8 @@ export default function WorkflowTemplateBuilder(props: Props) {
       const taskNode: Node = {
         id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
         data: {
+          setSelectedNode: () => setSelectedNode(node),
+          selectedNode: node.id === selectedNode?.id,
           taskTitle: node.taskTemplate?.name,
           taskTypeId: node.taskTemplate?.taskTypeId,
           description: node.taskTemplate?.description,
@@ -161,9 +165,10 @@ export default function WorkflowTemplateBuilder(props: Props) {
           assignee: node.assignee,
           taskDependencies: node.taskDependencies,
           isReadOnly: props.isReadonly,
-          isADependency: dependencyNodes.includes(node.id),
-          setDependencyNodes: () => {setDependencyNodes(node.taskDependencies.map(d => d.id))},
-          clearDependencyNodes: () => setDependencyNodes([])
+          isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
+          setDependencyNodes: () => {},
+          clearDependencyNodes: () => {},
+          removeDependency: () => removeDependencyOnNode(node),
         } 
       };
       nodes.push(taskNode);
@@ -289,9 +294,27 @@ export default function WorkflowTemplateBuilder(props: Props) {
     props.setMainflowNodes(updateMainflowNodes);
   }
 
-  useEffect(() => {    
+  function removeDependencyOnNode(workflowNode: WorkflowTemplateNode) {
+    if (selectedNode === null) return;    
+    // ensure selected node is dependent on this node
+    if (!selectedNode.taskDependencies.some(d => d.id === workflowNode.id)) return;
+
+    // update node in both lists (it will be in one or the other)
+    props.setPreflowNodes((prevState) => prevState.map(node => node.id === selectedNode.id ? {...node, taskDependencies: node.taskDependencies.filter(d => d.id !== workflowNode.id)} : node))
+    props.setMainflowNodes((prevState) => prevState.map(node => node.id === selectedNode.id ? {...node, taskDependencies: node.taskDependencies.filter(d => d.id !== workflowNode.id)} : node))    
+  }
+
+  useEffect(() => {
+    // update selected node to reflect changes made to nodes (i.e. selected node might have been changed in some way when either node lists were updated)
+    const updatedSelectedNode = props.mainflowNodes.concat(props.preflowNodes).filter(n => n.id === selectedNode?.id)[0];
+    if (updatedSelectedNode) {
+      setSelectedNode(updatedSelectedNode);
+    }
+  }, [props.mainflowNodes, props.preflowNodes]);
+
+  useEffect(() => {        
     renderWorkflowNodes();
-  }, [props.preflowNodes, props.mainflowNodes, props.isOnboardingWorkflow, props.isReadonly, dependencyNodes]);
+  }, [props.preflowNodes, props.mainflowNodes, props.isOnboardingWorkflow, props.isReadonly, selectedNode]);
 
   return (
     <div>
@@ -312,7 +335,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
       </div>
       <AddTaskToWorkflowDialog open={openAddTaskDialog} setOpen={setOpenAddTaskDialog} onAddTask={addWorkflowNode} 
         isOnboardingWorkflow={props.isOnboardingWorkflow}
-        existingTaskNodes={props.preflowNodes.concat(props.mainflowNodes)}
+        existingTaskNodes={selectedSection === "preflow" ? props.preflowNodes : props.mainflowNodes}
         section={selectedSection}
       />
     </div>
