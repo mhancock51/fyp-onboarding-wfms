@@ -22,5 +22,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string Name { get; set; }
         [JsonPropertyName("description")]
         public string Description { get; set; }
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
     }
 }

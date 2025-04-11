@@ -20,10 +20,13 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> UpdateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId);
         public Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id);
         public Task<HTTPResponse<List<WorkflowTemplateDTO>, string>> GetAllWorkflowTemplates();
+        public Task<HTTPResponse<string, string>> ArchiveWorkflowTemplate(string workflowTemplateId);
     }
 
     public class WorkflowTemplateLogic : IWorkflowTemplateLogic
-    {        
+    {
+        public const string ARCHIVED_WORKFLOW_TEMPLATE_STATUS = "archived";
+
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
         private readonly IWorkflowTemplateNodeRepository _workflowTemplateNodeRepository;
         private readonly INodeTaskDependencyRepository _nodeTaskDependencyRepository;
@@ -41,6 +44,24 @@ namespace OnboardingWFMSApi.BusinessLogic
             _accountRepository = accountRepository;
         }
 
+        public async Task<HTTPResponse<string, string>> ArchiveWorkflowTemplate(string workflowTemplateId)
+        {
+            var workflowTemplate = await _workflowTemplateRepository.GetById(workflowTemplateId);
+            if (workflowTemplate == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
+            if (workflowTemplate.Status == ARCHIVED_WORKFLOW_TEMPLATE_STATUS) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template is already archived" };
+
+            workflowTemplate.Status = ARCHIVED_WORKFLOW_TEMPLATE_STATUS;
+            try
+            {
+                await _workflowTemplateRepository.UpdateAsync(workflowTemplate);
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 200, Data = "Successfully archived workflow template" };
+            }
+            catch (Exception ex)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to archived workflow template" };
+            }
+        }
+
         public async Task<HTTPResponse<string, string>> CreateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId)
         {
             // ensure there isn't another template with the same name
@@ -51,6 +72,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // create workflow template row
             var workflowTemplate = _mapper.Map<WorkflowTemplateTable>(payload);
             workflowTemplate.Id = "";
+            workflowTemplate.Status = "active";
 
             var nodes = new List<WorkflowTemplateNodeTable>();
             var dependencies = new List<NodeTaskDependencyTable>();

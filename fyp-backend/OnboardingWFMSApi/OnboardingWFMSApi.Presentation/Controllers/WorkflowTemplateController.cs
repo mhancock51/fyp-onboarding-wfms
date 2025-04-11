@@ -54,6 +54,15 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         }
 
         [Authorize]
+        [HttpPost("archive")]
+        public async Task<IActionResult> ArchiveWorkflowTemplate(string workflowTemplateId)
+        {
+            // TODO make this a supervisor only endpoint
+            var response = await _workflowTemplateLogic.ArchiveWorkflowTemplate(workflowTemplateId);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetWorkflowTemplate(string workflowTemplateId)
         {

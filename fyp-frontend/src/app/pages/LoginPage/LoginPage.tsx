@@ -57,7 +57,6 @@ export default function LoginPage() {
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription className='flex flex-col gap-4'>
           Enter your email below to login to your account          
-          <span style={{color: "red", textAlign: "center"}}>{loading ? "loading..." : ""}</span>
         </CardDescription>
         </CardHeader>
         <CardContent>

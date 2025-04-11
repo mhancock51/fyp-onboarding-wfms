@@ -138,7 +138,8 @@ CREATE TABLE workflowtemplate (
     Id VARCHAR(255) PRIMARY KEY,
     IsOnboardingWF BOOLEAN,
     Name VARCHAR(255),
-    Description TEXT
+    Description TEXT,
+    Status VARCHAR(255)
 );
 
 CREATE TABLE workflowtemplatenode (

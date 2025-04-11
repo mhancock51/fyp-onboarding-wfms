@@ -8,4 +8,5 @@ export default interface WorkflowTemplateDTO {
   preflowNodes: WorkflowTemplateNodeDTO[];
   mainflowNodes: WorkflowTemplateNodeDTO[];
   numberOfTasks: number;
+  status: string;
 }

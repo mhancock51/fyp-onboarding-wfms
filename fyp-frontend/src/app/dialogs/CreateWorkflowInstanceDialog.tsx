@@ -113,7 +113,7 @@ export default function CreateWorkflowInstanceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="w-[600px]">
         {
           step === 0 &&
           <>
@@ -126,8 +126,7 @@ export default function CreateWorkflowInstanceDialog() {
                 <WorkflowTemplateLookup value={workflowTemplate} setValue={setWorkflowTemplate}/>
               </div>
               <div className="flex flex-row items-center gap-4">
-                <Label htmlFor="name" className="flex-4">Supervisor</Label>
-                {/* TODO Change filter to filter by isSupervisor */}
+                <Label htmlFor="name" className="flex-4">Supervisor</Label>                
                 <AccountDirectoryLookup setAccount={setSupervisor} account={supervisor}
                   additionalAccounts={[]} filter={(a: AccountDirectory) => (a.isSupervisor)}
                 />

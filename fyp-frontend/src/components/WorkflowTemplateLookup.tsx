@@ -13,21 +13,19 @@ interface Props {
 
 export default function WorkflowTemplateLookup(props: Props) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [loaded, setLoaded] = useState<boolean>(false);
   const [templates, setTemplates] = useState<WorkflowTemplateDTO[]>([]);
 
   async function fetchAllWorkflowTemplates() {
     setLoading(true);
-    Api.fetchAllWorkflowTemplates()
+    Api.workflowTemplates.fetchAllWorkflowTemplates()
     .then((response: AxiosResponse<HTTPresponse<WorkflowTemplateDTO[], string>>) => {
-      setTemplates(response.data.data);
+      setTemplates((response.data.data as WorkflowTemplateDTO[]).filter(wft => wft.status.toLowerCase() !== "archived"));
     })
     .catch((error) => {
       toast.error("Failed to load workflow templates");
     })
     .finally(() => {
       setLoading(false);
-      setLoaded(true);
     })
   }
 

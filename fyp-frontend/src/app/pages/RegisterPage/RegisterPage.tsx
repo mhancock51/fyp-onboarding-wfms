@@ -89,7 +89,6 @@ export default function RegisterPage() {
               step === 1 &&
               "Confirm your details"
             }
-            <span style={{color: "red", textAlign: "center"}}>{loading ? "loading..." : ""}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>

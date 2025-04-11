@@ -248,6 +248,9 @@ const Api = {
     fetchWorkflowTemplate: async(workflowTemplateId: string) => {
       return AuthInstance.get(`${ROUTE_URL}/workflow/template?workflowTemplateId=${workflowTemplateId}`);
     },
+    archiveWorkflowTemplate: async(workflowTemplateId: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/workflow/template/archive`, null, {params: {workflowTemplateId: workflowTemplateId}});
+    }
   }
 }
 

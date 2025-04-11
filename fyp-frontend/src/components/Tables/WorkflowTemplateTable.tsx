@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import NoResults from '../NoResults';
 import { Spinner } from '../ui/spinner';
 import ClearableInput from '../ClearableInput';
+import TableActionsDropdown from '../TableActionsDropdown';
+import { Badge } from '../ui/badge';
 
 interface Props {
   onTemplateSelected: (selectedWorkflowTemplate: WorkflowTemplateDTO) => void;
@@ -41,10 +43,37 @@ export default function WorkflowTemplateTable(props: Props) {
     })
   }
 
+  async function archiveWorkflowTemplate(workflowTemplateId: string) {
+    setLoading(true);
+    await Api.workflowTemplates.archiveWorkflowTemplate(workflowTemplateId)
+    .then((response) => {
+      toast.success("Successfully archived workflow template");
+      void fetchWorkflowTemplates();
+    })
+    .catch((error) => {
+      if (error.response.data.error) {
+        toast.error(error.response.data.error);
+      }
+      else {
+        toast.error("Failed to archive workflow template");
+      } 
+    })
+  }
+
   function filterTemplates() {
     const filteredTemplates = workflowTemplates.filter(wf => 
       wf.name.toLowerCase().includes(searchTerm.toLowerCase()) || wf.description.toLowerCase().includes(searchTerm.toLowerCase()))
     setFilteredTemplates(filteredTemplates);
+  }
+
+  function statusToColour(status: string) {
+    if (status === undefined) { return ""}
+    switch(status.toLowerCase()) {
+      case "active":
+        return "bg-primary";
+      case "archived":
+        return "bg-gray-300";
+    }
   }
 
   useEffect(() => {
@@ -65,7 +94,8 @@ export default function WorkflowTemplateTable(props: Props) {
             <TableHeader>
               <TableCell width={200}>Name</TableCell>              
               <TableCell width={10}>Type</TableCell>
-              <TableCell width={10}>Number of Tasks</TableCell>
+              <TableCell width={10} className='text-center'>Status</TableCell>
+              <TableCell width={10}>Tasks</TableCell>
               <TableCell>Active Instances</TableCell>
               <TableCell width={25}></TableCell>
             </TableHeader>
@@ -77,9 +107,22 @@ export default function WorkflowTemplateTable(props: Props) {
                   >
                     <TableCell>{workflowTemplate.name}</TableCell>
                     <TableCell>{workflowTemplate.isOnboardingWF ? "Onboarding Workflow" : "Workflow"}</TableCell>
+                    <TableCell>
+                      <Badge className={`p-2 w-full rounded-full w-[80px] ${statusToColour(workflowTemplate.status)}`}>
+                        {workflowTemplate.status.toUpperCase()}
+                      </Badge>
+                    </TableCell>
                     <TableCell className='text-center'>{workflowTemplate.numberOfTasks}</TableCell>
                     <TableCell></TableCell>
-                    <TableCell></TableCell>
+                    <TableCell>
+                      <TableActionsDropdown actions={workflowTemplate.status !== "archived" ? [
+                        {
+                          label: 'Archive workflow template',
+                          onClick: () => {void archiveWorkflowTemplate(workflowTemplate.id);}
+                        }
+                      ] : []}/>
+
+                    </TableCell>
                   </TableRow>
                 ))
               }

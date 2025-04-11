@@ -80,6 +80,11 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
             }
 
+            if (workflowTemplate.Status == WorkflowTemplateLogic.ARCHIVED_WORKFLOW_TEMPLATE_STATUS)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template is archived" };
+            }
+
             // make sure all task templates in the workflow template are active/not archived
             var taskTemplateIds = workflowTemplate.MainflowNodes.Concat(workflowTemplate.PreflowNodes).Select(n => n.TaskTemplateId).ToList();
             foreach(var id in taskTemplateIds)
