@@ -157,7 +157,7 @@ export default function CreateWorkflowPage() {
     if (workflowTemplateId) {
       void fetchWorkflowTemplate(workflowTemplateId);
     }
-  }, []);
+  }, [searchParams.get("id")]);
 
   return (
     <div className='w-full relative'>      
