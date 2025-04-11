@@ -1,18 +1,16 @@
 import Api from '@/api';
+import ClearableInput from '@/components/ClearableInput';
 import NoResults from '@/components/NoResults';
-import TableActionsDropdown, { DropdownAction } from '@/components/TableActionsDropdown';
-import { Button } from '@/components/ui/button';
+import TableActionsDropdown from '@/components/TableActionsDropdown';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import { SET_ACCOUNTS_DIRECTORY, SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_ORGANISATION_DIALOG } from '@/features/appSlice';
+import { SET_ACCOUNTS_DIRECTORY, SET_OPEN_ACCOUNTS_DIALOG } from '@/features/appSlice';
 import AccountDirectory from '@/models/AccountDirectory';
 import HTTPresponse from '@/models/HTTPresponse';
 import { RootState } from '@/store';
 import { AxiosResponse } from 'axios';
-import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
@@ -95,10 +93,7 @@ export default function ManageAccountsDialog() {
           <DialogTitle>Manage Accounts</DialogTitle>
         </DialogHeader>
         <div className='p-2 flex flex-col gap-2'>
-          <div className='flex flex-row w-full gap-2'>
-            <Input disabled={loading} className='flex-11' type='text' placeholder='Enter account name...' value={searchTerm} onChange={(event: any) => {setSearchTerm(event.target.value)}}/>
-            <Button className='flex-1' onClick={() => {setSearchTerm("");}}><X/></Button>            
-          </div>
+          <ClearableInput inputType={'text'} value={searchTerm} setValue={setSearchTerm} placeholder='Enter account name...'/>
           {
             loading &&
             <div className='flex flex-row justify-center w-full gap-2'>

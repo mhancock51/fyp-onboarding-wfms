@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -13,6 +10,7 @@ import { SET_WORKFLOW_TEMPLATES } from '@/features/appSlice';
 import { toast } from 'sonner';
 import NoResults from '../NoResults';
 import { Spinner } from '../ui/spinner';
+import ClearableInput from '../ClearableInput';
 
 interface Props {
   onTemplateSelected: (selectedWorkflowTemplate: WorkflowTemplateDTO) => void;
@@ -59,12 +57,7 @@ export default function WorkflowTemplateTable(props: Props) {
 
   return (
     <div className='flex flex-col gap-2 w-auto'>
-      <div className='flex flex-row w-full gap-2'>
-        <Input disabled={loading} className='flex-11' value={searchTerm} onChange={(event: any) => {setSearchTerm(event.target.value)}}
-          type='text' placeholder='Enter search term...' 
-        />
-        <Button className='flex-1' onClick={() => {setSearchTerm("");}}><X/></Button>  
-      </div>
+      <ClearableInput inputType={'text'} value={searchTerm} setValue={setSearchTerm} className='w-full' placeholder='Enter search term...' />
       <div className='h-[55vh] overflow-y-auto flex flex-col gap-2'>
         {
           filteredTemplates.length !== 0 &&

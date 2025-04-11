@@ -13,10 +13,7 @@ import TableActionsDropdown from '../TableActionsDropdown';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import { Badge } from '../ui/badge';
-import UpdateTaskTemplateDialog from '@/app/dialogs/taskTemplateDialogs/UpdateTaskTemplateDialog';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { X } from 'lucide-react';
+import ClearableInput from '../ClearableInput';
 
 interface Props {
   onRowClick?: (taskTemplate: TaskTemplate) => void;
@@ -91,12 +88,7 @@ export default function TaskTemplatesTable(props: Props) {
 
   return (
     <div className='flex flex-col gap-2 w-auto'>
-      <div className='flex flex-row w-full gap-2'>
-        <Input disabled={loading} className='flex-11' value={searchTerm} onChange={(event: any) => {setSearchTerm(event.target.value)}}
-          type='text' placeholder='Enter search term...' 
-        />
-        <Button className='flex-1' onClick={() => {setSearchTerm("");}}><X/></Button>  
-      </div>
+      <ClearableInput inputType={'text'} value={searchTerm} setValue={setSearchTerm} placeholder='Enter search term...'/>
       <div className='h-[55vh] overflow-y-auto flex flex-col gap-2'>
         {
           filteredTemplates.length !== 0 &&

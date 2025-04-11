@@ -151,7 +151,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             <div className={`cursor-pointer hover:text-blue-700`} 
               onClick={props.data.clearSelectedNode}
             >
-              <EyeOff/>
+              <X/>
             </div>
             <div className={'cursor-pointer hover:text-destructive'} onClick={() => {props.data.deleteTask(); setOpenPopover(false);}}>
               <Trash2/>

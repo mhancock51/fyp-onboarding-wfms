@@ -16,6 +16,7 @@ import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import ClearableInput from '@/components/ClearableInput';
 
 interface Props {
   open: boolean;
@@ -130,14 +131,10 @@ export default function AddTaskToWorkflowDialog(props: Props) {
               />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className='flex flex-col gap-2'>
-                <Label>Days Until Due</Label>
-                <Label className='font-normal'>(after {props.section} starts)</Label>
-              </div>
+              <Label>Days to complete task</Label>                              
               <div className='col-span-3 flex flex-row gap-1 items-center'>
-                <Input className='flex-8' type='number' min={1} value={daysUntilDue ?? ""} onChange={(event: any) => {setDaysUntilDue(event.target.value);}}/>
-                <Label className='font-normal flex-3'>Day(s)</Label>
-                <Button className='flex-1' variant={"destructive"} onClick={() => {setDaysUntilDue(null);}}><X/></Button>
+                <ClearableInput inputType={'number'} value={daysUntilDue} setValue={setDaysUntilDue} min={1} className='flex-10'/>
+                <Label>Day(s)</Label>                
               </div>
             </div>
             <DialogFooter>

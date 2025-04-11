@@ -10,6 +10,7 @@ interface Props {
   setValue: React.Dispatch<React.SetStateAction<any>>;
   className?: string;
   min?: number;
+  placeholder?: string;
 }
 
 export default function ClearableInput(props: Props) {
@@ -30,6 +31,7 @@ export default function ClearableInput(props: Props) {
         onChange={(e) => setValue(e.target.value)}
         min={props.min}  
         className="[-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+        placeholder={props.placeholder}
       />
       {value && (
         <Button
