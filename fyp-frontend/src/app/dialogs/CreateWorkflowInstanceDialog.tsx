@@ -1,6 +1,6 @@
 import Api from '@/api';
-import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
-import DepartmentLookup from '@/components/DepartmentLookup';
+import AccountDirectoryLookup from '@/components/Lookups/AccountDirectoryLookup';
+import DepartmentLookup from '@/components/Lookups/DepartmentLookup';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';

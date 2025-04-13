@@ -1,4 +1,4 @@
-import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
+import AccountDirectoryLookup from '@/components/Lookups/AccountDirectoryLookup';
 import TaskTemplatesTable from '@/components/Tables/TaskTemplatesTable';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

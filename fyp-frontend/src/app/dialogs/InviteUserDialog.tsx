@@ -1,5 +1,5 @@
 import Api from "@/api";
-import DepartmentLookup from "@/components/DepartmentLookup";
+import DepartmentLookup from "@/components/Lookups/DepartmentLookup";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
