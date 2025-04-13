@@ -120,16 +120,16 @@ export default function CreateWorkflowInstanceDialog() {
             <DialogHeader>
               Start a workflow instance
             </DialogHeader>
-            <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
-              <div className="flex flex-row items-center gap-4">
-                <Label htmlFor="name" className="flex-4">Workflow Template</Label>
+            <form className="gap-4 py-4 flex flex-col" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
+              <div className="grid grid-cols-4 gap-4">
+                <Label>Workflow Template</Label>
                 <WorkflowTemplateLookup value={workflowTemplate} setValue={setWorkflowTemplate}/>
               </div>
-              <div className="flex flex-row items-center gap-4">
-                <Label htmlFor="name" className="flex-4">Supervisor</Label>                
-                <AccountDirectoryLookup setAccounts={setSupervisor} accounts={supervisor}
-                  additionalAccounts={[]} filter={(a: AccountDirectory) => (a.isSupervisor)}
-                />
+              <div className="grid grid-cols-4 gap-4">
+                <Label>Supervisor</Label> 
+                <AccountDirectoryLookup accounts={supervisor !== null ? [supervisor] : []} setAccounts={(accounts: AccountDirectory[]) => setSupervisor(accounts[0])} 
+                  additionalAccounts={[]} isMulti={false} filter={(a: AccountDirectory) => (a.isSupervisor)}
+                />               
               </div>
               <DialogFooter>              
                 <Button type='submit'>Next</Button>
