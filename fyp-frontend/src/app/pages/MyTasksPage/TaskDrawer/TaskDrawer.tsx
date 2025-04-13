@@ -24,10 +24,6 @@ import { AccordionTrigger } from '@radix-ui/react-accordion';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import CommentDTO from '@/models/DTOs/CommentDTO';
-import { Spinner } from '@/components/ui/spinner';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import NoResults from '@/components/NoResults';
 import { Flag, MessageSquareMore, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -127,12 +123,12 @@ export default function TaskDrawer(props: Props) {
                 }
               </div>
               <div className='flex flex-row justify-center gap-2'>
-                <TaskTypeBadge taskTypeId={props.task.template.taskTypeId}/>
+                <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[200px]'/>
                 {
-                  props.task.workflowInstanceId !== undefined &&
-                  <WorkflowInstanceBadge workflowInstanceId={props.task.workflowInstanceId}/>
+                  props.task.workflowInstance !== null &&
+                  <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance} className='w-[250px]'/>
                 }
-                <TaskStatusBadge status={props.task.status}/>
+                <TaskStatusBadge status={props.task.status} className='w-[100px]'/>
               </div>
               <DrawerDescription className='p-1'>
                 <div className='flex flex-col w-full justify-center text-center'>     

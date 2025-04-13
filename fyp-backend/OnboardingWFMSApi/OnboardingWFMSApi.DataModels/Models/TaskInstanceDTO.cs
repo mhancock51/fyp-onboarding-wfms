@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables;
+﻿using OnboardingWFMSApi.DataModels.DTOs;
+using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,9 @@ namespace OnboardingWFMSApi.DataModels.Models
         [JsonPropertyName("workflowInstanceTemplateName")]
         public string? WorkflowInstanceTemplateName { get; set; }
         [JsonPropertyName("instanceData")]
-        public object InstanceData { get; set; }        
+        public object InstanceData { get; set; }
+        [JsonPropertyName("workflowInstance")]
+        [JsonInclude]
+        public WorkflowInstanceDTO? WorkflowInstance { get; set; }
     }
 }

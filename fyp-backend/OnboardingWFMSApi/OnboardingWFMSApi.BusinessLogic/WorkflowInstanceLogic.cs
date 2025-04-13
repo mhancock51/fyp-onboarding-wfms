@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace OnboardingWFMSApi.BusinessLogic
 {
@@ -41,7 +42,6 @@ namespace OnboardingWFMSApi.BusinessLogic
 
 
         private readonly IWorkflowTemplateLogic _workflowTemplateLogic;
-        private readonly ITaskInstanceLogic _taskInstanceLogic;
         private readonly IAccountLogic _accountLogic;
 
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
@@ -51,14 +51,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
+        private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
-            ITaskInstanceLogic taskInstanceLogic, ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
-            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository)
+            ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
+            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceRepository taskInstanceRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
-            _taskInstanceLogic = taskInstanceLogic;
             _logger = logger;
             _mapper = mapper;
             _utility = utility;
@@ -68,6 +68,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _workflowNodeInstanceRepository = workflowNodeInstanceRepository;
             _workflowTemplateNodeRepository = workflowTemplateNodeRepository;
             _taskTemplateRepository = taskTemplateRepository;
+            _taskInstanceRepository = taskInstanceRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -199,7 +200,16 @@ namespace OnboardingWFMSApi.BusinessLogic
                     WorkflowInstanceNodeId = node.Id,
                     DueDate = GetDueDateOfTask(nodeTemplate, workflowInstance)
                 };
-                await _taskInstanceLogic.CreateInstance(taskInstancePayload);
+
+                var response = await _mediator.Send(new CreateTaskInstanceRequest(taskInstancePayload));                
+                if (!response.Success)
+                {
+                    _logger.LogWarning($"Failed to create task instance through mediator");
+                }
+                else
+                {
+                    _logger.LogInformation($"Successfully created task instance through mediator (Task template {node.TaskTemplateId}, assigne {nodeTemplate.AssigneeId})");
+                }
                 // update node instance to be "open" rather than "unassigned"
                 node.Status = "open";
                 await _workflowNodeInstanceRepository.UpdateAsync(node);
@@ -230,7 +240,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             }            
             workflowInstanceDTO.WorkflowTemplate = result.Data;
             // retrieve the number of completed tasks
-            workflowInstanceDTO.CompletedTasks = (await _taskInstanceLogic.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS).Count();
+            var completeTaskInstances = (await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS);
+            workflowInstanceDTO.CompletedTasks = completeTaskInstances.Count();            
 
             workflowInstanceDTO.Status = await GetWorkflowInstanceStatus(workflowInstanceDTO);
 
@@ -241,7 +252,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 workflowInstanceDTO.OnboardingEmployeeDetails = _mapper.Map<OnboardingEmployeeDetailsDTO>(employeeDetails);
             }
 
-            return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = false, HttpCode = 200, Data = workflowInstanceDTO };
+            return new HTTPResponse<WorkflowInstanceDTO, string>() { Success = true, HttpCode = 200, Data = workflowInstanceDTO };
         }
 
         public async Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance)
@@ -367,7 +378,16 @@ namespace OnboardingWFMSApi.BusinessLogic
                         WorkflowInstanceNodeId = dependentNodeInstance.Id,
                         DueDate = GetDueDateOfTask(dependentNodeTemplate, workflowInstance)
                     };
-                    await _taskInstanceLogic.CreateInstance(payload);
+
+                    var response = await _mediator.Send(new CreateTaskInstanceRequest(payload));
+                    if (!response.Success)
+                    {
+                        _logger.LogWarning($"Failed to create task instance through mediator");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Successfully created task instance through mediator (Task template {dependentNodeInstance.TaskTemplateId}, assigne {nodeTemplate.AssigneeId})");
+                    }
                 }
                 else
                 {
@@ -480,7 +500,15 @@ namespace OnboardingWFMSApi.BusinessLogic
                     WorkflowInstanceNodeId = nodeInstance.Id,
                     DueDate = GetDueDateOfTask(nodeTemplate, workflowInstance)
                 };
-                await _taskInstanceLogic.CreateInstance(taskInstancePayload);
+                var response = await _mediator.Send(new CreateTaskInstanceRequest(taskInstancePayload));
+                if (!response.Success)
+                {
+                    _logger.LogWarning($"Failed to create task instance through mediator");
+                }
+                else
+                {
+                    _logger.LogInformation($"Successfully created task instance through mediator (Task template {nodeInstance.TaskTemplateId}, assigne {nodeTemplate.AssigneeId})");
+                }
                 // update node instance to be "open" rather than "unassigned"
                 nodeInstance.Status = "open";
                 await _workflowNodeInstanceRepository.UpdateAsync(nodeInstance);
@@ -532,7 +560,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             var mainflowTasksCompleted = await AreAllTasksInWorkflowSectionComplete(workflowInstance.WorkflowTemplateId, workflowInstance.Id, "mainflowtasks");
             if (!mainflowTasksCompleted) return WORKFLOW_INSTANCE_MAINFLOW_STATUS;
 
-            throw new Exception("Invalid condition met");
+            _logger.LogWarning($"Illegal condition met retrieving the workflow status of workflow instance {workflowInstance.Id}");
+            return "ERROR";
         }
 
         // assign due date depending on the node's section and when the instance was started/mainflow was started
