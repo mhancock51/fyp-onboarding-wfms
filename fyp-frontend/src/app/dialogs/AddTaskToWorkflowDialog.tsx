@@ -84,8 +84,8 @@ export default function AddTaskToWorkflowDialog(props: Props) {
           <form className='flex flex-col gap-2 w-full' onSubmit={(event: any) => { event.preventDefault(); addTaskToWorkflow();}}>
             <div className="grid grid-cols-4 gap-4">
               <Label>Assignee</Label>
-              <AccountDirectoryLookup setAccount={setAssignee} account={assignee}
-                additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []}
+              <AccountDirectoryLookup setAccounts={(accounts: AccountDirectory[]) => { setAssignee(accounts[accounts.length - 1] ?? null); } } accounts={assignee !== null ? [assignee] : []}
+                additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []} isMulti={false}             
               />                     
             </div>  
             {
@@ -120,14 +120,11 @@ export default function AddTaskToWorkflowDialog(props: Props) {
             }
             <div className="grid grid-cols-4 gap-4">
               <Label>Notify On Task Completion</Label>
-              <Select className='col-span-3' isMulti
-                options={
-                  [PLACEHOLDER_SUPERVISORS_ACCOUNT, PLACEHOLDER_ONBOARDERS_ACCOUNT].concat(accounts)
-                    .filter(a => a.id !== assignee?.id)
-                    .map((account) => ({label: `${account.displayName} (${account.departmentName})`, value: account.id}))
-                }
-                value={accountsToNotify.map((account) => ({label: account.displayName, value: account.id}))}
-                onChange={handleAccountsToNotifyChange}
+              <AccountDirectoryLookup 
+                isMulti={true}
+                accounts={accountsToNotify} 
+                setAccounts={(accounts: AccountDirectory[]) => {setAccountsToNotify(accounts)}} 
+                additionalAccounts={[PLACEHOLDER_SUPERVISORS_ACCOUNT, PLACEHOLDER_ONBOARDERS_ACCOUNT]}
               />
             </div>
             <div className="grid grid-cols-4 gap-4">

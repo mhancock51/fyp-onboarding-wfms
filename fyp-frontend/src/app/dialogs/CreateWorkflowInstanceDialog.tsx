@@ -127,7 +127,7 @@ export default function CreateWorkflowInstanceDialog() {
               </div>
               <div className="flex flex-row items-center gap-4">
                 <Label htmlFor="name" className="flex-4">Supervisor</Label>                
-                <AccountDirectoryLookup setAccount={setSupervisor} account={supervisor}
+                <AccountDirectoryLookup setAccounts={setSupervisor} accounts={supervisor}
                   additionalAccounts={[]} filter={(a: AccountDirectory) => (a.isSupervisor)}
                 />
               </div>
