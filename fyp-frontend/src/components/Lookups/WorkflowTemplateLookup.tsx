@@ -1,62 +1,110 @@
+import React, { useEffect, useState } from 'react';
+import Select, { ActionMeta, MultiValue, SingleValue } from 'react-select';
 import Api from '@/api';
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './ui/select';
 
 interface Props {
-  value: WorkflowTemplateDTO | null;
-  setValue: React.Dispatch<React.SetStateAction<WorkflowTemplateDTO | null>>;
+  templates: WorkflowTemplateDTO[];
+  setTemplates: (templates: WorkflowTemplateDTO[]) => void;  
+  filter?: (t: WorkflowTemplateDTO) => boolean;
+  isMulti: boolean;
 }
 
 export default function WorkflowTemplateLookup(props: Props) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [templates, setTemplates] = useState<WorkflowTemplateDTO[]>([]);
+  const [allTemplates, setAllTemplates] = useState<WorkflowTemplateDTO[]>([]);
 
-  async function fetchAllWorkflowTemplates() {
-    setLoading(true);
-    Api.workflowTemplates.fetchAllWorkflowTemplates()
-    .then((response: AxiosResponse<HTTPresponse<WorkflowTemplateDTO[], string>>) => {
-      setTemplates((response.data.data as WorkflowTemplateDTO[]).filter(wft => wft.status.toLowerCase() !== "archived"));
-    })
-    .catch((error) => {
-      toast.error("Failed to load workflow templates");
-    })
-    .finally(() => {
-      setLoading(false);
-    })
+  const filteredTemplates =
+    props.filter !== undefined
+      ? allTemplates.filter(props.filter)
+      : allTemplates;
+
+  function getTemplateDisplayString(template: WorkflowTemplateDTO): string {
+    return `${template.name} ${template.isOnboardingWF ? '(onboarding)' : ''} (${template.numberOfTasks} tasks)`;
   }
 
-  useEffect(() => {
-    void fetchAllWorkflowTemplates();
-  }, [])
+  function getSelectOptions(): { label: string; value: string }[] {
+    return filteredTemplates.map(function (template) {
+      return {
+        label: getTemplateDisplayString(template),
+        value: template.id,
+      };
+    });
+  }
+
+  function getSelectValue(): any {
+    const options = getSelectOptions();
+
+    if (props.isMulti) {
+      return options.filter(function (option) {
+        return props.templates.some(function (t) {
+          return t.id === option.value;
+        });
+      });
+    } else {
+      return options.find(function (option) {
+        return option.value === props.templates[0]?.id;
+      }) || null;
+    }
+  }
+
+  function handleValueChange(
+    newValue: MultiValue<{ label: string; value: string }> | SingleValue<{ label: string; value: string }>,
+    actionMeta: ActionMeta<{ label: string; value: string }>
+  ): void {
+    if (props.isMulti) {
+      const selectedIds = (newValue as MultiValue<{ label: string; value: string }>).map(function (v) {
+        return v.value;
+      });
+      const selectedTemplates = filteredTemplates.filter(function (t) {
+        return selectedIds.includes(t.id);
+      });
+      props.setTemplates(selectedTemplates);
+    } else {
+      const selectedId = (newValue as SingleValue<{ label: string; value: string }>)?.value;
+      const selectedTemplate = filteredTemplates.find(function (t) {
+        return t.id === selectedId;
+      });
+      props.setTemplates(selectedTemplate ? [selectedTemplate] : []);
+    }
+  }
+
+  async function fetchWorkflowTemplates(): Promise<void> {
+    setLoading(true);
+    Api.workflowTemplates
+      .fetchAllWorkflowTemplates()
+      .then(function (response: AxiosResponse<HTTPresponse<WorkflowTemplateDTO[], string>>) {
+        const data = response.data.data as WorkflowTemplateDTO[];
+        setAllTemplates(
+          data.filter(function (t) {
+            return t.status.toLowerCase() !== 'archived';
+          })
+        );
+      })
+      .catch(function () {
+        toast.error('Failed to load workflow templates');
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  useEffect(function () {
+    void fetchWorkflowTemplates();
+  }, []);
 
   return (
-    <Select required value={props.value?.id ?? ""} onValueChange={(value: string) => {props.setValue(templates.find(i => i.id === value) ?? null)}}>
-      <SelectTrigger className='flex-8 w-[180px]'>
-        <SelectValue placeholder="Select a workflow template" />
-      </SelectTrigger>
-      <SelectContent>
-        {
-          !loading &&
-          <SelectGroup>
-            <SelectLabel>Workflow Templates</SelectLabel>
-            {
-              templates.map((template, index) => (
-                <SelectItem key={index} value={template.id}>{template.name} {template.isOnboardingWF ? `(onboarding)` : ""} ({template.numberOfTasks} tasks)</SelectItem>
-              ))
-            }          
-          </SelectGroup>
-        }
-        {
-          loading &&
-          <SelectGroup>
-            <SelectLabel>Loading workflow templates...</SelectLabel>
-          </SelectGroup>
-        }
-      </SelectContent>
-    </Select> 
-  )
+    <Select
+      className='col-span-3'
+      isMulti={props.isMulti}
+      options={getSelectOptions()}
+      value={getSelectValue()}
+      isLoading={loading}
+      onChange={handleValueChange}
+      placeholder="Select a workflow template"
+    />
+  );
 }

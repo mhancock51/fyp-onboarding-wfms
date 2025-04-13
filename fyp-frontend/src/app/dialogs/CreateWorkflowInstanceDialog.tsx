@@ -1,12 +1,12 @@
 import Api from '@/api';
 import AccountDirectoryLookup from '@/components/Lookups/AccountDirectoryLookup';
 import DepartmentLookup from '@/components/Lookups/DepartmentLookup';
+import WorkflowTemplateLookup from '@/components/Lookups/WorkflowTemplateLookup';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import WorkflowTemplateLookup from '@/components/WorkflowTemplateLookup';
 import { SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG } from '@/features/appSlice';
 import AccountDirectory from '@/models/AccountDirectory';
 import Department from '@/models/Department';
@@ -113,7 +113,7 @@ export default function CreateWorkflowInstanceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>
-      <DialogContent className="w-[600px]">
+      <DialogContent className="min-w-[600px]">
         {
           step === 0 &&
           <>
@@ -123,7 +123,10 @@ export default function CreateWorkflowInstanceDialog() {
             <form className="gap-4 py-4 flex flex-col" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
               <div className="grid grid-cols-4 gap-4">
                 <Label>Workflow Template</Label>
-                <WorkflowTemplateLookup value={workflowTemplate} setValue={setWorkflowTemplate}/>
+                <WorkflowTemplateLookup templates={workflowTemplate !== null ? [workflowTemplate] : []} 
+                  setTemplates={(templates: WorkflowTemplateDTO[]) => {setWorkflowTemplate(templates[0] ?? null)}} 
+                  isMulti={false}                
+                />
               </div>
               <div className="grid grid-cols-4 gap-4">
                 <Label>Supervisor</Label> 

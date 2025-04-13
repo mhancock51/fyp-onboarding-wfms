@@ -54,20 +54,9 @@ export default function AddTaskToWorkflowDialog(props: Props) {
     closeAndClear();
   }
 
-  function handleAccountsToNotifyChange(options: MultiValue<{label: string; value: string}>) {
-    var accountsToNotify: AccountDirectory[] = [];
-    options.forEach((option) => {
-      const account = accounts.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id === option.value);
-      if (account !== undefined) {
-        accountsToNotify.push(account);
-      }
-    }) 
-    setAccountsToNotify(accountsToNotify);
-  }
-
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent style={{minWidth: step === 0 ? "900px" : "600px"}}>
+      <DialogContent style={{minWidth: step === 0 ? "1000px" : "750px"}}>
         <DialogHeader>
           <DialogTitle>Add Task to Workflow Template</DialogTitle>
         </DialogHeader>

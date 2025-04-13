@@ -55,6 +55,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
 
   function canCreateDependency() {
     // check that a dependency on this node can actually be created
+    if (props.data.isReadOnly) return false;
     if (props.data.isADependency) return false;
     if (props.data.isSelectedNode) return false;
     if (props.data.selectedNode === null) return false;
@@ -90,7 +91,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
             <span className='absolute top-[-30px] text-red-300'>Dependency</span>
           }
           {
-            props.data.isADependency &&
+            props.data.isADependency && !props.data.isReadOnly &&
             /// button to remove dependency that selected node has on this
             <div className='invisible group-hover:visible absolute top-[-12px] right-[-12px] bg-background rounded-full hover:bg-gray-200 p-2 cursor-pointer'
               onClick={(event: any) => { event.stopPropagation(); props.data.removeDependency();}}
