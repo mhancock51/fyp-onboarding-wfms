@@ -124,7 +124,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                 options={
                   [PLACEHOLDER_SUPERVISORS_ACCOUNT, PLACEHOLDER_ONBOARDERS_ACCOUNT].concat(accounts)
                     .filter(a => a.id !== assignee?.id)
-                    .map((account) => ({label: account.displayName, value: account.id}))
+                    .map((account) => ({label: `${account.displayName} (${account.departmentName})`, value: account.id}))
                 }
                 value={accountsToNotify.map((account) => ({label: account.displayName, value: account.id}))}
                 onChange={handleAccountsToNotifyChange}

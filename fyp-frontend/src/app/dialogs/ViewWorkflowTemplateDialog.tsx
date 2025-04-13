@@ -23,7 +23,7 @@ export default function ViewWorkflowTemplateDialog() {
 
   const [loading, setLoading] = useState<boolean>(false); 
   const [step, setStep] = useState<number>(0); 
-  const [selectedWorkflowTemplateId, setSelectedWorkflowTemplateId] = useState<string | null>(null);
+  const [selectedWorkflowTemplate, setSelectedWorkflowTemplate] = useState<WorkflowTemplateDTO | null>(null);
 
   // workflow data
   const [name, setName] = useState<string>("");
@@ -63,17 +63,17 @@ export default function ViewWorkflowTemplateDialog() {
 
   function closeAndClear() {
     dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(false));
-    setSelectedWorkflowTemplateId(null);
+    setSelectedWorkflowTemplate(null);
     setPreflowTasks([]);
     setMainflowTasks([]);
     setStep(0);
   }
 
   useEffect(() => {
-    if (selectedWorkflowTemplateId !== null) {
-      void fetchWorkflowTemplate(selectedWorkflowTemplateId);
+    if (selectedWorkflowTemplate !== null) {
+      void fetchWorkflowTemplate(selectedWorkflowTemplate.id);
     } 
-  }, [selectedWorkflowTemplateId]);
+  }, [selectedWorkflowTemplate]);
 
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>
@@ -85,12 +85,12 @@ export default function ViewWorkflowTemplateDialog() {
           step === 0 &&
           <>
             <WorkflowTemplateTable 
-              onTemplateSelected={(workflowTemplate: WorkflowTemplateDTO) => {setSelectedWorkflowTemplateId(workflowTemplate.id)}}
-              selectedTemplateId={selectedWorkflowTemplateId}
+              onTemplateSelected={(workflowTemplate: WorkflowTemplateDTO) => {setSelectedWorkflowTemplate(workflowTemplate)}}
+              selectedTemplateId={selectedWorkflowTemplate?.id ?? null}
             />
             <DialogFooter>
               <div className='flex flex-row w-full justify-end'>
-                <Button disabled={selectedWorkflowTemplateId === null} onClick={() => {setStep(1)}} >
+                <Button disabled={selectedWorkflowTemplate === null} onClick={() => {setStep(1)}} >
                   View Workflow
                 </Button>
               </div>
@@ -131,7 +131,7 @@ export default function ViewWorkflowTemplateDialog() {
                 <Button onClick={() => {setStep(0)}} >
                   Back
                 </Button>
-                <Button onClick={() => {navigate(`/workflows/build?id=${selectedWorkflowTemplateId}`); closeAndClear()}} >
+                <Button disabled={selectedWorkflowTemplate?.status === "archived"} onClick={() => {navigate(`/workflows/build?id=${selectedWorkflowTemplate?.id}`); closeAndClear()}} >
                   Update Workflow
                 </Button>
               </div>
