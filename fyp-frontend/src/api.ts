@@ -191,13 +191,7 @@ const Api = {
   }, 
   fetchAccountsDirectory: async() => {
     return AuthInstance.get(`${ROUTE_URL}/account/directory`);
-  },
-  createWorkflowTemplate: async(payload: CreateWorkflowTemplatePayload) => {
-    return AuthInstance.post(`${ROUTE_URL}/workflow-template/create`, payload);
-  },
-  fetchWorkflowTemplate: async(workflowTemplateId: string) => {
-    return AuthInstance.get(`${ROUTE_URL}/workflow-template?workflowTemplateId=${workflowTemplateId}`);
-  },
+  },    
   fetchTaskTemplateComments: async(taskTemplateId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/comment/tasktemplate?taskTemplateId=${taskTemplateId}`);
   },
@@ -210,10 +204,7 @@ const Api = {
   },  
   fetchWorkflowsDocuments: async(workflowInstanceId: string) => {
     return AuthInstance.get(`${ROUTE_URL}/document/workflow-instance/data?workflowInstanceId=${workflowInstanceId}`);
-  },
-  fetchAllWorkflowTemplates: async() => {
-    return AuthInstance.get(`${ROUTE_URL}/workflow-template/all`);
-  },
+  },  
   createWorkflowInstance: async(workflowTeamplateId: string, supervisorAccountId: string, onboardingEmployeeDetails: { displayName: string, emailAddress: string, departmentId: string} | null) => {
     return AuthInstance.post(`${ROUTE_URL}/workflow/instance/create`, {
       workflowTeamplateId,
@@ -243,6 +234,23 @@ const Api = {
     fetchWorkflowInstances: async() => {
       return AuthInstance.get(`${ROUTE_URL}/workflow/instance/all`);
     },
+  },
+  workflowTemplates: {
+    updateWorkflowTemplate: async(payload: CreateWorkflowTemplatePayload) => {
+      return AuthInstance.post(`${ROUTE_URL}/workflow/template/update`, payload);
+    },
+    createWorkflowTemplate: async(payload: CreateWorkflowTemplatePayload) => {
+      return AuthInstance.post(`${ROUTE_URL}/workflow/template/create`, payload);
+    },
+    fetchAllWorkflowTemplates: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/template/all`);
+    },
+    fetchWorkflowTemplate: async(workflowTemplateId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/workflow/template?workflowTemplateId=${workflowTemplateId}`);
+    },
+    archiveWorkflowTemplate: async(workflowTemplateId: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/workflow/template/archive`, null, {params: {workflowTemplateId: workflowTemplateId}});
+    }
   }
 }
 

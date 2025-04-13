@@ -1,4 +1,4 @@
-import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
+import AccountDirectoryLookup from '@/components/Lookups/AccountDirectoryLookup';
 import TaskTemplatesTable from '@/components/Tables/TaskTemplatesTable';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import ClearableInput from '@/components/ClearableInput';
 
 interface Props {
   open: boolean;
@@ -53,20 +54,9 @@ export default function AddTaskToWorkflowDialog(props: Props) {
     closeAndClear();
   }
 
-  function handleAccountsToNotifyChange(options: MultiValue<{label: string; value: string}>) {
-    var accountsToNotify: AccountDirectory[] = [];
-    options.forEach((option) => {
-      const account = accounts.concat([PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT]).find(a => a.id === option.value);
-      if (account !== undefined) {
-        accountsToNotify.push(account);
-      }
-    }) 
-    setAccountsToNotify(accountsToNotify);
-  }
-
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent style={{minWidth: step === 0 ? "900px" : "600px"}}>
+      <DialogContent style={{minWidth: step === 0 ? "1000px" : "750px"}}>
         <DialogHeader>
           <DialogTitle>Add Task to Workflow Template</DialogTitle>
         </DialogHeader>
@@ -83,8 +73,8 @@ export default function AddTaskToWorkflowDialog(props: Props) {
           <form className='flex flex-col gap-2 w-full' onSubmit={(event: any) => { event.preventDefault(); addTaskToWorkflow();}}>
             <div className="grid grid-cols-4 gap-4">
               <Label>Assignee</Label>
-              <AccountDirectoryLookup setAccount={setAssignee} account={assignee}
-                additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []}
+              <AccountDirectoryLookup setAccounts={(accounts: AccountDirectory[]) => { setAssignee(accounts[accounts.length - 1] ?? null); } } accounts={assignee !== null ? [assignee] : []}
+                additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []} isMulti={false}             
               />                     
             </div>  
             {
@@ -119,25 +109,18 @@ export default function AddTaskToWorkflowDialog(props: Props) {
             }
             <div className="grid grid-cols-4 gap-4">
               <Label>Notify On Task Completion</Label>
-              <Select className='col-span-3' isMulti
-                options={
-                  [PLACEHOLDER_SUPERVISORS_ACCOUNT, PLACEHOLDER_ONBOARDERS_ACCOUNT].concat(accounts)
-                    .filter(a => a.id !== assignee?.id)
-                    .map((account) => ({label: account.displayName, value: account.id}))
-                }
-                value={accountsToNotify.map((account) => ({label: account.displayName, value: account.id}))}
-                onChange={handleAccountsToNotifyChange}
+              <AccountDirectoryLookup 
+                isMulti={true}
+                accounts={accountsToNotify} 
+                setAccounts={(accounts: AccountDirectory[]) => {setAccountsToNotify(accounts)}} 
+                additionalAccounts={[PLACEHOLDER_SUPERVISORS_ACCOUNT, PLACEHOLDER_ONBOARDERS_ACCOUNT]}
               />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className='flex flex-col gap-2'>
-                <Label>Days Until Due</Label>
-                <Label className='font-normal'>(after {props.section} starts)</Label>
-              </div>
+              <Label>Days to complete task</Label>                              
               <div className='col-span-3 flex flex-row gap-1 items-center'>
-                <Input className='flex-8' type='number' min={1} value={daysUntilDue ?? ""} onChange={(event: any) => {setDaysUntilDue(event.target.value);}}/>
-                <Label className='font-normal flex-3'>Day(s)</Label>
-                <Button className='flex-1' variant={"destructive"} onClick={() => {setDaysUntilDue(null);}}><X/></Button>
+                <ClearableInput inputType={'number'} value={daysUntilDue} setValue={setDaysUntilDue} min={1} className='flex-10'/>
+                <Label>Day(s)</Label>                
               </div>
             </div>
             <DialogFooter>

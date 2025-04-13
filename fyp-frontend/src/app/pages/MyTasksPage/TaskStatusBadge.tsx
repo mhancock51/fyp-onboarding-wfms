@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge'
+import clsx from 'clsx';
 import React from 'react'
 
-export default function TaskStatusBadge(props: {status: string}) {
+export default function TaskStatusBadge(props: {status: string, className?: string;}) {
   function statusToColor(status: string) {
     switch(status.toLowerCase()) {
       case "open":
@@ -14,7 +15,7 @@ export default function TaskStatusBadge(props: {status: string}) {
   }
 
   return (
-    <Badge className={`rounded-full text-white ${statusToColor(props.status)} text-center p-2 min-w-[90px]`}>
+    <Badge className={clsx(`rounded-full text-white ${statusToColor(props.status)} text-center p-2 min-w-[90px]`, props.className)}>
       {props.status.toUpperCase()}
     </Badge>
   )

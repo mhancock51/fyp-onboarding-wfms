@@ -46,15 +46,11 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly IAccountRepository _accountRepository;
 
-        private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
-        private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
-
         private readonly ITaskInstanceHandlerFactory _taskInstanceHandlerFactory;
 
         public TaskInstanceLogic(ITaskInstanceRepository taskInstanceRepository, IMapper mapper, ITaskTemplateLogic taskTemplateLogic,
             IAccountRepository accountRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceHandlerFactory taskInstanceHandlerFactory,
-            IWorkflowTemplateRepository workflowTemplateRepository, IWorkflowInstanceRepository workflowInstanceRepository, IMediator mediator
-            , ILogger<TaskInstanceLogic> logger)
+            IMediator mediator, ILogger<TaskInstanceLogic> logger)
         {
             _taskInstanceRepository = taskInstanceRepository;
             _mapper = mapper;
@@ -62,8 +58,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             _accountRepository = accountRepository;
             _taskTemplateRepository = taskTemplateRepository;
             _taskInstanceHandlerFactory = taskInstanceHandlerFactory;
-            _workflowTemplateRepository = workflowTemplateRepository;
-            _workflowInstanceRepository = workflowInstanceRepository;
             _mediator = mediator;
             _logger = logger;
         }
@@ -207,16 +201,18 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to create task instance data" };
             }
 
+            // get task instance DTO
             if (taskInstance.WorkflowInstanceId != null)
             {
-                // retrieve name of workflow template
-                var workflowInstance = await _workflowInstanceRepository.GetById(taskInstance.WorkflowInstanceId);
-                var workflowTemplate = await _workflowTemplateRepository.GetById(workflowInstance.WorkflowTemplateId);
-                taskInstance.WorkflowInstanceTemplateName = workflowTemplate.Name;
-            }
-            else
-            {
-                taskInstance.WorkflowInstanceTemplateName = "";
+                var mediatorReponse = await _mediator.Send(new RetrieveWorkflowInstanceRequest(taskInstance.WorkflowInstanceId));
+                if (mediatorReponse.Success == false)
+                {
+                    _logger.LogWarning($"Failed to retrieve workflow instance {taskInstance.WorkflowInstanceId} through mediator");
+                }
+                else
+                {
+                     taskInstance.WorkflowInstance = mediatorReponse.Data;
+                }
             }
 
             return new HTTPResponse<TaskInstanceDTO, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 

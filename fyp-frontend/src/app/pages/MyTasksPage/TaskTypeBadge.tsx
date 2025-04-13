@@ -1,10 +1,17 @@
+import { Badge } from '@/components/ui/badge';
 import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
-import { ListTodo, FileUp, StickyNote, FileText, Rocket } from 'lucide-react';
+import clsx from 'clsx';
+import { ListTodo, FileUp, StickyNote, FileText, Rocket} from 'lucide-react';
 import React from 'react'
 import { useSelector } from 'react-redux';
 
-export default function TaskTypeBadge(props: {taskTypeId: string}) {
+interface Props {
+  taskTypeId: string;
+  className?: string;
+}
+
+export default function TaskTypeBadge(props: Props) {
   const taskTypes = useSelector((state: RootState) => state.app.taskTypes);
 
   function taskTypeIcon(taskType?: string) {
@@ -24,9 +31,9 @@ export default function TaskTypeBadge(props: {taskTypeId: string}) {
   }
 
   return (
-    <div className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-start'>
+    <Badge className={clsx('p-2 w-full rounded-full cursor-pointer min-w-[125px]', props.className)}>
       {taskTypeIcon(props.taskTypeId)}
       {taskTypes.find((taskType: TaskType) => (taskType.id === props.taskTypeId))?.taskName}
-    </div>
+    </Badge>
   )
 }

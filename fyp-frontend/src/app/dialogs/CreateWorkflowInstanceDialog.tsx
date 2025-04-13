@@ -1,12 +1,12 @@
 import Api from '@/api';
-import AccountDirectoryLookup from '@/components/AccountDirectoryLookup';
-import DepartmentLookup from '@/components/DepartmentLookup';
+import AccountDirectoryLookup from '@/components/Lookups/AccountDirectoryLookup';
+import DepartmentLookup from '@/components/Lookups/DepartmentLookup';
+import WorkflowTemplateLookup from '@/components/Lookups/WorkflowTemplateLookup';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import WorkflowTemplateLookup from '@/components/WorkflowTemplateLookup';
 import { SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG } from '@/features/appSlice';
 import AccountDirectory from '@/models/AccountDirectory';
 import Department from '@/models/Department';
@@ -113,24 +113,26 @@ export default function CreateWorkflowInstanceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="min-w-[600px]">
         {
           step === 0 &&
           <>
             <DialogHeader>
               Start a workflow instance
             </DialogHeader>
-            <form className="flex flex-col gap-4 py-4" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
-              <div className="flex flex-row items-center gap-4">
-                <Label htmlFor="name" className="flex-4">Workflow Template</Label>
-                <WorkflowTemplateLookup value={workflowTemplate} setValue={setWorkflowTemplate}/>
-              </div>
-              <div className="flex flex-row items-center gap-4">
-                <Label htmlFor="name" className="flex-4">Supervisor</Label>
-                {/* TODO Change filter to filter by isSupervisor */}
-                <AccountDirectoryLookup setAccount={setSupervisor} account={supervisor}
-                  additionalAccounts={[]} filter={(a: AccountDirectory) => (a.isSupervisor)}
+            <form className="gap-4 py-4 flex flex-col" onSubmit={(event: any) => {event.preventDefault(); nextStep();}}>
+              <div className="grid grid-cols-4 gap-4">
+                <Label>Workflow Template</Label>
+                <WorkflowTemplateLookup templates={workflowTemplate !== null ? [workflowTemplate] : []} 
+                  setTemplates={(templates: WorkflowTemplateDTO[]) => {setWorkflowTemplate(templates[0] ?? null)}} 
+                  isMulti={false}                
                 />
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <Label>Supervisor</Label> 
+                <AccountDirectoryLookup accounts={supervisor !== null ? [supervisor] : []} setAccounts={(accounts: AccountDirectory[]) => setSupervisor(accounts[0])} 
+                  additionalAccounts={[]} isMulti={false} filter={(a: AccountDirectory) => (a.isSupervisor)}
+                />               
               </div>
               <DialogFooter>              
                 <Button type='submit'>Next</Button>

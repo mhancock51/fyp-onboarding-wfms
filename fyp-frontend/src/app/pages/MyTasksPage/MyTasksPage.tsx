@@ -141,8 +141,8 @@ export default function MyTasksPage() {
                         </div>
                       }
                       {
-                        task.workflowInstanceId !== "" && task.workflowInstanceId !== undefined &&
-                        <WorkflowInstanceBadge workflowInstanceId={task.workflowInstanceId}/>
+                        task.workflowInstance !== null &&
+                        <WorkflowInstanceBadge workflowInstance={task.workflowInstance}/>
                       }
                     </TableCell>
                     <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>

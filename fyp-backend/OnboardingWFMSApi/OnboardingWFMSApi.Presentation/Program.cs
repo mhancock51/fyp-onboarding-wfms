@@ -13,6 +13,7 @@ using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Reflection;
@@ -109,6 +110,8 @@ builder.Services.AddScoped<IRequestHandler<AccountRegistrationRequest, HTTPRespo
 builder.Services.AddScoped<IRequestHandler<UploadDocumentRequest, HTTPResponse<DocumentDTO, string>>, UploadDocumentHandler>();
 builder.Services.AddScoped<IRequestHandler<InviteAccountRequest, HTTPResponse<string, string>>, InviteAccountHandler>();
 builder.Services.AddScoped<IRequestHandler<CreateWorkflowInstanceAuditLogRequest, ServerResponse<string, string>>, CreateWorkflowInstanceAuditLogHandler>();
+builder.Services.AddScoped<IRequestHandler<RetrieveWorkflowInstanceRequest, ServerResponse<WorkflowInstanceDTO, string>>, RetrieveWorkflowInstanceHandler>();
+builder.Services.AddScoped<IRequestHandler<CreateTaskInstanceRequest, ServerResponse<string, string>>, CreateTaskInstanceHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

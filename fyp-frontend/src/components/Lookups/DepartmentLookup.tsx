@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import Api from '@/api';
 import Department from '@/models/Department';
 import { toast } from 'sonner';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { Plus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_DEPARTMENTS, SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG } from '@/features/appSlice';

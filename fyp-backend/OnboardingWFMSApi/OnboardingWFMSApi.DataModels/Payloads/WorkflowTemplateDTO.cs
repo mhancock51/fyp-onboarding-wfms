@@ -18,6 +18,8 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string Description { get; set; }
         [JsonPropertyName("isOnboardingWF")]
         public bool IsOnboardingWF { get; set; }
+        [JsonPropertyName("status")]
+        public string Status { get; set; }  
         [JsonInclude]
         [JsonPropertyName("preflowNodes")]
         public List<WorkflowTemplateNodeDTO> PreflowNodes { get; set; }

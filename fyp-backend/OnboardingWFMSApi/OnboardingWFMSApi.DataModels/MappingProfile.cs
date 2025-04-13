@@ -36,6 +36,9 @@ namespace OnboardingWFMSApi.DataModels
 
             CreateMap<ReportedIssueTable, IssueDTO>();
             CreateMap<NotificationTable, NotificationDTO>();
+
+            CreateMap<CreateWorkflowTemplateNode, WorkflowTemplateNodeTable>();
+            CreateMap<CreateWorkflowTemplatePayload, WorkflowTemplateTable>();
         }
     }
 }
