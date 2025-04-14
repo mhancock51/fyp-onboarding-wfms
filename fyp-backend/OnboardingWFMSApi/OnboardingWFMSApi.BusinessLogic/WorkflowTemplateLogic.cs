@@ -160,12 +160,19 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<string, string>> UpdateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId)
         {
-            // convert payload data to appropriate models
-            var workflowTemplate = _mapper.Map<WorkflowTemplateTable>(payload);
-            if (string.IsNullOrEmpty(workflowTemplate.Id))
+            var workflowTemplate = await _workflowTemplateRepository.GetById(payload.Id);
+            if (workflowTemplate == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Template doesn't exist" };
+
+            if (!string.IsNullOrEmpty(payload.Name))
             {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "No workflow template ID provided" };
+                workflowTemplate.Name = payload.Name;
             }
+            if (!string.IsNullOrEmpty(payload.Description))
+            {
+                workflowTemplate.Description = payload.Description;
+            }
+
+            workflowTemplate.IsOnboardingWF = payload.IsOnboardingWF;
 
             var nodes = new List<WorkflowTemplateNodeTable>();
             var dependencies = new List<NodeTaskDependencyTable>();
