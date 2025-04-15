@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 using OnboardingWFMSApi.DataModels;
+using System.Security.Claims;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
 {
@@ -68,6 +69,23 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             else
             {
                 var response = await _accountLogic.GetInvitedAccount(emailAddress);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _accountLogic.DeleteAccount(accountId);
                 return StatusCode(response.HttpCode, response);
             }
         }

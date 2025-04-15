@@ -19,6 +19,7 @@ import { SET_ACCOUNTS_DIRECTORY, SET_DEPARTMENTS, SET_ORGANISATION, SET_TASK_TEM
 import WorkflowInstancesPage from './app/pages/WorkflowInstancesPage/WorkflowInstancesPage';
 import WorkflowDashboardPage from './app/pages/WorkflowDashboardPage/WorkflowDashboardPage';
 import IssuesPage from './app/pages/IssuesPage/IssuesPage';
+import SettingsPage from './app/pages/SettingsPage/SettingsPage';
 
 export default function App() {
   const user = useSelector((state: RootState) => state.app.user);
@@ -145,7 +146,7 @@ export default function App() {
       <Route path="/" element={user !== null ? <Layout /> : <Navigate to="/login" />}>
         <Route index element={<MyTasksPage />} />
         <Route path="/workflows" element={<WorkflowInstancesPage />} />
-        <Route path="/settings" element={<div><h1>Settings</h1></div>} />
+        <Route path="/settings" element={<SettingsPage/>} />
         <Route path="/issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
         <Route path="/workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
         <Route path="/workflows/build" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />

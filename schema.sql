@@ -384,7 +384,8 @@ ALTER TABLE workflowinstancenode
 /* Comment table constraints */
 ALTER TABLE comment
     ADD CONSTRAINT fk_comment_commenter_id
-    FOREIGN KEY (CommenterId) REFERENCES account(AccountId);
+    FOREIGN KEY (CommenterId) REFERENCES account(AccountId)
+    ON DELETE CASCADE;
 
 ALTER TABLE comment
     ADD CONSTRAINT fk_comment__task_template_id

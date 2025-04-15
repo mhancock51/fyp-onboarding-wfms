@@ -23,12 +23,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
         public Task<bool> DoesAccountExistByEmail(string emailAddress);
         public Task<HTTPResponse<string, string>> MakeSupervisor(string accountId);
+        public Task<HTTPResponse<string, string>> DeleteAccount(string accountId);
     }
 
     public class AccountLogic : IAccountLogic
     {
         public const string INVITED_STATUS = "invited";
         public const string REGISTERED_STATUS = "registered";
+        public const string CLOSED_STATUS = "closed";
 
         private readonly IAccountRepository _accountRepository;
         private readonly IDepartmentRepository _departmentRepository;
@@ -46,6 +48,21 @@ namespace OnboardingWFMSApi.BusinessLogic
             _mapper = mapper;
             _mediator = mediator;
             _workflowInstanceRepository = workflowInstanceRepository;
+        }
+
+        public async Task<HTTPResponse<string, string>> DeleteAccount(string accountId)
+        {
+            var account = await _accountRepository.GetById(accountId);
+            if (account == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
+            // anonymise PI info
+            account.EmailAddress = "---";
+            account.DisplayName = "[Deleted]";
+            account.AccountStatus = CLOSED_STATUS;
+
+            await _accountRepository.UpdateAsync(account);
+
+
+            return new HTTPResponse<string, string>() { Success = false, HttpCode = 200, Data = "Successfully deleted account" };
         }
 
         public async Task<bool> DoesAccountExistByEmail(string emailAddress)

@@ -84,7 +84,10 @@ const Api = {
   account: {
     makeSupervisor: async(accountId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/account/make-supervisor`, null, { params: {accountId: accountId}});
-    }
+    },
+    deleteAccount: async() => {
+      return AuthInstance.delete(`${ROUTE_URL}/account`);
+    } 
   },
   organisation: {
     fetchOrganisation: async() => {
