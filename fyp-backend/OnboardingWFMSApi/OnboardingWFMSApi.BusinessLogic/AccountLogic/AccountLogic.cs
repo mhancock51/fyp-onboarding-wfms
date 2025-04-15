@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
 {
     public interface IAccountLogic
     {
@@ -21,8 +21,6 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress);
         public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
         public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
-        public Task<bool> DoesAccountExistByEmail(string emailAddress);
-        public Task<bool> IsAccountRegistered(string accountId);
         public Task<HTTPResponse<string, string>> MakeSupervisor(string accountId);
         public Task<HTTPResponse<string, string>> DeleteAccount(string accountId);
     }
@@ -40,7 +38,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
 
-        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository, 
+        public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository,
             IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository)
         {
             _accountRepository = accountRepository;
@@ -55,6 +53,17 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var account = await _accountRepository.GetById(accountId);
             if (account == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
+
+            // check account isn't associated to an active workflow instance
+            var workflowInstances = await _mediator.Send(new RetrieveAccountsWorkflowInstancesRequest(accountId));
+            foreach (var instance in workflowInstances)
+            {
+                if (instance.Status != WorkflowInstanceLogic.WORKFLOW_INSTANCE_COMPLETE_STATUS)
+                {
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account is associated with an open workflow instance, please complete workflow to delete account" };
+                }
+            }
+
             // anonymise PI info
             account.EmailAddress = "---";
             account.DisplayName = "[Deleted]";
@@ -64,11 +73,6 @@ namespace OnboardingWFMSApi.BusinessLogic
 
 
             return new HTTPResponse<string, string>() { Success = false, HttpCode = 200, Data = "Successfully deleted account" };
-        }
-
-        public async Task<bool> DoesAccountExistByEmail(string emailAddress)
-        {
-            return (await _accountRepository.GetByEmailAddress(emailAddress)) != null;
         }
 
         public async Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId)
@@ -86,7 +90,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // get all registed accounts
             var registeredAccounts = (await _accountRepository.GetAll()).Where(i => i.AccountStatus == REGISTERED_STATUS);
             var directory = new List<AccountDirectoryDTO>();
-            foreach(var account in registeredAccounts)
+            foreach (var account in registeredAccounts)
             {
                 var directoryItem = _mapper.Map<AccountDirectoryDTO>(account);
                 // set department name
@@ -118,7 +122,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         }
 
         public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, string departmentId)
-        {           
+        {
             // check email address doesn't already exist
             var existingAccount = await _accountRepository.GetByEmailAddress(emailAddress);
             if (existingAccount != null)
@@ -130,12 +134,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (!await _departmentRepository.ExistsById(departmentId))
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Department doesn't exist", HttpCode = 400 };
-            }            
+            }
 
             // insert user record and set status to invited
             AccountTable account = new AccountTable()
             {
-                EmailAddress = emailAddress,                
+                EmailAddress = emailAddress,
                 IsSupervisor = false,
                 OrganisationId = "organisation",
                 DepartmentId = departmentId,
@@ -154,20 +158,6 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to invite user" };
             }
 
-        }
-
-        public async Task<bool> IsAccountRegistered(string accountId)
-        {
-            var account = await _accountRepository.GetById(accountId);
-            if (account == null) return false;
-            if (account.AccountStatus == REGISTERED_STATUS)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         public async Task<HTTPResponse<string, string>> MakeSupervisor(string accountId)
@@ -220,7 +210,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (account == null)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account doesn't exist", HttpCode = 400 };
-            }            
+            }
             if (account.AccountStatus != INVITED_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account is already registered", HttpCode = 400 };
@@ -231,10 +221,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Confirmation password doesn't match password", HttpCode = 400 };
             }
-            
+
             // update record
             account.HashedPassword = password;
-            account.AccountStatus  = REGISTERED_STATUS;
+            account.AccountStatus = REGISTERED_STATUS;
 
             // if first account, make admin
             if (await _accountRepository.GetNumberOfAccounts() == 0)

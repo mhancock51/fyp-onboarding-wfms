@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;

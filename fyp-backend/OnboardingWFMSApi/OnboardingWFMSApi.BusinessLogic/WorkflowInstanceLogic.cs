@@ -27,7 +27,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> HandleTaskInstanceCompletion(TaskInstanceDTO taskInstance);
         public Task<HTTPResponse<string, string>> HandleOnboarderRegistration(string accountId, string emailAddress);
         public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAccountsWorkflowInstances(string accountId);        
-        public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAlllOnboardingWorkflowInstances(DateTime? from, DateTime? to);        
+        public Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAlllOnboardingWorkflowInstances(DateTime? from, DateTime? to);
+        public Task<WorkflowInstanceDTO?> GetOnboardersWorkflowInstance(string onboarderAccountId);
     }
     public class WorkflowInstanceLogic : IWorkflowInstanceLogic
     {
@@ -42,20 +43,20 @@ namespace OnboardingWFMSApi.BusinessLogic
 
 
         private readonly IWorkflowTemplateLogic _workflowTemplateLogic;
-        private readonly IAccountLogic _accountLogic;
 
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IWorkflowNodeInstanceRepository _workflowNodeInstanceRepository;
         private readonly IWorkflowTemplateNodeRepository _workflowTemplateNodeRepository;
 
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
+        private readonly IAccountRepository _accountRepository;
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
             ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
-            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IAccountLogic accountLogic, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceRepository taskInstanceRepository)
+            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceRepository taskInstanceRepository, IAccountRepository accountRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
@@ -64,11 +65,11 @@ namespace OnboardingWFMSApi.BusinessLogic
             _utility = utility;
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
             _mediator = mediator;
-            _accountLogic = accountLogic;
             _workflowNodeInstanceRepository = workflowNodeInstanceRepository;
             _workflowTemplateNodeRepository = workflowTemplateNodeRepository;
             _taskTemplateRepository = taskTemplateRepository;
             _taskInstanceRepository = taskInstanceRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -106,8 +107,8 @@ namespace OnboardingWFMSApi.BusinessLogic
                     continue;
                 }
                 // ensure all really account ids are associated with registered accounts
-                var result = await _accountLogic.IsAccountRegistered(node.AssigneeId);
-                if (result == false)
+                var isRegistered = await _accountRepository.IsAccountRegistered(node.AssigneeId);
+                if (isRegistered == false)
                 {
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template contains a task assigned to a closed account, please update to be able to start an instance" };
                 }
@@ -125,7 +126,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 if (instances.Count > 0) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "A similar onboarding workflow instance already exists" };
 
                 // ensure onboarder email isn't already associated with an existing account
-                var accountExists = await _accountLogic.DoesAccountExistByEmail(payload.OnboardingEmployeeDetails.EmailAddress);
+                var accountExists = await _accountRepository.DoesAccountExistByEmail(payload.OnboardingEmployeeDetails.EmailAddress);
                 if (accountExists) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder's email address must not be associated with an existing account" };
             }
 
@@ -302,8 +303,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (nodeTemplate.AccountsToNotify != null)
             {
                 // notify user
-                var assigneesAccount = await _accountLogic.GetDirectoryByAccountId(taskInstance.AssigneeAccountId);
-                string notificationText = $"'{taskInstance.Template.Name}' task completed by {assigneesAccount.DisplayName} for workflow {workflowInstance.WorkflowTemplate.Name}";
+                var assigneesAccount = await _mediator.Send(new RetrieveAccountDirectoryRequest(taskInstance.AssigneeAccountId));
+                string notificationText = $"'{taskInstance.Template.Name}' task completed by {assigneesAccount.DisplayName ?? "USER"} for workflow {workflowInstance.WorkflowTemplate.Name}";
                 if (workflowInstance.WorkflowTemplate.IsOnboardingWF && workflowInstance.OnboardingEmployeeDetails != null)
                 {
                     notificationText += $" to onboard {workflowInstance.OnboardingEmployeeDetails.DisplayName}";
@@ -621,6 +622,15 @@ namespace OnboardingWFMSApi.BusinessLogic
                 if (workflowInstance != null) workflowInstanceDTOs.Add(workflowInstance);
             }
             return new HTTPResponse<List<WorkflowInstanceDTO>, string>() { Success = true, HttpCode = 200, Data = workflowInstanceDTOs };
+        }
+
+        public async Task<WorkflowInstanceDTO?> GetOnboardersWorkflowInstance(string onboarderAccountId)
+        {
+            var workflowInstances = await _workflowInstanceRepository.GetInstancesByOnboarderAccountId(onboarderAccountId);
+            if (workflowInstances.Count == 0) return null;
+
+            var workflowInstanceDTO = (await GetWorkflowInstance(workflowInstances[0].Id)).Data ?? null;
+            return workflowInstanceDTO;
         }
     }
 }
