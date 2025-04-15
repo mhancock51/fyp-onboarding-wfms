@@ -96,6 +96,22 @@ namespace OnboardingWFMSApi.BusinessLogic
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = $"Workflow template contains a task template that is archived or inactive ({taskTemplate.Name})" };
                 }
             }
+
+            // ensure all assignees in all nodes are registered i.e. account not closed
+            foreach(var node in workflowTemplate.PreflowNodes.Concat(workflowTemplate.MainflowNodes))
+            {
+                // ignore placeholder values
+                if (node.AssigneeId == Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER || node.AssigneeId == Utility.SUPERVISOR_ACCOUNT_ID_PLACEHOLDER)
+                {
+                    continue;
+                }
+                // ensure all really account ids are associated with registered accounts
+                var result = await _accountLogic.IsAccountRegistered(node.AssigneeId);
+                if (result == false)
+                {
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template contains a task assigned to a closed account, please update to be able to start an instance" };
+                }
+            }
             
             if (workflowTemplate.IsOnboardingWF && (payload.OnboardingEmployeeDetails == null || payload.SupervisorAccountId == null))
             {

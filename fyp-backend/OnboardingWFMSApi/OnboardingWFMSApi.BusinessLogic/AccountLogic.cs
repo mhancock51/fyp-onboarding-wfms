@@ -22,6 +22,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts();
         public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
         public Task<bool> DoesAccountExistByEmail(string emailAddress);
+        public Task<bool> IsAccountRegistered(string accountId);
         public Task<HTTPResponse<string, string>> MakeSupervisor(string accountId);
         public Task<HTTPResponse<string, string>> DeleteAccount(string accountId);
     }
@@ -153,6 +154,20 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to invite user" };
             }
 
+        }
+
+        public async Task<bool> IsAccountRegistered(string accountId)
+        {
+            var account = await _accountRepository.GetById(accountId);
+            if (account == null) return false;
+            if (account.AccountStatus == REGISTERED_STATUS)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task<HTTPResponse<string, string>> MakeSupervisor(string accountId)

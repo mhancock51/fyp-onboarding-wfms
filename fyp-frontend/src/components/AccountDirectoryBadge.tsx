@@ -32,7 +32,7 @@ export default function AccountDirectoryBadge(props: Props) {
         }
         {
           props.accountDirectory === undefined && 
-          <div className='w-full flex flex-row justify-center text-[12px]'>Not found</div>
+          <div className='w-full flex flex-row justify-center text-[12px] items-center min-w-[125px]'>Not found</div>
         }
       </HoverCardTrigger>
       {
