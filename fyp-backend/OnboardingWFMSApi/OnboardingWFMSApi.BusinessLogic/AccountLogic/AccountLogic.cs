@@ -27,10 +27,6 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
 
     public class AccountLogic : IAccountLogic
     {
-        public const string INVITED_STATUS = "invited";
-        public const string REGISTERED_STATUS = "registered";
-        public const string CLOSED_STATUS = "closed";
-
         private readonly IAccountRepository _accountRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IOrganisationRepository _organisationRepository;
@@ -65,9 +61,9 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             }
 
             // anonymise PI info
-            account.EmailAddress = "---";
-            account.DisplayName = "[Deleted]";
-            account.AccountStatus = CLOSED_STATUS;
+            account.EmailAddress = AccountConstants.EMAIL_ADDRESS_ANONYMISED;
+            account.DisplayName = AccountConstants.DISPLAY_NAME_ANONYMISED;
+            account.AccountStatus = AccountConstants.CLOSED_STATUS;
 
             await _accountRepository.UpdateAsync(account);
 
@@ -88,7 +84,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
         public async Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts()
         {
             // get all registed accounts
-            var registeredAccounts = (await _accountRepository.GetAll()).Where(i => i.AccountStatus == REGISTERED_STATUS);
+            var registeredAccounts = (await _accountRepository.GetAll()).Where(i => i.AccountStatus == AccountConstants.REGISTERED_STATUS);
             var directory = new List<AccountDirectoryDTO>();
             foreach (var account in registeredAccounts)
             {
@@ -103,7 +99,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
         public async Task<HTTPResponse<InvitedAccountDTO, string>> GetInvitedAccount(string emailAddress)
         {
             var account = await _accountRepository.GetByEmailAddress(emailAddress);
-            if (account == null || account.AccountStatus != INVITED_STATUS)
+            if (account == null || account.AccountStatus != AccountConstants.INVITED_STATUS)
             {
                 return new HTTPResponse<InvitedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Invited account doesn't exist" };
             }
@@ -145,7 +141,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
                 DepartmentId = departmentId,
                 DisplayName = displayName,
                 HashedPassword = "",
-                AccountStatus = INVITED_STATUS
+                AccountStatus = AccountConstants.INVITED_STATUS
             };
             try
             {
@@ -174,7 +170,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account is already a supervisor" };
             }
             // ensure account is registered
-            if (existingAccount.AccountStatus != REGISTERED_STATUS)
+            if (existingAccount.AccountStatus != AccountConstants.REGISTERED_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account isn't registered" };
             }
@@ -211,7 +207,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account doesn't exist", HttpCode = 400 };
             }
-            if (account.AccountStatus != INVITED_STATUS)
+            if (account.AccountStatus != AccountConstants.INVITED_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Account is already registered", HttpCode = 400 };
             }
@@ -224,7 +220,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
 
             // update record
             account.HashedPassword = password;
-            account.AccountStatus = REGISTERED_STATUS;
+            account.AccountStatus = AccountConstants.REGISTERED_STATUS;
 
             // if first account, make admin
             if (await _accountRepository.GetNumberOfAccounts() == 0)
