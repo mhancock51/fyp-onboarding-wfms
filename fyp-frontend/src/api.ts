@@ -87,7 +87,18 @@ const Api = {
     },
     deleteAccount: async() => {
       return AuthInstance.delete(`${ROUTE_URL}/account`);
-    } 
+    },
+    updateAccount: async(displayName: string) => {
+      return AuthInstance.put(`${ROUTE_URL}/account/update`, {
+        displayName: displayName
+      });
+    },
+    updatedPassword: async(oldPassword: string, newPassword: string) => {
+      return AuthInstance.put(`${ROUTE_URL}/account/update-password`, {
+        oldPassword: oldPassword,
+        newPassword: newPassword
+      });
+    }
   },
   organisation: {
     fetchOrganisation: async() => {

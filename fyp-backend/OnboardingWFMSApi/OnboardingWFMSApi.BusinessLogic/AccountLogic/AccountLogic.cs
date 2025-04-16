@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
+using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
@@ -23,6 +25,8 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
         public Task<AccountDirectoryDTO> GetDirectoryByAccountId(string accountId);
         public Task<HTTPResponse<string, string>> MakeSupervisor(string accountId);
         public Task<HTTPResponse<string, string>> DeleteAccount(string accountId);
+        public Task<HTTPResponse<string, string>> UpdateAccount(UpdateAccountPayload payload, string accountId);
+        public Task<HTTPResponse<string, string>> UpdatePassword(UpdatePasswordPayload payload, string accountId);
     }
 
     public class AccountLogic : IAccountLogic
@@ -31,11 +35,13 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IOrganisationRepository _organisationRepository;
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
+        private readonly ILogger<AccountLogic> _logger;
 
         public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository,
-            IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository)
+            IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository, ILogger<AccountLogic> logger)
         {
             _accountRepository = accountRepository;
             _departmentRepository = departmentRepository;
@@ -43,6 +49,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             _mapper = mapper;
             _mediator = mediator;
             _workflowInstanceRepository = workflowInstanceRepository;
+            _logger = logger;
         }
 
         public async Task<HTTPResponse<string, string>> DeleteAccount(string accountId)
@@ -240,6 +247,54 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             // TODO: possibly implement check to fallback if failed from medaitors response
 
             return new HTTPResponse<string, string>() { Success = true, Data = "Registered user", HttpCode = 200 };
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateAccount(UpdateAccountPayload payload, string accountId)
+        {
+            var account = await _accountRepository.GetById(accountId);
+            if (account == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
+
+            if (!string.IsNullOrEmpty(payload.DisplayName))
+            {
+                account.DisplayName = payload.DisplayName;
+            }
+
+            try
+            {
+                await _accountRepository.UpdateAsync(account);
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated account details" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to update account details for account {account.Id}");
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = "Failed to update account details" };
+            }
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdatePassword(UpdatePasswordPayload payload, string accountId)
+        {
+            var account = await _accountRepository.GetById(accountId);
+            if (account == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
+
+            var hashedOldPassword = AuthLogic.GetHashString(payload.OldPassword);
+            if (account.HashedPassword != hashedOldPassword)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Incorrect old password given" };
+            }
+
+            // update password
+            var hashedNewPassword = AuthLogic.GetHashString(payload.NewPassword);
+            account.HashedPassword = hashedNewPassword;
+            try
+            {
+                await _accountRepository.UpdateAsync(account);
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Successfully updated password" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to update account {accountId}");
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Error = "Failed to updated password" };
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Spinner } from '@/components/ui/spinner'
 import { SET_USER } from '@/features/appSlice'
 import HTTPresponse from '@/models/HTTPresponse'
 import { RootState } from '@/store'
@@ -13,6 +14,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import ChangePasswordForm from './ChangePasswordForm'
 
 export default function SettingsPage() {
   // const DELETE_ACCOUNT_CONFIRMATION_INPUT = "DELETE MY ACCOUNT";
@@ -23,7 +25,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
 
   const [displayName, setDisplayName] = useState<string>("");
-  const [password, setPassword] = useState<string>("**********");
+  
   const [loading, setLoading] = useState<boolean>(false);
 
   function logOutUser() {
@@ -47,6 +49,9 @@ export default function SettingsPage() {
         toast.error("Failed to delete account");
       } 
     })
+    .finally(() => {
+      setLoading(false);
+    })
   }
 
   function handleDeleteAccount() {
@@ -60,6 +65,26 @@ export default function SettingsPage() {
     void deleteAccount();
   }
 
+  async function updateAccount() {
+    setLoading(true);
+    await Api.account.updateAccount(displayName)
+    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+      Utils.relogin();
+      toast.success("Successfully updated account");
+    })
+    .catch((error) => {
+      if (error.response.data.error) {
+        toast.error(error.response.data.error);
+      }
+      else {
+        toast.error("Failed to updated account");
+      } 
+    })
+    .finally(() => {
+      setLoading(false);
+    })
+  }
+
   useEffect(() => {
     if (user !== null) {
       setDisplayName(user?.displayName);
@@ -71,7 +96,7 @@ export default function SettingsPage() {
       <h1 className='text-xl text-foreground font-bold m-2'>Settings</h1>
       <Separator/>
       {/* Update account form */}
-      <form className='flex flex-col gap-2' onSubmit={(event: any) => {event.preventDefault();}}>
+      <form className='flex flex-col gap-2 w-[50vw] mx-auto' onSubmit={(event: any) => {event.preventDefault(); void updateAccount();}}>
         <h2 className='font-semibold text-md text-foreground'>Update your details</h2>
         <div className='grid grid-cols-4'>
           <Label className='font-normal'>Email Address</Label>
@@ -83,22 +108,31 @@ export default function SettingsPage() {
         </div>
         <div className='grid grid-cols-4'>
           <Label className='font-normal'>Display Name</Label>
-          <Input type='text' className='col-span-3' value={displayName}/>
-        </div>
-        <div className='grid grid-cols-4'>
-          <Label className='font-normal'>Password</Label>
-          <Input type='password' className='col-span-3' value={password} onFocus={() => {if (password === "**********") setPassword("");}}/>
+          <Input type='text' className='col-span-3' value={displayName} onChange={(event: any) => setDisplayName(event.target.value)} required/>
         </div>
         <div className='flex flex-row justify-end w-full'>
-          <Button type="submit">Update Details</Button>
+          <Button type="submit">
+            {
+              loading &&
+              <Spinner className='text-primary-foreground'/>
+            }
+            Update Details
+          </Button>
         </div>
       </form>
       <Separator/>
+      <ChangePasswordForm/>
       {/* Delete account form */}
-      <form className='flex flex-col gap-2' onSubmit={(event: any) => {event.preventDefault(); handleDeleteAccount();}}>
+      <form className='flex flex-col gap-2 w-[50vw] mx-auto' onSubmit={(event: any) => {event.preventDefault(); handleDeleteAccount();}}>
         <h2 className='font-semibold text-md text-foreground'>Delete your account</h2>
         <Label className='font-normal'>This action can't be reversed!</Label>
-        <Button variant='destructive' className='w-[300px] mx-auto'><TriangleAlert/> Delete Account</Button>
+        <Button variant='destructive' className='w-[300px] mx-auto'>
+          {
+            loading &&
+            <Spinner className='text-primary-foreground'/>
+          }
+          <TriangleAlert/> Delete Account
+        </Button>
       </form>
     </div>
   )

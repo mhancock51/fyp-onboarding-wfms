@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Payloads;
 using System.Security.Claims;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
@@ -33,7 +34,6 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 return BadRequest("Please select a department");
             }
 
-            // TODO make organisation ID derived from user context
             var result = await _accountLogic.InviteUser(displayName, emailAddress, departmentId);
             return StatusCode(result.HttpCode, result);
         }
@@ -105,6 +105,40 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             // TODO restrict endpoint to supervisor accounts only
             var response = await _accountLogic.MakeSupervisor(accountId);
             return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateAccountDetails([FromBody] UpdateAccountPayload payload)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _accountLogic.UpdateAccount(payload, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
+
+        [Authorize]
+        [HttpPut("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordPayload payload)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _accountLogic.UpdatePassword(payload, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
         }
     }
 }
