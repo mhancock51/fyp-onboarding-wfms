@@ -17,6 +17,7 @@ interface Props {
   className?: string;
   hideDueDate?: boolean;
   hideCompletedDate?: boolean;
+  noTasksMessage?: string;
 }
 
 export default function TaskInstancesTable(props: Props) {
@@ -68,7 +69,7 @@ export default function TaskInstancesTable(props: Props) {
       }
       {
         !props.loading && props.tasks.length == 0 &&
-        <NoResults text='No tasks could be found'/>                    
+        <NoResults text={props.noTasksMessage ?? 'No tasks could be found'}/>                    
       }
       {
         !props.loading && props.tasks.length > 0 &&

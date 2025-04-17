@@ -45,15 +45,16 @@ export default function MyTasksPage() {
             handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
             className='h-[100%] overflow-y-auto'
             hideCompletedDate={true}
+            noTasksMessage='No open tasks assigned to you'
           />
           {/* Completed tasks accordian */}
           <Accordion type="single" collapsible className="w-full flex-2">
             <AccordionItem value={'item-1'}>
               <AccordionTrigger className='hover:no-underline cursor-pointer'>
                 <div className='flex flex-col gap-2 w-full'>
-                  <div className='flex flex-row gap-2 items-center'>
-                    <h2 className='text-md font-semibold'>Completed Tasks</h2>
-                    <div className='bg-blue-500 rounded-full text-background w-8 text-center'>{tasks.filter(t => t.status !== "open").length}</div>
+                  <div className='flex flex-row gap-2 justify-between w-[180px] p-[6px] rounded-full items-center hover:bg-accent'>
+                    <h2 className='text-[16px] font-semibold'>Completed Tasks</h2>
+                    <div className='bg-blue-500 rounded-full text-background w-8 py-[2px] text-center'>{tasks.filter(t => t.status !== "open").length}</div>
                   </div>
                   <Separator/>
                 </div>
