@@ -11,5 +11,7 @@ namespace OnboardingWFMSApi.DataModels.Payloads
     {
         [JsonPropertyName("displayName")]
         public string DisplayName { get; set; }
+        [JsonPropertyName("email")]
+        public string Email { get; set; }
     }
 }

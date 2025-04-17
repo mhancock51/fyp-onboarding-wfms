@@ -13,5 +13,6 @@ namespace OnboardingWFMSApi.DataModels.Payloads
         public string OldPassword { get; set; }
         [JsonPropertyName("newPassword")]
         public string NewPassword { get; set; }
+
     }
 }

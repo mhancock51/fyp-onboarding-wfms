@@ -88,9 +88,10 @@ const Api = {
     deleteAccount: async() => {
       return AuthInstance.delete(`${ROUTE_URL}/account`);
     },
-    updateAccount: async(displayName: string) => {
+    updateAccount: async(displayName: string, email: string) => {
       return AuthInstance.put(`${ROUTE_URL}/account/update`, {
-        displayName: displayName
+        displayName: displayName,
+        email: email
       });
     },
     updatedPassword: async(oldPassword: string, newPassword: string) => {

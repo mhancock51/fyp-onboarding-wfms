@@ -15,11 +15,12 @@ export default function UpdateDetailsForm() {
   const user = useSelector((state: RootState) => state.app.user);
 
   const [displayName, setDisplayName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   async function updateAccount() {
     setLoading(true);
-    await Api.account.updateAccount(displayName)
+    await Api.account.updateAccount(displayName, email)
     .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
       Utils.relogin();
       toast.success("Successfully updated account");
@@ -39,7 +40,8 @@ export default function UpdateDetailsForm() {
 
   useEffect(() => {
     if (user !== null) {
-      setDisplayName(user?.displayName);
+      setDisplayName(user.displayName);
+      setEmail(user.emailAddress);
     }
   }, [user]);
 
@@ -47,16 +49,16 @@ export default function UpdateDetailsForm() {
     <form className='flex flex-col gap-2 w-[50vw] mx-auto' onSubmit={(event: any) => {event.preventDefault(); void updateAccount();}}>
       <h2 className='font-semibold text-md text-foreground'>Update your details</h2>
       <div className='grid grid-cols-4'>
+        <Label className='font-normal'>Display Name</Label>
+        <Input type='text' className='col-span-3' value={displayName} onChange={(event: any) => setDisplayName(event.target.value)} required/>
+      </div>
+      <div className='grid grid-cols-4'>
         <Label className='font-normal'>Email Address</Label>
-        <Input type='text' className='col-span-3' readOnly disabled value={user?.emailAddress}/>
+        <Input type='email' className='col-span-3' value={email} onChange={(event: any) => setEmail(event.target.value)} required/>
       </div>
       <div className='grid grid-cols-4'>
         <Label className='font-normal'>Department</Label>
         <Input type='text' className='col-span-3' readOnly disabled value={user?.departmentName}/>
-      </div>
-      <div className='grid grid-cols-4'>
-        <Label className='font-normal'>Display Name</Label>
-        <Input type='text' className='col-span-3' value={displayName} onChange={(event: any) => setDisplayName(event.target.value)} required/>
       </div>
       <div className='flex flex-row justify-end w-full'>
         <Button type="submit" className='w-[150px]'>

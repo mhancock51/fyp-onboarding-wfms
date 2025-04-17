@@ -254,9 +254,14 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             var account = await _accountRepository.GetById(accountId);
             if (account == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
 
+            // update details
             if (!string.IsNullOrEmpty(payload.DisplayName))
             {
                 account.DisplayName = payload.DisplayName;
+            }
+            if (!string.IsNullOrEmpty(payload.Email))
+            {
+                account.EmailAddress = payload.Email;
             }
 
             try
