@@ -31,7 +31,7 @@ export default function AccountDirectoryLookup(props: Props) {
       account.id !== PLACEHOLDER_ONBOARDERS_ACCOUNT.id &&
       account.id !== PLACEHOLDER_SUPERVISORS_ACCOUNT.id
     ) {
-      return `${account.displayName} (${account.emailAddress})`;
+      return `${account.displayName} (${account.departmentName})`;
     } else {
       return account.displayName;
     }

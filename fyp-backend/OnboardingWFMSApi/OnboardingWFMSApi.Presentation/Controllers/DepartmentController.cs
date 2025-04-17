@@ -15,7 +15,8 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _departmentLogic = departmentLogic;
         }
 
-        [Authorize]
+
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateDepartment(string name)
         {

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnboardingWFMSApi.BusinessLogic;
 
 namespace OnboardingWFMSApi.Presentation.Controllers
 {
     [ApiController]
+    [Authorize(Policy = "SupervisorRoleClaim")]
     [Route("api/analytics")]
     public class AnalyticsController : ControllerBase
     {

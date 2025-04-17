@@ -20,6 +20,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _documentLogic = documentLogic;
         }
 
+        [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadDocument([FromBody] UploadDocumentPayload payload)
         {
@@ -36,6 +37,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetDocument(string documentId)
         {
@@ -61,6 +63,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("data")]
         public async Task<IActionResult> GetDocumentData(string documentId)
         {
