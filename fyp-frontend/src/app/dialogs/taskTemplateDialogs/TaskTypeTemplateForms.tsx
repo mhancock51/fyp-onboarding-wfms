@@ -20,7 +20,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
-import Select from 'react-select';
+import Select, { MultiValue } from 'react-select';
 
 export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
@@ -168,12 +168,14 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
       </div>
       <div className="grid grid-cols-4 items-center gap-4 w-full">
         <Label htmlFor="name">Account Access</Label>
-        <Select           
+        <Select
           className='w-100'
-          options={ACCOUNTS} 
-          onChange={(options: any[]) => { setAccessAccountIds(options.map((option) => (option.value)));}} 
-          value={accessAccountIds.map((accountId) => ({ value: accountId, label: ACCOUNTS.find(a => a.value === accountId)?.label ?? ""}))}          
-          />        
+          options={ACCOUNTS}
+          onChange={(options: any[]) => {setAccessAccountIds(options.map((option) => (option.value)));}}
+          value={accessAccountIds.map((accountId) => (ACCOUNTS.find(a => a.value === accountId)))} 
+          isMulti={true}      
+        />
+        
       </div>
       <DialogFooter className='flex flex-row justify-between'> 
         <Button type='button' onClick={props.backButtonClick}>Back</Button>
