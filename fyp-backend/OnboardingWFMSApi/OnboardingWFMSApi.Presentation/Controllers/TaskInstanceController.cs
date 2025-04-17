@@ -19,6 +19,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _taskInstanceLogic = taskInstanceLogic;
         }
 
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateInstance([FromBody] CreateTaskInstancePayload payload)
         {
@@ -60,6 +61,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("complete")]
         public async Task<IActionResult> CompleteInstance(string taskInstanceId)
         {

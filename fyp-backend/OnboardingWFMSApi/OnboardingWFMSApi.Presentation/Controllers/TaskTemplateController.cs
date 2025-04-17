@@ -19,6 +19,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _taskTemplateLogic = taskTemplateLogic;
         }
 
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTemplates(string? status)
         {
@@ -26,7 +27,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             return StatusCode(response.HttpCode, response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTaskTemplate([FromBody] CreateTaskTemplatePayload payload)
         {
@@ -44,6 +45,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             
         }
 
+        [Authorize]
         [HttpGet("get")]
         public async Task<IActionResult> GetTaskTemplate(string id)
         {
@@ -59,29 +61,26 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             return StatusCode(response.HttpCode, response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("archive")]
         public async Task<IActionResult> ArchiveTemplate(string taskTemplateId)
         {
-            // TODO make this endpoint only accessible to supervisors
             var response = await _taskTemplateLogic.ArchiveTaskTemplate(taskTemplateId);
             return StatusCode(response.HttpCode, response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateTemplate([FromBody] UpdateTaskTemplatePayload payload)
         {
-            // TODO make this endpoint only accessible to supervisors
             var response = await _taskTemplateLogic.UpdateTaskTemplate(payload);
             return StatusCode(response.HttpCode, response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpGet("has-active-instances")]
         public async Task<IActionResult> GetHasActiveInstances(string taskTemplateId)
         {
-            // TODO make this endpoint only accessible to supervisors
             var response = await _taskTemplateLogic.DoesTaskTemplateHaveActiveInstances(taskTemplateId);
             return StatusCode(response.HttpCode, response);
         }

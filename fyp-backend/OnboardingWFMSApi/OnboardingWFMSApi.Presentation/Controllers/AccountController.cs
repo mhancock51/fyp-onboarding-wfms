@@ -18,6 +18,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _accountLogic = accountLogic;
         }
 
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("invite")]
         public async Task<IActionResult> InviteUser(string displayName, string emailAddress, string departmentId)
         {
@@ -98,11 +99,10 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             return StatusCode(response.HttpCode, response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("make-supervisor")]
         public async Task<IActionResult> MakeAccountSupervisor(string accountId)
         {
-            // TODO restrict endpoint to supervisor accounts only
             var response = await _accountLogic.MakeSupervisor(accountId);
             return StatusCode(response.HttpCode, response);
         }

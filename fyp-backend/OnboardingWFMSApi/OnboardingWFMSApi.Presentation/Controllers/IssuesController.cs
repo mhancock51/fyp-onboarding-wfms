@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }            
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllIssues()
         {
@@ -60,7 +60,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }            
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("update")]
         public async Task<IActionResult> UpdatedIssueStatus([FromBody] UpdateIssueStatusPayload payload)
         {

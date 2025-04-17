@@ -18,11 +18,10 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _workflowTemplateLogic = workflowTemplateLogic;
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateWorkflowTemplate([FromBody] CreateWorkflowTemplatePayload payload)
         {
-            // TODO make endpoints supervisor only 
             string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
             if (accountId == "")
             {
@@ -36,7 +35,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }            
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("update")]
         public async Task<IActionResult> UpdateWorkflowTemplate([FromBody] CreateWorkflowTemplatePayload payload)
         {
@@ -53,11 +52,10 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("archive")]
         public async Task<IActionResult> ArchiveWorkflowTemplate(string workflowTemplateId)
         {
-            // TODO make this a supervisor only endpoint
             var response = await _workflowTemplateLogic.ArchiveWorkflowTemplate(workflowTemplateId);
             return StatusCode(response.HttpCode, response);
         }

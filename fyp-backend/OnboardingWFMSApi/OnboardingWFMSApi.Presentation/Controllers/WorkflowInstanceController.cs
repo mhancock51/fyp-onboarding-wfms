@@ -18,6 +18,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _workflowInstanceLogic = workflowInstanceLogic;
         }
         
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateIntance(CreateWorkflowInstancePayload payload)
         {
@@ -50,8 +51,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             return StatusCode(response.HttpCode, response);
         }
 
-        // TODO make this admin/supervisor only
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpGet("onboarding/open")]
         public async Task<IActionResult> GetAllOpenWorkflowInstances(DateTime? from, DateTime? to) 
         {

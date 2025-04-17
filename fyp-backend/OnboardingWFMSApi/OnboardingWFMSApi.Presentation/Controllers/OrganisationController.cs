@@ -19,6 +19,7 @@ namespace OnboardingWFMSApi.Presentation
         }
 
 
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("assign")]
         public async Task<IActionResult> AssignAdmin(string organisationId, string adminAccountId)
         {
@@ -26,6 +27,7 @@ namespace OnboardingWFMSApi.Presentation
             return StatusCode(result.HttpCode, result);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetOrganisation()
         {
@@ -33,11 +35,10 @@ namespace OnboardingWFMSApi.Presentation
             return StatusCode(result.HttpCode, result);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("rename")]
         public async Task<IActionResult> RenameOrganisation(string newName)
         {
-            // TODO: make this supervisor only
             var result = await _organisationLogic.RenameOrganisation(newName);
             return StatusCode(result.HttpCode, result);
         }
