@@ -16,8 +16,7 @@ import ChangePasswordForm from './ChangePasswordForm'
 import UpdateDetailsForm from './UpdateDetailsForm'
 
 export default function SettingsPage() {
-  // const DELETE_ACCOUNT_CONFIRMATION_INPUT = "DELETE MY ACCOUNT";
-  const DELETE_ACCOUNT_CONFIRMATION_INPUT = "EEE";
+  const DELETE_ACCOUNT_CONFIRMATION_INPUT = "DELETE MY ACCOUNT";
 
   const [deletingAccount, setDeletingAccount] = useState<boolean>(false);
 
