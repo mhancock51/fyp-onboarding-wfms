@@ -37,8 +37,8 @@ export default function AccountDirectoryBadge(props: Props) {
       </HoverCardTrigger>
       {
         props.accountDirectory !== undefined &&
-        <HoverCardContent className='p-2 bg-background'>
-          <div className='flex flex-col gap-1 min-w-[250px] bg-background'>
+        <HoverCardContent className='p-2'>
+          <div className='flex flex-col gap-1 min-w-[250px]'>
             <div className='flex flex-row gap-2 items-center'>
               <h1 className='text-start text-base'>{props.accountDirectory?.displayName}</h1>
               {props.accountDirectory?.isSupervisor ? <ShieldUser className='text-blue-500' size={20}/> : ""}

@@ -163,7 +163,8 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
           className='w-100'
           options={FILE_EXTENSION_OPTIONS} 
           value={FILE_EXTENSION_OPTIONS.filter(o => fileExtensions.includes(o.value))}
-          onChange={(options: any[]) => { setFileExtensions(options.map((option) => (option.value)));}}          
+          onChange={(options: any[]) => { setFileExtensions(options.map((option) => (option.value)));}}
+          isMulti={true}          
         />        
       </div>
       <div className="grid grid-cols-4 items-center gap-4 w-full">

@@ -166,7 +166,7 @@ export default function WorkflowInstancesTable(props: Props) {
         <TableBody>
           {
             workflowInstances.map((instance, index) => (
-              <TableRow key={index} className='cursor-pointer hover:brightness-90 hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
+              <TableRow key={index} className='cursor-pointer hover:bg-accent hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
                 <TableCell>{instance.workflowTemplate.name}</TableCell>
                 <TableCell width={50}>
                   <Badge className={`bg-primary py-2 px-4 w-full rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center ${Utils.getWorkflowStatusColor(instance.status)}`}>

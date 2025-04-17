@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import TableActionsDropdown from '../TableActionsDropdown';
 import Api from '@/api';
 import util from '@/util';
+import AccountDirectoryBadge from '../AccountDirectoryBadge';
 
 interface Props {
   documents: DocumentDTO[];
@@ -50,24 +51,15 @@ export default function DocumentsTable(props: Props) {
                 <TableRow key={index}>
                   <TableCell>{document.fileName}</TableCell>
                   <TableCell>
-                    <Badge className='px-2 py-1 rounded-full w-full'>
+                    <Badge className='p-2 rounded-full w-full'>
                       {document.taskInstance?.template.name}
                     </Badge>
                   </TableCell>
                   <TableCell>                    
-                    {
-                      document.creatorsAccount !== undefined &&
-                      <Badge className='px-2 py-1 rounded-full'>
-                        {document.creatorsAccount.displayName}
-                      </Badge>                      
-                    }
-                    {
-                      document.creatorsAccount === undefined &&                      
-                      "N/A"
-                    }
+                    <AccountDirectoryBadge accountDirectory={document.creatorsAccount}/>                     
                   </TableCell>
                   <TableCell>
-                    <Badge className='px-2 py-1 rounded-full'>
+                    <Badge className='p-2 rounded-full w-full'>
                       {document.fileExtension}
                     </Badge>
                   </TableCell>

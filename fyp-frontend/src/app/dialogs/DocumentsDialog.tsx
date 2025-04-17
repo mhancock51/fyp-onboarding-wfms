@@ -48,7 +48,7 @@ export default function DocumentsDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[750px]">
+      <DialogContent className='min-w-[900px]'>
         <DialogHeader>
           <DialogTitle>Workflow Documents ({props.workflowInstance?.workflowTemplate.name})</DialogTitle>          
           <h1>Displaying documents you have access to</h1>

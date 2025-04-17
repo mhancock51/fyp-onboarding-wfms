@@ -15,6 +15,7 @@ import { RootState } from '@/store';
 import { Spinner } from '@/components/ui/spinner';
 import NoResults from '@/components/NoResults';
 import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE } from '@/features/appSlice';
+import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
 
 export default function IssuesPage() {  
   const dispatch = useDispatch();
@@ -122,7 +123,7 @@ export default function IssuesPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className='p-2 rounded-full min-w-[150px]'>{issue.issueCreatorAccount.displayName}</Badge>  
+                        <AccountDirectoryBadge accountDirectory={issue.issueCreatorAccount}/>
                       </TableCell>    
                       <TableCell>
                         <Badge className={`p-2 rounded-full min-w-[100px] ${statusToColor(issue.status)}`}>

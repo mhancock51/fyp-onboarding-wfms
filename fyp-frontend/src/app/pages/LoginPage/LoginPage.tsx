@@ -71,9 +71,6 @@ export default function LoginPage() {
                   <Label>Password</Label>
                 </div>
                 <Input type="password" value={password} required onChange={(event: any) => {setPassword(event.target.value);}}/>
-                <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                  Forgot your password?
-                </a>
               </div>
               <div className="gap-2 flex flex-row items-center">
                 <label
