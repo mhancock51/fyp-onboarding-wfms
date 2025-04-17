@@ -8,6 +8,7 @@ import TaskStatusBadge from '@/app/pages/MyTasksPage/TaskStatusBadge';
 import { Badge } from '../ui/badge';
 import WorkflowInstanceBadge from '../WorkflowInstanceBadge';
 import clsx from 'clsx';
+import moment from 'moment';
 
 interface Props {
   tasks: TaskInstanceDTO[];
@@ -15,6 +16,7 @@ interface Props {
   handleTaskClicked: (task: TaskInstanceDTO) => void;
   className?: string;
   hideDueDate?: boolean;
+  hideCompletedDate?: boolean;
 }
 
 export default function TaskInstancesTable(props: Props) {
@@ -81,10 +83,16 @@ export default function TaskInstancesTable(props: Props) {
             }
             <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
             <TableCell style={{textAlign: "center"}}>Description</TableCell>
+            {
+              (props.hideCompletedDate === undefined || props.hideCompletedDate === false) &&
+              <TableCell style={{textAlign: "center"}}>Completed</TableCell>
+            }
           </TableHeader> 
           <TableBody>
             {
-              props.tasks.sort((a, b) => (new Date(a.creationTimestamp).getTime() - new Date(b.creationTimestamp).getTime())).map((task, index) => (
+              props.tasks.sort((a, b) => (new Date(a.creationTimestamp).getTime() - new Date(b.creationTimestamp).getTime()))
+              .sort((a, b) => (new Date(b.completionTimestamp ?? 0).getTime() - new Date(a.completionTimestamp ?? 0).getTime()))
+              .map((task, index) => (
                 <TableRow key={index} onClick={() => {props.handleTaskClicked(task)}} className='cursor-pointer'>
                   <TableCell style={{maxWidth: "150px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                     {task.template.name}
@@ -129,6 +137,25 @@ export default function TaskInstancesTable(props: Props) {
                   <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                     {task.template.description}
                   </TableCell>
+                  {
+                    (props.hideCompletedDate === undefined || props.hideCompletedDate === false) &&
+                    <TableCell>
+                      {
+                        task.completionTimestamp === null &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          N/A
+                        </div>
+                      }
+                      {
+                        task.completionTimestamp !== null &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          {
+                            moment(new Date(task.completionTimestamp)).fromNow()
+                          }
+                        </div>
+                      }
+                    </TableCell>
+                  }
                 </TableRow>
               ))
             }        

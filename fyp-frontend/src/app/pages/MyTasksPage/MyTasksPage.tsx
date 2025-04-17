@@ -44,13 +44,17 @@ export default function MyTasksPage() {
           <TaskInstancesTable tasks={tasks.filter(t => t.status === "open")} loading={loading} 
             handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
             className='h-[100%] overflow-y-auto'
+            hideCompletedDate={true}
           />
           {/* Completed tasks accordian */}
           <Accordion type="single" collapsible className="w-full flex-2">
             <AccordionItem value={'item-1'}>
-              <AccordionTrigger>
+              <AccordionTrigger className='hover:no-underline cursor-pointer'>
                 <div className='flex flex-col gap-2 w-full'>
-                  <h2>Completed Tasks ({tasks.filter(t => t.status !== "open").length})</h2>
+                  <div className='flex flex-row gap-2 items-center'>
+                    <h2 className='text-md font-semibold'>Completed Tasks</h2>
+                    <div className='bg-blue-500 rounded-full text-background w-8 text-center'>{tasks.filter(t => t.status !== "open").length}</div>
+                  </div>
                   <Separator/>
                 </div>
               </AccordionTrigger>

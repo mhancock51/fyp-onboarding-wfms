@@ -41,5 +41,8 @@ namespace OnboardingWFMSApi.DataModels.Tables
         [ForeignKey(nameof(WorkflowInstanceNodeTable.Id))]
         public string? WorkflowInstanceNodeId { get; set; }
 
+        [JsonPropertyName("completionTimestamp")]
+        public DateTime? CompletionTimestamp { get; set; }
+
     }
 }

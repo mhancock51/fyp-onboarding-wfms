@@ -251,6 +251,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             
             // mark task instance as complete
             taskInstance.Status = COMPLETED_TASK_STATUS;
+            taskInstance.CompletionTimestamp = DateTime.Now;
+
             await _taskInstanceRepository.UpdateAsync(taskInstance);
 
             var mediatorResponse = await _mediator.Send(new TaskCompletedRequest(taskInstance));
