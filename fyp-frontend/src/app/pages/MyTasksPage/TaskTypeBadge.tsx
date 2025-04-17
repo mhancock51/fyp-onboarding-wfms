@@ -15,7 +15,7 @@ export default function TaskTypeBadge(props: Props) {
   const taskTypes = useSelector((state: RootState) => state.app.taskTypes);
 
   function taskTypeIcon(taskType?: string) {
-    const ICON_SIZE = 18;
+    const ICON_SIZE = 22;
     switch((taskType ?? "").toLowerCase()) {
       case "checklist":
         return <ListTodo size={ICON_SIZE}/>
@@ -31,7 +31,7 @@ export default function TaskTypeBadge(props: Props) {
   }
 
   return (
-    <Badge className={clsx('p-2 w-full rounded-full cursor-pointer min-w-[125px]', props.className)}>
+    <Badge className={clsx('p-2 w-full rounded-full flex flex-row justify-center gap-2 cursor-pointer min-w-[125px]', props.className)}>
       {taskTypeIcon(props.taskTypeId)}
       {taskTypes.find((taskType: TaskType) => (taskType.id === props.taskTypeId))?.taskName}
     </Badge>
