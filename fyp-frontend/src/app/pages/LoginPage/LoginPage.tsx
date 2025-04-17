@@ -49,10 +49,6 @@ export default function LoginPage() {
     });
   }
 
-  useEffect(() => {
-    toast.success(password);
-  }, [password]);
-
   return (
     <div className='canvas center-canvas'>
       <div className='m-auto w-96'>

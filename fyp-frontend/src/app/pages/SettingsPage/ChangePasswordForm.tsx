@@ -9,7 +9,11 @@ import { AxiosResponse } from 'axios';
 import React, { useState } from 'react'
 import { toast } from 'sonner';
 
-export default function ChangePasswordForm() {
+interface Props {
+  onSuccessful: () => void;
+}
+
+export default function ChangePasswordForm(props: Props) {
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmationNewPassword, setConfirmationNewPassword] = useState<string>("");
@@ -25,7 +29,11 @@ export default function ChangePasswordForm() {
     setLoading(true);
     await Api.account.updatedPassword(oldPassword, newPassword)
     .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
-      toast.success("Successfully updated password");
+      toast.success("Successfully updated password, logging you out");
+      setNewPassword("");
+      setConfirmationNewPassword("");
+      setOldPassword("");
+      props.onSuccessful();
     })
     .catch((error) => {
       if (error.response.data.error) {
@@ -63,7 +71,7 @@ export default function ChangePasswordForm() {
         />
       </div>
       <div className='flex flex-row justify-end w-full'>
-        <Button type="submit">
+        <Button type="submit" className='w-[150px]'>
           {
             loading &&
             <Spinner className='text-primary-foreground'/>
