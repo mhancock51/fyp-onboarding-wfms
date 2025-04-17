@@ -288,12 +288,12 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             try
             {
                 await _accountRepository.UpdateAsync(account);
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Successfully updated password" };
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated password" };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to update account {accountId}");
-                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Error = "Failed to updated password" };
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to updated password" };
             }
         }
     }

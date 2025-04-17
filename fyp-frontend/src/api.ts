@@ -143,7 +143,10 @@ const Api = {
     }
   },
   fetchLogin: async(emailAddress: string, password: string) => {
-    return axios.post(`${ROUTE_URL}/auth/login?emailAddress=${emailAddress}&password=${password}`);
+    return axios.post(`${ROUTE_URL}/auth/login`, null, { params: {
+      emailAddress: emailAddress,
+      password: password
+    }});
   },
   testTokenValidity: async() => {
     return AuthInstance.get(`${ROUTE_URL}/auth/test`);
