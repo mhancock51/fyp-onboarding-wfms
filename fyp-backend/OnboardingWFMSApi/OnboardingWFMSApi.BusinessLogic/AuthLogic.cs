@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -95,7 +96,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
             }
-            if (account.AccountStatus != AccountLogic.REGISTERED_STATUS)
+            if (account.AccountStatus != AccountConstants.REGISTERED_STATUS)
             {
                 return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Account isn't registered" };
             }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
@@ -112,6 +113,8 @@ builder.Services.AddScoped<IRequestHandler<InviteAccountRequest, HTTPResponse<st
 builder.Services.AddScoped<IRequestHandler<CreateWorkflowInstanceAuditLogRequest, ServerResponse<string, string>>, CreateWorkflowInstanceAuditLogHandler>();
 builder.Services.AddScoped<IRequestHandler<RetrieveWorkflowInstanceRequest, ServerResponse<WorkflowInstanceDTO, string>>, RetrieveWorkflowInstanceHandler>();
 builder.Services.AddScoped<IRequestHandler<CreateTaskInstanceRequest, ServerResponse<string, string>>, CreateTaskInstanceHandler>();
+builder.Services.AddScoped<IRequestHandler<RetrieveAccountDirectoryRequest, AccountDirectoryDTO>, RetrieveAccountDirectoryHandler>();
+builder.Services.AddScoped < IRequestHandler<RetrieveAccountsWorkflowInstancesRequest, List<WorkflowInstanceDTO>>, RetrieveAccountsWorkflowInstancesHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

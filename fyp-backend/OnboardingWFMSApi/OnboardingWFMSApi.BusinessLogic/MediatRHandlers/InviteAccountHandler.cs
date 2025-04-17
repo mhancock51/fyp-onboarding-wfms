@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.DataModels;
 using System;
 using System.Collections.Generic;

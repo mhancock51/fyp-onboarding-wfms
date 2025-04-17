@@ -121,7 +121,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
               }
             </div>
             <Separator/>
-            <div className='m-auto flex flex-row justify-center gap-2 py-1 w-full auto-rows-fr'>
+            <div className='m-auto flex flex-row justify-center gap-2 py-1 w-full auto-rows-fr items-center'>
               {
                 props.data.node.taskTemplate?.taskTypeId !== undefined &&
                 <TaskTypeBadge taskTypeId={props.data.node.taskTemplate?.taskTypeId} className={BADGE_SIZE}/>
