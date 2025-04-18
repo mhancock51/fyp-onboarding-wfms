@@ -100,8 +100,8 @@ export function AppSidebar(props: Props) {
     <>
       <Sidebar collapsible="icon" className="cursor-pointer">
         <SidebarHeader onClick={() => { navigate("/");}}>
-          <div className="w-full flex flex-col justify-center items-center gap-2 py-1">
-            <SidebarGroupLabel className="text-2xl text-center">{props.organisationName}</SidebarGroupLabel>
+          <div className="w-full flex flex-col justify-center items-center gap-1 py-1">
+            <h2 className="text-xl text-center">{props.organisationName}</h2>
             <SidebarSeparator/>
           </div>
         </SidebarHeader>
@@ -168,7 +168,7 @@ export function AppSidebar(props: Props) {
             </SidebarGroup>
           }
         </SidebarContent>
-        <SidebarFooter style={{padding: 0}}>          
+        <SidebarFooter className="p-0 outline-none">          
           <SidebarUser user={{
             name: user?.displayName ?? "",
             email: user?.emailAddress ?? "",

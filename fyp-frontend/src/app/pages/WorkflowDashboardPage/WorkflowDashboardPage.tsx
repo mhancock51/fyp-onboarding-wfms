@@ -3,12 +3,13 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import { Star, TrendingUpIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Expand, Fullscreen, Star, TrendingUpIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import DataCard from './DataCard';
 import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
 import OnboardingEmployeesTableCard from './OnboardingEmployeesTableCard';
 import EmployeesOnboardedChart from './EmployeesOnboardedChart';
+import { Button } from '@/components/ui/button';
 
 export default function WorkflowDashboardPage() {
   const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
@@ -30,20 +31,31 @@ export default function WorkflowDashboardPage() {
     })
   }
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleFullscreen = () => {
+    if (containerRef.current?.requestFullscreen) {
+      containerRef.current.requestFullscreen();
+    } 
+  };
+
+
   useEffect(() => {
     void fetchOnboardingAnalytics();
   }, [])
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-2 relative bg-background p-2' ref={containerRef}>
+      <Button className='absolute top-1 right-1' onClick={handleFullscreen}><Expand/></Button>
       <div className='flex flex-col gap-2'>
         <div className='flex flex-row w-full justify-between'>
           <h1 className='text-lg flex-10 font-bold'>Onboarding Workflows</h1>
         </div>        
         <div className='*:data-[slot=card]:shadow-xs grid grid-cols-5 grid-rows-3 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card'>
-          <DataCard label='Time to onboard' data={`${onboardingAnalytics?.averageTimeToOnboard} days`} loading={loadingOnboardingAnalytics}/>
+          <OnboardingEmployeesTableCard/>
           <DataCard label='Employees onboarding' data={onboardingAnalytics?.employeesOnboarding} loading={loadingOnboardingAnalytics}/>
           <DataCard label='Employees onboarded' data={onboardingAnalytics?.employeesOnboarded} loading={loadingOnboardingAnalytics}/>
+          <DataCard label='Average Time to onboard' data={`${Math.round(onboardingAnalytics?.averageTimeToOnboard ?? 0)} days`} loading={loadingOnboardingAnalytics}/>
           <DataCard label='Onboarding Satisifaction rating' data={
             <div className='flex flex-col'>
               {"[PLACEHOLDER]"}
@@ -59,7 +71,6 @@ export default function WorkflowDashboardPage() {
             loading={loadingOnboardingAnalytics}
             errored={onboardingAnalyticsErrored}
           />
-          <OnboardingEmployeesTableCard/>
           <EmployeesOnboardedChart/>       
         </div>
       </div>

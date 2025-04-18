@@ -35,7 +35,7 @@ export default function SidebarUser(props: Props) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground outline-none"
             >
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{props.user.name} ({props.user.department})</span>
@@ -50,14 +50,6 @@ export default function SidebarUser(props: Props) {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm" style={{cursor: "pointer"}}>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{props.user.name}</span>
-                  <span className="truncate text-xs">{props.user.email}</span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
             <DropdownMenuGroup>
               <DropdownMenuItem style={{cursor: "pointer"}} onClick={() => {navigate("/settings");}}>
                 <Settings/> Settings
