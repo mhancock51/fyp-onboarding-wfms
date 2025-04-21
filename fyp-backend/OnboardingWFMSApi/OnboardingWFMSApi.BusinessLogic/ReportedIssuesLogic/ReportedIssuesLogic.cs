@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.ReportedIssuesLogic
 {
     public interface IReportedIssuesLogic
     {
@@ -25,10 +25,6 @@ namespace OnboardingWFMSApi.BusinessLogic
     }
     public class ReportedIssuesLogic : IReportedIssuesLogic
     {
-        public const string ISSUE_OPEN_STATUS = "open";
-        public const string ISSUE_RESOLVED_STATUS = "resolved";
-        public const string ISSUE_CLOSED_STATUS = "closed";
-
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
         private readonly IReportedIssueRepository _reportedIssueRepository;
@@ -91,10 +87,10 @@ namespace OnboardingWFMSApi.BusinessLogic
                 IssueLoggedTimestamp = DateTime.UtcNow,
                 Description = payload.Description,
                 SuggestedChanges = payload.SuggestedChanges,
-                Status = ISSUE_OPEN_STATUS
+                Status = ReportedIssuesConstants.ISSUE_OPEN_STATUS
             };
             try
-            {                    
+            {
                 await _reportedIssueRepository.AddAsync(issue);
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully created issue" };
             }
@@ -108,7 +104,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var issueIds = (await _reportedIssueRepository.GetAll()).Select(i => i.Id).ToList();
             var issueDTOs = new List<IssueDTO>();
-            foreach(var id in issueIds)
+            foreach (var id in issueIds)
             {
                 var dto = await GetIssue(id);
                 if (dto != null)
@@ -130,7 +126,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 _logger.LogWarning($"Couldn't retrieve account directory DTO for account {issue.IssueCreatorId}");
                 return null;
-            }                
+            }
             issueDTO.IssueCreatorAccount = creatorAccount;
 
             var taskInstance = (await _taskInstanceLogic.GetTaskInstance(issue.TaskInstanceId)).Data;
@@ -161,7 +157,9 @@ namespace OnboardingWFMSApi.BusinessLogic
         public async Task<HTTPResponse<string, string>> UpdateIssueStatus(UpdateIssueStatusPayload payload, string accountId)
         {
             // validate status
-            if (payload.Status != ISSUE_OPEN_STATUS && payload.Status != ISSUE_RESOLVED_STATUS && payload.Status != ISSUE_CLOSED_STATUS)
+            if (payload.Status != ReportedIssuesConstants.ISSUE_OPEN_STATUS 
+              && payload.Status != ReportedIssuesConstants.ISSUE_RESOLVED_STATUS
+              && payload.Status != ReportedIssuesConstants.ISSUE_CLOSED_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Invalid status given" };
             }
@@ -180,7 +178,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 await _reportedIssueRepository.UpdateAsync(issue);
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated issue" };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogWarning("Failed to update issue");
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Data = "Failed to update issue" };
