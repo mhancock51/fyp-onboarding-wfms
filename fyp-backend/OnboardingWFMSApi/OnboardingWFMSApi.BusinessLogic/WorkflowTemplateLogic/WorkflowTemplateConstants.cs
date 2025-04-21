@@ -8,6 +8,6 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic
 {
     public static class WorkflowTemplateConstants
     {
-        public static string ARCHIVED_WORKFLOW_TEMPLATE_STATUS = "archived";
+        public const string ARCHIVED_WORKFLOW_TEMPLATE_STATUS = "archived";
     }
 }

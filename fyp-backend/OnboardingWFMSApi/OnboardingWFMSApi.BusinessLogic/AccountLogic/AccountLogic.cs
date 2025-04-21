@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -61,7 +62,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             var workflowInstances = await _mediator.Send(new RetrieveAccountsWorkflowInstancesRequest(accountId));
             foreach (var instance in workflowInstances)
             {
-                if (instance.Status != WorkflowInstanceLogic.WORKFLOW_INSTANCE_COMPLETE_STATUS)
+                if (instance.Status != WorkflowInstanceConstants.WORKFLOW_INSTANCE_COMPLETE_STATUS)
                 {
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account is associated with an open workflow instance, please complete workflow to delete account" };
                 }
