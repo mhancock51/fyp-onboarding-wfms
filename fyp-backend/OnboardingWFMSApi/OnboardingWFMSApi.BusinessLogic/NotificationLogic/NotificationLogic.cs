@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.NotificationLogic
 {
     public interface INotificationLogic
     {
@@ -22,9 +22,6 @@ namespace OnboardingWFMSApi.BusinessLogic
     }
     public class NotificationLogic : INotificationLogic
     {
-        public const string NOTIFICATION_UNSEEN_STATUS = "unseen";
-        public const string NOTIFICATION_SEEN_STATUS = "seen";
-
         private readonly INotificationRepository _notificationRepository;
 
         private readonly IMapper _mapper;
@@ -44,7 +41,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 Id = "",
                 RecipientId = payload.RecipientId,
                 Description = payload.Description,
-                Status = NOTIFICATION_UNSEEN_STATUS,
+                Status = NotificationConstants.NOTIFICATION_UNSEEN_STATUS,
                 Tags = payload.Tags,
                 Timestamp = DateTime.Now
             };
@@ -71,7 +68,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have permisssion to do this" };
             }
-            if (notification.Status != NOTIFICATION_SEEN_STATUS)
+            if (notification.Status != NotificationConstants.NOTIFICATION_SEEN_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Notification must have been seen by the recipient" };
             }
@@ -94,9 +91,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             foreach (var id in notificationIds)
             {
                 var dto = await GetNotificationDTO(id);
-                if (dto != null) 
-                { 
-                    notificationDTOs.Add(dto); 
+                if (dto != null)
+                {
+                    notificationDTOs.Add(dto);
                 }
             }
             return new HTTPResponse<List<NotificationDTO>, string>() { Success = true, Data = notificationDTOs, HttpCode = 200 };
@@ -109,9 +106,9 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // if status is unseen, mark it as seen
             string previousStatus = notification.Status;
-            if (notification.Status == NOTIFICATION_UNSEEN_STATUS)
-            {                
-                notification.Status = NOTIFICATION_SEEN_STATUS;
+            if (notification.Status == NotificationConstants.NOTIFICATION_UNSEEN_STATUS)
+            {
+                notification.Status = NotificationConstants.NOTIFICATION_SEEN_STATUS;
                 try
                 {
                     await _notificationRepository.UpdateAsync(notification);

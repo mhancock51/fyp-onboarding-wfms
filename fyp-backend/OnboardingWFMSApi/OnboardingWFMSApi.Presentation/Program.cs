@@ -9,6 +9,7 @@ using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.BusinessLogic.CustomAuthHandlers;
 using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.NotificationLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
