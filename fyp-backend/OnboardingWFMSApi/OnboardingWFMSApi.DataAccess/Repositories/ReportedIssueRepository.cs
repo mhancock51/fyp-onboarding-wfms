@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables;
+﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,17 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 {
     public interface IReportedIssueRepository : IRepository<ReportedIssueTable>
     {
-
+        public Task<List<ReportedIssueTable>> GetAllOpenIssues();
     }
     public class ReportedIssueRepository : BaseRepository<ReportedIssueTable>, IReportedIssueRepository
     {
         public ReportedIssueRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
+        }
+
+        public async Task<List<ReportedIssueTable>> GetAllOpenIssues()
+        {
+            return await _dbContext.reportedIssues.Where(i => i.Status == "open").ToListAsync();
         }
     }
 }

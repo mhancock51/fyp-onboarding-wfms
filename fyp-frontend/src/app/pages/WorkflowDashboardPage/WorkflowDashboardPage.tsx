@@ -10,9 +10,12 @@ import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
 import OnboardingEmployeesTableCard from './OnboardingEmployeesTableCard';
 import EmployeesOnboardedChart from './EmployeesOnboardedChart';
 import { Button } from '@/components/ui/button';
+import { ReportedIssuesAnalyticsDTO } from '@/models/DTOs/ReportedIssuesAnalyticsDTO';
 
 export default function WorkflowDashboardPage() {
   const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
+  const [issuesAnalytics, setIssuesAnalytics] = useState<ReportedIssuesAnalyticsDTO | null>(null);
+
   const [loadingOnboardingAnalytics, setLoadingOnboardingAnalytics] = useState<boolean>(false);
   const [onboardingAnalyticsErrored, setOnboardingAnalyticsErrored] = useState<boolean>(false);
 
@@ -31,6 +34,17 @@ export default function WorkflowDashboardPage() {
     })
   }
 
+  async function fetchIssuesAnalytics() {
+    await Api.analytics.fetchReportedIssuesAnalytics()
+    .then((response: AxiosResponse<HTTPresponse<ReportedIssuesAnalyticsDTO, string>>) => {
+      setIssuesAnalytics(response.data.data);
+    })
+    .catch((error) => {      
+    })
+    .finally(() => {      
+    })
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleFullscreen = () => {
@@ -42,6 +56,7 @@ export default function WorkflowDashboardPage() {
 
   useEffect(() => {
     void fetchOnboardingAnalytics();
+    void fetchIssuesAnalytics();
   }, [])
 
   return (
@@ -56,6 +71,10 @@ export default function WorkflowDashboardPage() {
           <DataCard label='Employees onboarding' data={onboardingAnalytics?.employeesOnboarding} loading={loadingOnboardingAnalytics}/>
           <DataCard label='Employees onboarded' data={onboardingAnalytics?.employeesOnboarded} loading={loadingOnboardingAnalytics}/>
           <DataCard label='Average Time to onboard' data={`${Math.round(onboardingAnalytics?.averageTimeToOnboard ?? 0)} days`} loading={loadingOnboardingAnalytics}/>
+          <DataCard label='Open Task Issues' data={<span className='text-red-500'>{issuesAnalytics?.openTaskIssues}</span>}
+            loading={loadingOnboardingAnalytics}
+            errored={onboardingAnalyticsErrored}
+          />
           <DataCard label='Onboarding Satisifaction rating' data={
             <div className='flex flex-col'>
               {"[PLACEHOLDER]"}
@@ -73,68 +92,7 @@ export default function WorkflowDashboardPage() {
           />
           <EmployeesOnboardedChart/>       
         </div>
-      </div>
-      <div className='flex flex-col gap-2'>
-        <h1 className='text-lg font-bold'>Tasks</h1>        
-        <div className='*:data-[slot=card]:shadow-xs grid grid-cols-4 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card'>
-          <Card className="@container/card">
-            <CardHeader className="relative">
-              <CardDescription>Tasks Completed</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                15
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="@container/card">
-            <CardHeader className="relative">
-              <CardDescription>Tasks Created</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                4
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="@container/card">
-            <CardHeader className="relative">
-              <CardDescription>Overdue Tasks</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-destructive">
-                3
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="@container/card">
-            <CardHeader className="relative">
-              <CardDescription>Open Task Issues</CardDescription>
-              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-destructive">
-                4
-              </CardTitle>
-              <div className="absolute right-4 top-0">
-                <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-                  <TrendingUpIcon className="size-3" />
-                  +12.5%
-                </Badge>
-              </div>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
+      </div>            
     </div>
   )
 }

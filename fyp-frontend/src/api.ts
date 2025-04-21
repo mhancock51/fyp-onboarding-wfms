@@ -240,6 +240,13 @@ const Api = {
     },
     fetchOnboardedEmployeesTimeline: async() => {
       return AuthInstance.get(`${ROUTE_URL}/analytics/onboarding/timeline`);
+    },
+    fetchReportedIssuesAnalytics: async(from?: Date) => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/reported-issues`, {
+        params: {
+          from: from
+        }
+      });
     }
   },
   workflowInstances: {
