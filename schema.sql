@@ -359,7 +359,8 @@ ALTER TABLE nodetaskdependency
 /* Workflow instance */
 ALTER TABLE workflowinstance
     ADD CONSTRAINT fk_workflow_instance_workflow_template_id
-    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id);
+    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
+    ON DELETE CASCADE;
 
 ALTER TABLE workflowinstance
     ADD CONSTRAINT fk_workflow_instance_supervisor_account_id

@@ -68,7 +68,7 @@ export default function ReportIssueDialog(props: Props) {
               <Button type='submit'>
                 {
                   creating &&
-                  <Spinner className='text-foreground'/>
+                  <Spinner className="text-primary-foreground"/>
                 }
                 Submit Issue
               </Button>

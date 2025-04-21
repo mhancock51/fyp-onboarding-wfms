@@ -80,7 +80,7 @@ export default function LoginPage() {
               </div>
               <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {void Login();}}>
                 {
-                  loading && <Spinner className="text-white text-sm"/>
+                  loading && <Spinner className="text-primary-foreground"/>
                 }
                 Login
               </Button>

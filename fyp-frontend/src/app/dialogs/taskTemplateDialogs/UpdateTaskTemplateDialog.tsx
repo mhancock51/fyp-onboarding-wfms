@@ -162,7 +162,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <Button type="submit" disabled={loading || !fetchedHasActiveInstances}>
                 {
                   loading &&
-                  <Spinner className='text-primary-foreground'/>
+                  <Spinner className="text-primary-foreground"/>
                 }
                 Next
               </Button>
@@ -221,7 +221,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
               <Button type="submit">
                 {
                   loading &&
-                  <Spinner className='text-primary-foreground'/>
+                  <Spinner className="text-primary-foreground"/>
                 }
                 Update Template
               </Button>

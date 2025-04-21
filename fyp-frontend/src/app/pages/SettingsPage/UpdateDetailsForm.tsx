@@ -64,7 +64,7 @@ export default function UpdateDetailsForm() {
         <Button type="submit" className='w-[150px]'>
           {
             loading &&
-            <Spinner className='text-primary-foreground'/>
+            <Spinner className="text-primary-foreground"/>
           }
           Update Details
         </Button>

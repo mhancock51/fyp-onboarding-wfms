@@ -222,7 +222,7 @@ function WorkflowTemplateBar(props: WorkflowTemplateBarProps) {
               <HoverCard>
                 <HoverCardTrigger>
                   <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
-                    { props.loading && <Spinner className='text-primary-foreground'/> }
+                    { props.loading && <Spinner className="text-primary-foreground"/> }
                     Update Workflow
                   </Button>
                 </HoverCardTrigger>
@@ -235,7 +235,7 @@ function WorkflowTemplateBar(props: WorkflowTemplateBarProps) {
               </HoverCard>
             ) : (
               <Button type='submit' className='bg-blue-500 hover:bg-blue-400'>
-                { props.loading && <Spinner className='text-primary-foreground'/> }
+                { props.loading && <Spinner className="text-primary-foreground"/> }
                 Create workflow
               </Button>
             )

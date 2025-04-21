@@ -74,7 +74,7 @@ export default function SettingsPage() {
         <Button variant='destructive' className='w-[300px] mx-auto'>
           {
             deletingAccount &&
-            <Spinner className='text-primary-foreground'/>
+            <Spinner className="text-primary-foreground"/>
           }
           <TriangleAlert/> Delete Account
         </Button>

@@ -89,7 +89,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {
-                loading && <Spinner className="text-white text-sm"/>
+                loading && <Spinner className="text-primary-foreground"/>
               }
               Invite Employee
             </Button>

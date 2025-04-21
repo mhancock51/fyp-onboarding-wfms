@@ -102,7 +102,7 @@ export default function RegisterPage() {
                 </div>
                 <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={fetchInvitedAccount}>
                   {
-                    loading && <Spinner className="text-white text-sm"/>
+                    loading && <Spinner className="text-primary-foreground"/>
                   }
                   Next
                 </Button>
@@ -148,7 +148,7 @@ export default function RegisterPage() {
               </div>
               <Button type="submit" disabled={loading || confirmationPassword !== password || password === ""} className="w-full flex-6s" onClick={registerAccount}>
                 {
-                  loading && <Spinner className="text-white text-sm"/>
+                  loading && <Spinner className="text-primary-foreground"/>
                 } 
                 Register
               </Button>

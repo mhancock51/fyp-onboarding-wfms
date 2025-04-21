@@ -64,7 +64,7 @@ export default function CommentSection(props: Props) {
             <Button disabled={props.comment === "" || props.postingComment} type='submit' className='flex flex-row gap-2'>
               {
                 props.postingComment &&
-                <Spinner/>
+                <Spinner className="text-primary-foreground"/>
               }
               Submit
             </Button>

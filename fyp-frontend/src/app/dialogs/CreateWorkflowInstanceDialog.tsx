@@ -206,7 +206,7 @@ export default function CreateWorkflowInstanceDialog() {
                 <Button type='button' onClick={() => {setStep(1)}}>Back</Button>     
                 <Button type='submit'>
                   {
-                    loading && <Spinner/>
+                    loading && <Spinner className="text-primary-foreground"/>
                   }
                   Start Workflow Instance
                 </Button>

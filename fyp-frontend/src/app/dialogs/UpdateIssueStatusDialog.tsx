@@ -102,7 +102,7 @@ export default function UpdateIssueStatusDialog(props: Props) {
             <Button type="submit">
               {
                 loading &&
-                <Spinner className='text-primary-foreground'/>
+                <Spinner className="text-primary-foreground"/>
               }
               Update status
             </Button>

@@ -74,7 +74,7 @@ export default function OrganisationDialog() {
           <DialogFooter>
             <Button type="submit">
               {
-                loading && <Spinner/>
+                loading && <Spinner className="text-primary-foreground"/>
               }
               Update
             </Button>

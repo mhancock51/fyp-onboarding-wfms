@@ -94,9 +94,8 @@ export default function WorkflowTemplateTable(props: Props) {
             <TableHeader>
               <TableCell width={200}>Name</TableCell>              
               <TableCell width={10}>Type</TableCell>
-              <TableCell width={10} className='text-center'>Status</TableCell>
+              <TableCell width={15}>Status</TableCell>
               <TableCell width={10}>Tasks</TableCell>
-              <TableCell>Active Instances</TableCell>
               <TableCell width={25}></TableCell>
             </TableHeader>
             <TableBody>
@@ -112,8 +111,7 @@ export default function WorkflowTemplateTable(props: Props) {
                         {workflowTemplate.status.toUpperCase()}
                       </Badge>
                     </TableCell>
-                    <TableCell className='text-center'>{workflowTemplate.numberOfTasks}</TableCell>
-                    <TableCell></TableCell>
+                    <TableCell>{workflowTemplate.numberOfTasks}</TableCell>
                     <TableCell>
                       <TableActionsDropdown actions={workflowTemplate.status !== "archived" ? [
                         {

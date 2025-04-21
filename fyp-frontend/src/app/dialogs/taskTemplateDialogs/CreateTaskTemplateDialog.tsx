@@ -147,7 +147,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
               <Button type="submit">
                 {
                   loading &&
-                  <Spinner/>
+                  <Spinner className="text-primary-foreground"/>
                 }
                 Create Task Template
               </Button>

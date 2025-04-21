@@ -60,7 +60,7 @@ export default function UploadDocumentForm(props: Props) {
           <Upload/>
           {
             uploading &&
-            <Spinner className='text-primary-foreground'/>
+            <Spinner className="text-primary-foreground"/>
           }
         </div>
       </Button>            

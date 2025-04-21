@@ -74,7 +74,7 @@ export default function ChangePasswordForm(props: Props) {
         <Button type="submit" className='w-[150px]'>
           {
             loading &&
-            <Spinner className='text-primary-foreground'/>
+            <Spinner className="text-primary-foreground"/>
           }
           Update Password
         </Button>

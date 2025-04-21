@@ -1,5 +1,5 @@
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar'
-import { ChevronsUpDown, LogOut, Settings } from 'lucide-react'
+import { ChevronsUpDown, LogOut, Settings, ShieldUser } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu'
 import { useNavigate } from 'react-router'
@@ -13,6 +13,7 @@ interface Props {
     name: string
     email: string    
     department: string
+    isSupervisor: boolean;
   }
 }
 
@@ -38,8 +39,14 @@ export default function SidebarUser(props: Props) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground outline-none"
             >
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{props.user.name} ({props.user.department})</span>
-                <span className="truncate text-xs">{props.user.email}</span>
+                <div className='flex flex-row items-center gap-1 justify-start'>
+                  {
+                    props.user.isSupervisor &&
+                    <ShieldUser className='text-blue-500' size={20}/>
+                  }
+                  <span className="truncate font-semibold text-md">{props.user.name} ({props.user.department})</span>
+                </div>
+                <span className="truncate text-sm">{props.user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
