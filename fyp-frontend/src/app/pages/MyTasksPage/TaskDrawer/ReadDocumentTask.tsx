@@ -2,6 +2,7 @@ import Api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { TASK_TYPE_IDS } from '@/constants';
 import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
 import { CheckedState } from '@radix-ui/react-checkbox';
@@ -29,7 +30,7 @@ export default function ReadDocumentTask(props: Props) {
 
   async function updateReadDocStatus(readDocState: ReadDocumentTaskInstance) {
     console.log(readDocState);
-    await Api.updateTaskState(readDocState, "read-document", readDocState.taskInstanceId)    
+    await Api.updateTaskState(readDocState, TASK_TYPE_IDS.READ_DOCUMENT, readDocState.taskInstanceId)    
     .then((response) => {
       if (readDocState.linkClicked && readDocState.checkboxChecked) {
         props.setCanCompleteTask(true);

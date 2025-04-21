@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import { TASK_TYPE_IDS } from '@/constants';
 import ProjectObjective from '@/models/tasks/ProjectObjective';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
@@ -44,7 +45,7 @@ export default function ProjectTask(props: Props) {
   }
 
   async function updateTaskInstanceState(projectInstance: ProjectTaskInstance) {
-    await Api.updateTaskState(projectInstance, "project-task", props.taskInstanceId)
+    await Api.updateTaskState(projectInstance, TASK_TYPE_IDS.PROJECT_TASK, props.taskInstanceId)
     .then((response) => {
       if (areAllRequiredObjectivesComplete(projectInstance)) {
         props.setCanCompleteTask(true);

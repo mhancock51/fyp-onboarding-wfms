@@ -7,7 +7,7 @@ import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplat
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT } from '@/constants';
+import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT, TASK_TYPE_IDS } from '@/constants';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 
 export default function TaskTemplateView(props: { taskTemplate: TaskTemplate}) {
@@ -27,19 +27,19 @@ export default function TaskTemplateView(props: { taskTemplate: TaskTemplate}) {
       </div> 
       <Separator/>
       {
-        props.taskTemplate.taskType.id === "checklist" &&
+        props.taskTemplate.taskType.id === TASK_TYPE_IDS.CHECKLIST &&
         <CheclistTaskTemplateView taskTemplateData={props.taskTemplate.taskTypeData as ChecklistTaskTemplate}/>
       }
       {
-        props.taskTemplate.taskType.id === "read-document" &&
+        props.taskTemplate.taskType.id === TASK_TYPE_IDS.READ_DOCUMENT &&
         <ReadDocumentTaskTemplateView taskTemplateData={props.taskTemplate.taskTypeData as ReadDocumentTaskTemplate}/>
       }
       {
-        props.taskTemplate.taskType.id === "upload-document" &&
+        props.taskTemplate.taskType.id === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
         <UploadDocumentTaskTemplateView taskTemplateData={props.taskTemplate.taskTypeData as FileUploadTaskTemplate}/>
       }
       {
-        props.taskTemplate.taskType.id === "project-task" &&
+        props.taskTemplate.taskType.id === TASK_TYPE_IDS.PROJECT_TASK &&
         <ProjectTaskTemplateView taskTemplateData={props.taskTemplate.taskTypeData as ProjectTaskTemplate}/>
       }
     </div>

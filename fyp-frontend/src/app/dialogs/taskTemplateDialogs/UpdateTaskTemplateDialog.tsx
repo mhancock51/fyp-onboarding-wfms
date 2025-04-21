@@ -17,6 +17,7 @@ import TaskTemplateView from '@/components/TaskTemplateView';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE, SET_TASK_TEMPLATES } from '@/features/appSlice';
+import { TASK_TYPE_IDS } from '@/constants';
 
 interface Props {
   fetchTaskTemplates?: () => Promise<void>;
@@ -171,7 +172,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }          
         {
           step === 1 &&
-          taskTemplate?.taskTypeId === "checklist" &&
+          taskTemplate?.taskTypeId === TASK_TYPE_IDS.CHECKLIST &&
           <ChecklistTemplateCreationForm 
             restrictInputs={hasActiveInstances}
             initialTaskData={taskTemplate?.taskTypeData as ChecklistTaskTemplate} 
@@ -181,7 +182,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }   
         {
           step === 1 &&
-          taskTemplate?.taskTypeId === "read-document" &&
+          taskTemplate?.taskTypeId === TASK_TYPE_IDS.READ_DOCUMENT &&
           <ReadDocumentTemplateCreationForm 
             restrictInputs={hasActiveInstances}
             initialTaskData={taskTemplate?.taskTypeData as ReadDocumentTaskTemplate}
@@ -191,7 +192,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }     
         {
           step === 1 &&
-          taskTemplate?.taskTypeId === "upload-document" &&
+          taskTemplate?.taskTypeId === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
           <UploadDocumentTemplateCreationForm 
             restrictInputs={hasActiveInstances}                        
             initialTaskData={taskTemplate?.taskTypeData as FileUploadTaskTemplate}
@@ -201,7 +202,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
         }
         {
           step === 1 &&
-          taskTemplate?.taskTypeId === "project-task" &&
+          taskTemplate?.taskTypeId === TASK_TYPE_IDS.PROJECT_TASK &&
           <ProjectTemplateCreationForm 
             restrictInputs={hasActiveInstances}            
             initialTaskData={taskTemplate?.taskTypeData as ProjectTaskTemplate}

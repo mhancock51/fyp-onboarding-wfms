@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { TASK_TYPE_IDS } from '@/constants';
 import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import clsx from 'clsx';
@@ -17,13 +18,13 @@ export default function TaskTypeBadge(props: Props) {
   function taskTypeIcon(taskType?: string) {
     const ICON_SIZE = 22;
     switch((taskType ?? "").toLowerCase()) {
-      case "checklist":
+      case TASK_TYPE_IDS.CHECKLIST:
         return <ListTodo size={ICON_SIZE}/>
-      case "upload-document":
+      case TASK_TYPE_IDS.UPLOAD_DOCUMENT:
         return <FileUp size={ICON_SIZE}/>
-      case "read-document":
+      case TASK_TYPE_IDS.READ_DOCUMENT:
         return <FileText size={ICON_SIZE}/>
-      case "project-task":
+      case TASK_TYPE_IDS.PROJECT_TASK:
         return <Rocket size={ICON_SIZE}/>
       default:
         return <StickyNote size={ICON_SIZE}/>

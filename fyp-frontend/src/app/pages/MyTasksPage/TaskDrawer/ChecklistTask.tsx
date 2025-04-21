@@ -2,6 +2,7 @@ import Api from '@/api'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { TASK_TYPE_IDS } from '@/constants'
 import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance'
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate'
 import { CheckedState } from '@radix-ui/react-checkbox'
@@ -36,7 +37,7 @@ export default function ChecklistTask(props: Props) {
   }
 
   async function updateChecklistStatus(checklistState: ChecklistTaskInstance) {
-    await Api.updateTaskState(checklistState, "checklist", checklistState.taskInstanceId)
+    await Api.updateTaskState(checklistState, TASK_TYPE_IDS.CHECKLIST, checklistState.taskInstanceId)
     .then((response) => {
       if (areAllTasksComplete(checklistState.itemCompletionStatuses)) {
         props.setCanCompleteTask(true);

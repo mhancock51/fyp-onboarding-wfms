@@ -33,6 +33,7 @@ import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
 import WorkflowInstanceBadge from '@/components/WorkflowInstanceBadge';
+import { TASK_TYPE_IDS } from '@/constants';
 
 interface Props {
   open: boolean;
@@ -139,7 +140,7 @@ export default function TaskDrawer(props: Props) {
             </DrawerHeader>
             <div className='flex-11'>
               {
-                props.task.template.taskTypeId.toLowerCase() === "checklist" &&
+                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST &&
                 <ChecklistTask 
                   taskInstanceId={props.task.id} 
                   checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
@@ -150,7 +151,7 @@ export default function TaskDrawer(props: Props) {
                 />
               }
               {
-                props.task.template.taskTypeId.toLowerCase() === "upload-document" &&
+                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
                 <UploadDocumentTask 
                   taskInstanceId={props.task.id} 
                   fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
@@ -160,7 +161,7 @@ export default function TaskDrawer(props: Props) {
                   taskStatus={props.task.status}/>
               }
               {
-                props.task.template.taskTypeId.toLowerCase() === "read-document" &&
+                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.READ_DOCUMENT &&
                 <ReadDocumentTask 
                   taskInstanceId={props.task.id} 
                   readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
@@ -170,7 +171,7 @@ export default function TaskDrawer(props: Props) {
                   taskStatus={props.task.status}/>
               }
               {
-                props.task.template.taskTypeId.toLowerCase() === "project-task" &&
+                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.PROJECT_TASK &&
                 <ProjectTask 
                   taskInstanceId={props.task.id} 
                   projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 

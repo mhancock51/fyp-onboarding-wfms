@@ -11,6 +11,7 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
+import { TASK_TYPE_IDS } from '@/constants';
 
 interface Props {
   open: boolean;
@@ -94,7 +95,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
           </form>
         }
         {
-          step === 1 && taskType?.id === "checklist" &&
+          step === 1 && taskType?.id === TASK_TYPE_IDS.CHECKLIST &&
           <ChecklistTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData}
             backButtonClick={() => { setStep(0)}}
@@ -102,7 +103,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
           />
         }
         {
-          step === 1 && taskType?.id === "read-document" &&
+          step === 1 && taskType?.id === TASK_TYPE_IDS.READ_DOCUMENT &&
           <ReadDocumentTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData}
             backButtonClick={() => {setStep(0)}}    
@@ -110,7 +111,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
           />
         }
         {
-          step === 1 && taskType?.id === "upload-document" &&
+          step === 1 && taskType?.id === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
           <UploadDocumentTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {setStep(0)}}    
@@ -118,7 +119,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
           />
         }
         {
-          step === 1 && taskType?.id === "project-task" &&
+          step === 1 && taskType?.id === TASK_TYPE_IDS.PROJECT_TASK &&
           <ProjectTemplateCreationForm 
             updateTaskTypeData={updateTaskTypeData}
             backButtonClick={() => { setStep(0); } } 

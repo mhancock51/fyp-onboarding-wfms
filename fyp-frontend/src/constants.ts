@@ -1,20 +1,31 @@
 import AccountDirectory from "./models/AccountDirectory";
 
 export const PLACEHOLDER_ONBOARDERS_ACCOUNT: AccountDirectory = {
-  displayName: "Onboarder's account",
+  displayName: "Onboarder",
   id: 'onboarder_account_id',
   departmentId: '',
-  departmentName: ''
+  departmentName: '',
+  isSupervisor: false,
+  emailAddress: ""
 }
 
 export const PLACEHOLDER_SUPERVISORS_ACCOUNT: AccountDirectory = {
-  displayName: "Supervisor's account",
+  displayName: "Supervisor",
   id: "supervisors_account_id",
   departmentId: '',
-  departmentName: ''
+  departmentName: '',
+  isSupervisor: true,
+  emailAddress: ""
 }
 
 export const TEMPLATE_ACCOUNTS = [
   PLACEHOLDER_ONBOARDERS_ACCOUNT,
   PLACEHOLDER_SUPERVISORS_ACCOUNT
 ]
+
+export const TASK_TYPE_IDS = {
+  PROJECT_TASK: "project-task",
+  UPLOAD_DOCUMENT: "upload-document",
+  READ_DOCUMENT: "read-document",
+  CHECKLIST: "checklist"
+}
