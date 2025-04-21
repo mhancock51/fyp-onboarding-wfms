@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
@@ -254,7 +255,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
             }
             workflowInstanceDTO.WorkflowTemplate = result.Data;
             // retrieve the number of completed tasks
-            var completeTaskInstances = (await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS);
+            var completeTaskInstances = (await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceConstants.COMPLETED_TASK_STATUS);
             workflowInstanceDTO.CompletedTasks = completeTaskInstances.Count();
             // retrieve the number of node instances (used to determine status)
             var nodeInstances = await _workflowNodeInstanceRepository.GetByWorkflowInstanceId(workflowInstanceId);

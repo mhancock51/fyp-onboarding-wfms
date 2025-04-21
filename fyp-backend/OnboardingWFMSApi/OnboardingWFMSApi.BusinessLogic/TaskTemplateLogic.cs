@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.Factories;
+using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
@@ -124,7 +125,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<bool, string>> DoesTaskTemplateHaveActiveInstances(string taskTemplateId)
         {
-            var activeInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplateId)).Where(i => i.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS);
+            var activeInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplateId)).Where(i => i.Status != TaskInstanceConstants.COMPLETED_TASK_STATUS);
             return new HTTPResponse<bool, string>() { Success = true, Data = activeInstances.Count() > 0, HttpCode = 200 };
         }
 
@@ -175,7 +176,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             // retrieve number of active instances
             taskTemplate.ActiveInstances = (await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(taskTemplate.Id))
-                                    .Where(i => i.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS).Count();
+                                    .Where(i => i.Status != TaskInstanceConstants.COMPLETED_TASK_STATUS).Count();
 
             return new HTTPResponse<TaskTemplate, string>() { Success = true, Data = taskTemplate, HttpCode = 200 };
         }
@@ -198,7 +199,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // figure out if instances of the task exist
             var taskInstances = await _taskInstanceRepository.GetTaskInstancesByTaskTemplateId(payload.Id);
             // if any instances aren't complete set "hasActiveInstance" to true;
-            var hasActiveInstances = taskInstances.Where(i => i.Status != TaskInstanceLogic.COMPLETED_TASK_STATUS).Count() > 0 ? true : false;
+            var hasActiveInstances = taskInstances.Where(i => i.Status != TaskInstanceConstants.COMPLETED_TASK_STATUS).Count() > 0 ? true : false;
 
             // update task type data using handler
             if (payload.UpdateTaskTypeData != null)

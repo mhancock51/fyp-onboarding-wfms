@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.ReportedIssuesLogic;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
 using System.Security.Claims;

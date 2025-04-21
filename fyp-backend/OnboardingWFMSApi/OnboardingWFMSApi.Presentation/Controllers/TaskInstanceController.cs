@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;

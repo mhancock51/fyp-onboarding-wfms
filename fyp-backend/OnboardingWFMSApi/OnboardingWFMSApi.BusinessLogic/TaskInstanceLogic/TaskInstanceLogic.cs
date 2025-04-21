@@ -20,7 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
 {
     public interface ITaskInstanceLogic
     {
@@ -33,14 +33,11 @@ namespace OnboardingWFMSApi.BusinessLogic
     }
     public class TaskInstanceLogic : ITaskInstanceLogic
     {
-        public const string OPEN_TASK_STATUS = "open";
-        public const string COMPLETED_TASK_STATUS = "complete";
-
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
         private readonly ILogger<TaskInstanceLogic> _logger;
 
-        private readonly ITaskTemplateLogic _taskTemplateLogic;        
+        private readonly ITaskTemplateLogic _taskTemplateLogic;
 
         private readonly ITaskInstanceRepository _taskInstanceRepository;
         private readonly ITaskTemplateRepository _taskTemplateRepository;
@@ -78,7 +75,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please choose an assignee" };
             }
-            
+
             var instance = new TaskInstanceTable()
             {
 
@@ -86,9 +83,9 @@ namespace OnboardingWFMSApi.BusinessLogic
                 AssignerAccountId = payload.AssignerAccountId,
                 TaskTemplateId = payload.TaskTemplateId,
                 WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
-                WorkflowInstanceNodeId = payload.WorkflowInstanceNodeId ?? null,                
+                WorkflowInstanceNodeId = payload.WorkflowInstanceNodeId ?? null,
                 CreationTimestamp = DateTime.Now,
-                Status = OPEN_TASK_STATUS,
+                Status = TaskInstanceConstants.OPEN_TASK_STATUS,
                 DueDate = payload.DueDate,
             };
             TaskInstanceTable taskInstance = null;
@@ -102,7 +99,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
                 // load template
                 var response = await _taskTemplateLogic.GetTaskTemplateDTOById(instance.TaskTemplateId);
-                taskTemplate = response.Data;                
+                taskTemplate = response.Data;
             }
             catch (Exception ex)
             {
@@ -149,7 +146,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<List<TaskInstanceDTO>, string>> GetUsersAssignedTask(string accountId)
         {
-            var taskInstances = _mapper.Map<List<TaskInstanceDTO>>(await _taskInstanceRepository.GetUsersTaskInstances(accountId));               
+            var taskInstances = _mapper.Map<List<TaskInstanceDTO>>(await _taskInstanceRepository.GetUsersTaskInstances(accountId));
             for (var i = 0; i < taskInstances.Count; i++)
             {
                 // add template and task type instance data
@@ -192,10 +189,10 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             try
             {
-                var dataResponse = await handler.FetchTaskInstanceData(taskInstance.Id);                
+                var dataResponse = await handler.FetchTaskInstanceData(taskInstance.Id);
                 taskInstance.InstanceData = dataResponse.Data;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error fetching task type data: {ex.Message}");
                 return new HTTPResponse<TaskInstanceDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to create task instance data" };
@@ -211,11 +208,11 @@ namespace OnboardingWFMSApi.BusinessLogic
                 }
                 else
                 {
-                     taskInstance.WorkflowInstance = mediatorReponse.Data;
+                    taskInstance.WorkflowInstance = mediatorReponse.Data;
                 }
             }
 
-            return new HTTPResponse<TaskInstanceDTO, string>() { Success = true, HttpCode = 200, Data = taskInstance }; 
+            return new HTTPResponse<TaskInstanceDTO, string>() { Success = true, HttpCode = 200, Data = taskInstance };
         }
 
         public async Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId)
@@ -227,14 +224,14 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
             }
             var taskInstance = response.Data;
-            if (taskInstance.Status != OPEN_TASK_STATUS)
+            if (taskInstance.Status != TaskInstanceConstants.OPEN_TASK_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task isn't open" };
-            }            
+            }
             // check account is assigned to task instance
             if (taskInstance.AssigneeAccountId != accountId)
             {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have access to update this resource" }; 
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have access to update this resource" };
             }
 
             // make sure task meets conditions to be complete using handler
@@ -248,9 +245,9 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = completeResponse.Error };
             }
-            
+
             // mark task instance as complete
-            taskInstance.Status = COMPLETED_TASK_STATUS;
+            taskInstance.Status = TaskInstanceConstants.COMPLETED_TASK_STATUS;
             taskInstance.CompletionTimestamp = DateTime.Now;
 
             await _taskInstanceRepository.UpdateAsync(taskInstance);
@@ -279,7 +276,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var instanceRows = await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstanceId);
             List<TaskInstanceDTO> taskInstances = new List<TaskInstanceDTO>();
-            foreach(var instanceRow in instanceRows)
+            foreach (var instanceRow in instanceRows)
             {
                 var taskInstance = (await GetTaskInstance(instanceRow.Id)).Data ?? null;
                 if (taskInstance != null)
@@ -299,7 +296,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task instance doesn't exist" };
             }
             // ensure task is open
-            if (taskInstance.Status != OPEN_TASK_STATUS)
+            if (taskInstance.Status != TaskInstanceConstants.OPEN_TASK_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task is not open" };
             }
