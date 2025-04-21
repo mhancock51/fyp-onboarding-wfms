@@ -29,5 +29,19 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             var response = await _analyticsLogic.GetOnboardedEmployeesTimeline();
             return StatusCode(response.HttpCode, response);
         }
+
+        [HttpGet("reported-issues")]
+        public async Task<IActionResult> GetReportedIssuesAnalytics(DateTime? from)
+        {
+            var response = await _analyticsLogic.GetReportedIssuesAnalytics(from);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [HttpGet("tasks")]
+        public async Task<IActionResult> GetTaskAnalytics(DateTime? from)
+        {
+            var response = await _analyticsLogic.GetTaskAnalytics(from);
+            return StatusCode(response.HttpCode, response);
+        }
     }
 }

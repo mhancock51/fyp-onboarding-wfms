@@ -258,9 +258,13 @@ namespace OnboardingWFMSApi.BusinessLogic
             workflowInstanceDTO.WorkflowTemplate = result.Data;
             // retrieve the number of completed tasks
             var completeTaskInstances = (await _taskInstanceRepository.GetTaskInstancesByWorkflowInstance(workflowInstance.Id)).Where(i => i.Status == TaskInstanceLogic.COMPLETED_TASK_STATUS);
-            workflowInstanceDTO.CompletedTasks = completeTaskInstances.Count();            
-
+            workflowInstanceDTO.CompletedTasks = completeTaskInstances.Count();
+            // retrieve the number of node instances (used to determine status)
+            var nodeInstances = await _workflowNodeInstanceRepository.GetByWorkflowInstanceId(workflowInstanceId);
+            workflowInstanceDTO.NumberOfNodes = nodeInstances.Count;
+            // determine status
             workflowInstanceDTO.Status = await GetWorkflowInstanceStatus(workflowInstanceDTO);
+
 
             if (workflowInstanceDTO.WorkflowTemplate.IsOnboardingWF)
             {
@@ -566,7 +570,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private async Task<string> GetWorkflowInstanceStatus(WorkflowInstanceDTO workflowInstance)
         {
-            if (workflowInstance.CompletedTasks == workflowInstance.WorkflowTemplate.NumberOfTasks)
+            if (workflowInstance.CompletedTasks == workflowInstance.NumberOfNodes)
             {
                 return WORKFLOW_INSTANCE_COMPLETE_STATUS;
             }

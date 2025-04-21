@@ -10,4 +10,5 @@ export default interface WorkflowInstanceDTO {
   supervisorAccountId: string;
   creationTimestamp: Date;
   onboardingEmployeeDetails: OnboardingEmployeeDetailsDTO | null;
+  numberOfNodes: number;
 }
