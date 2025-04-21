@@ -15,7 +15,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic
 {
     public interface ITaskTemplateLogic
     {
@@ -30,14 +30,6 @@ namespace OnboardingWFMSApi.BusinessLogic
 
     public class TaskTemplateLogic : ITaskTemplateLogic
     {
-        public const string ACTIVE_TASK_TEMPLATE_STATUS = "active";
-        public const string ARCHIVED_TASK_TEMPLATE_STATUS = "archived";
-
-        // TODO: separate these const from this class, put in constants class
-        public const string UPLOAD_DOCUMENT_TASK_TYPE_ID = "upload-document";
-        public const string READ_DOCUMENT_TASK_TYPE_ID = "read-document";
-        public const string CHECKLIST_TASK_TYPE_ID = "checklist";
-
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly ITaskTypeRepository _taskTypeRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
@@ -66,12 +58,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "No task template found" };
             }
-            if (taskTemplate.Status == ARCHIVED_TASK_TEMPLATE_STATUS)
+            if (taskTemplate.Status == TaskTemplateConstants.ARCHIVED_TASK_TEMPLATE_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template is already archived" };
             }
 
-            taskTemplate.Status = ARCHIVED_TASK_TEMPLATE_STATUS;
+            taskTemplate.Status = TaskTemplateConstants.ARCHIVED_TASK_TEMPLATE_STATUS;
             try
             {
                 await _taskTemplateRepository.UpdateAsync(taskTemplate);
@@ -84,15 +76,16 @@ namespace OnboardingWFMSApi.BusinessLogic
         }
 
         public async Task<HTTPResponse<string, string>> CreateTaskTemplate(CreateTaskTemplatePayload payload, string accountId)
-        {           
-            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable() { 
-                CreatorAccountId = accountId, 
-                Name = payload.Name, 
-                Description = payload.Description, 
-                DateCreated = DateTime.Now, 
+        {
+            var taskTemplate = await _taskTemplateRepository.AddAsync(new TaskTemplateTable()
+            {
+                CreatorAccountId = accountId,
+                Name = payload.Name,
+                Description = payload.Description,
+                DateCreated = DateTime.Now,
                 TaskTypeId = payload.TaskTypeId,
-                Status = ACTIVE_TASK_TEMPLATE_STATUS
-            });          
+                Status = TaskTemplateConstants.ACTIVE_TASK_TEMPLATE_STATUS
+            });
 
             HTTPResponse<string, string> invalidTaskDataResponse = new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Data = "Invalid task data" };
 
@@ -115,11 +108,11 @@ namespace OnboardingWFMSApi.BusinessLogic
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to insert task type meta data" };
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error inserting task template data: {ex.Message}");
             }
-            
+
             return new HTTPResponse<string, string>() { Success = true, Data = "Created task template", HttpCode = 200 };
         }
 
@@ -143,14 +136,14 @@ namespace OnboardingWFMSApi.BusinessLogic
                 {
                     taskTemplates[i] = response.Data;
                 }
-            }            
+            }
             return new HTTPResponse<List<TaskTemplate>, string>() { Success = true, HttpCode = 200, Data = taskTemplates };
         }
 
         public async Task<HTTPResponse<List<TaskType>, string>> GetAllTaskTypes()
-        {            
+        {
             var taskTypes = _mapper.Map<List<TaskType>>(await _taskTypeRepository.GetAll());
-            return new HTTPResponse<List<TaskType>, string>() { Success = true, Data = taskTypes, HttpCode = 200 };            
+            return new HTTPResponse<List<TaskType>, string>() { Success = true, Data = taskTypes, HttpCode = 200 };
         }
 
         public async Task<HTTPResponse<TaskTemplate, string>> GetTaskTemplateDTOById(string id)
@@ -167,11 +160,11 @@ namespace OnboardingWFMSApi.BusinessLogic
                 throw new InvalidOperationException("Invalid task type associated with task template");
             }
             var response = await handler.FetchTaskTemplateData(taskTemplate.Id);
-            if (!response.Success) 
+            if (!response.Success)
             {
                 return new HTTPResponse<TaskTemplate, string>() { Success = false, Error = response.Error, HttpCode = 500 };
             }
-            taskTemplate.TaskTypeData = response.Data;            
+            taskTemplate.TaskTypeData = response.Data;
             taskTemplate.TaskType = _mapper.Map<TaskType>(await _taskTypeRepository.GetById(taskTemplate.TaskTypeId));
 
             // retrieve number of active instances
@@ -185,13 +178,13 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             // get task template
             var taskTemplateDTO = (await GetTaskTemplateDTOById(payload.Id)).Data ?? null;
-            if (taskTemplateDTO == null) 
+            if (taskTemplateDTO == null)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template doesn't exist" };
-            }            
-            
+            }
+
             // check that it hasn't been archived
-            if (taskTemplateDTO.Status != ACTIVE_TASK_TEMPLATE_STATUS)
+            if (taskTemplateDTO.Status != TaskTemplateConstants.ACTIVE_TASK_TEMPLATE_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Task template isn't active" };
             }
@@ -231,7 +224,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 await _taskTemplateRepository.UpdateAsync(taskTemplateRow);
                 return new HTTPResponse<string, string>() { Success = true, Data = "Successfully updated task template", HttpCode = 200 };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("Failed to update task template");
                 return new HTTPResponse<string, string>() { Success = false, Error = "Failed to update task template", HttpCode = 500 };
