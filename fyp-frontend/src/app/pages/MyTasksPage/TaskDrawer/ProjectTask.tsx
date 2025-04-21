@@ -46,7 +46,6 @@ export default function ProjectTask(props: Props) {
   async function updateTaskInstanceState(projectInstance: ProjectTaskInstance) {
     await Api.updateTaskState(projectInstance, "project-task", props.taskInstanceId)
     .then((response) => {
-      toast.success("Successfully updated checklist task's state");
       if (areAllRequiredObjectivesComplete(projectInstance)) {
         props.setCanCompleteTask(true);
       }

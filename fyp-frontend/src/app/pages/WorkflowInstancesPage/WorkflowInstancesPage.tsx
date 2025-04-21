@@ -13,7 +13,7 @@ export default function WorkflowInstancesPage() {
       onClick: () => {setOpenDocumentsDialog(true)}
     },
     {
-      label: "View Audit Trail",
+      label: "View History",
       onClick: () => {setOpenAuditDialog(true)}
     }
   ];

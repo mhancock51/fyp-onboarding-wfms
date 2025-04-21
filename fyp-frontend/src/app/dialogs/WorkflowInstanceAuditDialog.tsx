@@ -48,7 +48,7 @@ export default function WorkflowInstanceAuditDialog(props: Props) {
     })
     .catch((error) => {
       console.log(error);
-      toast.error("Failed to load audit logs");
+      toast.error("Failed to load workflow history");
     })
     .finally(() => {
       setLoading(false);
@@ -88,13 +88,13 @@ export default function WorkflowInstanceAuditDialog(props: Props) {
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
       <DialogContent className='min-w-[850px]'>
-        <DialogTitle>Audit Logs</DialogTitle>
+        <DialogTitle>Workflow Instance History</DialogTitle>
         <div className="grid gap-4 py-4 max-h-[75vh] overflow-x-auto"> 
           {
             loading &&
             <div className='flex flex-row w-full justify-center gap-2'>
               <Spinner/>
-              Loading audit logs...
+              Loading workflow instance history...
             </div> 
           }   
           {
