@@ -11,10 +11,12 @@ import OnboardingEmployeesTableCard from './OnboardingEmployeesTableCard';
 import EmployeesOnboardedChart from './EmployeesOnboardedChart';
 import { Button } from '@/components/ui/button';
 import { ReportedIssuesAnalyticsDTO } from '@/models/DTOs/ReportedIssuesAnalyticsDTO';
+import { TaskAnalyticsDTO } from '@/models/DTOs/TaskAnalyticsDTO';
 
 export default function WorkflowDashboardPage() {
   const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
   const [issuesAnalytics, setIssuesAnalytics] = useState<ReportedIssuesAnalyticsDTO | null>(null);
+  const [taskAnalytics, setTaskAnalytics] = useState<TaskAnalyticsDTO | null>(null);
 
   const [loadingOnboardingAnalytics, setLoadingOnboardingAnalytics] = useState<boolean>(false);
   const [onboardingAnalyticsErrored, setOnboardingAnalyticsErrored] = useState<boolean>(false);
@@ -45,6 +47,17 @@ export default function WorkflowDashboardPage() {
     })
   }
 
+  async function fetchTasksAnalytics() {
+    await Api.analytics.fetchTaskAnalytics()
+    .then((response: AxiosResponse<HTTPresponse<TaskAnalyticsDTO, string>>) => {
+      setTaskAnalytics(response.data.data);
+    })
+    .catch((error) => {      
+    })
+    .finally(() => {      
+    })
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleFullscreen = () => {
@@ -57,6 +70,7 @@ export default function WorkflowDashboardPage() {
   useEffect(() => {
     void fetchOnboardingAnalytics();
     void fetchIssuesAnalytics();
+    void fetchTasksAnalytics();
   }, [])
 
   return (
@@ -72,8 +86,16 @@ export default function WorkflowDashboardPage() {
           <DataCard label='Employees onboarded' data={onboardingAnalytics?.employeesOnboarded} loading={loadingOnboardingAnalytics}/>
           <DataCard label='Average Time to onboard' data={`${Math.round(onboardingAnalytics?.averageTimeToOnboard ?? 0)} days`} loading={loadingOnboardingAnalytics}/>
           <DataCard label='Open Task Issues' data={<span className='text-red-500'>{issuesAnalytics?.openTaskIssues}</span>}
-            loading={loadingOnboardingAnalytics}
-            errored={onboardingAnalyticsErrored}
+            loading={false}
+            errored={false}
+          />
+          <DataCard label='Over Due Tasks' data={<span className='text-red-500'>{taskAnalytics?.incompleteOverdueTasks}</span>}
+            loading={false}
+            errored={false}
+          />
+          <DataCard label='Tasks completed overdue' data={<span className='text-red-500'>{taskAnalytics?.tasksCompletedOverdue}</span>}
+            loading={false}
+            errored={false}
           />
           <DataCard label='Onboarding Satisifaction rating' data={
             <div className='flex flex-col'>

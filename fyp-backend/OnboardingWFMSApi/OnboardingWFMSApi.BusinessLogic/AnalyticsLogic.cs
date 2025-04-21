@@ -1,4 +1,5 @@
 ﻿using OnboardingWFMSApi.DataAccess.Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -19,6 +20,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<OnboardingAnalyticsDTO, string>> GetOnboardingAnalytics(DateTime? from);
         public Task<HTTPResponse<OnboardedEmployeesTimelineDTO, string>> GetOnboardedEmployeesTimeline();
         public Task<HTTPResponse<ReportedIssuesAnalyticsDTO, string>> GetReportedIssuesAnalytics(DateTime? from);
+        public Task<HTTPResponse<TaskAnalyticsDTO, string>> GetTaskAnalytics(DateTime? from);
 
     }
 
@@ -26,11 +28,13 @@ namespace OnboardingWFMSApi.BusinessLogic
     {
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly IReportedIssueRepository _reportedIssueRepository;
+        private readonly ITaskInstanceRepository _taskInstanceRepository;
 
-        public AnalyticsLogic(IWorkflowInstanceRepository workflowInstanceRepository, IReportedIssueRepository reportedIssueRepository)
+        public AnalyticsLogic(IWorkflowInstanceRepository workflowInstanceRepository, IReportedIssueRepository reportedIssueRepository, ITaskInstanceRepository taskInstanceRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _reportedIssueRepository = reportedIssueRepository;
+            _taskInstanceRepository = taskInstanceRepository;
         }
 
         public async Task<double> GetAverageTimeToOnboard()
@@ -100,6 +104,15 @@ namespace OnboardingWFMSApi.BusinessLogic
             analytics.OpenTaskIssues = openTaskIssues.Count;
 
             return new HTTPResponse<ReportedIssuesAnalyticsDTO, string>() { Success = true, HttpCode = 200, Data = analytics };
+        }
+
+        public async Task<HTTPResponse<TaskAnalyticsDTO, string>> GetTaskAnalytics(DateTime? from)
+        {
+            TaskAnalyticsDTO taskAnalytics = new TaskAnalyticsDTO();
+            taskAnalytics.TasksCompletedOverdue = (await _taskInstanceRepository.GetTasksCompletedPastDueDate(from)).Count();
+            taskAnalytics.IncompleteOverdueTasks = (await _taskInstanceRepository.GetOverdueTasks(from)).Count();
+
+            return new HTTPResponse<TaskAnalyticsDTO, string>() { Success = true, HttpCode = 200, Data = taskAnalytics };
         }
     }
 }

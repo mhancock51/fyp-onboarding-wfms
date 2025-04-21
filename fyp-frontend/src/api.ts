@@ -247,6 +247,13 @@ const Api = {
           from: from
         }
       });
+    },
+    fetchTaskAnalytics: async(from?: Date) => {
+      return AuthInstance.get(`${ROUTE_URL}/analytics/tasks`, {
+        params: {
+          from: from
+        }
+      });
     }
   },
   workflowInstances: {
