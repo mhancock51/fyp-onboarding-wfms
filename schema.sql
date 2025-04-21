@@ -216,6 +216,23 @@ CREATE TABLE notification (
     Timestamp DATETIME
 );
 
+CREATE TABLE `reportedissue` (
+  `Id` varchar(255) NOT NULL,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `TaskInstanceId` varchar(255) DEFAULT NULL,
+  `IssueCreatorId` varchar(255) DEFAULT NULL,
+  `IssueLoggedTimestamp` datetime DEFAULT NULL,
+  `Description` text,
+  `SuggestedChanges` text,
+  `Status` varchar(255) DEFAULT NULL,
+  `Remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_reported_issue_issue_creator_id` (`IssueCreatorId`),
+  CONSTRAINT `fk_reported_issue_issue_creator_id` FOREIGN KEY (`IssueCreatorId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_reported_issue_task_instance_id` FOREIGN KEY (`TaskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_reported_issue_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
+)
+
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('onboarder','Onboarder');
