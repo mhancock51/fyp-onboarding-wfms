@@ -14,7 +14,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Utils from '@/util';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Spinner } from '@/components/ui/spinner';
-import './LoginPage.css';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");

@@ -1,23 +1,15 @@
 import Api from '@/api';
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import { Expand, Fullscreen, Star, TrendingUpIcon } from 'lucide-react'
+import { Expand, Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import DataCard from './DataCard';
 import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
 import OnboardingEmployeesTableCard from './OnboardingEmployeesTableCard';
-import EmployeesOnboardedChart from './EmployeesOnboardedChart';
 import { Button } from '@/components/ui/button';
 import { ReportedIssuesAnalyticsDTO } from '@/models/DTOs/ReportedIssuesAnalyticsDTO';
 import { TaskAnalyticsDTO } from '@/models/DTOs/TaskAnalyticsDTO';
 import { toast } from 'sonner';
-
-
-interface WorkflowAnalyticsData {
-  onboardingAnalytics: {  };
-  issuesAnalytics: { data: ReportedIssuesAnalyticsDTO | null, loading: boolean };
-  taskAnalytics: { data: TaskAnalyticsDTO | null, loading: boolean};
-}
 
 export default function WorkflowDashboardPage() {
   const [onboardingAnalytics, setOnboardingAnalytics] = useState<{data: OnboardingAnalyticsDTO | null, loading: boolean}>({data: null, loading: false});
@@ -109,7 +101,7 @@ export default function WorkflowDashboardPage() {
             data={<span className='text-red-500'>{issuesAnalytics.data?.openTaskIssues}</span>} 
             loading={issuesAnalytics.loading}
           />
-          <DataCard label='Over Due Tasks' 
+          <DataCard label='Over Due Incomplete Tasks' 
             data={<span className='text-red-500'>{taskAnalytics.data?.incompleteOverdueTasks}</span>}
             loading={taskAnalytics.loading}
           />
@@ -117,20 +109,6 @@ export default function WorkflowDashboardPage() {
             data={<span className='text-red-500'>{taskAnalytics.data?.tasksCompletedOverdue}</span>}
             loading={taskAnalytics?.loading}
           />
-          <DataCard label='Onboarding Satisifaction rating' data={
-            <div className='flex flex-col'>
-              {"[PLACEHOLDER]"}
-              <div className='flex flex-row gap-1'>
-                <Star className='text-yellow-500'/><Star className='text-yellow-500'/><Star className='text-yellow-500'/><Star className='text-gray-300'/><Star className='text-gray-300'/>
-              </div>
-            </div>
-            } 
-            loading={onboardingAnalytics.loading} fontSize='text-[1.25em]'
-          />
-          <DataCard label='Most popular workflow' data={"[PLACEHOLDER] Junior Onboarding Workflow"} fontSize='text-[1.25em]'
-            loading={onboardingAnalytics.loading}
-          />
-          <EmployeesOnboardedChart/>       
         </div>
       </div>            
     </div>

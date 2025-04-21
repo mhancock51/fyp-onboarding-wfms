@@ -175,7 +175,7 @@ export default function WorkflowInstancesTable(props: Props) {
                 </TableCell>
                 <TableCell>
                   <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
-                    {instance.completedTasks} out of {instance.workflowTemplate.numberOfTasks} Tasks
+                    {instance.completedTasks} out of {instance.numberOfNodes} Tasks
                   </Badge>
                 </TableCell>
                 <TableCell>
