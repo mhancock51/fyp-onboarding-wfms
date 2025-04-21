@@ -1,6 +1,4 @@
 import Api from '@/api';
-import { Badge } from '@/components/ui/badge'
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
 import { Expand, Fullscreen, Star, TrendingUpIcon } from 'lucide-react'
@@ -12,49 +10,62 @@ import EmployeesOnboardedChart from './EmployeesOnboardedChart';
 import { Button } from '@/components/ui/button';
 import { ReportedIssuesAnalyticsDTO } from '@/models/DTOs/ReportedIssuesAnalyticsDTO';
 import { TaskAnalyticsDTO } from '@/models/DTOs/TaskAnalyticsDTO';
+import { toast } from 'sonner';
+
+
+interface WorkflowAnalyticsData {
+  onboardingAnalytics: {  };
+  issuesAnalytics: { data: ReportedIssuesAnalyticsDTO | null, loading: boolean };
+  taskAnalytics: { data: TaskAnalyticsDTO | null, loading: boolean};
+}
 
 export default function WorkflowDashboardPage() {
-  const [onboardingAnalytics, setOnboardingAnalytics] = useState<OnboardingAnalyticsDTO | null>(null);
-  const [issuesAnalytics, setIssuesAnalytics] = useState<ReportedIssuesAnalyticsDTO | null>(null);
-  const [taskAnalytics, setTaskAnalytics] = useState<TaskAnalyticsDTO | null>(null);
-
-  const [loadingOnboardingAnalytics, setLoadingOnboardingAnalytics] = useState<boolean>(false);
-  const [onboardingAnalyticsErrored, setOnboardingAnalyticsErrored] = useState<boolean>(false);
+  const [onboardingAnalytics, setOnboardingAnalytics] = useState<{data: OnboardingAnalyticsDTO | null, loading: boolean}>({data: null, loading: false});
+  const [issuesAnalytics, setIssuesAnalytics] = useState<{data: ReportedIssuesAnalyticsDTO | null, loading: boolean}>({data: null, loading: false});
+  const [taskAnalytics, setTaskAnalytics] = useState<{data: TaskAnalyticsDTO | null, loading: boolean}>({data: null, loading: false});
 
 
   async function fetchOnboardingAnalytics() {
-    setLoadingOnboardingAnalytics(true);
+    // set loading to true
+    setOnboardingAnalytics(prevState => ({...prevState, loading: true}))
     await Api.analytics.fetchOnboardingAnalytics()
     .then((response: AxiosResponse<HTTPresponse<OnboardingAnalyticsDTO, string>>) => {
-      setOnboardingAnalytics(response.data.data);
+      // set onboarding data in hook
+      setOnboardingAnalytics(prevState => ({...prevState, data: response.data.data}));
     })
     .catch((error) => {
-      setOnboardingAnalyticsErrored(true);
+      toast.error("Failed to fetch onboarding analytics");
     })
     .finally(() => {
-      setLoadingOnboardingAnalytics(false);
+      // set loading to false
+      setOnboardingAnalytics(prevState => ({...prevState, loading: false}));
     })
   }
 
   async function fetchIssuesAnalytics() {
+    setIssuesAnalytics(prevState => ({...prevState, loading: true}));
     await Api.analytics.fetchReportedIssuesAnalytics()
     .then((response: AxiosResponse<HTTPresponse<ReportedIssuesAnalyticsDTO, string>>) => {
-      setIssuesAnalytics(response.data.data);
+      setIssuesAnalytics(prevState => ({...prevState, data: response.data.data}));
     })
     .catch((error) => {      
+      toast.error("Failed to fetch issues analytics");
     })
-    .finally(() => {      
+    .finally(() => {  
+      setIssuesAnalytics(prevState => ({...prevState, loading: false}));    
     })
   }
 
   async function fetchTasksAnalytics() {
+    setTaskAnalytics(prevState => ({...prevState, loading: true}));
     await Api.analytics.fetchTaskAnalytics()
     .then((response: AxiosResponse<HTTPresponse<TaskAnalyticsDTO, string>>) => {
-      setTaskAnalytics(response.data.data);
+      setTaskAnalytics(prevState => ({...prevState, data: response.data.data}));
     })
     .catch((error) => {      
     })
-    .finally(() => {      
+    .finally(() => {
+      setTaskAnalytics(prevState => ({...prevState, loading: false}));      
     })
   }
 
@@ -82,20 +93,29 @@ export default function WorkflowDashboardPage() {
         </div>        
         <div className='*:data-[slot=card]:shadow-xs grid grid-cols-5 grid-rows-3 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card'>
           <OnboardingEmployeesTableCard/>
-          <DataCard label='Employees onboarding' data={onboardingAnalytics?.employeesOnboarding} loading={loadingOnboardingAnalytics}/>
-          <DataCard label='Employees onboarded' data={onboardingAnalytics?.employeesOnboarded} loading={loadingOnboardingAnalytics}/>
-          <DataCard label='Average Time to onboard' data={`${Math.round(onboardingAnalytics?.averageTimeToOnboard ?? 0)} days`} loading={loadingOnboardingAnalytics}/>
-          <DataCard label='Open Task Issues' data={<span className='text-red-500'>{issuesAnalytics?.openTaskIssues}</span>}
-            loading={false}
-            errored={false}
+          <DataCard label='Employees onboarding' 
+            data={onboardingAnalytics.data?.employeesOnboarding} 
+            loading={onboardingAnalytics.loading}
           />
-          <DataCard label='Over Due Tasks' data={<span className='text-red-500'>{taskAnalytics?.incompleteOverdueTasks}</span>}
-            loading={false}
-            errored={false}
+          <DataCard label='Employees onboarded' 
+            data={onboardingAnalytics.data?.employeesOnboarded} 
+            loading={onboardingAnalytics.loading}
           />
-          <DataCard label='Tasks completed overdue' data={<span className='text-red-500'>{taskAnalytics?.tasksCompletedOverdue}</span>}
-            loading={false}
-            errored={false}
+          <DataCard label='Average Time to onboard' 
+            data={`${Math.round(onboardingAnalytics.data?.averageTimeToOnboard ?? 0)} days`} 
+            loading={onboardingAnalytics.loading}
+          />
+          <DataCard label='Open Task Issues' 
+            data={<span className='text-red-500'>{issuesAnalytics.data?.openTaskIssues}</span>} 
+            loading={issuesAnalytics.loading}
+          />
+          <DataCard label='Over Due Tasks' 
+            data={<span className='text-red-500'>{taskAnalytics.data?.incompleteOverdueTasks}</span>}
+            loading={taskAnalytics.loading}
+          />
+          <DataCard label='Tasks completed overdue' 
+            data={<span className='text-red-500'>{taskAnalytics.data?.tasksCompletedOverdue}</span>}
+            loading={taskAnalytics?.loading}
           />
           <DataCard label='Onboarding Satisifaction rating' data={
             <div className='flex flex-col'>
@@ -105,12 +125,10 @@ export default function WorkflowDashboardPage() {
               </div>
             </div>
             } 
-            loading={loadingOnboardingAnalytics} fontSize='text-[1.25em]'
-            errored={onboardingAnalyticsErrored}
+            loading={onboardingAnalytics.loading} fontSize='text-[1.25em]'
           />
           <DataCard label='Most popular workflow' data={"[PLACEHOLDER] Junior Onboarding Workflow"} fontSize='text-[1.25em]'
-            loading={loadingOnboardingAnalytics}
-            errored={onboardingAnalyticsErrored}
+            loading={onboardingAnalytics.loading}
           />
           <EmployeesOnboardedChart/>       
         </div>
