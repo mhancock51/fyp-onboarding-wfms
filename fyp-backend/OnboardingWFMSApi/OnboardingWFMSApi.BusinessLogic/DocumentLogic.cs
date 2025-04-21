@@ -197,7 +197,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // if account id is supervisor of workflow instance, replace account id with placeholder when doing look up
             if (accountId == workflowInstance.SupervisorAccountId)
             {
-                accountId = Utility.SUPERVISOR_ACCOUNT_ID_PLACEHOLDER;
+                accountId = AccountUtility.SUPERVISOR_ACCOUNT_ID_PLACEHOLDER;
                 access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);
                 if (access != null) return true;
             }
@@ -206,7 +206,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             // like so if onboarder
             if (accountId == onboardersDetails.OnboarderAccountId)
             {
-                accountId = Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER;
+                accountId = AccountUtility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER;
                 access = await _documentAccessLinkRepository.GetAccountsAccessToResource(accountId, documentId);
                 return access != null;
             }

@@ -14,6 +14,7 @@ using OnboardingWFMSApi.BusinessLogic.ReportedIssuesLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
+using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess;
@@ -88,7 +89,7 @@ builder.Services.AddScoped<IProjectTaskInstanceHandler, ProjectTaskInstanceHandl
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 
-builder.Services.AddScoped<IUtility, OnboardingWFMSApi.BusinessLogic.Utility>();
+builder.Services.AddScoped<IAccountUtility, OnboardingWFMSApi.BusinessLogic.AccountUtility>();
 
 
 builder.Services.AddScoped<IOrganisationLogic, OrganisationLogic>();

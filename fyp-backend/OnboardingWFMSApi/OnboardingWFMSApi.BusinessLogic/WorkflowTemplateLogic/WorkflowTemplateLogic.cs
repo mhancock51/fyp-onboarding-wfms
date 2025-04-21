@@ -80,7 +80,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic
             // ensure the assignee of any preflow node isn't the onboarder placeholder
             foreach (var node in payload.PreflowNodes)
             {
-                if (node.AssigneeId == Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER)
+                if (node.AssigneeId == AccountUtility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER)
                 {
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder can't be assigned to a preflow task" };
                 }

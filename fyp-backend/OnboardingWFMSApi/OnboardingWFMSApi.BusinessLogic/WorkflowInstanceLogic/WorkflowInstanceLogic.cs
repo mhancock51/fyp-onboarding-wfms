@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
+using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
@@ -36,7 +37,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
     {
         private readonly ILogger<WorkflowInstanceLogic> _logger;
         private readonly IMapper _mapper;
-        private readonly IUtility _utility;
+        private readonly IAccountUtility _utility;
         private readonly IMediator _mediator;
 
 
@@ -53,7 +54,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
-            ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IUtility utility,
+            ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IAccountUtility utility,
             IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceRepository taskInstanceRepository, IAccountRepository accountRepository)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
@@ -90,7 +91,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
             foreach (var id in taskTemplateIds)
             {
                 var taskTemplate = await _taskTemplateRepository.GetById(id);
-                if (taskTemplate.Status != TaskTemplateLogic.ACTIVE_TASK_TEMPLATE_STATUS)
+                if (taskTemplate.Status != TaskTemplateConstants.ACTIVE_TASK_TEMPLATE_STATUS)
                 {
                     return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = $"Workflow template contains a task template that is archived or inactive ({taskTemplate.Name})" };
                 }
@@ -100,7 +101,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
             foreach (var node in workflowTemplate.PreflowNodes.Concat(workflowTemplate.MainflowNodes))
             {
                 // ignore placeholder values
-                if (node.AssigneeId == Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER || node.AssigneeId == Utility.SUPERVISOR_ACCOUNT_ID_PLACEHOLDER)
+                if (node.AssigneeId == AccountUtility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER || node.AssigneeId == AccountUtility.SUPERVISOR_ACCOUNT_ID_PLACEHOLDER)
                 {
                     continue;
                 }

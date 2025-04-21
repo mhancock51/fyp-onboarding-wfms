@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic
 {
-    public interface IUtility
+    public interface IAccountUtility
     {
         public Task<string> ReplaceAccountIdPlaceholder(string placeholderId, WorkflowInstanceTable workflowInstance);
     }
 
-    public class Utility : IUtility
+    public class AccountUtility : IAccountUtility
     {
         public const string ONBOARDER_ACCOUNT_ID_PLACEHOLDER = "onboarder_account_id";
         public const string SUPERVISOR_ACCOUNT_ID_PLACEHOLDER = "supervisors_account_id";
 
         private readonly IOnboardingEmployeeDetailsRepository _onboardingEmployeeDetailsRepository;
 
-        public Utility(IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository)
+        public AccountUtility(IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository)
         {
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
         }
