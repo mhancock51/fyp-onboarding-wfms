@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic
 {
     public interface IWorkflowTemplateLogic
     {
@@ -25,8 +25,6 @@ namespace OnboardingWFMSApi.BusinessLogic
 
     public class WorkflowTemplateLogic : IWorkflowTemplateLogic
     {
-        public const string ARCHIVED_WORKFLOW_TEMPLATE_STATUS = "archived";
-
         private readonly IWorkflowTemplateRepository _workflowTemplateRepository;
         private readonly IWorkflowTemplateNodeRepository _workflowTemplateNodeRepository;
         private readonly INodeTaskDependencyRepository _nodeTaskDependencyRepository;
@@ -48,9 +46,9 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var workflowTemplate = await _workflowTemplateRepository.GetById(workflowTemplateId);
             if (workflowTemplate == null) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
-            if (workflowTemplate.Status == ARCHIVED_WORKFLOW_TEMPLATE_STATUS) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template is already archived" };
+            if (workflowTemplate.Status == WorkflowTemplateConstants.ARCHIVED_WORKFLOW_TEMPLATE_STATUS) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template is already archived" };
 
-            workflowTemplate.Status = ARCHIVED_WORKFLOW_TEMPLATE_STATUS;
+            workflowTemplate.Status = WorkflowTemplateConstants.ARCHIVED_WORKFLOW_TEMPLATE_STATUS;
             try
             {
                 await _workflowTemplateRepository.UpdateAsync(workflowTemplate);
@@ -76,15 +74,15 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             var nodes = new List<WorkflowTemplateNodeTable>();
             var dependencies = new List<NodeTaskDependencyTable>();
-            
+
             int index = 0;
 
             // ensure the assignee of any preflow node isn't the onboarder placeholder
-            foreach(var node in payload.PreflowNodes)
+            foreach (var node in payload.PreflowNodes)
             {
                 if (node.AssigneeId == Utility.ONBOARDER_ACCOUNT_ID_PLACEHOLDER)
                 {
-                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder can't be assigned to a preflow task" };                    
+                    return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder can't be assigned to a preflow task" };
                 }
             }
 
@@ -103,7 +101,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             result = await BuildNodeAndNodeDependencies(payload.MainflowNodes, "mainflowtasks", "", index);
             // add build nodes and dependencies to list
             nodes.AddRange(result.Data.Nodes);
-            dependencies.AddRange(result.Data.Dependencies);            
+            dependencies.AddRange(result.Data.Dependencies);
 
             // securely insert data
             var response = await _workflowTemplateRepository.InsertWorkflowTemplate(workflowTemplate, nodes, dependencies);
@@ -118,14 +116,14 @@ namespace OnboardingWFMSApi.BusinessLogic
         {
             var workflowTemplateIds = (await _workflowTemplateRepository.GetAll()).Select(t => t.Id);
             var workflowTemplateDTOS = new List<WorkflowTemplateDTO>();
-            foreach(var workflowTemplateId in workflowTemplateIds)
+            foreach (var workflowTemplateId in workflowTemplateIds)
             {
                 var dto = (await GetWorkflowTemplate(workflowTemplateId)).Data;
                 if (dto != null) workflowTemplateDTOS.Add(dto);
             }
-            return new HTTPResponse<List<WorkflowTemplateDTO>, string>() { Success = true, HttpCode = 200, Data =  workflowTemplateDTOS };
+            return new HTTPResponse<List<WorkflowTemplateDTO>, string>() { Success = true, HttpCode = 200, Data = workflowTemplateDTOS };
         }
-        
+
 
         public async Task<HTTPResponse<WorkflowTemplateDTO, string>> GetWorkflowTemplate(string id)
         {
@@ -141,12 +139,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             // retrive nodes and dependencies
             var nodes = await _workflowTemplateNodeRepository.GetAllNodesByWorkflowTemplateId(template.Id);
             var dependencies = await _nodeTaskDependencyRepository.GetAllNodeDependenciesByWorkflowTemplateId(template.Id);
-            
+
             // assign dependencies to nodes
             var preflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "preflowtasks"));
-            for (int i = 0; i < preflowTasks.Count; i++) 
+            for (int i = 0; i < preflowTasks.Count; i++)
             {
-                preflowTasks[i].DependencyNodeIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();                
+                preflowTasks[i].DependencyNodeIds = dependencies.Where(n => n.NodeId == preflowTasks[i].Id && n.WorkflowTemplateId == template.Id).Select(i => i.DependencyNodeId).ToList() ?? new List<string>();
             }
             var mainflowTasks = _mapper.Map<List<WorkflowTemplateNodeDTO>>(nodes.Where(i => i.WorkflowSection == "mainflowtasks"));
             for (int i = 0; i < mainflowTasks.Count; i++)
@@ -155,7 +153,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             workflowTemplate.PreflowNodes = preflowTasks.ToList();
             workflowTemplate.MainflowNodes = mainflowTasks.ToList();
-            return new HTTPResponse<WorkflowTemplateDTO, string>() { Success = true, HttpCode = 200, Data =  workflowTemplate };
+            return new HTTPResponse<WorkflowTemplateDTO, string>() { Success = true, HttpCode = 200, Data = workflowTemplate };
         }
 
         public async Task<HTTPResponse<string, string>> UpdateWorkflowTemplate(CreateWorkflowTemplatePayload payload, string accountId)
@@ -209,12 +207,12 @@ namespace OnboardingWFMSApi.BusinessLogic
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated workflow template" };
         }
 
-        private async Task<ServerResponse<NodesAndNodeDependencies, string>> BuildNodeAndNodeDependencies(List<CreateWorkflowTemplateNode> nodesPayload, string workflowSection, string workflowTemplateId, int index) 
-        {            
+        private async Task<ServerResponse<NodesAndNodeDependencies, string>> BuildNodeAndNodeDependencies(List<CreateWorkflowTemplateNode> nodesPayload, string workflowSection, string workflowTemplateId, int index)
+        {
             // for each node:
             // - create a node table class and add it to the list          
             // - look at dependency nodes and create a dependency entity for each dependency
-            NodesAndNodeDependencies nodesAndDependencies = new NodesAndNodeDependencies();            
+            NodesAndNodeDependencies nodesAndDependencies = new NodesAndNodeDependencies();
             foreach (var mainflowNode in nodesPayload)
             {
                 var node = _mapper.Map<WorkflowTemplateNodeTable>(mainflowNode);
@@ -231,7 +229,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                     // check node that this node is dependent upon actually exists
                     var otherNode = nodesAndDependencies.Nodes.FirstOrDefault(n => n.Id == nodeDependency);
                     if (otherNode == null)
-                    {                        
+                    {
                         return new ServerResponse<NodesAndNodeDependencies, string>() { Success = false, Error = $"Invalid task node dependency" };
                     }
                     var dependency = new NodeTaskDependencyTable()
@@ -260,7 +258,7 @@ namespace OnboardingWFMSApi.BusinessLogic
 
             public List<WorkflowTemplateNodeTable> Nodes { get; set; }
             public List<NodeTaskDependencyTable> Dependencies { get; set; }
-            public int EndIndex {  get; set; } 
+            public int EndIndex { get; set; }
         }
     }
 

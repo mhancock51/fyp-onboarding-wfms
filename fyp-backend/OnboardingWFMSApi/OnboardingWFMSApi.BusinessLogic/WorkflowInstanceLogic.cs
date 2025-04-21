@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -82,7 +83,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template doesn't exist" };
             }
 
-            if (workflowTemplate.Status == WorkflowTemplateLogic.ARCHIVED_WORKFLOW_TEMPLATE_STATUS)
+            if (workflowTemplate.Status == WorkflowTemplateConstants.ARCHIVED_WORKFLOW_TEMPLATE_STATUS)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Workflow template is archived" };
             }

@@ -11,6 +11,7 @@ using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
+using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
