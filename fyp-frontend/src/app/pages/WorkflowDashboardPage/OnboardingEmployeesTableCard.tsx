@@ -66,7 +66,7 @@ export default function OnboardingEmployeesTableCard() {
                       </Badge>
                     </TableCell>  
                     <TableCell className='text-center'>
-                      {instance.completedTasks} of {instance.workflowTemplate.numberOfTasks} Tasks 
+                      {instance.completedTasks} of {instance.numberOfNodes} Tasks 
                     </TableCell>                
                     <TableCell className='text-center'>{Utils.dateToDDMMYYYY(instance.creationTimestamp)}</TableCell>
                   </TableRow>
