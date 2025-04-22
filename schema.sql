@@ -237,7 +237,7 @@ CREATE TABLE feedbacktasktemplate (
     id VARCHAR(255) NOT NULL,
     taskTemplateId VARCHAR(255),
     -- 'Questions' is an array of complex types, so store it as JSON
-    question JSON,
+    questions JSON,
     PRIMARY KEY (id),
     FOREIGN KEY (taskTemplateId) REFERENCES tasktemplate(TaskTemplateId) ON DELETE CASCADE
 );
