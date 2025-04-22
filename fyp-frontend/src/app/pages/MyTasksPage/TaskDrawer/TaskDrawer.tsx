@@ -34,6 +34,9 @@ import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
 import WorkflowInstanceBadge from '@/components/WorkflowInstanceBadge';
 import { TASK_TYPE_IDS } from '@/constants';
+import FeedbackTask from './FeedbackTask';
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
+import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
 
 interface Props {
   open: boolean;
@@ -176,6 +179,16 @@ export default function TaskDrawer(props: Props) {
                   taskInstanceId={props.task.id} 
                   projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 
                   projectInstance={props.task.instanceData as ProjectTaskInstance}
+                  fetchTaskInstances={props.fetchTaskInstances} 
+                  setCanCompleteTask={setCanCompleteTask} 
+                  taskStatus={props.task.status}/>
+              }
+              {
+                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.FEEDBACK_TASK &&
+                <FeedbackTask 
+                  taskInstanceId={props.task.id} 
+                  feedbackInstance={props.task.instanceData as FeedbackTaskInstance} 
+                  feedbackTemplate={props.task.template.taskTypeData as FeedbackTaskTemplate} 
                   fetchTaskInstances={props.fetchTaskInstances} 
                   setCanCompleteTask={setCanCompleteTask} 
                   taskStatus={props.task.status}/>

@@ -20,7 +20,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [JsonPropertyName("taskTemplateId")]
         public string TaskTemplateId { get; set; }
 
-        [JsonPropertyName("question")]
+        [JsonPropertyName("questions")]
         public LikertQuestion[] Questions { get; set; }
        
     }
