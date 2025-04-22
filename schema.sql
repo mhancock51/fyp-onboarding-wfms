@@ -233,6 +233,26 @@ CREATE TABLE `reportedissue` (
   CONSTRAINT `fk_reported_issue_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
 )
 
+CREATE TABLE feedbacktasktemplate (
+    id VARCHAR(255) NOT NULL,
+    taskTemplateId VARCHAR(255),
+    -- 'Questions' is an array of complex types, so store it as JSON
+    question JSON,
+    PRIMARY KEY (id),
+    FOREIGN KEY (taskTemplateId) REFERENCES tasktemplate(TaskTemplateId) ON DELETE CASCADE
+);
+
+CREATE TABLE feedbacktaskinstance (
+    id VARCHAR(255) NOT NULL,
+    taskInstanceId VARCHAR(255),
+    -- 'responses' is an int array, so store as JSON
+    responses JSON,
+    PRIMARY KEY (id),
+    FOREIGN KEY (taskInstanceId) REFERENCES taskinstance(TaskInstanceId) ON DELETE CASCADE
+);
+
+
+
 INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
 INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('onboarder','Onboarder');
