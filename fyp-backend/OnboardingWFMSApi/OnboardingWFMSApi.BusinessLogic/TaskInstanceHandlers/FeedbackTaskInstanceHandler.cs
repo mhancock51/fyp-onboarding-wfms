@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories.Interfaces;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -17,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
     public class FeedbackTaskInstanceHandler : BaseTaskInstanceHandler<FeedbackTaskInstanceTable>, IFeedbackTaskInstanceHandler
     {
-        public FeedbackTaskInstanceHandler(ITaskTypeInstanceRepository<FeedbackTaskInstanceTable> repository, ILogger<BaseTaskInstanceHandler<FeedbackTaskInstanceTable>> logger) : base(repository, logger)
+        public FeedbackTaskInstanceHandler(IFeedbackTaskInstanceRepository repository, ILogger<BaseTaskInstanceHandler<FeedbackTaskInstanceTable>> logger) : base(repository, logger)
         {
         }
 

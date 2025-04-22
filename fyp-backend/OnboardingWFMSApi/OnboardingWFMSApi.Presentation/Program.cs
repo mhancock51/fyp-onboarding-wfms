@@ -47,6 +47,7 @@ builder.Services.AddScoped<IFileUploadTaskTemplateRepository, FileUploadTaskTemp
 builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTaskTemplateRepository>();
 builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTemplateRepository>();
 builder.Services.AddScoped<IProjectTaskTemplateRepository, ProjectTaskTemplateRepository>();
+builder.Services.AddScoped<IFeedbackTaskTemplateRepository, FeedbackTaskTemplateRepository>();
 
 builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 
@@ -54,7 +55,7 @@ builder.Services.AddScoped<IChecklistTaskInstanceRepository, ChecklistTaskInstan
 builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTaskInstanceRepository>();
 builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
 builder.Services.AddScoped<IProjectTaskInstanceRepository, ProjectTaskInstanceRepository>();
-
+builder.Services.AddScoped<IFeedbackTaskInstanceRepository, FeedbackTaskInstanceRepository>();
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IDocumentAccessLinkRepository, DocumentAccessLinkRepository>();
@@ -79,7 +80,7 @@ builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateH
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IProjectTaskTemplateHandler, ProjectTaskTemplateHandler>();
-builder.Services.AddScoped<IFeebackTaskTemplateHandler, FeebackTaskTemplateHandler>();
+builder.Services.AddScoped<IFeedbackTaskTemplateHandler, FeedbackTaskTemplateHandler>();
 
 builder.Services.AddScoped<ITaskTemplateHandlerFactory, TaskTemplateHandlerFactory>();
 

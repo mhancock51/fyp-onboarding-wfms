@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
 {
-    public interface IFeebackTaskTemplateHandler : ITaskTemplateHandler
+    public interface IFeedbackTaskTemplateHandler : ITaskTemplateHandler
     {
 
     }
 
-    public class FeebackTaskTemplateHandler : BaseTaskTemplateHandler<FeedbackTaskTemplateTable>, IFeebackTaskTemplateHandler
+    public class FeedbackTaskTemplateHandler : BaseTaskTemplateHandler<FeedbackTaskTemplateTable>, IFeedbackTaskTemplateHandler
     {
-        public FeebackTaskTemplateHandler(ITaskTemplateRepository<FeedbackTaskTemplateTable> repository) : base(repository)
+        public FeedbackTaskTemplateHandler(IFeedbackTaskTemplateRepository repository) : base(repository)
         {
         }
 
