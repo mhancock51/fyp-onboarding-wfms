@@ -21,14 +21,14 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 
         public async Task<FeedbackTaskTemplateTable> GetByTaskInstanceId(string id)
         {
-            return await _dbContext.feedbackTaskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == id);
+            // find feedback instance
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.feedbackTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
         }
 
         public async Task<FeedbackTaskTemplateTable> GetByTaskTemplateId(string id)
         {
-            // find feedback instance
-            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
-            return await _dbContext.feedbackTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
+            return await _dbContext.feedbackTaskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == id);
         }
     }
 }
