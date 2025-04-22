@@ -73,6 +73,13 @@ namespace OnboardingWFMSApi.DataAccess
                     v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
                     v => JsonSerializer.Deserialize<List<ProjectSupportLink>>(v, new JsonSerializerOptions()) ?? new List<ProjectSupportLink>()
                 );
+            // make sure LikertQuestion is treated like a njson property, not another table
+            modelBuilder.Entity<FeedbackTaskTemplateTable>()
+               .Property(e => e.Questions)
+               .HasConversion(
+                   v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                   v => JsonSerializer.Deserialize<List<LikertQuestion>>(v, new JsonSerializerOptions()) ?? new List<LikertQuestion>()
+               );
 
         }
     }

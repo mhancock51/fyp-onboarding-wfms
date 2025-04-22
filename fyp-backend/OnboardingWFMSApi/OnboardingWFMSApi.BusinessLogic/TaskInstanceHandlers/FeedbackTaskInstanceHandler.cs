@@ -30,7 +30,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
             var questions = (taskTemplateMetaData as FeedbackTaskTemplateTable).Questions;
-            var emptyResponses = Enumerable.Repeat(-1, questions.Length).ToArray();
+            var emptyResponses = Enumerable.Repeat(-1, questions.Count).ToArray();
             await _repository.AddAsync(new FeedbackTaskInstanceTable() { Id = "", TaskInstanceId = taskInstanceId, Responses = emptyResponses });
             return new ServerResponse<string, string>() { Success = true };
         }

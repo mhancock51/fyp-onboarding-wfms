@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataModels.Tables.Interfaces;
+﻿using OnboardingWFMSApi.DataModels.Models;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,15 +22,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskTemplateId { get; set; }
 
         [JsonPropertyName("questions")]
-        public LikertQuestion[] Questions { get; set; }
+        public List<LikertQuestion> Questions { get; set; }
        
-    }
-
-    public class LikertQuestion
-    {
-        [JsonPropertyName("question")]
-        public string Question { get; set; }
-        [JsonPropertyName("likertScale")]
-        public string[] LikertScale { get; set; }
     }
 }
