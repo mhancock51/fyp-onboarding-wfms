@@ -79,6 +79,7 @@ builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateH
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IProjectTaskTemplateHandler, ProjectTaskTemplateHandler>();
+builder.Services.AddScoped<IFeebackTaskTemplateHandler, FeebackTaskTemplateHandler>();
 
 builder.Services.AddScoped<ITaskTemplateHandlerFactory, TaskTemplateHandlerFactory>();
 
@@ -86,6 +87,7 @@ builder.Services.AddScoped<IChecklistTaskInstanceHandler, ChecklistTaskInstanceH
 builder.Services.AddScoped<IReadDocumentTaskInstanceHandler, ReadDocumentTaskInstanceHandler>();
 builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanceHandler>();
 builder.Services.AddScoped<IProjectTaskInstanceHandler, ProjectTaskInstanceHandler>();
+builder.Services.AddScoped<IFeedbackTaskInstanceHandler, FeedbackTaskInstanceHandler>();
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 

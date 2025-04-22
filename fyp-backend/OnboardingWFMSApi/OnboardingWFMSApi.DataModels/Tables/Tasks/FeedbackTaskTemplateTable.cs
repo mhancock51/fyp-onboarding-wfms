@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("feedbacktasktemplate")]
-    public class FeedbackTaskTemplateTable : ITableEntity
+    public class FeedbackTaskTemplateTable : ITaskTypeTemplateTable
     {
         [Key]
         [JsonPropertyName("id")]

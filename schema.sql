@@ -261,6 +261,7 @@ INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`
 INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`upload-document`, `Upload Document`);
 INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`read-document`, `Read Document`);
 INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES ('project-task', 'Project Task');
+INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES ('feedback', 'Feedback Task');
 
 
 ALTER TABLE organisationAdminLink 
