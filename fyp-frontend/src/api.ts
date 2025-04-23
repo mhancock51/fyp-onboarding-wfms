@@ -12,6 +12,7 @@ import { FileUploadTaskTemplate } from './models/tasks/FileUploadTaskTemplate';
 import { ReadDocumentTaskTemplate } from './models/tasks/ReadDocumentTaskTemplate';
 import ProjectTaskTemplate from './models/tasks/ProjectTaskTemplate';
 import { ChecklistTaskTemplate } from './models/tasks/ChecklistTaskTemplate';
+import { FeedbackTaskInstance } from './models/tasks/FeedbackTaskInstance';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -190,7 +191,7 @@ const Api = {
   fetchAssignedTaskInstance: async() => {
     return AuthInstance.get(`${ROUTE_URL}/task/instances/get-assigned?accountId=477430cf-bb2b-4936-bf40-ee6779a95e25`); 
   },
-  updateTaskState: async(taskState: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance, taskTypeId: string, taskInstanceId: string) => {
+  updateTaskState: async(taskState: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance, taskTypeId: string, taskInstanceId: string) => {
     return AuthInstance.post(`${ROUTE_URL}/task/instances/update-task-state`, {
       updateTaskState: taskState,
       taskTypeId: taskTypeId,

@@ -1,6 +1,12 @@
+import Api from '@/api';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { TASK_TYPE_IDS } from '@/constants';
 import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
 import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner';
 
 interface Props {
   taskInstanceId: string;
@@ -12,24 +18,60 @@ interface Props {
 }
 
 export default function FeedbackTask(props: Props) {
-  const DEFAULT_STATE: FeedbackTaskInstance= {
-    id: '',
-    taskInstanceId: '',
-    responses: []
+  const [feedbackState, setFeedbackState] = useState<FeedbackTaskInstance>(props.feedbackInstance);
+
+  function areAllQuestionsAnswered() {
+    return feedbackState.responses.includes(-1) ? false : true;
   }
 
-  const [feedbackState, setFeedbackState] = useState<FeedbackTaskInstance>(DEFAULT_STATE);
+  async function updatedFeedbackStatus(feedbackState: FeedbackTaskInstance) {   
+    console.log("updatedFeedbackStatus function called"); 
+    await Api.updateTaskState(feedbackState, TASK_TYPE_IDS.FEEDBACK_TASK, feedbackState.taskInstanceId)
+    .then((response) => {
+      if (areAllQuestionsAnswered()) {
+        props.setCanCompleteTask(true);
+      }
+      else {
+        props.setCanCompleteTask(false);
+      }
+      void props.fetchTaskInstances();
+    })
+    .catch((error) => {
+      toast("Failed to update feedback task's state");
+    })
+  }
+
+  function updateResponse(index: number, response: number) {
+    const updatedState = {...feedbackState};
+    updatedState.responses[index] = response;
+    // update state on backend to reflect changes
+    void updatedFeedbackStatus(updatedState);
+    props.setCanCompleteTask(areAllQuestionsAnswered());   
+    setFeedbackState(updatedState);
+  }
 
   useEffect(() => {
-    setFeedbackState(props.feedbackInstance);
-  }, [props.feedbackInstance]);
+    props.setCanCompleteTask(areAllQuestionsAnswered());   
+  }, []);
     
   return (
     <div className='flex flex-col gap-2 p-2'>
       {
         props.feedbackTemplate.questions.map((question, index) => (
-          <div key={index}>
-            {question.question}
+          <div key={index} className='flex flex-col gap-1'>
+            <h1 className='font-semibold'>Question {index + 1}</h1>
+            <span>{question.question}</span>
+            <Separator/>
+            <RadioGroup disabled={props.taskStatus === "complete"} defaultValue="0" className='py-1' value={props.feedbackInstance.responses[index].toString()} onValueChange={(value: string) => updateResponse(index, +value)}>
+              {
+                question.likertScale.map((label, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <RadioGroupItem value={index.toString()}/>
+                    <Label>{label}</Label>
+                  </div>
+                ))
+              }
+            </RadioGroup>
           </div>
         ))
       }
