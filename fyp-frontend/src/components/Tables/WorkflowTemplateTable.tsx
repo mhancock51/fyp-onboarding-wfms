@@ -13,10 +13,11 @@ import { Spinner } from '../ui/spinner';
 import ClearableInput from '../ClearableInput';
 import TableActionsDropdown from '../TableActionsDropdown';
 import { Badge } from '../ui/badge';
+import WorkflowTemplateFeedbackDialog from '@/app/dialogs/WorkflowTemplateFeedbackDialog';
 
 interface Props {
   onTemplateSelected: (selectedWorkflowTemplate: WorkflowTemplateDTO) => void;
-  selectedTemplateId: string | null;
+  selectedTemplate: WorkflowTemplateDTO | null;
 }
 
 export default function WorkflowTemplateTable(props: Props) {
@@ -25,9 +26,9 @@ export default function WorkflowTemplateTable(props: Props) {
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [openFeedbackDialog, setOpenFeedbackDialog] = useState<boolean>(false);
 
   const [filteredTemplates, setFilteredTemplates] = useState<WorkflowTemplateDTO[]>([]);
-
 
   async function fetchWorkflowTemplates() {
     setLoading(true);
@@ -102,7 +103,7 @@ export default function WorkflowTemplateTable(props: Props) {
               {
                 filteredTemplates.map((workflowTemplate, index) => (
                   <TableRow key={index} onClick={() => {props.onTemplateSelected(workflowTemplate)}}
-                    className={`${props.selectedTemplateId === workflowTemplate.id ? "bg-secondary" : ""} cursor-pointer hover:bg-accent`}
+                    className={`${props.selectedTemplate?.id === workflowTemplate.id ? "bg-secondary" : ""} cursor-pointer hover:bg-accent`}
                   >
                     <TableCell>{workflowTemplate.name}</TableCell>
                     <TableCell>{workflowTemplate.isOnboardingWF ? "Onboarding Workflow" : "Workflow"}</TableCell>
@@ -113,11 +114,16 @@ export default function WorkflowTemplateTable(props: Props) {
                     </TableCell>
                     <TableCell>{workflowTemplate.numberOfTasks}</TableCell>
                     <TableCell>
-                      <TableActionsDropdown actions={workflowTemplate.status !== "archived" ? [
+                      <TableActionsDropdown actions={
+                        workflowTemplate.status !== "archived" ? [
+                        {
+                          label: 'View Feedback',
+                          onClick: () => {props.onTemplateSelected(workflowTemplate); setOpenFeedbackDialog(true);}
+                        },
                         {
                           label: 'Archive workflow template',
                           onClick: () => {void archiveWorkflowTemplate(workflowTemplate.id);}
-                        }
+                        },
                       ] : []}/>
 
                     </TableCell>
@@ -138,6 +144,10 @@ export default function WorkflowTemplateTable(props: Props) {
           </div>
         }
       </div>
+      {
+        props.selectedTemplate !== null &&
+        <WorkflowTemplateFeedbackDialog open={openFeedbackDialog} setOpen={setOpenFeedbackDialog} workflowTemplate={props.selectedTemplate}/>
+      }
     </div>
   )
 }

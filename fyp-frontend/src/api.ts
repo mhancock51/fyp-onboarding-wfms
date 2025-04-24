@@ -13,6 +13,7 @@ import { ReadDocumentTaskTemplate } from './models/tasks/ReadDocumentTaskTemplat
 import ProjectTaskTemplate from './models/tasks/ProjectTaskTemplate';
 import { ChecklistTaskTemplate } from './models/tasks/ChecklistTaskTemplate';
 import { FeedbackTaskInstance } from './models/tasks/FeedbackTaskInstance';
+import { parseArgs } from 'util';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
 const AuthInstance = axios.create();
@@ -283,6 +284,14 @@ const Api = {
     },
     archiveWorkflowTemplate: async(workflowTemplateId: string) => {
       return AuthInstance.post(`${ROUTE_URL}/workflow/template/archive`, null, {params: {workflowTemplateId: workflowTemplateId}});
+    }
+  },
+  feedback: {
+    fetchWorkflowInstanceFeedback: async(workflowInstanceId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/feedback/worfklow-instance`, { params: {workflowInstanceId: workflowInstanceId}});
+    },
+    fetchWorkflowTemplateFeedback: async(workflowTemplateId: string) => {
+      return AuthInstance.get(`${ROUTE_URL}/feedback/workflow-template`, { params: {workflowTemplateId: workflowTemplateId}});
     }
   }
 }

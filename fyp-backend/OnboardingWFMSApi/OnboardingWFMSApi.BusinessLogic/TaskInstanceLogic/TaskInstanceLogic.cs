@@ -7,6 +7,7 @@ using OnboardingWFMSApi.BusinessLogic.Factories;
 using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
+using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -31,6 +32,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
         public Task<HTTPResponse<string, string>> UpdateInstanceState(UpdateInstanceStatePayload payload, string accountId);
         public Task<HTTPResponse<string, string>> CompleteTaskInstance(string taskInstanceId, string accountId);
         public Task<List<TaskInstanceDTO>> GetTaskInstancesByWorkflowInstance(string workflowInstanceId);
+        public Task<HTTPResponse<List<TaskInstanceDTO>, string>> GetWorkflowInstanceCompletedFeedbackTasks(string workflowInstanceId);
     }
     public class TaskInstanceLogic : ITaskInstanceLogic
     {
@@ -313,6 +315,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
             var response = await handler.UpdateTaskInstanceData(payload.UpdateTaskState);
 
             return new HTTPResponse<string, string>() { Success = response.Success, HttpCode = response.Success ? 200 : 500, Error = response.Error, Data = response.Data };
+        }
+
+        public async Task<HTTPResponse<List<TaskInstanceDTO>, string>> GetWorkflowInstanceCompletedFeedbackTasks(string workflowInstanceId)
+        {
+            var feedbackTasks = (await GetTaskInstancesByWorkflowInstance(workflowInstanceId)).Where(i => i.Status == TaskInstanceConstants.COMPLETED_TASK_STATUS && i.Template.TaskTypeId == "feedback").ToList();
+            return new HTTPResponse<List<TaskInstanceDTO>, string>() { Success = true, Data = feedbackTasks, HttpCode = 200 };
         }
     }
 
