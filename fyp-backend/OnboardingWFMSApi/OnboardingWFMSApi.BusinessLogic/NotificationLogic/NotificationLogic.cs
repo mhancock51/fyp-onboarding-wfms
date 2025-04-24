@@ -68,10 +68,6 @@ namespace OnboardingWFMSApi.BusinessLogic.NotificationLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have permisssion to do this" };
             }
-            if (notification.Status != NotificationConstants.NOTIFICATION_SEEN_STATUS)
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Notification must have been seen by the recipient" };
-            }
             try
             {
                 await _notificationRepository.DeleteAsync(notification);

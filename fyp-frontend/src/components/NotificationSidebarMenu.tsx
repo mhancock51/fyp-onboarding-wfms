@@ -86,7 +86,7 @@ export default function NotificationsSidebarMenu() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
+                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[550px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
               >
                 <DropdownMenuGroup className="gap-2 flex flex-col">
                   {
@@ -103,15 +103,15 @@ export default function NotificationsSidebarMenu() {
                     !loading && notifications.map((notification, index) => (
                       <DropdownMenuItem key={notification.id} className="cursor-pointer border-accent rounded-none" onSelect={(e) => {e.preventDefault();}}>
                         <div className="p-1 flex flex-col w-full relative flex flex-col gap-1 justify-between min-h-[50px]">
-                          <div className="p-[6px] rounded-lg right absolute top-1 right-1 bg-background" onClick={() => {removeNotification(index);}}>
+                          <div className="p-[4px] rounded-lg right absolute top-1 right-1 bg-background" onClick={() => {removeNotification(index);}}>
                             <X/>
                           </div>
-                          <div className="flex flex-row w-full justify-start gap-2 items-center">
-                            <h1 className="text-base max-w-[435px] line-clamp-2">{notification.description}</h1>
+                          <div className="flex flex-row w-full justify-start gap-2 items-start">
                             {
                               notification.status === "unseen" &&
                               <Badge className="px-4 rounded-full bg-blue-500 text-white">NEW</Badge>
                             }
+                            <h1 className="text-base max-w-[435px] line-clamp-2">{notification.description}</h1>
                           </div>    
                           <div className="flex flex-row w-full justify-start">
                             <span className="text-gray-500 text-xs">{moment(notification.timestamp).fromNow()}</span>                        
