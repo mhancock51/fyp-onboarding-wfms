@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner';
 
 interface Props {
@@ -28,7 +28,7 @@ export default function ChangePasswordForm(props: Props) {
 
     setLoading(true);
     await Api.account.updatedPassword(oldPassword, newPassword)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       toast.success("Successfully updated password, logging you out");
       setNewPassword("");
       setConfirmationNewPassword("");

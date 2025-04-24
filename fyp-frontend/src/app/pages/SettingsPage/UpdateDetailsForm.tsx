@@ -3,11 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import HTTPresponse from '@/models/HTTPresponse';
 import { RootState } from '@/store';
 import Utils from '@/util';
-import { AxiosResponse } from 'axios';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -21,7 +19,7 @@ export default function UpdateDetailsForm() {
   async function updateAccount() {
     setLoading(true);
     await Api.account.updateAccount(displayName, email)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       Utils.relogin();
       toast.success("Successfully updated account");
     })

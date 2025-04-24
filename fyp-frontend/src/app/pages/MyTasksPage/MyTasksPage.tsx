@@ -1,18 +1,15 @@
 import { Separator } from '@/components/ui/separator'
 import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
 import Api from '@/api'
 import { toast } from 'sonner'
-import { useDispatch } from 'react-redux'
 import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
 import TaskInstancesTable from '@/components/Tables/TaskInstancesTable'
 import { Accordion, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { AccordionContent } from '@radix-ui/react-accordion'
 
 export default function MyTasksPage() {
-  const dispatcher = useDispatch(); 
-
   const [tasks, setTasks] = useState<TaskInstanceDTO[]>([]);
   const [currentTask, setCurrentTask] = useState<TaskInstanceDTO | null>(null);
   const [open, setOpen] = useState<boolean>(false);
@@ -26,7 +23,7 @@ export default function MyTasksPage() {
       setLoading(false);
       setTasks(response.data.data as TaskInstanceDTO[]);
     })
-    .catch((error) => {
+    .catch(() => {
       setLoading(false);
       toast.error("Failed to load assigned taks");      
     })
