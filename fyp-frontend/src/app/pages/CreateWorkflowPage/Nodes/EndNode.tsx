@@ -1,7 +1,6 @@
 import { Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
 import { CircleCheckBig } from 'lucide-react';
-import React from 'react'
 
 export default function EndNode() {
   return (

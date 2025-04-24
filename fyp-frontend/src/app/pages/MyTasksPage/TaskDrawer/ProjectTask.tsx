@@ -3,7 +3,6 @@ import NoResults from '@/components/NoResults';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 import { TASK_TYPE_IDS } from '@/constants';
@@ -46,7 +45,7 @@ export default function ProjectTask(props: Props) {
 
   async function updateTaskInstanceState(projectInstance: ProjectTaskInstance) {
     await Api.updateTaskState(projectInstance, TASK_TYPE_IDS.PROJECT_TASK, props.taskInstanceId)
-    .then((response) => {
+    .then(() => {
       if (areAllRequiredObjectivesComplete(projectInstance)) {
         props.setCanCompleteTask(true);
       }
@@ -55,7 +54,7 @@ export default function ProjectTask(props: Props) {
       }
       void props.fetchTaskInstances();
     })
-    .catch((error) => {
+    .catch(() => {
       toast("Failed to update checklist task's state");
     })
   }

@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@radix-ui/react-dropdown-menu'
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react'
+import { useDispatch } from 'react-redux';
 import { SET_USER } from '@/features/appSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { RootState } from '@/store';
 import { Checkbox } from '@/components/ui/checkbox';
 import Utils from '@/util';
 import { CheckedState } from '@radix-ui/react-checkbox';

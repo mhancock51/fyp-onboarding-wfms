@@ -5,7 +5,6 @@ import EndNode from './Nodes/EndNode';
 import InviteUserNode from './Nodes/InviteUserNode';
 import StartNode from './Nodes/StartNode';
 import TaskNode from './Nodes/TaskNode';
-import { Button } from '@/components/ui/button';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
 import AccountDirectory from '@/models/AccountDirectory';

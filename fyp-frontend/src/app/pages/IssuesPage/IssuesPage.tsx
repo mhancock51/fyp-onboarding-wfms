@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import IssueDTO from '@/models/DTOs/IssueDTO'
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import React, { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
 import UpdateIssueStatusDialog from '@/app/dialogs/UpdateIssueStatusDialog';
@@ -40,7 +40,7 @@ export default function IssuesPage() {
     .then((response: AxiosResponse<HTTPresponse<IssueDTO[], string>>) => {
       setIssues(response.data.data);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load issues");
     })
     .finally(() => {
@@ -54,7 +54,7 @@ export default function IssuesPage() {
     .then((response: AxiosResponse<HTTPresponse<IssueDTO[], string>>) => {
       setIssues(response.data.data);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load issues");
     })
     .finally(() => {

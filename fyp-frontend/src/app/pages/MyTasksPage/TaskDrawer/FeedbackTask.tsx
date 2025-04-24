@@ -27,7 +27,7 @@ export default function FeedbackTask(props: Props) {
   async function updatedFeedbackStatus(feedbackState: FeedbackTaskInstance) {   
     console.log("updatedFeedbackStatus function called"); 
     await Api.updateTaskState(feedbackState, TASK_TYPE_IDS.FEEDBACK_TASK, feedbackState.taskInstanceId)
-    .then((response) => {
+    .then(() => {
       if (areAllQuestionsAnswered()) {
         props.setCanCompleteTask(true);
       }
@@ -36,7 +36,7 @@ export default function FeedbackTask(props: Props) {
       }
       void props.fetchTaskInstances();
     })
-    .catch((error) => {
+    .catch(() => {
       toast("Failed to update feedback task's state");
     })
   }
