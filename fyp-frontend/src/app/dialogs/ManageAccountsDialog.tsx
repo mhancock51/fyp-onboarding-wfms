@@ -30,7 +30,7 @@ export default function ManageAccountsDialog() {
     .then((response: AxiosResponse<HTTPresponse<AccountDirectory[], string>>) => {
       dispatch(SET_ACCOUNTS_DIRECTORY(response.data.data));
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to fetch accounts");
     })
     .finally(() => {

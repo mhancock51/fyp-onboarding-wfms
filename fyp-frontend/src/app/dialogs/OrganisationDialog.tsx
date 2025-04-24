@@ -41,7 +41,7 @@ export default function OrganisationDialog() {
       toast.success(response.data.data);
       void fetchOrganisation();
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to rename organisation");
     })
     .finally(() => {

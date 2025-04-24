@@ -27,7 +27,7 @@ export default function DocumentsDialog(props: Props) {
     .then((response: AxiosResponse<HTTPresponse<DocumentDTO[], string>>) => {      
       setDocuments(response.data.data);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load documents");
     })
     .finally(() => {

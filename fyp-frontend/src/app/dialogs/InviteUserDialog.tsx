@@ -39,7 +39,7 @@ export default function InviteUserDialog(props: {open: boolean, setOpenDialog: (
 
     setLoading(true);
     Api.inviteUser(displayName, email, department.id)
-    .then((response) => {
+    .then(() => {
       setLoading(false);
       toast(`Successfully invited ${displayName}!`, { duration: 600, onAutoClose: () => {
         closeAndClear();
