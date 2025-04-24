@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using OnboardingWFMSApi.DataModels.Models;
+﻿using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables;
 using System;
 using System.Collections.Generic;
