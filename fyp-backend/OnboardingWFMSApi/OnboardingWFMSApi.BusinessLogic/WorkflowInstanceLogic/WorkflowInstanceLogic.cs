@@ -129,8 +129,6 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
                 if (accountExists) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Onboarder's email address must not be associated with an existing account" };
             }
 
-            // TODO: ensure supervisor account is active            
-
             var workflowInstance = new WorkflowInstanceTable()
             {
                 Id = "",

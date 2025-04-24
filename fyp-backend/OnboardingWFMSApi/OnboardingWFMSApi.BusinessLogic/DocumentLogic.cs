@@ -114,28 +114,20 @@ namespace OnboardingWFMSApi.BusinessLogic
                 workflowInstanceId = taskInstance.WorkflowInstanceId;
             }
 
-
-
-            // check account is valid
-            // check workflow exists and is open
-
-            // check contents of file
-            // check file extension matches onces allow in task template
-
-            // TODO ensure document with same name isn't assigned to this workflow or task instance already
             DocumentTable document = null;
+            document = new DocumentTable()
+            {
+                TaskInstanceId = payload.TaskInstanceId,
+                CreatorId = accountId,
+                WorkflowInstanceId = workflowInstanceId,
+                FileExtension = Path.GetExtension(payload.FileName),
+                UploadTimestamp = DateTime.Now,
+                FileName = payload.DocumentName,
+                DocumentData = Convert.FromBase64String(payload.FileBase64)
+            };
+
             try
             {
-                document = new DocumentTable()
-                {
-                    TaskInstanceId = payload.TaskInstanceId,
-                    CreatorId = accountId,
-                    WorkflowInstanceId = workflowInstanceId,
-                    FileExtension = Path.GetExtension(payload.FileName),
-                    UploadTimestamp = DateTime.Now,
-                    FileName = payload.DocumentName,
-                    DocumentData = Convert.FromBase64String(payload.FileBase64)
-                };
                 document = await _documentRepository.AddAsync(document);
             }
             catch (Exception ex)

@@ -154,7 +154,6 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             try
             {
                 await _accountRepository.AddAsync(account);
-                // TODO send invite link to user
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = $"Successfully invited {displayName}" };
             }
             catch (Exception ex)
@@ -183,8 +182,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account isn't registered" };
             }
             // ensure account isn't onboarder of an open workflow instance
-            // TODO: filter onboarding instances for ones that are open
-            var onboardingInstances = await _workflowInstanceRepository.GetInstancesByOnboarderAccountId(accountId);
+            var onboardingInstances = (await _workflowInstanceRepository.GetInstancesByOnboarderAccountId(accountId)).Where(i => i.CompletionTimestamp == null).ToList();
             if (onboardingInstances.Count > 0)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Account is an onboarder" };
@@ -244,8 +242,8 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Failed to register user", HttpCode = 500 };
             }
+            // call mediator to call methods that handle when the onboarder has registered their account (i.e. workflow instance logic)
             await _mediator.Send(new AccountRegistrationRequest(account.Id, account.EmailAddress));
-            // TODO: possibly implement check to fallback if failed from medaitors response
 
             return new HTTPResponse<string, string>() { Success = true, Data = "Registered user", HttpCode = 200 };
         }

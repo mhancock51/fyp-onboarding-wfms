@@ -268,9 +268,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
                     AccountId = accountId
                 };
                 await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
-            }
-
-            // TODO implement logic to notify correct users                       
+            }                    
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
         }

@@ -18,12 +18,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     }
     public class UploadDocumentInstanceHandler : BaseTaskInstanceHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
     {        
-        private readonly IFileUploadTaskTemplateRepository _fileUploadTaskTemplateRepository;
-
-        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository, IFileUploadTaskTemplateRepository fileUploadTaskTemplateRepository,
+        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository,
             ILogger<UploadDocumentInstanceHandler> logger) : base(repository, logger)
         {            
-            _fileUploadTaskTemplateRepository = fileUploadTaskTemplateRepository;
         }
 
         public string GetTaskTypeId()
@@ -54,20 +51,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceMetaData)
         {
-            // cast object
-            FileUploadTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
-            if (taskInstance == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
-            }
-            var taskTemplate = await _fileUploadTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);           
-            if (taskTemplate == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };
-            }
-
-            // TODO implement validation for future properties
-
+            // No validation to be done
             return new ServerResponse<string, string>() { Success = true };
         }
     }
