@@ -27,7 +27,7 @@ export default function DepartmentLookup(props: Props) {
       dispatch(SET_DEPARTMENTS(response.data.data as Department[]));      
       setLoading(false);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load departments");
       setLoading(false);
     });

@@ -12,7 +12,6 @@ import { Spinner } from '../ui/spinner'
 import { Label } from '../ui/label'
 import NoResults from '../NoResults'
 import TableActionsDropdown, { DropdownAction } from '../TableActionsDropdown'
-import { Button } from '../ui/button'
 import { ArrowDownUp } from 'lucide-react'
 import Utils from '@/util'
 import AccountDirectoryBadge from '../AccountDirectoryBadge'
@@ -40,7 +39,7 @@ export default function WorkflowInstancesTable(props: Props) {
     .then((response: AxiosResponse<HTTPresponse<WorkflowInstanceDTO[], string>>) => {
       setWorkflowInstances(response.data.data as WorkflowInstanceDTO[]);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load workflow instances");
     })
     .finally(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';

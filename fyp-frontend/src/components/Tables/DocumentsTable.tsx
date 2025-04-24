@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table'
 import DocumentDTO from '@/models/DTOs/DocumentDTO'
 import NoResults from '../NoResults';
@@ -6,7 +6,6 @@ import { Spinner } from '../ui/spinner';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import TableActionsDropdown from '../TableActionsDropdown';
-import Api from '@/api';
 import util from '@/util';
 import AccountDirectoryBadge from '../AccountDirectoryBadge';
 
