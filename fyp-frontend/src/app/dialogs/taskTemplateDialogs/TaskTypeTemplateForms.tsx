@@ -1,5 +1,5 @@
 import { ExternalLink, Trash2, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { CheckedState } from '@radix-ui/react-checkbox';
@@ -20,7 +20,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
-import Select, { MultiValue } from 'react-select';
+import Select from 'react-select';
 import { FeedbackTaskTemplate, LikertQuestion } from '@/models/tasks/FeedbackTaskTemplate';
 
 export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {

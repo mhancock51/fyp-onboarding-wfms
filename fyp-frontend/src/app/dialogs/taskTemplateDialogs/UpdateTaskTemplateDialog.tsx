@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import React, { SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
@@ -19,11 +19,7 @@ import { RootState } from '@/store';
 import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE, SET_TASK_TEMPLATES } from '@/features/appSlice';
 import { TASK_TYPE_IDS } from '@/constants';
 
-interface Props {
-  fetchTaskTemplates?: () => Promise<void>;
-}
-
-export default function UpdateTaskTemplateDialog(props: Props) {
+export default function UpdateTaskTemplateDialog() {
   const dispatch = useDispatch();
   const open = useSelector((state: RootState) => state.app.openUpdateTaskTemplateDialog);
   const taskTemplate = useSelector((state: RootState) => state.app.selectedTaskTemplate);
@@ -61,7 +57,7 @@ export default function UpdateTaskTemplateDialog(props: Props) {
     .then((response) => {
       dispatch(SET_TASK_TEMPLATES(response.data.data));      
     })
-    .catch((error) => {      
+    .catch(() => {      
     })
     .finally(() => {
       setLoading(false);     
@@ -73,12 +69,12 @@ export default function UpdateTaskTemplateDialog(props: Props) {
 
     setLoading(true);
     await Api.taskTemplates.updateTemplate(taskTemplate.id, description, updatedData)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       toast.success("Task template updated successfully");
       void fetchTaskTemplates();
       closeAndClear();
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to update task template");
     })
     .finally(() => {

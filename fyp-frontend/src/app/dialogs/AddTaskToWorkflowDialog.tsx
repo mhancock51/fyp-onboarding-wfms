@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PLACEHOLDER_ONBOARDERS_ACCOUNT, PLACEHOLDER_SUPERVISORS_ACCOUNT, TEMPLATE_ACCOUNTS } from '@/constants';
 import AccountDirectory from '@/models/AccountDirectory';
@@ -12,10 +11,7 @@ import TaskTemplate from '@/models/tasks/TaskTemplate';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { HoverCardContent } from '@radix-ui/react-hover-card';
 import Select, { MultiValue } from 'react-select';
-import { X } from 'lucide-react';
 import React, { SetStateAction, useState } from 'react'
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import ClearableInput from '@/components/ClearableInput';
 
 interface Props {
@@ -28,7 +24,6 @@ interface Props {
 }
 
 export default function AddTaskToWorkflowDialog(props: Props) {  
-  const accounts = useSelector((state: RootState) => state.app.accountsDirectory);
   const [step, setStep] = useState<number>(0);
   const [taskTemplate, setTaskTemplate] = useState<TaskTemplate | null>(null);
   const [assignee, setAssignee] = useState<AccountDirectory | null>(null);
