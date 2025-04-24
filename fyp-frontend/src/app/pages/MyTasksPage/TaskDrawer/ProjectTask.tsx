@@ -144,10 +144,6 @@ export default function ProjectTask(props: Props) {
             }
             </div>
           </div>
-          <div className='flex flex-col w-full gap-2'>
-            <Label className='font-bold'>Upload project file</Label>
-            <Input type='file' accept='.zip'/>
-          </div>
         </div>
       </TabsContent>
       <TabsContent value="support">

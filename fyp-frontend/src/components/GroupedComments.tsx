@@ -42,7 +42,7 @@ export function GroupedComments(props: Props) {
   const groupedComments = groupComments(props.comments);
 
   return (
-    <div className='flex flex-col my-2 max-h-100 overflow overflow-y-auto overflow-x-hidden'>
+    <div className='flex flex-col my-2 max-h-[20vh] overflow overflow-y-auto overflow-x-hidden'>
       {
         groupedComments.map((group, i) => (
           <div key={i} className='flex flex-col gap-2'>

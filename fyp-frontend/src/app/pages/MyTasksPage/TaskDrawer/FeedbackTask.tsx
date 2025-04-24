@@ -55,7 +55,7 @@ export default function FeedbackTask(props: Props) {
   }, []);
     
   return (
-    <div className='flex flex-col gap-2 p-2'>
+    <div className='flex flex-col gap-2 p-2 overflow-y-auto'>
       {
         props.feedbackTemplate.questions.map((question, index) => (
           <div key={index} className='flex flex-col gap-1'>

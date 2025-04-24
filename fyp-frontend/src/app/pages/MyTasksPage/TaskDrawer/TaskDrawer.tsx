@@ -1,9 +1,6 @@
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
+import { Drawer, DrawerContent, DrawerFooter, DrawerTitle } from '@/components/ui/drawer'
 import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
 import TaskTypeBadge from '../TaskTypeBadge';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
@@ -11,7 +8,7 @@ import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplat
 import ChecklistTask from './ChecklistTask';
 import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Api from '@/api';
 import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
@@ -24,9 +21,8 @@ import { AccordionTrigger } from '@radix-ui/react-accordion';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import CommentDTO from '@/models/DTOs/CommentDTO';
-import { Flag, MessageSquareMore, X } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { Flag, MessageSquareMore, } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 import CommentSection from '@/components/CommentSection';
 import ProjectTask from './ProjectTask';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
@@ -54,8 +50,6 @@ export default function TaskDrawer(props: Props) {
 
   const [comment, setComment] = useState<string>("");
   const [parentCommentId, setParentCommentId] = useState<string>("");
-
-  const user = useSelector((state: RootState) => state.app.user);
 
   const dispatch = useDispatch();
 
@@ -105,6 +99,8 @@ export default function TaskDrawer(props: Props) {
   }
   
   useEffect(() => {
+    setComments([]);
+    setParentCommentId("");
     if (props.task.taskTemplateId !== "") {
       void fetchComments();
     }
@@ -112,99 +108,85 @@ export default function TaskDrawer(props: Props) {
 
   return (
     <Drawer direction='right'  onClose={() => {props.setOpen(false);}} open={props.open}>
-      <DrawerContent className="max-w-[600px] w-full p-2 flex flex-col justify-start gap-2"> {/* Override max width */}
-        {
-          props.task !== null &&
-          <div className='flex-11 w-full'>
-            <DrawerHeader className='p-3 flex-1'>
-              <div className='flex flex-col justify-center gap-1'>
-                <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
-                {
-                  user?.isSupervisor &&
-                  <Badge className='mx-auto text-center cursor-pointer' onClick={() => {navigator.clipboard.writeText(props.task.id);}}>
-                    [{props.task.id}]
-                  </Badge>              
-                }
-              </div>
-              <div className='flex flex-row justify-center gap-2'>
-                <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[200px]'/>
-                {
-                  props.task.workflowInstance !== null &&
-                  <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance} className='w-[250px]'/>
-                }
-                <TaskStatusBadge status={props.task.status} className='w-[100px]'/>
-              </div>
-              <DrawerDescription className='p-1'>
-                <div className='flex flex-col w-full justify-center text-center'>     
-                  <Label className='font-normal'>{props.task.template.description}</Label>
-                </div>
-              </DrawerDescription>                     
-              <Separator/>
-            </DrawerHeader>
-            <div className='flex-11'>
-              {
-                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST &&
-                <ChecklistTask 
-                  taskInstanceId={props.task.id} 
-                  checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
-                  checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
-                  fetchTaskInstances={props.fetchTaskInstances}
-                  setCanCompleteTask={setCanCompleteTask}
-                  taskStatus={props.task.status}
-                />
-              }
-              {
-                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
-                <UploadDocumentTask 
-                  taskInstanceId={props.task.id} 
-                  fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
-                  fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
-                  fetchTaskInstances={props.fetchTaskInstances} 
-                  setCanCompleteTask={setCanCompleteTask} 
-                  taskStatus={props.task.status}/>
-              }
-              {
-                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.READ_DOCUMENT &&
-                <ReadDocumentTask 
-                  taskInstanceId={props.task.id} 
-                  readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
-                  readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
-                  fetchTaskInstances={props.fetchTaskInstances} 
-                  setCanCompleteTask={setCanCompleteTask} 
-                  taskStatus={props.task.status}/>
-              }
-              {
-                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.PROJECT_TASK &&
-                <ProjectTask 
-                  taskInstanceId={props.task.id} 
-                  projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 
-                  projectInstance={props.task.instanceData as ProjectTaskInstance}
-                  fetchTaskInstances={props.fetchTaskInstances} 
-                  setCanCompleteTask={setCanCompleteTask} 
-                  taskStatus={props.task.status}/>
-              }
-              {
-                props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.FEEDBACK_TASK &&
-                <FeedbackTask 
-                  taskInstanceId={props.task.id} 
-                  feedbackInstance={props.task.instanceData as FeedbackTaskInstance} 
-                  feedbackTemplate={props.task.template.taskTypeData as FeedbackTaskTemplate} 
-                  fetchTaskInstances={props.fetchTaskInstances} 
-                  setCanCompleteTask={setCanCompleteTask} 
-                  taskStatus={props.task.status}/>
-              }
-              <Button className='rounded-full mx-r-2 p-2 w-full' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
-                Complete Task
-              </Button>
-            </div>
+      <DrawerContent className="max-w-[600px] max-h-[100vh] w-full p-2 flex flex-col justify-start gap-2">
+        {/* Drawer header - task information */}
+        <div className='flex flex-col justify-center gap-2'>
+          <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
+          <div className='flex flex-row justify-center gap-2'>
+            <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[200px]'/>
+            {
+              props.task.workflowInstance !== null &&
+              <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance} className='w-[250px]'/>
+            }
+            <TaskStatusBadge status={props.task.status} className='w-[100px]'/>
           </div>
-        }
-        <DrawerFooter className='flex-1'>
-          <Button variant={"outline"} onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
+          <div className='flex flex-row w-full text-center justify-center'>
+            <Label className='font-normal'>{props.task.template.description}</Label>
+          </div>
+        </div>
+        <div className='flex-9 flex flex-col min-h-[40vh]'>
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST &&
+            <ChecklistTask 
+              taskInstanceId={props.task.id} 
+              checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
+              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances}
+              setCanCompleteTask={setCanCompleteTask}
+              taskStatus={props.task.status}
+            />
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
+            <UploadDocumentTask 
+              taskInstanceId={props.task.id} 
+              fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
+              fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.READ_DOCUMENT &&
+            <ReadDocumentTask 
+              taskInstanceId={props.task.id} 
+              readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
+              readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.PROJECT_TASK &&
+            <ProjectTask 
+              taskInstanceId={props.task.id} 
+              projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 
+              projectInstance={props.task.instanceData as ProjectTaskInstance}
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.FEEDBACK_TASK &&
+            <FeedbackTask 
+              taskInstanceId={props.task.id} 
+              feedbackInstance={props.task.instanceData as FeedbackTaskInstance} 
+              feedbackTemplate={props.task.template.taskTypeData as FeedbackTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          <Button className='rounded-full mx-r-2 p-2 w-full' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+            Complete Task
+          </Button>
+        </div>
+        <DrawerFooter className='flex flex-col gap-2 w-full p-0'>
+          <Button variant={"outline"} className='w-full' onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
             <Flag/>
             Flag an issue with this task
           </Button>
-          <Accordion type="single" collapsible className="w-full">
+          {/* Task template comment section accordian */}
+          <Accordion type="single" collapsible className="w-full flex-10">
             <AccordionItem value="item-1" >
               <AccordionTrigger className="w-full">
                 <Button variant={"outline"} className="w-full flex flex-row gap-2">
@@ -212,7 +194,7 @@ export default function TaskDrawer(props: Props) {
                   See comments about this task
                 </Button>              
               </AccordionTrigger>
-              <AccordionContent className='p-2'>
+              <AccordionContent className='py-1'>
                 <CommentSection 
                   loadingComments={loadingComments} 
                   postingComment={postingComment} 
@@ -226,7 +208,7 @@ export default function TaskDrawer(props: Props) {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-          <div className='flex flex-row justify-center'>
+          <div className='flex flex-row justify-center w-full py-1'>
             {
               props.task.template.lastModifiedTimestamp !== null &&
               <Label className='font-normal text-gray-500'>Task Template last modified {new Date(props.task.template.lastModifiedTimestamp).toLocaleTimeString()} {new Date(props.task.template.lastModifiedTimestamp).toLocaleDateString()}</Label>                
