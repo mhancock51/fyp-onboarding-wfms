@@ -33,7 +33,7 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
 
         public async Task<ServerResponse<WorkflowInstanceDTO, string>> Handle(RetrieveWorkflowInstanceRequest request, CancellationToken cancellationToken)
         {
-            var response = await _workflowInstanceLogic.GetWorkflowInstance(request.WorkflowInstanceId);
+            var response = await _workflowInstanceLogic.GetWorkflowInstanceDTO(request.WorkflowInstanceId);
             _logger.LogInformation($"Retrieve response to get workflow instance, success: {response.Success}");
             return response;
         }
