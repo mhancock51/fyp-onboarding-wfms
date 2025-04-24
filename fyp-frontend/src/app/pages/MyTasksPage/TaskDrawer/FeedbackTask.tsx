@@ -55,19 +55,22 @@ export default function FeedbackTask(props: Props) {
   }, []);
     
   return (
-    <div className='flex flex-col gap-2 p-2 overflow-y-auto'>
+    <div className='flex flex-col gap-3 p-2 overflow-y-auto'>
       {
-        props.feedbackTemplate.questions.map((question, index) => (
-          <div key={index} className='flex flex-col gap-1'>
-            <h1 className='font-semibold'>Question {index + 1}</h1>
-            <span>{question.question}</span>
+        props.feedbackTemplate.questions.map((question, questionIndex) => (
+          <div key={questionIndex} className='flex flex-col gap-1'>
+            <h1 className='font-semibold'>Question {questionIndex + 1}</h1>
             <Separator/>
-            <RadioGroup disabled={props.taskStatus === "complete"} defaultValue="0" className='py-1' value={props.feedbackInstance.responses[index].toString()} onValueChange={(value: string) => updateResponse(index, +value)}>
+            <span>{question.question}</span>
+            <RadioGroup disabled={props.taskStatus === "complete"} defaultValue="0" className='py-1' 
+              value={props.feedbackInstance.responses[questionIndex].toString()} 
+              onValueChange={(value: string) => updateResponse(questionIndex, +value)}
+            >
               {
-                question.likertScale.map((label, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <RadioGroupItem value={index.toString()}/>
-                    <Label>{label}</Label>
+                question.likertScale.map((label, labelIndex) => (
+                  <div key={labelIndex} className="flex items-center space-x-2">
+                    <RadioGroupItem value={labelIndex.toString()} className='cursor-pointer'/>
+                    <Label className='cursor-pointer' onClick={() => {updateResponse(questionIndex, labelIndex)}}>{label}</Label>
                   </div>
                 ))
               }
