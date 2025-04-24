@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from './app/layout';
-import { ThemeProvider } from './components/theme-provider';
+import { ThemeProvider } from './components/ThemeProvider';
 import CreateWorkflowPage from './app/pages/CreateWorkflowPage/CreateWorkflowPage';
 
 import '@xyflow/react/dist/style.css';
