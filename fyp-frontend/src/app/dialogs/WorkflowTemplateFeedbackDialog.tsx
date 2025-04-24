@@ -1,10 +1,7 @@
 import Api from '@/api';
-import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
 import NoResults from '@/components/NoResults';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';
 import HTTPresponse from '@/models/HTTPresponse';
