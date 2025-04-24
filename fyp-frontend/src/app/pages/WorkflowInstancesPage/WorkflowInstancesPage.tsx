@@ -1,5 +1,4 @@
 import DocumentsDialog from '@/app/dialogs/DocumentsDialog';
-import WorkflowFeedbackDialog from '@/app/dialogs/WorkflowFeedbackDialog';
 import WorkflowInstanceAuditDialog from '@/app/dialogs/WorkflowInstanceAuditDialog';
 import { DropdownAction } from '@/components/TableActionsDropdown'
 import WorkflowInstancesTable from '@/components/Tables/WorkflowInstancesTable'
