@@ -43,8 +43,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         }
 
         public override async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
-        {            
-            var taskInstance = taskInstanceMetaData as ChecklistTaskInstanceTable;            
+        {
+            ChecklistTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };

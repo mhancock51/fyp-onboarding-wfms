@@ -86,7 +86,7 @@ export default function ViewWorkflowTemplateDialog() {
           <>
             <WorkflowTemplateTable 
               onTemplateSelected={(workflowTemplate: WorkflowTemplateDTO) => {setSelectedWorkflowTemplate(workflowTemplate)}}
-              selectedTemplateId={selectedWorkflowTemplate?.id ?? null}
+              selectedTemplate={selectedWorkflowTemplate}
             />
             <DialogFooter>
               <div className='flex flex-row w-full justify-end'>

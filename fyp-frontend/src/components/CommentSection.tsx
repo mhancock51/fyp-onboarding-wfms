@@ -27,51 +27,44 @@ export default function CommentSection(props: Props) {
   }, [props.parentCommentId]);
 
   return (
-    <>
-    {
-      props.loadingComments && 
-      <div className='flex flex-row gap-2 items-center justify-center'>
-        <Spinner/>
-        <Label>Loading comments...</Label>
-      </div>
-    }
-    {
-      !props.loadingComments &&
-      <>                    
-        <div className='flex flex-col my-2 max-h-100 overflow overflow-y-auto overflow-x-hidden'>
-          {            
-            props.comments.length > 0 && 
-            <>
-              <h1>Click on a comment to reply</h1>
-              <GroupedComments comments={props.comments} setParentCommentId={props.setParentCommentId}/>
-            </>
-          }
-          {
-            props.comments.length === 0 &&
-            <NoResults text={'No comments on this task template yet'}/>
-          }
-        </div>                    
-        <div className='flex flex-col gap-2'>
-          {
-            parentComment &&
-            <div className='flex flex-row justify-between items-center'>
-              <span className='text-ellipsis w-100 whitespace-nowrap overflow-x-hidden'>Replying to {parentComment.accountDirectory.displayName}'s comment: "{parentComment.text}"</span>
-              <Button onClick={() => {props.setParentCommentId("");}}><X/></Button>
-            </div>
-          }
-          <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void props.postComment();}}>
-            <Input type='text' disabled={props.postingComment} placeholder='Enter your comment...' onChange={(event: any) => {props.setComment(event.target.value);}}/>
-            <Button disabled={props.comment === "" || props.postingComment} type='submit' className='flex flex-row gap-2'>
-              {
-                props.postingComment &&
-                <Spinner className="text-primary-foreground"/>
-              }
-              Submit
-            </Button>
-          </form>
+    <div className='flex flex-col gap-2'>
+      {
+        props.loadingComments &&
+        <div className='flex flex-row py-2 gap-4 items-center justify-center'>
+          <Spinner/>
+          <Label>Loading comments...</Label>
         </div>
-      </>
-    }
-    </>
+      }
+      {
+        !props.loadingComments && props.comments.length === 0 &&
+        <NoResults text={'No comments on this task template yet'}/>
+      }
+      {
+        !props.loadingComments && props.comments.length > 0 &&
+        <div className='flex flex-col'>
+          <h1>Click on a comment to reply</h1>
+          <GroupedComments comments={props.comments} setParentCommentId={props.setParentCommentId}/>
+          <div className='flex flex-col gap-2'>
+            {
+              parentComment &&
+              <div className='flex flex-row justify-between items-center'>
+                <span className='text-ellipsis w-100 whitespace-nowrap overflow-x-hidden'>Replying to {parentComment.accountDirectory.displayName}'s comment: "{parentComment.text}"</span>
+                <Button onClick={() => {props.setParentCommentId("");}}><X/></Button>
+              </div>
+            }
+            <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void props.postComment();}}>
+              <Input type='text' disabled={props.postingComment} placeholder='Enter your comment...' onChange={(event: any) => {props.setComment(event.target.value);}}/>
+              <Button disabled={props.comment === "" || props.postingComment} type='submit' className='flex flex-row gap-2'>
+                {
+                  props.postingComment &&
+                  <Spinner className="text-primary-foreground"/>
+                }
+                Submit
+              </Button>
+            </form>
+          </div> 
+        </div>
+      }
+    </div>
   )
 }

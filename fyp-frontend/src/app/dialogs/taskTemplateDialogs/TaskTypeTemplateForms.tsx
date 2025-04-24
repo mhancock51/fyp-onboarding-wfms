@@ -1,4 +1,4 @@
-import { ExternalLink, Trash2 } from 'lucide-react';
+import { ExternalLink, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
 import Select, { MultiValue } from 'react-select';
+import { FeedbackTaskTemplate, LikertQuestion } from '@/models/tasks/FeedbackTaskTemplate';
 
 export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
@@ -363,5 +364,106 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
       </form>
     }
     </>
+  )
+}
+
+export function FeedbackTemplateCreationForm(props: { initialTaskData?: FeedbackTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void; }) {
+  const [questions, setQuestions] = useState<LikertQuestion[]>([]);
+  
+  function submitFeedbackData() {
+    var data: FeedbackTaskTemplate = {
+      id: props.initialTaskData?.id ?? "",
+      taskTemplateId: props.initialTaskData?.taskTemplateId ?? "",
+      questions: questions
+    }
+    props.updateTaskTypeData(data);
+  }
+
+  function updateQuestion(question: string, index: number) {
+    var updatedQuestions = [...questions];
+    updatedQuestions[index].question = question;
+    setQuestions(updatedQuestions);
+  }
+
+  function removeQuestion(index: number) {
+    setQuestions((prevState) => (prevState.filter((_, i) => (i !== index))))
+  }
+
+  function updateLikertLabel(questionIndex: number, labelIndex: number, value: string) {
+    var updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].likertScale[labelIndex] = value;
+    setQuestions(updatedQuestions);
+  }
+
+  function addLikertLabel(questionIndex: number) {
+    var updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].likertScale = [...updatedQuestions[questionIndex].likertScale, ""];
+    setQuestions(updatedQuestions);
+  }
+
+  function removeLikertLabel(questionIndex: number, labelIndex: number) {
+    var updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].likertScale = updatedQuestions[questionIndex].likertScale.filter((_, i) => (i !== labelIndex));
+    setQuestions(updatedQuestions);
+  }
+
+  function addEmptyQuestion() {
+    const emptyQuestion: LikertQuestion = {
+      question: '',
+      likertScale: [
+        "Strongly Agree",
+        "Agree",
+        "Neither agree or disagree",
+        "Disagree",
+        "Strongly disagree"
+      ]
+    }
+    setQuestions(prevState => ([...prevState, emptyQuestion]));
+  }
+
+  return (
+    <form className="grid gap-4 py-4 w-full" onSubmit={(event: any) => { event.preventDefault(); submitFeedbackData();}}>
+      {/* Questions */}
+      <div className='w-full flex flex-col gap-2'>
+        <div className='max-h-150 overflow-y-auto grid grid-col gap-4'>
+          {
+            questions.map((question, index) => (
+              <div key={index} className='group relative flex flex-col justify-between items-center gap-2 p-2 border-accent border-2 rounded-lg'>
+                <h1 className='font-semibold'>Question {index + 1}</h1>
+                <div className='invisible group-hover:visible absolute right-1 top-1 rounded-full cursor-pointer'
+                  onClick={() => removeQuestion(index)}
+                >
+                  <X className='text-grey-300'/>
+                </div>
+                <Textarea disabled={props.restrictInputs} required placeholder='Enter question...' className='col-span-3' 
+                  value={question.question} onChange={(event: any) => { updateQuestion(event.target.value, index)}}
+                />
+                <div className='flex flex-col gap-1 w-full'>
+                  {
+                    question.likertScale.map((label, labelIndex) => (
+                      <div key={labelIndex} className='flex flex-row w-full gap-2 items-center'>
+                        <span className='text-lg'>{labelIndex + 1}</span>
+                        <Input disabled={props.restrictInputs} required placeholder='Enter label...' className="col-span-3" 
+                          value={label} onChange={(event: any) => {updateLikertLabel(index, labelIndex, event.target.value);}}/>
+                        <Button onClick={() => removeLikertLabel(index, labelIndex)}><X/></Button>
+                      </div>
+                    ))
+                  }
+                  <Button onClick={() => addLikertLabel(index)} className='w-full' disabled={props.restrictInputs}>Add Label</Button>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div className="grid grid-row items-center gap-4">
+          <Button onClick={addEmptyQuestion} disabled={props.restrictInputs}>Add Question</Button>
+        </div>
+      </div>
+      
+      <DialogFooter className='flex flex-row justify-between'> 
+        <Button type='button' onClick={props.backButtonClick}>Back</Button>
+        <Button type="submit">Next</Button>
+      </DialogFooter>
+    </form>
   )
 }

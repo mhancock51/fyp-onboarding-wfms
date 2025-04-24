@@ -30,10 +30,12 @@ export default function WorkflowInstancesPage() {
         <Separator/>
         <WorkflowInstancesTable actions={actions} setSelectedWorkflow={setSelectedWorkflow}/>
       </div>
-      <DocumentsDialog open={openDocumentsDialog && selectedWorkflow !== null} setOpen={setOpenDocumentsDialog} workflowInstance={selectedWorkflow}/>
       {
         selectedWorkflow !== null &&
-        <WorkflowInstanceAuditDialog open={openAuditDialog && selectedWorkflow !== null} setOpen={setOpenAuditDialog} workflowInstance={selectedWorkflow}/>
+        <>
+          <DocumentsDialog open={openDocumentsDialog} setOpen={setOpenDocumentsDialog} workflowInstance={selectedWorkflow}/>
+          <WorkflowInstanceAuditDialog open={openAuditDialog && selectedWorkflow !== null} setOpen={setOpenAuditDialog} workflowInstance={selectedWorkflow}/>
+        </>
       }
     </div>
   )

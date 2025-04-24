@@ -27,12 +27,14 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<ReadDocumentTaskTemplateTable> readDocumentTaskTemplates { get; set; }
         public DbSet<ChecklistTaskTemplateTable> checklistTaskTemplates { get; set; }
         public DbSet<ProjectTaskTemplateTable> projectTaskTemplates { get; set; }
+        public DbSet<FeedbackTaskTemplateTable> feedbackTaskTemplates { get; set; }
 
         public DbSet<TaskInstanceTable> taskInstances { get; set; }
         public DbSet<ChecklistTaskInstanceTable> checklistTaskInstances { get; set; }
         public DbSet<ReadDocumentTaskInstanceTable> readDocumentTaskInstances { get; set; }
         public DbSet<FileUploadTaskInstanceTable> fileUploadTaskInstances { get; set; }
         public DbSet<ProjectTaskInstanceTable> projectTaskInstances { get; set; }
+        public DbSet<FeedbackTaskInstanceTable> feedbackTaskInstances { get; set; }  
 
         // everything workflow related:
         public DbSet<NodeTaskDependencyTable> workflowTemplateNodeDependencies { get; set; }
@@ -71,6 +73,13 @@ namespace OnboardingWFMSApi.DataAccess
                     v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
                     v => JsonSerializer.Deserialize<List<ProjectSupportLink>>(v, new JsonSerializerOptions()) ?? new List<ProjectSupportLink>()
                 );
+            // make sure LikertQuestion is treated like a njson property, not another table
+            modelBuilder.Entity<FeedbackTaskTemplateTable>()
+               .Property(e => e.Questions)
+               .HasConversion(
+                   v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                   v => JsonSerializer.Deserialize<List<LikertQuestion>>(v, new JsonSerializerOptions()) ?? new List<LikertQuestion>()
+               );
 
         }
     }

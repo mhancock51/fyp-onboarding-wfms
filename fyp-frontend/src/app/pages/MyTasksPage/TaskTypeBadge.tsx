@@ -3,7 +3,7 @@ import { TASK_TYPE_IDS } from '@/constants';
 import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import clsx from 'clsx';
-import { ListTodo, FileUp, StickyNote, FileText, Rocket} from 'lucide-react';
+import { ListTodo, FileUp, StickyNote, FileText, Rocket, MessageCircle} from 'lucide-react';
 import React from 'react'
 import { useSelector } from 'react-redux';
 
@@ -26,6 +26,8 @@ export default function TaskTypeBadge(props: Props) {
         return <FileText size={ICON_SIZE}/>
       case TASK_TYPE_IDS.PROJECT_TASK:
         return <Rocket size={ICON_SIZE}/>
+      case TASK_TYPE_IDS.FEEDBACK_TASK:
+        return <MessageCircle size={ICON_SIZE}/>
       default:
         return <StickyNote size={ICON_SIZE}/>
     }    
