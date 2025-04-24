@@ -1,6 +1,6 @@
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar'
 import { ChevronsUpDown, LogOut, Settings, ShieldUser } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { DropdownMenuGroup } from '@radix-ui/react-dropdown-menu'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'

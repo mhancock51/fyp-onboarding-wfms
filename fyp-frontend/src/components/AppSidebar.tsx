@@ -10,9 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  useSidebar,
 } from "@/components/ui/sidebar"
-import { Bell, Blocks, Building, ChartNoAxesColumn, ClipboardList, Dot, Home, ListTodo, MessageSquareWarning, Route, Settings, Trash2, UserPlus, Users, X } from "lucide-react"
+import { Blocks, Building, ChartNoAxesColumn, ClipboardList, ListTodo, MessageSquareWarning, Route, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"

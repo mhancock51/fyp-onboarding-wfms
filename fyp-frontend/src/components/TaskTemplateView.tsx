@@ -1,5 +1,4 @@
 import TaskTemplate from '@/models/tasks/TaskTemplate'
-import React from 'react'
 import { Label } from './ui/label';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import { Separator } from './ui/separator';
