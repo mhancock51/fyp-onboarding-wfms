@@ -43,7 +43,7 @@ export default function DepartmentLookup(props: Props) {
   return (
     <div className='flex flex-row gap-2 col-span-3 w-auto'>
       <Select value={props.department?.id ?? undefined} onValueChange={(value: string) => {props.setDepartment(departments.find(i => i.id === value) ?? null);}}>
-        <SelectTrigger className='w-auto'>
+        <SelectTrigger className='w-min-[300px]'>
           <SelectValue placeholder="Select a department" />
         </SelectTrigger>
         <SelectContent>
@@ -66,7 +66,7 @@ export default function DepartmentLookup(props: Props) {
           }
         </SelectContent>
       </Select> 
-      <Button onClick={() => {
+      <Button type='button' onClick={() => {
         dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); 
         dispatch(SET_OPEN_ORGANISATION_DIALOG(false));
         dispatch(SET_OPEN_INVITE_DIALOG(false));

@@ -51,7 +51,10 @@ export default function DepartmentCreationDialog(props: {open: boolean, setOpenD
         </div>
         <DialogFooter>
           <Button type="submit" onClick={createDepartment} disabled={loading}>
-            <Spinner/>
+            {
+              loading &&
+              <Spinner className="text-primary-foreground"/>
+            }
             Create Department
           </Button>
         </DialogFooter>
