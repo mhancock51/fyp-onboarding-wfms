@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class UploadDocumentRequest : IRequest<HTTPResponse<DocumentDTO, string>>
     {

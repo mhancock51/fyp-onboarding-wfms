@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 {
     public abstract class BaseTaskTemplateHandler<TTaskType> : BaseTaskHandler<TTaskType> where TTaskType : class, ITaskTypeTemplateTable
     {
@@ -50,7 +50,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             }
             catch (Exception ex)
             {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert task type data"};
+                return new ServerResponse<string, string>() { Success = false, Error = "Failed to insert task type data" };
             }
         }
 

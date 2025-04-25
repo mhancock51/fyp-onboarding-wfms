@@ -10,27 +10,29 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
-    public interface IUploadDocumentInstanceHandler : ITaskInstanceHandler
+    public interface IReadDocumentTaskInstanceHandler : ITaskInstanceHandler
     {
 
     }
-    public class UploadDocumentInstanceHandler : BaseTaskInstanceHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
-    {        
-        public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository,
-            ILogger<UploadDocumentInstanceHandler> logger) : base(repository, logger)
-        {            
+
+    public class ReadDocumentTaskInstanceHandler : BaseTaskInstanceHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
+    {
+        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository,
+            ILogger<ReadDocumentTaskInstanceHandler> logger) : base(repository, logger)
+        {
+
         }
 
         public string GetTaskTypeId()
         {
-            return "upload-document";
+            return "read-document";
         }
 
         public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
-            await _repository.AddAsync(new FileUploadTaskInstanceTable() { TaskInstanceId = taskInstanceId, DocumentId = "" });
+            await _repository.AddAsync(new ReadDocumentTaskInstanceTable() { TaskInstanceId = taskInstanceId });
             return new ServerResponse<string, string>() { Success = true };
         }
 
@@ -40,12 +42,18 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
-            }            
-            // ensure document has been uploaded            
-            if (taskInstance.DocumentId == "")
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "No document uploaded" };
             }
+
+            // ensure document has been opened and checkbox has been checked
+            if (!taskInstance.CheckboxChecked)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Checkbox must be checked" };
+            }
+            if (!taskInstance.LinkClicked)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = "Link must have been clicked" };
+            }
+
             return new ServerResponse<string, string>() { Success = true };
         }
 

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
     public abstract class BaseTaskInstanceHandler<TTaskType> : BaseTaskHandler<TTaskType> where TTaskType : class, ITableEntity
     {
@@ -23,7 +23,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         }
 
         public async Task<ServerResponse<object, string>> FetchTaskInstanceData(string taskInstanceId)
-        {            
+        {
             var taskInstanceMetaData = await _repository.GetByTaskInstanceId(taskInstanceId);
             if (taskInstanceMetaData == null)
             {

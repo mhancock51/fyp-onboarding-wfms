@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class RetrieveAccountDirectoryRequest : IRequest<AccountDirectoryDTO>
     {
         public string AccountId { get; set; }
         public RetrieveAccountDirectoryRequest(string accountId)
         {
-            this.AccountId = accountId;
+            AccountId = accountId;
         }
     }
 

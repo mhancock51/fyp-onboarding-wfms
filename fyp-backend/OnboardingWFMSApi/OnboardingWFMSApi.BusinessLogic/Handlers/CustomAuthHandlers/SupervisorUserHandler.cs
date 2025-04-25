@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.CustomAuthHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.CustomAuthHandlers
 {
     public class SupervisorUserRequirement : IAuthorizationRequirement
     {

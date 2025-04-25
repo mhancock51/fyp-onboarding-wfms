@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OnboardingWFMSApi.BusinessLogic.NotificationLogic;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class CreateNotificationRequest : IRequest<ServerResponse<string, string>>
     {

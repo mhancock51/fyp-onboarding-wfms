@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 {
     public interface IUploadDocumentTaskTemplateHandler : ITaskTemplateHandler
     {
@@ -59,7 +59,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
                 {
                     return new ServerResponse<string, string>() { Success = false, Error = $"{fileExtension} is not an allowed extension" };
                 }
-            }            
+            }
 
             return new ServerResponse<string, string>() { Success = true, Data = "Task Type metadata validated successfully" };
         }
@@ -68,7 +68,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
         {
             var updatedTaskData = CastObjectToType(updatedData);
             var existingTaskData = CastObjectToType(existingData);
-            
+
             // No contextual validation to be done
 
             // run base method to do base validation checks and then update record

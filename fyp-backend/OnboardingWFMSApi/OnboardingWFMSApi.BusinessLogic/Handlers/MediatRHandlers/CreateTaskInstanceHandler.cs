@@ -10,7 +10,7 @@ using OnboardingWFMSApi.DataModels.DTOs;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class CreateTaskInstanceRequest : IRequest<ServerResponse<string, string>>
     {

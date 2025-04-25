@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
@@ -76,9 +76,7 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
             var response = await ValidateCreateWorkflowInstancePayload(payload);
             if (response.Success == false) return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = response.Error };
 
-
             var workflowTemplate = (await _workflowTemplateLogic.GetWorkflowTemplate(payload.WorkflowTeamplateId)).Data;
-
             // insert workflow instance record
             var workflowInstance = new WorkflowInstanceTable()
             {

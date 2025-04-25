@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 {
     public interface IProjectTaskTemplateHandler : ITaskTemplateHandler
     {
@@ -19,7 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
     {
         public ProjectTaskTemplateHandler(IProjectTaskTemplateRepository repository) : base(repository)
         {
-            
+
         }
 
         public string GetTaskTypeId()
@@ -45,7 +45,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Please provide objectives" };
             }
-            foreach(var objective in projectTaskData.Objectives)
+            foreach (var objective in projectTaskData.Objectives)
             {
                 if (string.IsNullOrEmpty(objective.Objective)) return new ServerResponse<string, string>() { Success = false, Error = "Objective is empty" };
             }
@@ -66,7 +66,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             if (updatedProjectData.Objectives.Count != existingProjectData.Objectives.Count && hasActiveInstances)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Objectives can't be changed if instances exist" };
-            }            
+            }
 
             // run base method to do base validation checks and then update record
             return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
