@@ -135,7 +135,6 @@ export default function WorkflowInstancesTable(props: Props) {
           <TableCell width={50} className='text-center cursor-pointer'>
             <div className='flex flex-row gap-1 justify-center items-center'>
               Status
-              <ArrowDownUp/>
             </div>
           </TableCell>
           <TableCell width={50} className='text-center cursor-pointer'>

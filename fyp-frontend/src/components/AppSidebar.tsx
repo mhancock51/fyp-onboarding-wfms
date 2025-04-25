@@ -149,7 +149,7 @@ export function AppSidebar(props: Props) {
           {
             user?.isSupervisor &&
             <SidebarGroup>
-              <SidebarGroupLabel>Admin</SidebarGroupLabel>
+              <SidebarGroupLabel>Organisation</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {adminItems.map((item) => (
