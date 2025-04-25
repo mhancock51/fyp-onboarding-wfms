@@ -86,7 +86,7 @@ export default function NotificationsSidebarMenu() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[550px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
+                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[60vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
               >
                 <DropdownMenuGroup className="gap-2 flex flex-col">
                   {
