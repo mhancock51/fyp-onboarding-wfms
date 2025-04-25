@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.Factories;
-using OnboardingWFMSApi.BusinessLogic.MediatRHandlers;
-using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
+using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
@@ -268,9 +268,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
                     AccountId = accountId
                 };
                 await _mediator.Send(new CreateWorkflowInstanceAuditLogRequest(log));
-            }
-
-            // TODO implement logic to notify correct users                       
+            }                    
 
             return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully completed task" };
         }

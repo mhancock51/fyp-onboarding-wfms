@@ -1,5 +1,5 @@
 import Api from '@/api';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { Document } from '@/models/Document';
 import { Badge } from '@/components/ui/badge';

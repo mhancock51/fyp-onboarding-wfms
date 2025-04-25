@@ -8,7 +8,7 @@ import HTTPresponse from '@/models/HTTPresponse'
 import Utils from '@/util'
 import { AxiosResponse } from 'axios'
 import { TriangleAlert } from 'lucide-react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -32,7 +32,7 @@ export default function SettingsPage() {
   async function deleteAccount() {
     setDeletingAccount(true);
     await Api.account.deleteAccount()
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       logOutUser();
       toast.success("Successfully delete account");
     })

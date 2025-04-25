@@ -1,7 +1,7 @@
 import Api from '@/api';
 import HTTPresponse from '@/models/HTTPresponse';
 import { AxiosResponse } from 'axios';
-import { Expand, Star } from 'lucide-react'
+import { Expand } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import DataCard from './DataCard';
 import OnboardingAnalyticsDTO from '@/models/OnboardingAnalyticsDTO';
@@ -25,7 +25,7 @@ export default function WorkflowDashboardPage() {
       // set onboarding data in hook
       setOnboardingAnalytics(prevState => ({...prevState, data: response.data.data}));
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to fetch onboarding analytics");
     })
     .finally(() => {
@@ -40,7 +40,7 @@ export default function WorkflowDashboardPage() {
     .then((response: AxiosResponse<HTTPresponse<ReportedIssuesAnalyticsDTO, string>>) => {
       setIssuesAnalytics(prevState => ({...prevState, data: response.data.data}));
     })
-    .catch((error) => {      
+    .catch(() => {      
       toast.error("Failed to fetch issues analytics");
     })
     .finally(() => {  
@@ -54,7 +54,7 @@ export default function WorkflowDashboardPage() {
     .then((response: AxiosResponse<HTTPresponse<TaskAnalyticsDTO, string>>) => {
       setTaskAnalytics(prevState => ({...prevState, data: response.data.data}));
     })
-    .catch((error) => {      
+    .catch(() => {      
     })
     .finally(() => {
       setTaskAnalytics(prevState => ({...prevState, loading: false}));      

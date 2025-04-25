@@ -14,6 +14,15 @@ namespace OnboardingWFMSApi.DataModels.Tables
     [Table("workflowinstanceauditlog")]
     public class WorkflowInstanceAuditLogTable : ITableEntity
     {
+        public WorkflowInstanceAuditLogTable(string workflowInstanceId, string log, string? accountId)
+        {
+            Id = "";
+            WorkflowInstanceId = workflowInstanceId;
+            Log = log;
+            Timestamp = DateTime.Now;
+            AccountId = accountId;
+        }
+
         [Key]
         [JsonPropertyName("id")]
         public string Id { get; set; }

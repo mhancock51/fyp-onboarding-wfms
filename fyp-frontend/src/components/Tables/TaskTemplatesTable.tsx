@@ -1,5 +1,5 @@
 import TaskTypeBadge from '@/app/pages/MyTasksPage/TaskTypeBadge'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Table, TableHeader, TableCell, TableBody, TableRow } from '../ui/table'
 import Api from '@/api';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
@@ -32,12 +32,12 @@ export default function TaskTemplatesTable(props: Props) {
   async function fetchTaskTemplates() {
     setLoading(true);
     await Api.taskTemplates.fetchAllTaskTemplates(props.status)
-    .then((response) => {
+    .then(() => {
       dispatch(SET_TASK_TEMPLATES(baseTaskTemplates));
       filterTemplates();
       setLoading(false);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to fetch task templates");
       setLoading(false);
     })

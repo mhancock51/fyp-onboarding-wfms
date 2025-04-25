@@ -4,8 +4,8 @@ import { Separator } from '@/components/ui/separator';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { NodeProps, Node, Handle } from '@xyflow/react';
 import { Position } from '@xyflow/system';
-import { ChevronDown, ChevronUp, EyeOff, Plus, Trash2, X, XCircle } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react'
+import { ChevronDown, ChevronUp, Plus, Trash2, X } from 'lucide-react';
+import { useEffect, useState } from 'react'
 import TaskTypeBadge from '../../MyTasksPage/TaskTypeBadge';
 import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import DataCard from './DataCard'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
 import Api from '@/api';

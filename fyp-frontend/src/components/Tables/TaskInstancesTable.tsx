@@ -1,5 +1,4 @@
 import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
-import React from 'react'
 import { Spinner } from '../ui/spinner';
 import NoResults from '../NoResults';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';

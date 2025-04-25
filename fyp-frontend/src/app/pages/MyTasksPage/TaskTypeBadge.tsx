@@ -4,7 +4,6 @@ import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import clsx from 'clsx';
 import { ListTodo, FileUp, StickyNote, FileText, Rocket, MessageCircle} from 'lucide-react';
-import React from 'react'
 import { useSelector } from 'react-redux';
 
 interface Props {

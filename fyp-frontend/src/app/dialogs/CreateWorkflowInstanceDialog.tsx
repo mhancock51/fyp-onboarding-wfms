@@ -11,10 +11,8 @@ import { SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG } from '@/features/appSlice';
 import AccountDirectory from '@/models/AccountDirectory';
 import Department from '@/models/Department';
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';
-import HTTPresponse from '@/models/HTTPresponse';
 import { RootState } from '@/store';
-import { AxiosResponse } from 'axios';
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -62,7 +60,7 @@ export default function CreateWorkflowInstanceDialog() {
         displayName: displayName, emailAddress: emailAddress, departmentId: department?.id ?? ""
       } : null
     )
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       toast.success("Successfully created workflow instance");
       closeAndClear();
     })

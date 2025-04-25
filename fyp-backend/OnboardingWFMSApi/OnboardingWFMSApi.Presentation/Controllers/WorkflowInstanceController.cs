@@ -47,7 +47,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetWorkflowInstance(string workflowInstanceId)
         {
-            var response = await _workflowInstanceLogic.GetWorkflowInstance(workflowInstanceId);
+            var response = await _workflowInstanceLogic.GetWorkflowInstanceDTO(workflowInstanceId);
             return StatusCode(response.HttpCode, response);
         }
 

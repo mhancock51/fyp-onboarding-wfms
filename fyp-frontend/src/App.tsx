@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from './app/layout';
-import { ThemeProvider } from './components/theme-provider';
+import { ThemeProvider } from './components/ThemeProvider';
 import CreateWorkflowPage from './app/pages/CreateWorkflowPage/CreateWorkflowPage';
 
 import '@xyflow/react/dist/style.css';
@@ -145,11 +145,11 @@ export default function App() {
     return (
       <Route path="/" element={user !== null ? <Layout /> : <Navigate to="/login" />}>
         <Route index element={<MyTasksPage />} />
-        <Route path="/workflows" element={<WorkflowInstancesPage />} />
-        <Route path="/settings" element={<SettingsPage/>} />
-        <Route path="/issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
-        <Route path="/workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
-        <Route path="/workflows/build" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />
+        <Route path="workflows" element={<WorkflowInstancesPage />} />
+        <Route path="settings" element={<SettingsPage/>} />
+        <Route path="issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
+        <Route path="workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
+        <Route path="workflows/build" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />
       </Route>
     );
   }, [user]);

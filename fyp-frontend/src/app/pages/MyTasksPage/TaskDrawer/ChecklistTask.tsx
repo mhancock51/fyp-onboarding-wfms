@@ -1,5 +1,4 @@
 import Api from '@/api'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { TASK_TYPE_IDS } from '@/constants'
@@ -38,7 +37,7 @@ export default function ChecklistTask(props: Props) {
 
   async function updateChecklistStatus(checklistState: ChecklistTaskInstance) {
     await Api.updateTaskState(checklistState, TASK_TYPE_IDS.CHECKLIST, checklistState.taskInstanceId)
-    .then((response) => {
+    .then(() => {
       if (areAllTasksComplete(checklistState.itemCompletionStatuses)) {
         props.setCanCompleteTask(true);
       }
@@ -47,7 +46,7 @@ export default function ChecklistTask(props: Props) {
       }
       void props.fetchTaskInstances();
     })
-    .catch((error) => {
+    .catch(() => {
       toast("Failed to update checklist task's state");
     })
   }
