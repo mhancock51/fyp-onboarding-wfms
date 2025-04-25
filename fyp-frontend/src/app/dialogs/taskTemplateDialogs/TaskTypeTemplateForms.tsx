@@ -368,7 +368,7 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
 }
 
 export function FeedbackTemplateCreationForm(props: { initialTaskData?: FeedbackTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void; }) {
-  const [questions, setQuestions] = useState<LikertQuestion[]>([]);
+  const [questions, setQuestions] = useState<LikertQuestion[]>(props.initialTaskData?.questions ?? []);
   
   function submitFeedbackData() {
     var data: FeedbackTaskTemplate = {
@@ -430,11 +430,11 @@ export function FeedbackTemplateCreationForm(props: { initialTaskData?: Feedback
             questions.map((question, index) => (
               <div key={index} className='group relative flex flex-col justify-between items-center gap-2 p-2 border-accent border-2 rounded-lg'>
                 <h1 className='font-semibold'>Question {index + 1}</h1>
-                <div className='invisible group-hover:visible absolute right-1 top-1 rounded-full cursor-pointer'
-                  onClick={() => removeQuestion(index)}
+                <Button className='bg-background invisible group-hover:visible group-hover:bg-background absolute right-1 top-1 rounded-full cursor-pointer'
+                  onClick={() => removeQuestion(index)} disabled={props.restrictInputs}
                 >
                   <X className='text-grey-300'/>
-                </div>
+                </Button>
                 <Textarea disabled={props.restrictInputs} required placeholder='Enter question...' className='col-span-3' 
                   value={question.question} onChange={(event: any) => { updateQuestion(event.target.value, index)}}
                 />
@@ -445,7 +445,7 @@ export function FeedbackTemplateCreationForm(props: { initialTaskData?: Feedback
                         <span className='text-lg'>{labelIndex + 1}</span>
                         <Input disabled={props.restrictInputs} required placeholder='Enter label...' className="col-span-3" 
                           value={label} onChange={(event: any) => {updateLikertLabel(index, labelIndex, event.target.value);}}/>
-                        <Button onClick={() => removeLikertLabel(index, labelIndex)}><X/></Button>
+                        <Button disabled={props.restrictInputs} onClick={() => removeLikertLabel(index, labelIndex)}><X/></Button>
                       </div>
                     ))
                   }

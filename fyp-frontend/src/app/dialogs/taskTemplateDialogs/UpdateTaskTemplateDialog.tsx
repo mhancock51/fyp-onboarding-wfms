@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { useEffect, useState } from 'react'
-import { ChecklistTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
+import { ChecklistTemplateCreationForm, FeedbackTemplateCreationForm, ProjectTemplateCreationForm, ReadDocumentTemplateCreationForm, UploadDocumentTemplateCreationForm } from './TaskTypeTemplateForms';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE, SET_TASK_TEMPLATES } from '@/features/appSlice';
 import { TASK_TYPE_IDS } from '@/constants';
+import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
 
 export default function UpdateTaskTemplateDialog() {
   const dispatch = useDispatch();
@@ -205,6 +206,15 @@ export default function UpdateTaskTemplateDialog() {
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => {setStep(0)}}
           />
+        }
+        {
+          step === 1 &&
+          taskTemplate?.taskTypeId === TASK_TYPE_IDS.FEEDBACK_TASK &&
+          <FeedbackTemplateCreationForm 
+            restrictInputs={hasActiveInstances} 
+            initialTaskData={taskTemplate?.taskTypeData as FeedbackTaskTemplate}
+            updateTaskTypeData={updateTaskTypeData} 
+            backButtonClick={() => {setStep(0)}}/>
         }
         {
           step === 2 &&

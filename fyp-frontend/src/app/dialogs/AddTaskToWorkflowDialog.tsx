@@ -59,7 +59,6 @@ export default function AddTaskToWorkflowDialog(props: Props) {
           step === 0 &&
           <div className='flex flex-col gap-2 max-h-[70vh] w-auto'>
             <TaskTemplatesTable onRowClick={(taskTemplate: TaskTemplate) => {setTaskTemplate(taskTemplate);}} selectedTemplate={taskTemplate} status='active'/>
-            <Button>Create Task Template</Button>
             <Button disabled={taskTemplate === null} onClick={() => {setStep(1)}}>Next</Button>
           </div>
         }
