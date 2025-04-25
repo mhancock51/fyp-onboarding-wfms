@@ -1,6 +1,6 @@
 import Api from '@/api';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -77,7 +77,7 @@ export default function RegisterPage() {
   return (
     <div className='center-canvas'>
       <div className='m-auto w-96' >
-      <Card style={{minHeight: "30vh"}}>
+      <Card className='min-h-[500px]' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
         <CardHeader>
         <CardTitle className="text-2xl">Register</CardTitle>
           <CardDescription className='flex flex-col gap-4'>
@@ -95,7 +95,7 @@ export default function RegisterPage() {
           {
             step === 0 &&
             <>
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
                 <div className="grid gap-2">
                   <Label>Email</Label>
                   <Input required type="email" placeholder="m@example.com" value={email} onChange={(event: any) => {setEmail(event.target.value);}}/>
@@ -106,10 +106,6 @@ export default function RegisterPage() {
                   }
                   Next
                 </Button>
-              </div>
-              <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
-                <a href="/login" className="underline underline-offset-4">Login</a>
               </div>
             </>
           }
@@ -155,6 +151,12 @@ export default function RegisterPage() {
             </div>
           }
         </CardContent>
+        <CardFooter className='flex flex-row w-full justify-center'>
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{" "}
+            <a href="/login" className="underline underline-offset-4">Login</a>
+          </div>
+        </CardFooter>
       </Card>
       </div>
     </div>

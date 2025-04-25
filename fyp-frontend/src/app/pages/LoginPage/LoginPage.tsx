@@ -1,7 +1,7 @@
 import Api from '@/api'
 import AuthenticatedUser from '@/models/AuthenticatedUser';
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@radix-ui/react-dropdown-menu'
 import { useState } from 'react'
@@ -50,16 +50,13 @@ export default function LoginPage() {
   return (
     <div className='canvas center-canvas'>
       <div className='m-auto w-96'>
-      <Card>
+      <Card className='min-h-[500px]' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
         <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription className='flex flex-col gap-4'>
-          Enter your email below to login to your account          
-        </CardDescription>
         </CardHeader>
         <CardContent>
           <div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label>Email</Label>
                 <Input type="email" placeholder="m@example.com" value={email} required onChange={(event: any) => {setEmail(event.target.value);}}/>
@@ -84,12 +81,14 @@ export default function LoginPage() {
                 Login
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="underline underline-offset-4">Sign up</a>
-            </div>
           </div>
         </CardContent>
+        <CardFooter className='flex flex-row w-full justify-center'>
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <a href="/register" className="underline underline-offset-4">Sign up</a>
+          </div>
+        </CardFooter>
       </Card>
       </div>
     </div>
