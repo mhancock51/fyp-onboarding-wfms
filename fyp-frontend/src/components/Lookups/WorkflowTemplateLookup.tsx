@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Select, { ActionMeta, MultiValue, SingleValue } from 'react-select';
 import Api from '@/api';
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO';

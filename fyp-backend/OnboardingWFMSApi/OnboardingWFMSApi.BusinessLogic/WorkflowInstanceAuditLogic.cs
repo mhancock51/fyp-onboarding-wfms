@@ -36,13 +36,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new ServerResponse<string, string>() { Success = false, Error = "A log must be provided" };
             }
 
-            var log = new WorkflowInstanceAuditLogTable() { 
-                Id = "", 
-                WorkflowInstanceId = payload.WorkflowInstanceId,
-                Log = payload.Log,
-                Timestamp = DateTime.Now,
-                AccountId = payload.AccountId,
-            };
+            var log = new WorkflowInstanceAuditLogTable(payload.WorkflowInstanceId, payload.Log, payload.AccountId);
             try
             {
                 await _workflowInstanceAuditLogRepository.AddAsync(log);

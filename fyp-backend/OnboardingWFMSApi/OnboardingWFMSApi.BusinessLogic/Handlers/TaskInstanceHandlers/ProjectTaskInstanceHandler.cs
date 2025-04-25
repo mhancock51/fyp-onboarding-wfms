@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
     public interface IProjectTaskInstanceHandler : ITaskInstanceHandler
     {
@@ -20,7 +20,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
-        public ProjectTaskInstanceHandler(IProjectTaskInstanceRepository repository, IProjectTaskTemplateRepository projectTaskTemplateRepository, 
+        public ProjectTaskInstanceHandler(IProjectTaskInstanceRepository repository, IProjectTaskTemplateRepository projectTaskTemplateRepository,
             ITaskInstanceRepository taskInstanceRepository, ILogger<ProjectTaskInstanceHandler> logger) : base(repository, logger)
         {
             _projectTaskTemplateRepository = projectTaskTemplateRepository;
@@ -35,7 +35,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
         public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
         {
             var objectives = (taskTemplateMetaData as ProjectTaskTemplateTable).Objectives;
-            await _repository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });            
+            await _repository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });
             return new ServerResponse<string, string>() { Success = true };
         }
 

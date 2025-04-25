@@ -1,16 +1,13 @@
 import Api from '@/api';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
-import HTTPresponse from '@/models/HTTPresponse';
 import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO';
 import { RootState } from '@/store';
-import { AxiosResponse } from 'axios';
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -36,7 +33,7 @@ export default function ReportIssueDialog(props: Props) {
   async function createIssue() {
     setCreating(true);
     await Api.issues.createIssue(props.taskInstance.id, issueDescription, suggestedChanges)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       toast.success(`Successfully created issue for task ${props.taskInstance.template.name}`);
       closeAndClear();
     })

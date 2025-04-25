@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class CreateWorkflowInstanceAuditLogRequest : IRequest<ServerResponse<string, string>>
     {

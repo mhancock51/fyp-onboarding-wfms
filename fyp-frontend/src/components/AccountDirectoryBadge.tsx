@@ -1,10 +1,9 @@
 import AccountDirectory from '@/models/AccountDirectory'
-import React from 'react'
 import { Badge } from './ui/badge';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import { Separator } from './ui/separator';
 import { Label } from './ui/label';
-import { ClipboardCopy, Copy, ShieldUser } from 'lucide-react';
+import { Copy, ShieldUser } from 'lucide-react';
 import { toast } from 'sonner';
 import clsx from 'clsx';
 

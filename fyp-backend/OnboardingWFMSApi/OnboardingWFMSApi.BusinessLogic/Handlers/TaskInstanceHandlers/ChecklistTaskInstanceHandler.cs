@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
     public interface IChecklistTaskInstanceHandler : ITaskInstanceHandler
     {
@@ -23,9 +23,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         private readonly IChecklistTaskTemplateRepository _checklistTaskTemplateRepository;
 
-        public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository repository, 
+        public ChecklistTaskInstanceHandler(IChecklistTaskInstanceRepository repository,
             IChecklistTaskTemplateRepository checklistTaskTemplateRepository, ILogger<ChecklistTaskInstanceHandler> logger) : base(repository, logger)
-        {            
+        {
             _checklistTaskTemplateRepository = checklistTaskTemplateRepository;
             _logger = logger;
         }
@@ -70,7 +70,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
             }
 
-            ChecklistTaskTemplateTable taskTemplate = await _checklistTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);            
+            ChecklistTaskTemplateTable taskTemplate = await _checklistTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);
             if (taskTemplate == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };
@@ -79,7 +79,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             // ensure the number of items in instance match number in template
             if (taskInstance.ItemCompletionStatuses.Length != taskTemplate.Items.Length)
             {
-                return new ServerResponse<string, string>() { Success = false,  Error = "Invalid checklist state" };
+                return new ServerResponse<string, string>() { Success = false, Error = "Invalid checklist state" };
             }
             return new ServerResponse<string, string>() { Success = true };
         }

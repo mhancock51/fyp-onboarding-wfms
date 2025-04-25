@@ -2,13 +2,13 @@ import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, Side
 import { Badge } from "./ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import NotificationDTO from "@/models/DTOs/NotificationDTO"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import NoResults from "./NoResults"
-import { Bell, Dot, X } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import moment from 'moment';
 import { Spinner } from "./ui/spinner";
 import Api from "@/api";
-import { Axios, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import HTTPresponse from "@/models/HTTPresponse";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,7 +32,7 @@ export default function NotificationsSidebarMenu() {
       
       dispatch(SET_NOTIFICATIONS([...fetchedNotifications]));        
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load notifications");
     })
     .finally(() => {
@@ -43,10 +43,10 @@ export default function NotificationsSidebarMenu() {
   async function deleteNotification(notification: NotificationDTO) {
     setLoading(true);
     await Api.notifications.deleteNotification(notification.id)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       void fetchNotifications();
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to delete notification");
     })
     .finally(() => {
@@ -86,7 +86,7 @@ export default function NotificationsSidebarMenu() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[550px] rounded-lg max-h-[50vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
+                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[60vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
               >
                 <DropdownMenuGroup className="gap-2 flex flex-col">
                   {

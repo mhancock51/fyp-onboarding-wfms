@@ -9,14 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class RetrieveWorkflowInstanceRequest : IRequest<ServerResponse<WorkflowInstanceDTO, string>>
     {
         public string WorkflowInstanceId { get; set; }
         public RetrieveWorkflowInstanceRequest(string workflowInstanceId)
         {
-            WorkflowInstanceId = workflowInstanceId;            
+            WorkflowInstanceId = workflowInstanceId;
         }
     }
 
@@ -33,8 +33,7 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
 
         public async Task<ServerResponse<WorkflowInstanceDTO, string>> Handle(RetrieveWorkflowInstanceRequest request, CancellationToken cancellationToken)
         {
-            var response = await _workflowInstanceLogic.GetWorkflowInstance(request.WorkflowInstanceId);
-            _logger.LogInformation($"Retrieve response to get workflow instance, success: {response.Success}");
+            var response = await _workflowInstanceLogic.GetWorkflowInstanceDTO(request.WorkflowInstanceId);
             return response;
         }
     }

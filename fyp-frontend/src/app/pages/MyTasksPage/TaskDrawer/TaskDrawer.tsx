@@ -71,11 +71,11 @@ export default function TaskDrawer(props: Props) {
   async function postComment() {
     setPostingComment(true);
     await Api.postTaskTemplateComment(props.task.taskTemplateId, comment, parentCommentId)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {      
+    .then(() => {      
       setComment("");
       void fetchComments();
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to post comment");
     })
     .finally(() => {

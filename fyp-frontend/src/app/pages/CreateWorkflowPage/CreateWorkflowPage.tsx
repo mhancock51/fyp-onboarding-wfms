@@ -1,6 +1,6 @@
 import Api from '@/api';
 import WorkflowTemplateBuilder from './WorkflowTemplateBuilder';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import { toast } from 'sonner';

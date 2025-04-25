@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
     public interface IFeedbackTaskInstanceHandler : ITaskInstanceHandler
     {
@@ -44,7 +44,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
             }
 
             // ensure all questions are answered
-            foreach(var response in taskInstance.Responses)
+            foreach (var response in taskInstance.Responses)
             {
                 if (response == -1) return new ServerResponse<string, string>() { Success = false, Error = "A question hasn't been answered" };
             }

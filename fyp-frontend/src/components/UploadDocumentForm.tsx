@@ -5,9 +5,6 @@ import { Button } from './ui/button';
 import { Upload } from 'lucide-react';
 import { Spinner } from './ui/spinner';
 import Api from '@/api';
-import { AxiosResponse } from 'axios';
-import HTTPresponse from '@/models/HTTPresponse';
-import DocumentDTO from '@/models/DTOs/DocumentDTO';
 import { toast } from 'sonner';
 
 interface Props {
@@ -32,7 +29,7 @@ export default function UploadDocumentForm(props: Props) {
     setUploading(true);
     if (file === null) return;
     Api.documents.uploadDocument(file, props.documentName, props.accessAccountIds, props.taskInstanceId)
-    .then((response: AxiosResponse<HTTPresponse<DocumentDTO, string>>) => {
+    .then(() => {
       toast.success("Successfully uploaded document");
       if (props.onSuccessfullUpload) {
         props.onSuccessfullUpload();

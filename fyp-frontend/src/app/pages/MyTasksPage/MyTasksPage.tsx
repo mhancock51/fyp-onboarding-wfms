@@ -1,19 +1,17 @@
 import { Separator } from '@/components/ui/separator'
 import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
 import Api from '@/api'
 import { toast } from 'sonner'
-import { useDispatch } from 'react-redux'
 import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
 import TaskInstancesTable from '@/components/Tables/TaskInstancesTable'
 import { Accordion, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { AccordionContent } from '@radix-ui/react-accordion'
 
 export default function MyTasksPage() {
-  const dispatcher = useDispatch(); 
-
-  const [tasks, setTasks] = useState<TaskInstanceDTO[]>([]);
+  const [openTasks, setOpenTasks] = useState<TaskInstanceDTO[]>([]);
+  const [closedTasks, setClosedTasks] = useState<TaskInstanceDTO[]>([]);
   const [currentTask, setCurrentTask] = useState<TaskInstanceDTO | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -24,9 +22,11 @@ export default function MyTasksPage() {
     .then((response) => {
       console.log(response);
       setLoading(false);
-      setTasks(response.data.data as TaskInstanceDTO[]);
+      const tasks = response.data.data as TaskInstanceDTO[];
+      setOpenTasks(tasks.filter(t => t.status === "open"));
+      setClosedTasks(tasks.filter(t => t.status !== "open"));
     })
-    .catch((error) => {
+    .catch(() => {
       setLoading(false);
       toast.error("Failed to load assigned taks");      
     })
@@ -39,9 +39,9 @@ export default function MyTasksPage() {
   return (
     <div>
       <div className='flex flex-col gap-2'>
-        <h1 className='text-xl text-foreground font-bold'>Your Tasks ({tasks.filter(t => t.status === "open").length} open)</h1>
+        <h1 className='text-xl text-foreground font-bold'>Your Tasks ({openTasks.length} open)</h1>
         <div className='flex flex-col gap-1 h-full'>
-          <TaskInstancesTable tasks={tasks.filter(t => t.status === "open")} loading={loading} 
+          <TaskInstancesTable tasks={openTasks} loading={loading} 
             handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
             className='h-[100%] overflow-y-auto'
             hideCompletedDate={true}
@@ -54,13 +54,13 @@ export default function MyTasksPage() {
                 <div className='flex flex-col gap-2 w-full'>
                   <div className='flex flex-row gap-2 justify-between w-[180px] p-[6px] rounded-full items-center hover:bg-accent'>
                     <h2 className='text-[16px] font-semibold'>Completed Tasks</h2>
-                    <div className='bg-blue-500 rounded-full text-background w-8 py-[2px] text-center'>{tasks.filter(t => t.status !== "open").length}</div>
+                    <div className='bg-blue-500 rounded-full text-background w-8 py-[2px] text-center'>{closedTasks.length}</div>
                   </div>
                   <Separator/>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <TaskInstancesTable tasks={tasks.filter(t => t.status !== "open")} loading={loading} 
+                <TaskInstancesTable tasks={closedTasks} loading={loading} 
                   handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
                   className='h-[100%] overflow-y-auto'
                   hideDueDate={true}

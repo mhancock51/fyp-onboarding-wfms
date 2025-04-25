@@ -12,7 +12,6 @@ import { Spinner } from '../ui/spinner'
 import { Label } from '../ui/label'
 import NoResults from '../NoResults'
 import TableActionsDropdown, { DropdownAction } from '../TableActionsDropdown'
-import { Button } from '../ui/button'
 import { ArrowDownUp } from 'lucide-react'
 import Utils from '@/util'
 import AccountDirectoryBadge from '../AccountDirectoryBadge'
@@ -40,7 +39,7 @@ export default function WorkflowInstancesTable(props: Props) {
     .then((response: AxiosResponse<HTTPresponse<WorkflowInstanceDTO[], string>>) => {
       setWorkflowInstances(response.data.data as WorkflowInstanceDTO[]);
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to load workflow instances");
     })
     .finally(() => {
@@ -132,10 +131,10 @@ export default function WorkflowInstancesTable(props: Props) {
       <Table className='table-auto w-full'>
         <TableHeader className='justify-start'>
           <TableCell width={400} className='text-center'>Workflow Name</TableCell>
+          <TableCell className='text-center' width={50}>Start Date</TableCell>
           <TableCell width={50} className='text-center cursor-pointer'>
             <div className='flex flex-row gap-1 justify-center items-center'>
               Status
-              <ArrowDownUp/>
             </div>
           </TableCell>
           <TableCell width={50} className='text-center cursor-pointer'>
@@ -160,7 +159,6 @@ export default function WorkflowInstancesTable(props: Props) {
             <TableCell width={50} className='text-center'>Supervisor</TableCell>
           }
           <TableCell width={50} className='text-center'>Onboarder</TableCell>
-          <TableCell width={1000}>Overdue Tasks</TableCell>  
           <TableCell width={50}></TableCell>        
         </TableHeader>
         <TableBody>
@@ -168,18 +166,21 @@ export default function WorkflowInstancesTable(props: Props) {
             workflowInstances.map((instance, index) => (
               <TableRow key={index} className='cursor-pointer hover:bg-accent hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
                 <TableCell>{instance.workflowTemplate.name}</TableCell>
+                <TableCell className='text-center'>
+                  {Utils.dateToDDMMYYYY(new Date(instance.creationTimestamp))}
+                </TableCell> 
                 <TableCell width={50}>
                   <Badge className={`bg-primary py-2 px-4 w-full rounded-full text-[12px] text-primary-foreground flex flex-row gap-2 items-center justify-center ${Utils.getWorkflowStatusColor(instance.status)}`}>
                     {Utils.getWorkflowStatusDisplayName(instance)}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
+                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] w-full text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
                     {instance.completedTasks} out of {instance.numberOfNodes} Tasks
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className='bg-primary py-2 px-8 rounded-full text-[12px] text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
+                  <Badge className='bg-primary py-2 px-8 rounded-full text-[12px] w-full text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
                     {daysSince(instance.creationTimestamp)} Days
                   </Badge>
                 </TableCell>
@@ -205,10 +206,7 @@ export default function WorkflowInstancesTable(props: Props) {
                       {instance.onboardingEmployeeDetails.displayName}
                     </span>                    
                   }
-                </TableCell>                                
-                <TableCell>
-                  !!!
-                </TableCell>
+                </TableCell>                               
                 <TableCell>
                   <TableActionsDropdown actions={props.actions}/>
                 </TableCell>

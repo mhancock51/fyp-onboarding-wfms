@@ -1,4 +1,4 @@
-﻿using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
+﻿using OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -9,11 +9,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic
+namespace OnboardingWFMSApi.BusinessLogic.Handlers
 {
     public class BaseTaskHandler<TTaskType> where TTaskType : class, ITableEntity
     {
-        public TTaskType CastObjectToType(object taskTypeData) 
+        public TTaskType CastObjectToType(object taskTypeData)
         {
             var checklistTaskData = taskTypeData as TTaskType;
             if (checklistTaskData == null)

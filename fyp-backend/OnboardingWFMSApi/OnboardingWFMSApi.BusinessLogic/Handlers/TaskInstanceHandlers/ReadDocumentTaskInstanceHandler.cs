@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
     public interface IReadDocumentTaskInstanceHandler : ITaskInstanceHandler
     {
@@ -18,13 +18,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
     }
 
     public class ReadDocumentTaskInstanceHandler : BaseTaskInstanceHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
-    {        
-        private readonly IReadDocumentTaskTemplateRepository _readDocumentTaskTemplateRepository;
-
-        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository, IReadDocumentTaskTemplateRepository readDocumentTaskTemplateRepository,
+    {
+        public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository,
             ILogger<ReadDocumentTaskInstanceHandler> logger) : base(repository, logger)
-        {            
-            _readDocumentTaskTemplateRepository = readDocumentTaskTemplateRepository;
+        {
+
         }
 
         public string GetTaskTypeId()
@@ -61,19 +59,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers
 
         public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceMetaData)
         {
-            // cast object
-            ReadDocumentTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
-            if (taskInstance == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
-            }
-            var taskTemplate = await _readDocumentTaskTemplateRepository.GetByTaskInstanceId(taskInstance.TaskInstanceId);
-            if (taskTemplate == null)
-            {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task template data" };
-            }
-            // TODO implement validation
-
+            // No validation to be done
             return new ServerResponse<string, string>() { Success = true };
         }
     }

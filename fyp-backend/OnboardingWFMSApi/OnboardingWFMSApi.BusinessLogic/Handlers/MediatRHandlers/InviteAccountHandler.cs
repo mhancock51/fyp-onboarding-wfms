@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class InviteAccountRequest : IRequest<HTTPResponse<string, string>>
     {
@@ -21,7 +21,7 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
         {
             this.displayName = displayName;
             this.emailAddress = emailAddress;
-            this.departmentId = departmentId;            
+            this.departmentId = departmentId;
         }
     }
 
@@ -39,7 +39,7 @@ namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
         public async Task<HTTPResponse<string, string>> Handle(InviteAccountRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Handling request to invite user ({request.emailAddress}, {request.displayName})");
-            return await _accountLogic.InviteUser(request.displayName, request.emailAddress,  request.departmentId);
+            return await _accountLogic.InviteUser(request.displayName, request.emailAddress, request.departmentId);
         }
     }
 }

@@ -10,12 +10,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class TaskCompletedRequest : IRequest<HTTPResponse<string, string>>
     {
         public TaskInstanceDTO taskInstance;
-        public TaskCompletedRequest(TaskInstanceDTO taskInstance) 
+        public TaskCompletedRequest(TaskInstanceDTO taskInstance)
         {
             this.taskInstance = taskInstance;
         }

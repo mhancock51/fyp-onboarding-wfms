@@ -1,6 +1,5 @@
 import { Handle, Position } from '@xyflow/react'
 import { Mail } from 'lucide-react'
-import React from 'react'
 
 export default function InviteUserNode() {
   return (

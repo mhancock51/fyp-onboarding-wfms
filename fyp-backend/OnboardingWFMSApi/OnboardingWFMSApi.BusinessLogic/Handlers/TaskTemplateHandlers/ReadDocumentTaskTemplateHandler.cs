@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 {
     public interface IReadDocumentTaskTemplateHandler : ITaskTemplateHandler
     {
@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
     {
         public ReadDocumentTaskTemplateHandler(IReadDocumentTaskTemplateRepository repository) : base(repository)
         {
-            
+
         }
 
         public string GetTaskTypeId()

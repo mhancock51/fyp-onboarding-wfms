@@ -1,6 +1,5 @@
 import { Badge } from '@/components/ui/badge'
 import clsx from 'clsx';
-import React from 'react'
 
 export default function TaskStatusBadge(props: {status: string, className?: string;}) {
   function statusToColor(status: string) {

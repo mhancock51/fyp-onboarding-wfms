@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog'
-import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog'
-import React, { useEffect, useState } from 'react'
+import { DialogTitle } from '@radix-ui/react-dialog'
+import { useEffect, useState } from 'react'
 import WorkflowTemplateBuilder from '../pages/CreateWorkflowPage/WorkflowTemplateBuilder'
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,7 +9,6 @@ import { SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG } from '@/features/appSlice'
 import WorkflowTemplateDTO from '@/models/DTOs/WorkflowTemplateDTO'
 import Api from '@/api'
 import Utils from '@/util'
-import { Label } from 'recharts'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
@@ -27,7 +26,6 @@ export default function ViewWorkflowTemplateDialog() {
 
   // workflow data
   const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [isOnboardingWf, setIsOnboardingWf] = useState<boolean>(true); 
   
   const [preflowTasks, setPreflowTasks] = useState<WorkflowTemplateNode[]>([]);
@@ -42,7 +40,6 @@ export default function ViewWorkflowTemplateDialog() {
     .then((response) => {      
       var workflowDTO = response.data.data as WorkflowTemplateDTO;
       setName(workflowDTO.name);
-      setDescription(workflowDTO.description);
       setIsOnboardingWf(workflowDTO.isOnboardingWF);
 
       var preflowTasks: WorkflowTemplateNode[] = [];

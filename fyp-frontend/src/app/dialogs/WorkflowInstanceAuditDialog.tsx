@@ -1,5 +1,4 @@
 import Api from '@/api';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO';
@@ -13,7 +12,7 @@ import { toast } from 'sonner';
 import moment from 'moment';
 import { Spinner } from '@/components/ui/spinner';
 import NoResults from '@/components/NoResults';
-import { CircleCheckBig, FileUp, Flag, Mail, Rocket, UserCheck, UserPlus } from 'lucide-react';
+import { CircleCheckBig, FileUp, Flag, Mail, Rocket, UserCheck } from 'lucide-react';
 import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
 
 interface Props {

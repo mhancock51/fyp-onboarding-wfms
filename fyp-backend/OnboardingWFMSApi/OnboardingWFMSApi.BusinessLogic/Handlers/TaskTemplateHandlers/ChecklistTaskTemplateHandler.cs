@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 {
     public interface IChecklistTaskTemplateHandler : ITaskTemplateHandler
     {
@@ -42,17 +42,17 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             // run base method to do base validation checks and then update record
             return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
         }
-        
+
 
         public override async Task<ServerResponse<string, string>> ValidateTaskTemplateData(object taskTypeData)
-        {            
+        {
             ChecklistTaskTemplateTable checklistTaskData = CastObjectToType(taskTypeData);
 
             if (checklistTaskData.Items.Length == 0)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Checklist must include at least one item" };
             }
-            foreach(var item in checklistTaskData.Items)
+            foreach (var item in checklistTaskData.Items)
             {
                 if (string.IsNullOrEmpty(item))
                 {

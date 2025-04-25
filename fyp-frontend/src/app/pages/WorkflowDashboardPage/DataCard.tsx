@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner';
 import { TrendingDownIcon, TrendingUpIcon, TriangleAlert } from 'lucide-react'
-import React from 'react'
+import { JSX } from 'react';
 
 interface Props {
   label: string;

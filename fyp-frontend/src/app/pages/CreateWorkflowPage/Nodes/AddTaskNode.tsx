@@ -1,6 +1,5 @@
 import { Handle, Position, NodeProps, Node } from '@xyflow/react'
 import { CirclePlus } from 'lucide-react';
-import React from 'react'
 
 export type AddTaskNode = Node<
   {

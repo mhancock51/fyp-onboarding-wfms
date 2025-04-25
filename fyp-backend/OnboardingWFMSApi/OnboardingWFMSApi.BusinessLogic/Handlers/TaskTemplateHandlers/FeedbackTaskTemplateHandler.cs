@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 {
     public interface IFeedbackTaskTemplateHandler : ITaskTemplateHandler
     {
@@ -32,11 +32,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             FeedbackTaskTemplateTable feedbackData = CastObjectToType(existingData);
             if (hasActiveInstances)
 
-            if (hasActiveInstances && updatedFeedbackData.Questions.Count != feedbackData.Questions.Count)
-            {
-                // length changes but has active instances, don't allow this
-                return new ServerResponse<string, string>() { Success = false, Error = "Number of items can't be changed" };
-            }
+                if (hasActiveInstances && updatedFeedbackData.Questions.Count != feedbackData.Questions.Count)
+                {
+                    // length changes but has active instances, don't allow this
+                    return new ServerResponse<string, string>() { Success = false, Error = "Number of items can't be changed" };
+                }
 
             // run base method to do base validation checks and then update record
             return await base.UpdateTaskTemplateData(updatedData, existingData, hasActiveInstances);
@@ -49,7 +49,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers
             // ensure there are questions
             if (data.Questions.Count == 0) return new ServerResponse<string, string>() { Success = false, Error = "At least one question must exist" };
             // ensure questions contain a question and valid likert scale
-            foreach(var question in data.Questions)
+            foreach (var question in data.Questions)
             {
                 if (string.IsNullOrEmpty(question.Question))
                 {

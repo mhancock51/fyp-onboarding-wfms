@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using OnboardingWFMSApi.BusinessLogic.TaskInstanceHandlers;
-using OnboardingWFMSApi.BusinessLogic.TaskTemplateHandlers;
+using OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers;
+using OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers;
 using OnboardingWFMSApi.DataModels;
 using System;
 using System.Collections.Generic;

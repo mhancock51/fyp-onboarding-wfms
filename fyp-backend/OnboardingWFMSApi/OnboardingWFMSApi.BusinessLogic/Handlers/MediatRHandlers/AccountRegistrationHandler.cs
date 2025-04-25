@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 
-namespace OnboardingWFMSApi.BusinessLogic.MediatRHandlers
+namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
 {
     public class AccountRegistrationRequest : IRequest<HTTPResponse<string, string>>
     {

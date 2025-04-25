@@ -7,11 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import IssueDTO from '@/models/DTOs/IssueDTO';
-import HTTPresponse from '@/models/HTTPresponse';
-import { RootState } from '@/store';
-import { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
 interface Props {
@@ -22,8 +18,6 @@ interface Props {
 }
 
 export default function UpdateIssueStatusDialog(props: Props) {
-  const dispatch = useDispatch();
-
   const [remark, setRemark] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -31,12 +25,12 @@ export default function UpdateIssueStatusDialog(props: Props) {
   async function updateIssue() {
     setLoading(true);
     await Api.issues.updateStatus(status, remark, props.issue.id)
-    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {
+    .then(() => {
       toast.success("Successfully updated task status");
       closeAndClear();
       void props.fetchIssues();
     })
-    .catch((error) => {
+    .catch(() => {
       toast.error("Failed to update task status");
     })
     .finally(() => {

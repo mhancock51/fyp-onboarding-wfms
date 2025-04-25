@@ -253,15 +253,15 @@ CREATE TABLE feedbacktaskinstance (
 
 
 
-INSERT INTO `onboarding-wfms-db`.`organisation` (`OrganisationId`, `Name`) VALUES ('organisation', '[EMPTY]');
-INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('admin','Admin');
-INSERT INTO `onboarding-wfms-db`.`department` (`DepartmentId`, `DisplayName`) VALUES ('onboarder','Onboarder');
+INSERT INTO `organisation` (`OrganisationId`, `Name`) VALUES ('organisation', 'My Org');
 
-INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`checklist`, `Checklist`);
-INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`upload-document`, `Upload Document`);
-INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES (`read-document`, `Read Document`);
-INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES ('project-task', 'Project Task');
-INSERT INTO `onboarding-wfms-db`.`tasktype` (`TaskTypeId`, `TaskName`) VALUES ('feedback', 'Feedback Task');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('checklist', 'Checklist');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('upload-document', 'Upload Document');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('read-document', 'Read Document');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('project-task', 'Project Task');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('feedback', 'Feedback Task');
+
+INSERT INTO `account` (`AccountId`, `DisplayName`, `EmailAddress`, `HashedPassword`, `IsSupervisor`, `DepartmentId`, `OrganisationId`, `AccountStatus`) VALUES ('21cd6d67-b9a5-46ff-b262-88d4ba12ba2f', 'Jane Doe', 'user4@test.com', '6C401F2BD62E73B2055055BFA471078F6BC94D1DA382B0A156BE4443A6A6281C', '1', 'hr', 'organisation', 'registered');
 
 
 ALTER TABLE organisationAdminLink 
