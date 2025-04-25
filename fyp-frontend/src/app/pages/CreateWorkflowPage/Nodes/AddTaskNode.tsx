@@ -5,17 +5,16 @@ import React from 'react'
 export type AddTaskNode = Node<
   {
     onClick: () => void;    
-  },
-  'counter'
+  }  
 >;
 
 export default function AddTaskNode(props: NodeProps<AddTaskNode>) {
   const handleStyle = {};
 
   return (
-    <div className='bg-blue-400 cursor-pointer' style={{ padding: "5px", border: "1px solid white", borderRadius: "25px", minWidth: "15em"}}>
+    <div className='bg-blue-500 cursor-pointer p-2 hover:bg-blue-400 rounded-[25px] min-w-[15em] z-auto' style={{ border: "1px solid white"}}>
       <Handle type="target" position={Position.Top} />
-      <div className='flex flex-row gap-2 justify-center items-center' onClick={props.data.onClick}>
+      <div className='flex flex-row gap-2 justify-center items-center text-primary-foreground' onClick={props.data.onClick}>
         <CirclePlus/>
         <h1 className='text-sm font-bold'> Add Task</h1>
       </div>

@@ -1,0 +1,83 @@
+import { Separator } from '@/components/ui/separator'
+import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
+import React, { useEffect, useState } from 'react'
+import TaskDrawer from './TaskDrawer/TaskDrawer'
+import Api from '@/api'
+import { toast } from 'sonner'
+import { useDispatch } from 'react-redux'
+import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
+import TaskInstancesTable from '@/components/Tables/TaskInstancesTable'
+import { Accordion, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { AccordionContent } from '@radix-ui/react-accordion'
+
+export default function MyTasksPage() {
+  const dispatcher = useDispatch(); 
+
+  const [tasks, setTasks] = useState<TaskInstanceDTO[]>([]);
+  const [currentTask, setCurrentTask] = useState<TaskInstanceDTO | null>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  async function fetchTaskInstances() {
+    setLoading(true);
+    Api.fetchAssignedTaskInstance()
+    .then((response) => {
+      console.log(response);
+      setLoading(false);
+      setTasks(response.data.data as TaskInstanceDTO[]);
+    })
+    .catch((error) => {
+      setLoading(false);
+      toast.error("Failed to load assigned taks");      
+    })
+  }
+
+  useEffect(() => {
+    void fetchTaskInstances();
+  }, []);
+
+  return (
+    <div>
+      <div className='flex flex-col gap-2'>
+        <h1 className='text-xl text-foreground font-bold'>Your Tasks ({tasks.filter(t => t.status === "open").length} open)</h1>
+        <div className='flex flex-col gap-1 h-full'>
+          <TaskInstancesTable tasks={tasks.filter(t => t.status === "open")} loading={loading} 
+            handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
+            className='h-[100%] overflow-y-auto'
+            hideCompletedDate={true}
+            noTasksMessage='No open tasks assigned to you'
+          />
+          {/* Completed tasks accordian */}
+          <Accordion type="single" collapsible className="w-full flex-2">
+            <AccordionItem value={'item-1'}>
+              <AccordionTrigger className='hover:no-underline cursor-pointer'>
+                <div className='flex flex-col gap-2 w-full'>
+                  <div className='flex flex-row gap-2 justify-between w-[180px] p-[6px] rounded-full items-center hover:bg-accent'>
+                    <h2 className='text-[16px] font-semibold'>Completed Tasks</h2>
+                    <div className='bg-blue-500 rounded-full text-background w-8 py-[2px] text-center'>{tasks.filter(t => t.status !== "open").length}</div>
+                  </div>
+                  <Separator/>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <TaskInstancesTable tasks={tasks.filter(t => t.status !== "open")} loading={loading} 
+                  handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
+                  className='h-[100%] overflow-y-auto'
+                  hideDueDate={true}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
+      {
+        currentTask !== null &&
+        <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
+      }
+      {
+        currentTask !== null &&
+        <ReportIssueDialog taskInstance={currentTask} />
+      }
+    </div>
+  )
+}

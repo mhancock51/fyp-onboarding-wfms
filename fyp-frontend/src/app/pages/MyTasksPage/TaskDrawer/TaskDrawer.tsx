@@ -1,0 +1,221 @@
+import { Drawer, DrawerContent, DrawerFooter, DrawerTitle } from '@/components/ui/drawer'
+import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
+import TaskTypeBadge from '../TaskTypeBadge';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
+import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
+import ChecklistTask from './ChecklistTask';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
+import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
+import { useEffect, useState } from 'react';
+import Api from '@/api';
+import { toast } from 'sonner';
+import ReadDocumentTask from './ReadDocumentTask';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
+import TaskStatusBadge from '../TaskStatusBadge';
+import UploadDocumentTask from './UploadDocumentTask';
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
+import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion';
+import { AccordionTrigger } from '@radix-ui/react-accordion';
+import { AxiosResponse } from 'axios';
+import HTTPresponse from '@/models/HTTPresponse';
+import CommentDTO from '@/models/DTOs/CommentDTO';
+import { Flag, MessageSquareMore, } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import CommentSection from '@/components/CommentSection';
+import ProjectTask from './ProjectTask';
+import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
+import { SET_OPEN_REPORT_ISSUE_DIALOG } from '@/features/appSlice';
+import WorkflowInstanceBadge from '@/components/WorkflowInstanceBadge';
+import { TASK_TYPE_IDS } from '@/constants';
+import FeedbackTask from './FeedbackTask';
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
+import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
+
+interface Props {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  task: TaskInstanceDTO;
+  fetchTaskInstances: () => Promise<void>;
+}
+
+export default function TaskDrawer(props: Props) {  
+  const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
+  const [comments, setComments] = useState<CommentDTO[]>([]);
+
+  const [loadingComments, setLoadingComments] = useState<boolean>(false);
+  const [postingComment, setPostingComment] = useState<boolean>(false);
+
+  const [comment, setComment] = useState<string>("");
+  const [parentCommentId, setParentCommentId] = useState<string>("");
+
+  const dispatch = useDispatch();
+
+  async function completeTask() {
+    if (!canCompleteTask) return;    
+    await Api.completeTask(props.task.id)
+    .then((response) => {
+      console.log(response);
+      toast("Successfully completed task");
+      void props.fetchTaskInstances();
+      props.setOpen(false);
+    })
+    .catch((error) => {
+      toast.error("Failed to complete task");
+      console.error(error);
+    })
+  }
+
+  async function postComment() {
+    setPostingComment(true);
+    await Api.postTaskTemplateComment(props.task.taskTemplateId, comment, parentCommentId)
+    .then((response: AxiosResponse<HTTPresponse<string, string>>) => {      
+      setComment("");
+      void fetchComments();
+    })
+    .catch((error) => {
+      toast.error("Failed to post comment");
+    })
+    .finally(() => {
+      setPostingComment(false);
+    })
+  }
+
+  async function fetchComments() {
+    setLoadingComments(true);
+    await Api.fetchTaskTemplateComments(props.task.taskTemplateId)
+    .then((response: AxiosResponse<HTTPresponse<CommentDTO[], string>>) => {
+      setComments(response.data.data);
+    })
+    .catch((error) => {
+      console.error("EEE:", error);
+      toast.error("Failed to retrieve comments for task template");
+    })
+    .finally(() => {
+      setLoadingComments(false);
+    })
+  }
+  
+  useEffect(() => {
+    setComments([]);
+    setParentCommentId("");
+    if (props.task.taskTemplateId !== "") {
+      void fetchComments();
+    }
+  }, [props.task.taskTemplateId]);
+
+  return (
+    <Drawer direction='right'  onClose={() => {props.setOpen(false);}} open={props.open}>
+      <DrawerContent className="max-w-[600px] max-h-[100vh] w-full p-2 flex flex-col justify-start gap-2">
+        {/* Drawer header - task information */}
+        <div className='flex flex-col justify-center gap-2'>
+          <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
+          <div className='flex flex-row justify-center gap-2'>
+            <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[200px]'/>
+            {
+              props.task.workflowInstance !== null &&
+              <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance} className='w-[250px]'/>
+            }
+            <TaskStatusBadge status={props.task.status} className='w-[100px]'/>
+          </div>
+          <div className='flex flex-row w-full text-center justify-center'>
+            <Label className='font-normal'>{props.task.template.description}</Label>
+          </div>
+        </div>
+        <div className='flex-9 flex flex-col min-h-[40vh]'>
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST &&
+            <ChecklistTask 
+              taskInstanceId={props.task.id} 
+              checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
+              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances}
+              setCanCompleteTask={setCanCompleteTask}
+              taskStatus={props.task.status}
+            />
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
+            <UploadDocumentTask 
+              taskInstanceId={props.task.id} 
+              fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
+              fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.READ_DOCUMENT &&
+            <ReadDocumentTask 
+              taskInstanceId={props.task.id} 
+              readDocumentInstance={props.task.instanceData as ReadDocumentTaskInstance} 
+              readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.PROJECT_TASK &&
+            <ProjectTask 
+              taskInstanceId={props.task.id} 
+              projectTemplate={props.task.template.taskTypeData as ProjectTaskTemplate} 
+              projectInstance={props.task.instanceData as ProjectTaskInstance}
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          {
+            props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.FEEDBACK_TASK &&
+            <FeedbackTask 
+              taskInstanceId={props.task.id} 
+              feedbackInstance={props.task.instanceData as FeedbackTaskInstance} 
+              feedbackTemplate={props.task.template.taskTypeData as FeedbackTaskTemplate} 
+              fetchTaskInstances={props.fetchTaskInstances} 
+              setCanCompleteTask={setCanCompleteTask} 
+              taskStatus={props.task.status}/>
+          }
+          <Button className='rounded-full mx-r-2 p-2 w-full' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+            Complete Task
+          </Button>
+        </div>
+        <DrawerFooter className='flex flex-col gap-2 w-full p-0'>
+          <Button variant={"outline"} className='w-full' onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
+            <Flag/>
+            Flag an issue with this task
+          </Button>
+          {/* Task template comment section accordian */}
+          <Accordion type="single" collapsible className="w-full flex-10">
+            <AccordionItem value="item-1" >
+              <AccordionTrigger className="w-full">
+                <Button variant={"outline"} className="w-full flex flex-row gap-2">
+                  <MessageSquareMore/>
+                  See comments about this task
+                </Button>              
+              </AccordionTrigger>
+              <AccordionContent className='py-1'>
+                <CommentSection 
+                  loadingComments={loadingComments} 
+                  postingComment={postingComment} 
+                  comments={comments} 
+                  comment={comment} 
+                  parentCommentId={parentCommentId}
+                  setComment={setComment} 
+                  setParentCommentId={setParentCommentId}
+                  postComment={postComment}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          <div className='flex flex-row justify-center w-full py-1'>
+            {
+              props.task.template.lastModifiedTimestamp !== null &&
+              <Label className='font-normal text-gray-500'>Task Template last modified {new Date(props.task.template.lastModifiedTimestamp).toLocaleTimeString()} {new Date(props.task.template.lastModifiedTimestamp).toLocaleDateString()}</Label>                
+            }
+          </div>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  )
+}
