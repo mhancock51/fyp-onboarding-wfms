@@ -3,6 +3,10 @@ import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import React, { useEffect, useState } from 'react'
 import DocumentLinkBadge from '../DocumentLinkBadge';
 import UploadDocumentForm from '@/components/UploadDocumentForm';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 
 interface Props {
   taskInstanceId: string;
@@ -11,6 +15,7 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;  
 }
 
 export default function UploadDocumentTask(props: Props) {

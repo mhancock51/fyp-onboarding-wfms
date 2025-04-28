@@ -1,12 +1,13 @@
-import Api from '@/api'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { TASK_TYPE_IDS } from '@/constants'
 import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance'
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate'
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance'
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance'
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance'
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance'
 import { CheckedState } from '@radix-ui/react-checkbox'
 import React, { useEffect, useState } from 'react'
-import { toast } from 'sonner'
 
 interface Props {
   taskInstanceId: string;
@@ -15,6 +16,7 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;  
 }
 
 export default function ChecklistTask(props: Props) {
@@ -33,22 +35,6 @@ export default function ChecklistTask(props: Props) {
       }
     })
     return allCompleted;
-  }
-
-  async function updateChecklistStatus(checklistState: ChecklistTaskInstance) {
-    await Api.updateTaskState(checklistState, TASK_TYPE_IDS.CHECKLIST, checklistState.taskInstanceId)
-    .then(() => {
-      if (areAllTasksComplete(checklistState.itemCompletionStatuses)) {
-        props.setCanCompleteTask(true);
-      }
-      else {
-        props.setCanCompleteTask(false);
-      }
-      void props.fetchTaskInstances();
-    })
-    .catch(() => {
-      toast("Failed to update checklist task's state");
-    })
   }
 
   function updateChecklistItem(index: number, value: boolean) {
@@ -71,7 +57,7 @@ export default function ChecklistTask(props: Props) {
     if (checklistState.id === "") return;
     // exit if state is the same as when loaded
     if (checklistState.itemCompletionStatuses == props.checklistInstance.itemCompletionStatuses) return;
-    void updateChecklistStatus(checklistState);
+    props.updateTaskInstance(checklistState);    
   }, [checklistState.itemCompletionStatuses]);
 
   return (

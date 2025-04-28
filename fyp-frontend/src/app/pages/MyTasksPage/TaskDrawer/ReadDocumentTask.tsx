@@ -1,14 +1,15 @@
-import Api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { TASK_TYPE_IDS } from '@/constants';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplate';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Link } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
-import { toast } from 'sonner';
 
 interface Props {
   taskInstanceId: string;
@@ -17,6 +18,7 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;  
 }
 
 export default function ReadDocumentTask(props: Props) {
@@ -27,23 +29,6 @@ export default function ReadDocumentTask(props: Props) {
     linkClicked: false
   }
   const [readDocState, setReadDocState] = useState<ReadDocumentTaskInstance>(DEFAULT_STATE);  
-
-  async function updateReadDocStatus(readDocState: ReadDocumentTaskInstance) {
-    console.log(readDocState);
-    await Api.updateTaskState(readDocState, TASK_TYPE_IDS.READ_DOCUMENT, readDocState.taskInstanceId)    
-    .then(() => {
-      if (readDocState.linkClicked && readDocState.checkboxChecked) {
-        props.setCanCompleteTask(true);
-      }
-      else {
-        props.setCanCompleteTask(false);
-      }
-      void props.fetchTaskInstances();
-    })
-    .catch(() => {
-      toast("Failed to update checklist task's state");
-    })
-  }
   
   function updateCheckboxState(value: boolean) {
     setReadDocState((prevState) => ({
@@ -69,9 +54,8 @@ export default function ReadDocumentTask(props: Props) {
   }, [props.readDocumentInstance]);
 
   useEffect(() => {
-    if (readDocState.checkboxChecked && readDocState.linkClicked) {
-      console.log("test123:",readDocState);
-      updateReadDocStatus(readDocState);
+    if (readDocState.checkboxChecked && readDocState.linkClicked) {      
+      props.updateTaskInstance(readDocState);
     }
   }, [readDocState.checkboxChecked]);
   
