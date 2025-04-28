@@ -33,6 +33,7 @@ import { TASK_TYPE_IDS } from '@/constants';
 import FeedbackTask from './FeedbackTask';
 import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
+import { Spinner } from '@/components/ui/spinner';
 
 interface Props {
   open: boolean;
@@ -44,6 +45,8 @@ interface Props {
 export default function TaskDrawer(props: Props) {  
   const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentDTO[]>([]);
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
   const [postingComment, setPostingComment] = useState<boolean>(false);
@@ -57,7 +60,10 @@ export default function TaskDrawer(props: Props) {
   const dispatch = useDispatch();
 
   async function completeTask() {
-    if (!canCompleteTask) return;    
+    setLoading(true);
+    await sendUpdateTaskInstance();
+    if (!canCompleteTask) return;
+    
     await Api.completeTask(props.task.id)
     .then((response) => {
       console.log(response);
@@ -68,6 +74,9 @@ export default function TaskDrawer(props: Props) {
     .catch((error) => {
       toast.error("Failed to complete task");
       console.error(error);
+    })
+    .finally(() => {
+      setLoading(false);
     })
   }
 
@@ -217,7 +226,11 @@ export default function TaskDrawer(props: Props) {
               updateTaskInstance={updateTaskInstance}  
             />
           }
-          <Button className='rounded-full mx-r-2 p-2 w-full' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+          <Button className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+            {
+              loading &&
+              <Spinner className="text-primary-foreground"/>
+            }
             Complete Task
           </Button>
         </div>

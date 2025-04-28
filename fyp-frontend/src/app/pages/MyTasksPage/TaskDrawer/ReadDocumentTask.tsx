@@ -56,6 +56,7 @@ export default function ReadDocumentTask(props: Props) {
   useEffect(() => {
     if (readDocState.checkboxChecked && readDocState.linkClicked) {      
       props.updateTaskInstance(readDocState);
+      props.setCanCompleteTask(true);
     }
   }, [readDocState.checkboxChecked]);
   
