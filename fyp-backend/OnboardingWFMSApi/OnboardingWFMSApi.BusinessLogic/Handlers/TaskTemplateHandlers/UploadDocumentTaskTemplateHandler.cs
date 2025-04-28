@@ -23,6 +23,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
             ".jpeg",
             ".png",
             ".docx",
+            ".odt"
         };
 
         public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository repository) : base(repository)

@@ -66,7 +66,7 @@ export default function CreateTaskTemplateDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="min-w-[650px]">
         <DialogHeader>
           <DialogTitle>Create a Task Template</DialogTitle> 
           {

@@ -286,7 +286,7 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
           <Label htmlFor="name" >Deliverable</Label>
           <Input type='text' required readOnly={props.restrictInputs} className='col-span-3' value={deliverable} onChange={(event: any) => {setDeliverable(event.target.value);}}/>
         </div>
-        <div className='flex flex-col gap-2 w-full'>
+        {/* <div className='flex flex-col gap-2 w-full'>
           <Label>Skills ({skills.length})</Label>
           <Label className='font-normal'>Awarded to user on completion of the project</Label>
           <Select options={SKILLS} 
@@ -295,7 +295,7 @@ export function ProjectTemplateCreationForm(props: { initialTaskData?: ProjectTa
             } 
             onChange={(options: any[]) => {setSkills(options.map(option => (option.value)))}}
           />
-        </div>
+        </div> */}
         <div className='flex flex-col gap-2 w-full'>
           <Label htmlFor="name" >Objectives ({objectives.length})</Label>
           <div className='max-h-150 overflow-y-auto flex flex-col gap-2 w-full p-2 my-2 rounded-input bg-sidebar rounded-[15px]'>

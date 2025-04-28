@@ -2,6 +2,7 @@ import React from 'react'
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Trash2 } from 'lucide-react';
+import { Textarea } from './ui/textarea';
 
 export default function ChecklistForm(props: { items: string[]; setItems: React.Dispatch<React.SetStateAction<string[]>>, restrictInputs: boolean}) {
   function addEmptyItem() {
@@ -26,7 +27,7 @@ export default function ChecklistForm(props: { items: string[]; setItems: React.
         {
           props.items.map((item, index) => (
             <div key={index} className='flex flex-row justify-between items-center'>
-              <Input disabled={props.restrictInputs} required placeholder='Enter description of task...' className="col-span-3" value={item} onChange={(event: any) => {updateItem(event.target.value, index);}}/>
+              <Textarea disabled={props.restrictInputs} required placeholder='Enter description of task...' className="col-span-3" value={item} onChange={(event: any) => {updateItem(event.target.value, index);}}/>
               <Button disabled={props.restrictInputs} className='my-1 mx-2' onClick={() => {deleteItem(index);}} variant={"destructive"}><Trash2/></Button>
             </div>
           ))
