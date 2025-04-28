@@ -25,5 +25,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string AnswerA { get; set; }
         [JsonPropertyName("answerB")]
         public string AnswerB { get; set; }
+        [JsonPropertyName("subflowId")]
+        public string SubflowId { get; set; }
     }
 }

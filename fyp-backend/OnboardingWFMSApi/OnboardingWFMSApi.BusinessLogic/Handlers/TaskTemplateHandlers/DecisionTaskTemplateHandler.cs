@@ -19,7 +19,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 
     public class DecisionTaskTemplateHandler : BaseTaskTemplateHandler<DecisionTaskTemplateTable>, IDecisionTaskTemplateHandler
     {
-        public DecisionTaskTemplateHandler(ITaskTemplateRepository<DecisionTaskTemplateTable> repository) : base(repository)
+        public DecisionTaskTemplateHandler(IDecisionTaskTemplateRepository repository) : base(repository)
         {
         }
 

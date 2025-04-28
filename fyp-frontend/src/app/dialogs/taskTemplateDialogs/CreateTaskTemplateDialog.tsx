@@ -132,8 +132,15 @@ export default function CreateTaskTemplateDialog(props: Props) {
             updateTaskTypeData={updateTaskTypeData} 
             backButtonClick={() => { setStep(0);}}
             restrictInputs={false}
+          />          
+        }
+        {
+          step === 1 && taskType?.id === TASK_TYPE_IDS.DECISION_TASK &&
+          <FeedbackTemplateCreationForm 
+            updateTaskTypeData={updateTaskTypeData} 
+            backButtonClick={() => { setStep(0);}}
+            restrictInputs={false}
           />
-
         }
         {
           step === 2 &&

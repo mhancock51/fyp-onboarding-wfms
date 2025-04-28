@@ -29,5 +29,5 @@ export const TASK_TYPE_IDS = {
   READ_DOCUMENT: "read-document",
   CHECKLIST: "checklist",
   FEEDBACK_TASK: "feedback",
-  CHOICE_TASK: "choice"
+  DECISION_TASK: "decision"
 }

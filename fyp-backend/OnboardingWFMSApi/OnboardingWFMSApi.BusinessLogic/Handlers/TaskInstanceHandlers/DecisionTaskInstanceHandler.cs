@@ -16,7 +16,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
     }
     public class DecisionTaskInstanceHandler : BaseTaskTemplateHandler<DecisionTaskInstanceTable>, IDecisionTaskInstanceHandler
     {
-        public DecisionTaskInstanceHandler(ITaskTypeInstanceRepository<DecisionTaskInstanceTable> repository, ILogger<BaseTaskTemplateHandler<DecisionTaskInstanceTable>> logger) : base(repository, logger)
+        public DecisionTaskInstanceHandler(IDecisionTaskInstanceRepository repository, ILogger<BaseTaskTemplateHandler<DecisionTaskInstanceTable>> logger) : base(repository, logger)
         {
         }
 

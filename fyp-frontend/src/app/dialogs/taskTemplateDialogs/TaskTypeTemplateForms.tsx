@@ -22,6 +22,8 @@ import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
 import Select from 'react-select';
 import { FeedbackTaskTemplate, LikertQuestion } from '@/models/tasks/FeedbackTaskTemplate';
+import { DecisionTaskTemplateTable } from '@/models/tasks/DecisionTaskTemplate';
+import { data } from 'react-router-dom';
 
 export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
   const [items, setItems] = useState<string[]>([""]);
@@ -464,6 +466,41 @@ export function FeedbackTemplateCreationForm(props: { initialTaskData?: Feedback
         <Button type='button' onClick={props.backButtonClick}>Back</Button>
         <Button type="submit">Next</Button>
       </DialogFooter>
+    </form>
+  )
+}
+
+export function DecisionTemplateCreateForm(props: { initialTaskData?: DecisionTaskTemplateTable, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void; }) {
+  const [question, setQuestion] = useState<string>(props.initialTaskData?.question ?? "");
+  const [answerA, setAnswerA] = useState<string>(props.initialTaskData?.answerA ?? "");
+  const [answerB, setAnswerB] = useState<string>(props.initialTaskData?.answerB ?? "");
+
+  function submitDecisionData() {
+    const data: DecisionTaskTemplateTable = {
+      id: props.initialTaskData?.id ?? "",
+      taskTemplateId: props.initialTaskData?.taskTemplateId ?? "",
+      question: question,
+      answerA: answerA,
+      answerB: answerB,
+      subflowId: ""      
+    };
+    props.updateTaskTypeData(data);
+  }
+ 
+  return (
+    <form className="grid gap-4 py-4 w-full" onSubmit={(event: any) => { event.preventDefault(); submitDecisionData();}}>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label>Question</Label>
+        <Input type='text' className='col-span-3' value={question} onChange={(event: any) => {setQuestion(event.target.value);}}/>
+      </div>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label>Answer A</Label>
+        <Input type='text' className='col-span-3' value={answerA} onChange={(event: any) => {setAnswerA(event.target.value)}}/>
+      </div>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label>Answer B</Label>
+        <Input type='text' className='col-span-3' value={answerB} onChange={(event: any) => {setAnswerB(event.target.value)}}/>
+      </div>
     </form>
   )
 }
