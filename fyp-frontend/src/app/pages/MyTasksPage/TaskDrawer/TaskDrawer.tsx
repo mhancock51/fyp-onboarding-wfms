@@ -128,7 +128,7 @@ export default function TaskDrawer(props: Props) {
 
   function handleClose() {
     // update task instance state
-    if (instanceHasChanged) {
+    if (instanceHasChanged && props.task.status === "open") {
       void sendUpdateTaskInstance();
     }
     props.setOpen(false);
