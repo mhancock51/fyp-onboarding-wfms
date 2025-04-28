@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
-    public abstract class BaseTaskInstanceHandler<TTaskType> : BaseTaskHandler<TTaskType> where TTaskType : class, ITableEntity
+    public abstract class BaseTaskTemplateHandler<TTaskType> : BaseTaskHandler<TTaskType> where TTaskType : class, ITableEntity
     {
         protected readonly ITaskTypeInstanceRepository<TTaskType> _repository;
-        private readonly ILogger<BaseTaskInstanceHandler<TTaskType>> _logger;
+        private readonly ILogger<BaseTaskTemplateHandler<TTaskType>> _logger;
 
-        public BaseTaskInstanceHandler(ITaskTypeInstanceRepository<TTaskType> repository, ILogger<BaseTaskInstanceHandler<TTaskType>> logger)
+        public BaseTaskTemplateHandler(ITaskTypeInstanceRepository<TTaskType> repository, ILogger<BaseTaskTemplateHandler<TTaskType>> logger)
         {
             _repository = repository;
             _logger = logger;

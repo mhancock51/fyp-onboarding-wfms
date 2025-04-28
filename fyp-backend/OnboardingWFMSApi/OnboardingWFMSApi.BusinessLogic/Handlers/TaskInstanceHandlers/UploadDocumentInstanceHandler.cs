@@ -16,7 +16,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
     {
 
     }
-    public class UploadDocumentInstanceHandler : BaseTaskInstanceHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
+    public class UploadDocumentInstanceHandler : BaseTaskTemplateHandler<FileUploadTaskInstanceTable>, IUploadDocumentInstanceHandler
     {
         public UploadDocumentInstanceHandler(IFileUploadTaskInstanceRepository repository,
             ILogger<UploadDocumentInstanceHandler> logger) : base(repository, logger)

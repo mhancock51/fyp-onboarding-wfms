@@ -20,6 +20,7 @@ using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories.Interfaces;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTask
 builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTemplateRepository>();
 builder.Services.AddScoped<IProjectTaskTemplateRepository, ProjectTaskTemplateRepository>();
 builder.Services.AddScoped<IFeedbackTaskTemplateRepository, FeedbackTaskTemplateRepository>();
+builder.Services.AddScoped<IDecisionTaskTemplateRepository, DecisionTaskTemplateRepository>();
 
 builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 
@@ -56,6 +58,7 @@ builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTask
 builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
 builder.Services.AddScoped<IProjectTaskInstanceRepository, ProjectTaskInstanceRepository>();
 builder.Services.AddScoped<IFeedbackTaskInstanceRepository, FeedbackTaskInstanceRepository>();
+builder.Services.AddScoped<IDecisionTaskInstanceRepository, DecisionTaskInstanceRepository>();
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IDocumentAccessLinkRepository, DocumentAccessLinkRepository>();
@@ -81,6 +84,7 @@ builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTas
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IProjectTaskTemplateHandler, ProjectTaskTemplateHandler>();
 builder.Services.AddScoped<IFeedbackTaskTemplateHandler, FeedbackTaskTemplateHandler>();
+builder.Services.AddScoped<IDecisionTaskTemplateHandler, DecisionTaskTemplateHandler>();
 
 builder.Services.AddScoped<ITaskTemplateHandlerFactory, TaskTemplateHandlerFactory>();
 
@@ -89,6 +93,7 @@ builder.Services.AddScoped<IReadDocumentTaskInstanceHandler, ReadDocumentTaskIns
 builder.Services.AddScoped<IUploadDocumentInstanceHandler, UploadDocumentInstanceHandler>();
 builder.Services.AddScoped<IProjectTaskInstanceHandler, ProjectTaskInstanceHandler>();
 builder.Services.AddScoped<IFeedbackTaskInstanceHandler, FeedbackTaskInstanceHandler>();
+builder.Services.AddScoped<IChecklistTaskInstanceHandler, ChecklistTaskInstanceHandler>();
 
 builder.Services.AddScoped<ITaskInstanceHandlerFactory, TaskInstanceHandlerFactory>();
 

@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
     {
     }
 
-    public class ChecklistTaskInstanceHandler : BaseTaskInstanceHandler<ChecklistTaskInstanceTable>, IChecklistTaskInstanceHandler
+    public class ChecklistTaskInstanceHandler : BaseTaskTemplateHandler<ChecklistTaskInstanceTable>, IChecklistTaskInstanceHandler
     {
         private readonly ILogger<ChecklistTaskInstanceHandler> _logger;
 

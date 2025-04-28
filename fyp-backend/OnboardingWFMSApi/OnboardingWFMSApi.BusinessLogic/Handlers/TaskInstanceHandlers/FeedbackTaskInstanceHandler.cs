@@ -16,9 +16,9 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 
     }
 
-    public class FeedbackTaskInstanceHandler : BaseTaskInstanceHandler<FeedbackTaskInstanceTable>, IFeedbackTaskInstanceHandler
+    public class FeedbackTaskInstanceHandler : BaseTaskTemplateHandler<FeedbackTaskInstanceTable>, IFeedbackTaskInstanceHandler
     {
-        public FeedbackTaskInstanceHandler(IFeedbackTaskInstanceRepository repository, ILogger<BaseTaskInstanceHandler<FeedbackTaskInstanceTable>> logger) : base(repository, logger)
+        public FeedbackTaskInstanceHandler(IFeedbackTaskInstanceRepository repository, ILogger<BaseTaskTemplateHandler<FeedbackTaskInstanceTable>> logger) : base(repository, logger)
         {
         }
 

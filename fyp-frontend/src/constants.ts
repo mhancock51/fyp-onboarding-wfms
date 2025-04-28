@@ -28,5 +28,6 @@ export const TASK_TYPE_IDS = {
   UPLOAD_DOCUMENT: "upload-document",
   READ_DOCUMENT: "read-document",
   CHECKLIST: "checklist",
-  FEEDBACK_TASK: "feedback"
+  FEEDBACK_TASK: "feedback",
+  CHOICE_TASK: "choice"
 }

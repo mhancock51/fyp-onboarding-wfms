@@ -79,122 +79,87 @@ export default function WorkflowTemplateBuilder(props: Props) {
     // loop through workflow nodes 
     let nodes: Node[] = [];
     let edges: Edge[] = [];
-    // render workflow start node
-    const startNode = {
-      id: START_WORKFLOW_NODE_ID, type: "startNode", position: { x: 0, y: 0 },
-      data: {}
+
+    // local scope functions
+    const addNode = (node: Node) => {
+      if (nodes.length > 0) {
+        edges.push(createEdge(nodes[nodes.length - 1], node));        
+      }
+      nodes.push(node);
     }
-    nodes.push(startNode);  
+    const createTaskNode = (nodeData: any, index: number, flowType: "preflow" | "mainflow") => ({
+      id: `${flowType}_${index}`,
+      type: "taskNode",
+      position: { x: 0, y: nodes[nodes.length - 1].position.y + (index === 0 ? 100 : 175) },
+      data: {
+        node: nodeData,
+        setSelectedNode: () => setSelectedNode(nodeData),
+        isSelectedNode: nodeData.id === selectedNode?.id,
+        selectedNode,
+        deleteTask: () => removeWorkflowNode(nodeData.id),
+        canMoveUp: canNodeMoveUp(nodeData, flowType === "preflow" ? props.preflowNodes : props.mainflowNodes, index),
+        canMoveDown: canNodeMoveDown(nodeData, flowType === "preflow" ? props.preflowNodes : props.mainflowNodes, index),
+        moveTaskUp: () => moveNodeUp(index, flowType),
+        moveTaskDown: () => moveNodeDown(index, flowType),
+        isReadOnly: props.isReadonly,
+        isADependency: selectedNode?.taskDependencies.some(i => i.id === nodeData.id),
+        removeDependency: () => removeDependencyOnNode(nodeData),
+        addDependency: () => addDependencyOnNode(nodeData),
+        clearSelectedNode: () => setSelectedNode(null),
+        nodes: flowType === "preflow" ? props.preflowNodes : props.mainflowNodes
+      }
+    });
+
+    const createAddTaskNode = (flowType: "preflow" | "mainflow") => ({
+      id: `${flowType}_${ADD_TASK_NODE_ID}`,
+      type: "addTaskNode",
+      position: { x: 0, y: nodes[nodes.length - 1].position.y + 125 },
+      data: {
+        onClick: () => { setSelectedSection(flowType); setOpenAddTaskDialog(true); }
+      }
+    });
+
+    // Add start node
+    addNode({ id: START_WORKFLOW_NODE_ID, type: "startNode", position: { x: 0, y: 0 }, data: {} });
+
+    // add preflow nodes
     if (props.isOnboardingWorkflow) {
-      // render preflow tasks (preboarding tasks)
-      props.preflowNodes.forEach((node, index) => {        
-        // add task node
-        const prevNode = nodes[nodes.length - 1]
-        const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
-        const taskNode: Node = {
-          id: `preflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
-          data: {
-            node: node,
-            setSelectedNode: () => setSelectedNode(node),
-            isSelectedNode: node.id === selectedNode?.id,
-            selectedNode: selectedNode,            
-            deleteTask: () => { removeWorkflowNode(node.id) },
-            canMoveUp: canNodeMoveUp(node, props.preflowNodes, index),
-            canMoveDown: canNodeMoveDown(node, props.preflowNodes, index),
-            moveTaskUp: () => { moveNodeUp(index, "preflow");},
-            moveTaskDown: () => { moveNodeDown(index, "preflow");},
-            isReadOnly: props.isReadonly,
-            isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
-            removeDependency: () => removeDependencyOnNode(node),
-            addDependency: () => addDependencyOnNode(node),
-            clearSelectedNode: () => setSelectedNode(null),
-            nodes: props.preflowNodes
-          } 
-        };
-        nodes.push(taskNode);
-        // add edge between node and previous node
-        edges.push(createEdge(prevNode, taskNode));
+      props.preflowNodes.forEach((node, index) => {
+        addNode(createTaskNode(node, index, "preflow"));
       });
+  
       if (!props.isReadonly) {
-        // add button node to append a task
-        prevNode = nodes[nodes.length - 1]    
-        let addTaskNode: Node = {
-          id: `preflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
-          data: {
-            onClick: () => {setSelectedSection("preflow"); setOpenAddTaskDialog(true);}
-          }
-        }
-        nodes.push(addTaskNode);
-        edges.push(createEdge(prevNode, addTaskNode));
+        addNode(createAddTaskNode("preflow"));
       }
-      // add mainflow triggering task node
-      var prevNode = nodes[nodes.length - 1]
-      var nodeYPosition = prevNode.position.y + 100; 
-      const triggeringTaskNode: Node = {
+  
+      // Mainflow trigger node
+      addNode({
         id: MAINFLOW_TRIGGERING_TASK_NODE_ID,
-        type: "inviteUserNode", position: { x: 0, y: nodeYPosition},
+        type: "inviteUserNode",
+        position: { x: 0, y: nodes[nodes.length - 1].position.y + 100 },
         data: {}
-      }
-      nodes.push(triggeringTaskNode);
-      // add edge
-      edges.push(createEdge(prevNode, triggeringTaskNode));
+      });
     }
 
-    // render mainflow tasks
+    // add mainflow nodes
     props.mainflowNodes.forEach((node, index) => {
-      // add task node
-      const prevNode = nodes[nodes.length - 1]
-      const nodeYPosition = prevNode.position.y + (index === 0 ? 100 : 175); 
-      const taskNode: Node = {
-        id: `mainflow_${index}`, type: "taskNode", position: { x: 0, y: nodeYPosition},
-        data: {
-          node: node,
-          setSelectedNode: () => setSelectedNode(node),
-          isSelectedNode: node.id === selectedNode?.id,
-          selectedNode: selectedNode,          
-          deleteTask: () => { removeWorkflowNode(node.id) },
-          canMoveUp: canNodeMoveUp(node, props.mainflowNodes, index),
-          canMoveDown: canNodeMoveDown(node, props.mainflowNodes, index),
-          moveTaskUp: () => { moveNodeUp(index, "mainflow");},
-          moveTaskDown: () => { moveNodeDown(index, "mainflow");},
-          isReadOnly: props.isReadonly,
-          isADependency: selectedNode?.taskDependencies.some(i => i.id === node.id),
-          removeDependency: () => removeDependencyOnNode(node),
-          addDependency: () => addDependencyOnNode(node),
-          clearSelectedNode: () => setSelectedNode(null),
-          nodes: props.mainflowNodes
-        } 
-      };
-      nodes.push(taskNode);
-      // add edge between node and previous node
-      edges.push(createEdge(prevNode, taskNode));
-    })
-    if (!props.isReadonly) {
-      // add button node to append a task
-      prevNode = nodes[nodes.length - 1]    
-      var addTaskNode = {
-        id: `mainflow_${ADD_TASK_NODE_ID}`, type: "addTaskNode", position: {x: 0, y: prevNode.position.y + 125},
-        data: {
-          onClick: () => {setSelectedSection("mainflow"); setOpenAddTaskDialog(true);}
-        }
-      }
-      nodes.push(addTaskNode);
-      edges.push(createEdge(prevNode, addTaskNode));
-    }
-    // add end of workflow node
-    prevNode = nodes[nodes.length - 1]
-    nodeYPosition = prevNode.position.y + 100; 
-    const endWorkflowNode: Node = {
-      id: END_WORKFLOW_NODE_ID,
-      type: "endNode", position: { x: 0, y: nodeYPosition},
-      data: {}
-    }
-    nodes.push(endWorkflowNode);
-    // add edge
-    edges.push(createEdge(prevNode, endWorkflowNode));
+      addNode(createTaskNode(node, index, "mainflow"));
+    });
 
+    if (!props.isReadonly) {
+      addNode(createAddTaskNode("mainflow"));
+    }
+  
+    // End node
+    addNode({
+      id: END_WORKFLOW_NODE_ID,
+      type: "endNode",
+      position: { x: 0, y: nodes[nodes.length - 1].position.y + 100 },
+      data: {}
+    });
+  
     setNodes(nodes);
-    setEdges(edges);
+    setEdges(edges);    
   }
 
   function addWorkflowNode(taskTemplate: TaskTemplate, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) {

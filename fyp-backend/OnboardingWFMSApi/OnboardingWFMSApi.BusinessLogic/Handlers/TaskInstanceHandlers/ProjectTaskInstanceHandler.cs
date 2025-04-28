@@ -15,7 +15,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
     {
 
     }
-    public class ProjectTaskInstanceHandler : BaseTaskInstanceHandler<ProjectTaskInstanceTable>, IProjectTaskInstanceHandler
+    public class ProjectTaskInstanceHandler : BaseTaskTemplateHandler<ProjectTaskInstanceTable>, IProjectTaskInstanceHandler
     {
         private readonly IProjectTaskTemplateRepository _projectTaskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;

@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 
     }
 
-    public class ReadDocumentTaskInstanceHandler : BaseTaskInstanceHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
+    public class ReadDocumentTaskInstanceHandler : BaseTaskTemplateHandler<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceHandler
     {
         public ReadDocumentTaskInstanceHandler(IReadDocumentTaskInstanceRepository repository,
             ILogger<ReadDocumentTaskInstanceHandler> logger) : base(repository, logger)
