@@ -27,23 +27,28 @@ export default function CommentSection(props: Props) {
   }, [props.parentCommentId]);
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-2'>           
       {
-        props.loadingComments &&
-        <div className='flex flex-row py-2 gap-4 items-center justify-center'>
-          <Spinner/>
-          <Label>Loading comments...</Label>
-        </div>
-      }
-      {
-        !props.loadingComments && props.comments.length === 0 &&
-        <NoResults text={'No comments on this task template yet'}/>
-      }
-      {
-        !props.loadingComments && props.comments.length > 0 &&
         <div className='flex flex-col'>
-          <h1>Click on a comment to reply</h1>
-          <GroupedComments comments={props.comments} setParentCommentId={props.setParentCommentId}/>
+          {
+            props.comments.length > 0 &&
+            <h1>Click on a comment to reply</h1>
+          }
+          {
+            !props.loadingComments && props.comments.length === 0 &&
+            <NoResults text={'No comments on this task template yet'}/>
+          }
+          {
+            !props.loadingComments && props.comments.length > 0 && 
+            <GroupedComments comments={props.comments} setParentCommentId={props.setParentCommentId}/>
+          }
+          {
+            props.loadingComments &&
+            <div className='flex flex-row py-2 gap-4 items-center justify-center'>
+              <Spinner/>
+              <Label>Loading comments...</Label>
+            </div>
+          } 
           <div className='flex flex-col gap-2'>
             {
               parentComment &&
