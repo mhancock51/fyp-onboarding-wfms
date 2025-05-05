@@ -12,65 +12,22 @@ namespace OnboardingWFMSApi.BusinessLogic
 {
     public interface IOrganisationLogic
     {
-        public Task<HTTPResponse<string, string>> CreateOrganisation(string name);
-        public Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId);
+        public Task<HTTPResponse<string, string>> CreateOrganisation(string name);        
         public Task<HTTPResponse<OrganisationTable, string>> GetOrganisation();
         public Task<HTTPResponse<string, string>> RenameOrganisation(string newName);
     }
     public class OrganisationLogic : IOrganisationLogic
     {
-        private readonly IOrganisationRepository _organisationRepository;
-        private readonly IOrganisationAdminLinkRepository _organisationAdminLinkRepository;
+        private readonly IOrganisationRepository _organisationRepository;        
         private readonly IAccountRepository _accountRepository;
         private readonly ILogger<OrganisationLogic> _logger;
 
-        public OrganisationLogic(IOrganisationRepository organisationRepository, IOrganisationAdminLinkRepository organisationAdminLinkRepository, IAccountRepository accountRepository, ILogger<OrganisationLogic> logger)
+        public OrganisationLogic(IOrganisationRepository organisationRepository, IAccountRepository accountRepository, ILogger<OrganisationLogic> logger)
         {
-            _organisationRepository = organisationRepository;
-            _organisationAdminLinkRepository = organisationAdminLinkRepository;
+            _organisationRepository = organisationRepository;            
             _accountRepository = accountRepository;
             _logger = logger;
         }
-
-        public async Task<HTTPResponse<string, string>> AssignAdminToOrganisation(string organisationId, string accountId)
-        {            
-            // check organisation exists
-            var organisation = await _organisationRepository.GetById(organisationId);
-            if (organisation == null)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Organisation doesn't exist", HttpCode = 400 };
-            }
-            
-            // check account exists
-            var account = await _accountRepository.GetById(accountId);
-            if (account == null)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Account doesn't exist", HttpCode = 400 };
-            }
-
-            // check if account is associated with organisation
-            if (account.OrganisationId != organisationId)
-            {
-                return new HTTPResponse<string, string>() { Success = false, Error = "Account isn't associated with organisation", HttpCode = 400 };
-            }      
-           
-
-            try
-            {                
-                await _organisationAdminLinkRepository.AddAsync(new OrganisationAdminLinkTable() { AccountId = accountId, OrganisationId = organisationId });
-                // set account to admin
-                account.IsSupervisor = true;
-                await _accountRepository.UpdateAsync(account);
-
-                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Assigned admin" };
-            }
-            catch (Exception ex) 
-            {
-                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to register admin" };           
-            }
-
-        }
-
         public async Task<HTTPResponse<string, string>> CreateOrganisation(string name)
         {
             try
