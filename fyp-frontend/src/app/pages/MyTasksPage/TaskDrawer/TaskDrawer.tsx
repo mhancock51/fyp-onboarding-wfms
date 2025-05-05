@@ -132,6 +132,7 @@ export default function TaskDrawer(props: Props) {
       void sendUpdateTaskInstance();
     }
     props.setOpen(false);
+    setCanCompleteTask(false);
   }
   
   useEffect(() => {
@@ -154,10 +155,10 @@ export default function TaskDrawer(props: Props) {
         <div className='flex flex-col justify-center gap-2'>
           <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
           <div className='flex flex-row justify-center gap-2'>
-            <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[200px]'/>
+            <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[150px]'/>
             {
               props.task.workflowInstance !== null &&
-              <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance} className='w-[250px]'/>
+              <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance}/>
             }
             <TaskStatusBadge status={props.task.status} className='w-[100px]'/>
           </div>

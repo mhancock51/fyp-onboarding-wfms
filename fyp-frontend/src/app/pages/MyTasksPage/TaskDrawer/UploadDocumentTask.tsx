@@ -19,15 +19,7 @@ interface Props {
 }
 
 export default function UploadDocumentTask(props: Props) {
-  const DEFAULT_STATE: FileUploadTaskInstance = {
-    id: '',
-    taskInstanceId: '',
-    documentId: ''
-  }
-  const [fileUploadState, setFileUploadState] = useState<FileUploadTaskInstance>(DEFAULT_STATE);  
-
-  useEffect(() => {
-    setFileUploadState(props.fileUploadInstance);
+  useEffect(() => {    
     if (props.fileUploadInstance.documentId !== "") {
       props.setCanCompleteTask(true);
     }
@@ -36,25 +28,25 @@ export default function UploadDocumentTask(props: Props) {
   return (
     <div className='flex flex-col gap-2 p-2'>      
       {
-        fileUploadState.documentId === "" &&
+        props.fileUploadInstance.documentId === "" &&
         <UploadDocumentForm allowedFileExtensions={props.fileUploadTemplate.supportedDocumentType} 
           documentName={props.fileUploadTemplate.documentName} 
           accessAccountIds={props.fileUploadTemplate.accessAccountIds}
           taskInstanceId={props.taskInstanceId}
-          onSuccessfullUpload={() => {props.setCanCompleteTask(true)}}
+          onSuccessfullUpload={() => {void props.fetchTaskInstances()}}
         />
       }
       {
-        fileUploadState.documentId !== "" &&
+        props.fileUploadInstance.documentId !== "" &&
         <div className='flex flex-row w-full justify-center'>
           Document uploaded for this task
         </div>        
       }
       {
-        fileUploadState.documentId !== "" &&
+        props.fileUploadInstance.documentId !== "" &&
         <div className='flex flex-row w-full gap-2 items-center'>
           <span>Uploaded file:</span>
-          <DocumentLinkBadge documentId={fileUploadState.documentId}/>          
+          <DocumentLinkBadge documentId={props.fileUploadInstance.documentId}/>          
         </div>
       }   
     </div>

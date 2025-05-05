@@ -58,7 +58,7 @@ export default function CommentSection(props: Props) {
               </div>
             }
             <form className='flex flex-row gap-2' onSubmit={(event: any) => {event.preventDefault(); void props.postComment();}}>
-              <Input type='text' disabled={props.postingComment} placeholder='Enter your comment...' onChange={(event: any) => {props.setComment(event.target.value);}}/>
+              <Input type='text' disabled={props.postingComment} placeholder='Enter your comment...' value={props.comment} onChange={(event: any) => {props.setComment(event.target.value);}}/>
               <Button disabled={props.comment === "" || props.postingComment} type='submit' className='flex flex-row gap-2'>
                 {
                   props.postingComment &&
