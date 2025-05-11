@@ -8,7 +8,7 @@ import { ReadDocumentTaskTemplate } from '@/models/tasks/ReadDocumentTaskTemplat
 import ChecklistTask from './ChecklistTask';
 import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate';
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import Api from '@/api';
 import { toast } from 'sonner';
 import ReadDocumentTask from './ReadDocumentTask';
@@ -33,6 +33,7 @@ import { TASK_TYPE_IDS } from '@/constants';
 import FeedbackTask from './FeedbackTask';
 import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
+import { Spinner } from '@/components/ui/spinner';
 
 interface Props {
   open: boolean;
@@ -45,16 +46,24 @@ export default function TaskDrawer(props: Props) {
   const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentDTO[]>([]);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
   const [postingComment, setPostingComment] = useState<boolean>(false);
 
   const [comment, setComment] = useState<string>("");
   const [parentCommentId, setParentCommentId] = useState<string>("");
 
+  const [updatedTaskInstance, setUpdatedTaskInstance] = useState<ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null>(null);
+  const [instanceHasChanged, setInstanceHasChanged] = useState<boolean>(false);
+
   const dispatch = useDispatch();
 
   async function completeTask() {
-    if (!canCompleteTask) return;    
+    setLoading(true);
+    await sendUpdateTaskInstance();
+    if (!canCompleteTask) return;
+    
     await Api.completeTask(props.task.id)
     .then((response) => {
       console.log(response);
@@ -65,6 +74,9 @@ export default function TaskDrawer(props: Props) {
     .catch((error) => {
       toast.error("Failed to complete task");
       console.error(error);
+    })
+    .finally(() => {
+      setLoading(false);
     })
   }
 
@@ -97,6 +109,31 @@ export default function TaskDrawer(props: Props) {
       setLoadingComments(false);
     })
   }
+
+  async function sendUpdateTaskInstance() {
+    if (updatedTaskInstance === null) return;
+    await Api.updateTaskState(updatedTaskInstance, props.task.template.taskTypeId, props.task.id)
+    .then((response) => {
+      void props.fetchTaskInstances();
+    })
+    .catch((error) => {
+      toast.error("Failed to update task instance");
+    })    
+  }
+
+  function updateTaskInstance(taskData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) {
+    setInstanceHasChanged(true)
+    setUpdatedTaskInstance(taskData);
+  }
+
+  function handleClose() {
+    // update task instance state
+    if (instanceHasChanged && props.task.status === "open") {
+      void sendUpdateTaskInstance();
+    }
+    props.setOpen(false);
+    setCanCompleteTask(false);
+  }
   
   useEffect(() => {
     setComments([]);
@@ -106,17 +143,22 @@ export default function TaskDrawer(props: Props) {
     }
   }, [props.task.taskTemplateId]);
 
+  useEffect(() => {
+    setUpdatedTaskInstance(props.task.instanceData);
+    setInstanceHasChanged(false);
+  }, [props.task]);
+
   return (
-    <Drawer direction='right'  onClose={() => {props.setOpen(false);}} open={props.open}>
+    <Drawer direction='right'  onClose={handleClose} open={props.open}>
       <DrawerContent className="max-w-[600px] max-h-[100vh] w-full p-2 flex flex-col justify-start gap-2">
         {/* Drawer header - task information */}
         <div className='flex flex-col justify-center gap-2'>
           <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>
           <div className='flex flex-row justify-center gap-2'>
-            <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[200px]'/>
+            <TaskTypeBadge taskTypeId={props.task.template.taskTypeId} className='w-[150px]'/>
             {
               props.task.workflowInstance !== null &&
-              <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance} className='w-[250px]'/>
+              <WorkflowInstanceBadge workflowInstance={props.task.workflowInstance}/>
             }
             <TaskStatusBadge status={props.task.status} className='w-[100px]'/>
           </div>
@@ -128,23 +170,26 @@ export default function TaskDrawer(props: Props) {
           {
             props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST &&
             <ChecklistTask 
-              taskInstanceId={props.task.id} 
-              checklistInstance={props.task.instanceData as ChecklistTaskInstance} 
-              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate} 
+              taskInstanceId={props.task.id}
+              checklistInstance={props.task.instanceData as ChecklistTaskInstance}
+              checklistTemplate={props.task.template.taskTypeData as ChecklistTaskTemplate}
               fetchTaskInstances={props.fetchTaskInstances}
               setCanCompleteTask={setCanCompleteTask}
-              taskStatus={props.task.status}
+              taskStatus={props.task.status} 
+              updateTaskInstance={updateTaskInstance} 
             />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT &&
             <UploadDocumentTask 
-              taskInstanceId={props.task.id} 
-              fileUploadInstance={props.task.instanceData as FileUploadTaskInstance} 
-              fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate} 
-              fetchTaskInstances={props.fetchTaskInstances} 
-              setCanCompleteTask={setCanCompleteTask} 
-              taskStatus={props.task.status}/>
+              taskInstanceId={props.task.id}
+              fileUploadInstance={props.task.instanceData as FileUploadTaskInstance}
+              fileUploadTemplate={props.task.template.taskTypeData as FileUploadTaskTemplate}
+              fetchTaskInstances={props.fetchTaskInstances}
+              setCanCompleteTask={setCanCompleteTask}
+              taskStatus={props.task.status} 
+              updateTaskInstance={updateTaskInstance} 
+            />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.READ_DOCUMENT &&
@@ -154,7 +199,9 @@ export default function TaskDrawer(props: Props) {
               readDocumentTemplate={props.task.template.taskTypeData as ReadDocumentTaskTemplate} 
               fetchTaskInstances={props.fetchTaskInstances} 
               setCanCompleteTask={setCanCompleteTask} 
-              taskStatus={props.task.status}/>
+              taskStatus={props.task.status}
+              updateTaskInstance={updateTaskInstance} 
+            />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.PROJECT_TASK &&
@@ -164,7 +211,9 @@ export default function TaskDrawer(props: Props) {
               projectInstance={props.task.instanceData as ProjectTaskInstance}
               fetchTaskInstances={props.fetchTaskInstances} 
               setCanCompleteTask={setCanCompleteTask} 
-              taskStatus={props.task.status}/>
+              taskStatus={props.task.status}
+              updateTaskInstance={updateTaskInstance} 
+            />
           }
           {
             props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.FEEDBACK_TASK &&
@@ -174,9 +223,15 @@ export default function TaskDrawer(props: Props) {
               feedbackTemplate={props.task.template.taskTypeData as FeedbackTaskTemplate} 
               fetchTaskInstances={props.fetchTaskInstances} 
               setCanCompleteTask={setCanCompleteTask} 
-              taskStatus={props.task.status}/>
+              taskStatus={props.task.status}
+              updateTaskInstance={updateTaskInstance}  
+            />
           }
-          <Button className='rounded-full mx-r-2 p-2 w-full' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+          <Button className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+            {
+              loading &&
+              <Spinner className="text-primary-foreground"/>
+            }
             Complete Task
           </Button>
         </div>

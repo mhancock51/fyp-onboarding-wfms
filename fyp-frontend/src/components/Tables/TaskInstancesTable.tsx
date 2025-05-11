@@ -60,7 +60,7 @@ export default function TaskInstancesTable(props: Props) {
   return (
     <div className={clsx('', props.className)}>
       {
-        props.loading && props.tasks.length === 0 &&
+        props.loading &&
         <div className='flex flex-row justify-center p-4 gap-2'>
           <Spinner/>
           Loading tasks...

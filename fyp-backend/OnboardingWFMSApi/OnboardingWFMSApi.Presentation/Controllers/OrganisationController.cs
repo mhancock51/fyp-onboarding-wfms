@@ -18,15 +18,6 @@ namespace OnboardingWFMSApi.Presentation
             _organisationLogic = organisationLogic;
         }
 
-
-        [Authorize(Policy = "SupervisorRoleClaim")]
-        [HttpPost("assign")]
-        public async Task<IActionResult> AssignAdmin(string organisationId, string adminAccountId)
-        {
-            var result = await _organisationLogic.AssignAdminToOrganisation(organisationId, adminAccountId);
-            return StatusCode(result.HttpCode, result);
-        }
-
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetOrganisation()

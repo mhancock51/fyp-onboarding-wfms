@@ -19,8 +19,7 @@ export default function MyTasksPage() {
   async function fetchTaskInstances() {
     setLoading(true);
     Api.fetchAssignedTaskInstance()
-    .then((response) => {
-      console.log(response);
+    .then((response) => {      
       setLoading(false);
       const tasks = response.data.data as TaskInstanceDTO[];
       setOpenTasks(tasks.filter(t => t.status === "open"));

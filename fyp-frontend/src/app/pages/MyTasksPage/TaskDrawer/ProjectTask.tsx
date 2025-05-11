@@ -1,20 +1,21 @@
-import Api from '@/api';
 import NoResults from '@/components/NoResults';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
-import { TASK_TYPE_IDS } from '@/constants';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
 import ProjectObjective from '@/models/tasks/ProjectObjective';
 import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
 import ProjectTaskTemplate from '@/models/tasks/ProjectTaskTemplate';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { TabsList } from '@radix-ui/react-tabs';
 import { Asterisk, ExternalLink } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
-import { toast } from 'sonner';
 
 interface Props {
   taskInstanceId: string;
@@ -23,6 +24,7 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;
 }
 export default function ProjectTask(props: Props) {
   const DEFAULT_STATE: ProjectTaskInstance = {
@@ -41,22 +43,6 @@ export default function ProjectTask(props: Props) {
       }      
     });
     return !missedObjective;
-  }
-
-  async function updateTaskInstanceState(projectInstance: ProjectTaskInstance) {
-    await Api.updateTaskState(projectInstance, TASK_TYPE_IDS.PROJECT_TASK, props.taskInstanceId)
-    .then(() => {
-      if (areAllRequiredObjectivesComplete(projectInstance)) {
-        props.setCanCompleteTask(true);
-      }
-      else {
-        props.setCanCompleteTask(false);
-      }
-      void props.fetchTaskInstances();
-    })
-    .catch(() => {
-      toast("Failed to update checklist task's state");
-    })
   }
 
   function updateObjectiveState(complete: boolean, objective: ProjectObjective) {
@@ -81,7 +67,7 @@ export default function ProjectTask(props: Props) {
     // update "can complete" flag if all required objectives complete
     props.setCanCompleteTask(areAllRequiredObjectivesComplete(projectState));
     // update state server side
-    void updateTaskInstanceState(projectState);
+    props.updateTaskInstance(projectState);    
   }, [projectState.objectiveStates]);
 
   return (

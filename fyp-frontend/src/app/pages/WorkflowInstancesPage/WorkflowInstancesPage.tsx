@@ -25,7 +25,7 @@ export default function WorkflowInstancesPage() {
 
   return (
     <div>
-      <div>
+      <div>        
         <h1 className='text-xl text-foreground font-bold m-2'>Workflows Assinged To You</h1>
         <Separator/>
         <WorkflowInstancesTable actions={actions} setSelectedWorkflow={setSelectedWorkflow}/>
