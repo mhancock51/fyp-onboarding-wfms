@@ -64,7 +64,7 @@ builder.Services.AddScoped<IWorkflowTemplateNodeRepository, WorkflowTemplateNode
 builder.Services.AddScoped<INodeTaskDependencyRepository, NodeTaskDependencyRepository>();
 
 builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
-builder.Services.AddScoped<IWorkflowNodeInstanceRepository,  WorkflowNodeInstanceRepository>();
+builder.Services.AddScoped<IWorkflowNodeInstanceRepository, WorkflowNodeInstanceRepository>();
 
 builder.Services.AddScoped<IOnboardingEmployeeDetailsRepository, OnboardingEmployeeDetailsRepository>();
 
@@ -125,7 +125,7 @@ builder.Services.AddScoped<IRequestHandler<CreateWorkflowInstanceAuditLogRequest
 builder.Services.AddScoped<IRequestHandler<RetrieveWorkflowInstanceRequest, ServerResponse<WorkflowInstanceDTO, string>>, RetrieveWorkflowInstanceHandler>();
 builder.Services.AddScoped<IRequestHandler<CreateTaskInstanceRequest, ServerResponse<string, string>>, CreateTaskInstanceHandler>();
 builder.Services.AddScoped<IRequestHandler<RetrieveAccountDirectoryRequest, AccountDirectoryDTO>, RetrieveAccountDirectoryHandler>();
-builder.Services.AddScoped < IRequestHandler<RetrieveAccountsWorkflowInstancesRequest, List<WorkflowInstanceDTO>>, RetrieveAccountsWorkflowInstancesHandler>();
+builder.Services.AddScoped<IRequestHandler<RetrieveAccountsWorkflowInstancesRequest, List<WorkflowInstanceDTO>>, RetrieveAccountsWorkflowInstancesHandler>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];
@@ -163,7 +163,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()   // Allow requests from anywhere
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
+
 var app = builder.Build();
+
+app.UseCors("AllowAllOrigins");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -172,6 +186,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
