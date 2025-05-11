@@ -21,6 +21,14 @@ export default function SidebarUser(props: Props) {
   const { isMobile } = useSidebar()
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
+  function logOutUser() {
+    dispatch(SET_USER(null));
+    Utils.clearLoginDetailsInLocalStorage();
+    navigate("/login");
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -58,7 +66,7 @@ export default function SidebarUser(props: Props) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem style={{cursor: "pointer"}}>
+            <DropdownMenuItem style={{cursor: "pointer"}} onClick={logOutUser}>
               <LogOut />
               Log out
             </DropdownMenuItem>
