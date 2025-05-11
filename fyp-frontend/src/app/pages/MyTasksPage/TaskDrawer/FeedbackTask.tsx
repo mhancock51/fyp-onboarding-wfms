@@ -1,12 +1,13 @@
-import Api from '@/api';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { TASK_TYPE_IDS } from '@/constants';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
 import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
 import React, { useEffect, useState } from 'react'
-import { toast } from 'sonner';
 
 interface Props {
   taskInstanceId: string;
@@ -15,6 +16,7 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;  
 }
 
 export default function FeedbackTask(props: Props) {
@@ -24,28 +26,11 @@ export default function FeedbackTask(props: Props) {
     return feedbackState.responses.includes(-1) ? false : true;
   }
 
-  async function updatedFeedbackStatus(feedbackState: FeedbackTaskInstance) {   
-    console.log("updatedFeedbackStatus function called"); 
-    await Api.updateTaskState(feedbackState, TASK_TYPE_IDS.FEEDBACK_TASK, feedbackState.taskInstanceId)
-    .then(() => {
-      if (areAllQuestionsAnswered()) {
-        props.setCanCompleteTask(true);
-      }
-      else {
-        props.setCanCompleteTask(false);
-      }
-      void props.fetchTaskInstances();
-    })
-    .catch(() => {
-      toast("Failed to update feedback task's state");
-    })
-  }
-
   function updateResponse(index: number, response: number) {
     const updatedState = {...feedbackState};
     updatedState.responses[index] = response;
     // update state on backend to reflect changes
-    void updatedFeedbackStatus(updatedState);
+    props.updateTaskInstance(updatedState);
     props.setCanCompleteTask(areAllQuestionsAnswered());   
     setFeedbackState(updatedState);
   }
