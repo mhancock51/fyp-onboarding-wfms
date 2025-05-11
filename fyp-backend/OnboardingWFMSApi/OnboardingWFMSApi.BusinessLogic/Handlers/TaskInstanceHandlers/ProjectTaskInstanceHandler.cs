@@ -32,19 +32,40 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
             return "project-task";
         }
 
-        public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId)
+        public override async Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateData, string taskInstanceId)
         {
-            var objectives = (taskTemplateMetaData as ProjectTaskTemplateTable).Objectives;
-            await _repository.AddAsync(new ProjectTaskInstanceTable() { Id = "", ObjectiveStates = (new bool[objectives.Count]).ToList(), TaskInstanceId = taskInstanceId });
-            return new ServerResponse<string, string>() { Success = true };
+            if (taskTemplateData is not ProjectTaskTemplateTable projectTemplate)
+            {
+                return new ServerResponse<string, string> { Success = false, Error = "Invalid task template data" };
+            }
+
+            // create project task instance
+            var objectiveStates = new bool[projectTemplate.Objectives.Count];
+            var instance = new ProjectTaskInstanceTable
+            {
+                Id = string.Empty,
+                ObjectiveStates = objectiveStates.ToList(),
+                TaskInstanceId = taskInstanceId
+            };
+
+            try
+            {
+                // insert new instance
+                await _repository.AddAsync(instance);
+            }
+            catch (Exception ex)
+            {
+                return new ServerResponse<string, string>() { Success = false, Error = $"Failed to insert project task instance data: {ex}" };
+            }
+
+            return new ServerResponse<string, string> { Success = true };
         }
 
-        public override async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceData)
         {
-            var projectInstance = taskInstanceMetaData as ProjectTaskInstanceTable;
-            if (projectInstance == null)
+            if (taskInstanceData is not ProjectTaskInstanceTable projectInstance)
             {
-                return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };
+                return new ServerResponse<string, string> { Success = false, Error = "Failed to cast task instance data" };
             }
             var taskInstance = await _taskInstanceRepository.GetById(projectInstance.TaskInstanceId);
             var taskTemplate = await _projectTaskTemplateRepository.GetByTaskTemplateId(taskInstance.TaskTemplateId);
@@ -60,10 +81,10 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
             return new ServerResponse<string, string>() { Success = true };
         }
 
-        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceMetaData)
+        public override async Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceData)
         {
             // cast object            
-            ProjectTaskInstanceTable taskInstance = CastObjectToType(taskInstanceMetaData);
+            ProjectTaskInstanceTable taskInstance = CastObjectToType(taskInstanceData);
             if (taskInstance == null)
             {
                 return new ServerResponse<string, string>() { Success = false, Error = "Failed to cast task instance data" };

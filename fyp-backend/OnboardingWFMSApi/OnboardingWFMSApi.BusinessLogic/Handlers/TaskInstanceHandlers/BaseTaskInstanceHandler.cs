@@ -1,13 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories.Interfaces;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 {
@@ -24,18 +18,18 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
 
         public async Task<ServerResponse<object, string>> FetchTaskInstanceData(string taskInstanceId)
         {
-            var taskInstanceMetaData = await _repository.GetByTaskInstanceId(taskInstanceId);
-            if (taskInstanceMetaData == null)
+            TTaskType taskInstanceData = await _repository.GetByTaskInstanceId(taskInstanceId);
+            if (taskInstanceData == null)
             {
                 _logger.LogDebug($"Failed to retrieve task instance data for task instance {taskInstanceId}");
             }
-            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task type instance data" }
-                : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
+            return taskInstanceData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task type instance data" }
+                : new ServerResponse<object, string>() { Success = true, Data = taskInstanceData };
         }
 
         public virtual async Task<ServerResponse<string, string>> UpdateTaskInstanceData(object taskInstanceData)
         {
-            var updatedTaskInstanceData = CastObjectToType(taskInstanceData);
+            TTaskType updatedTaskInstanceData = CastObjectToType(taskInstanceData);
 
             var validationResponse = await ValidateTaskInstanceData(updatedTaskInstanceData);
             if (!validationResponse.Success)
@@ -50,12 +44,13 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers
             }
             catch (Exception ex)
             {
-                return new ServerResponse<string, string>() { Success = false, Data = ex.Message };
+                _logger.LogError($"Error updating task instance data: {ex}");
+                return new ServerResponse<string, string>() { Success = false};
             }
         }
 
         public abstract Task<ServerResponse<string, string>> ValidateTaskInstanceData(object taskInstanceData);
-        public abstract Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateMetaData, string taskInstanceId);
-        public abstract Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceMetaData);
+        public abstract Task<ServerResponse<string, string>> CreateTaskInstanceData(object taskTemplateData, string taskInstanceId);
+        public abstract Task<ServerResponse<string, string>> IsTaskInstanceCompleteable(object taskInstanceData);
     }
 }

@@ -35,16 +35,18 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers
         public async Task<HTTPResponse<string, string>> Handle(TaskCompletedRequest request, CancellationToken cancellationToken)
         {
             _logger.LogDebug($"Handling task completed event for task instance: {request.taskInstance.Id}");
-            if (!string.IsNullOrEmpty(request.taskInstance.WorkflowInstanceId))
+            if (string.IsNullOrEmpty(request.taskInstance.WorkflowInstanceId))
             {
-                // call workflow instance to handle completion
-                var result = await _workflowInstanceLogic.HandleTaskInstanceCompletion(request.taskInstance);
-                if (!result.Success)
-                {
-                    return result;
-                }
+                return new HTTPResponse<string, string>() { Success = true, Data = "Task isn't associated with a workflow instance" };
             }
 
+            // call workflow instance to handle task completion
+            var result = await _workflowInstanceLogic.HandleTaskInstanceCompletion(request.taskInstance);
+            if (!result.Success)
+            {
+                // return failure
+                return result;
+            }
             return new HTTPResponse<string, string>() { Success = true, Data = "Success", HttpCode = 200 };
         }
     }

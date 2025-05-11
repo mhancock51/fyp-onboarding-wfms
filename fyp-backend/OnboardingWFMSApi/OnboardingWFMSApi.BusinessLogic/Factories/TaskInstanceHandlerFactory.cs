@@ -56,7 +56,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Factories
             {
                 CacheHandlers();
             }
-            // retrieve appriopriate task template handler by task type Id
+            // retrieve appriopriate task instance handler by task type Id
             var selectedHandler = taskInstanceHandlers.GetValueOrDefault(taskTypeId);
             return selectedHandler;
         }
