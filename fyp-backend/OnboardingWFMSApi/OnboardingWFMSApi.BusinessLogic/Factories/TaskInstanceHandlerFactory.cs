@@ -52,8 +52,13 @@ namespace OnboardingWFMSApi.BusinessLogic.Factories
 
         public ITaskInstanceHandler? GetHandler(string taskTypeId)
         {
-            taskInstanceHandlers.TryGetValue(taskTypeId, out ITaskInstanceHandler handler);
-            return handler ?? null;
+            if (taskInstanceHandlers.Count == 0)
+            {
+                CacheHandlers();
+            }
+            // retrieve appriopriate task template handler by task type Id
+            var selectedHandler = taskInstanceHandlers.GetValueOrDefault(taskTypeId);
+            return selectedHandler;
         }
     }
 }

@@ -50,29 +50,12 @@ namespace OnboardingWFMSApi.BusinessLogic.Factories
 
         public ITaskTemplateHandler? GetHandler(string taskTypeId)
         {
-            // find interfaces that implement ITaskTemplateHandler
-            var handlersInterfaces = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => typeof(ITaskTemplateHandler).IsAssignableFrom(t) && t.IsInterface && t != typeof(ITaskTemplateHandler))
-                .ToList();
-
-            ITaskTemplateHandler selectedHandler = null;
-            // find the handler that is for this task type by looping through each one, instantiating it and checking its task type Id
-            foreach (var handlerType in handlersInterfaces)
+            if (taskTemplateHandlers.Count == 0)
             {
-                var handler = _serviceProvider.GetService(handlerType) as ITaskTemplateHandler;
-                if (handler == null)
-                {
-                    continue;
-                }
-                if (handler.GetTaskTypeId() == taskTypeId)
-                {
-                    selectedHandler = handler;
-                }
-                else
-                {
-                    continue;
-                }
+                CacheHandlers();
             }
+            // retrieve appriopriate task template handler by task type Id
+            var selectedHandler = taskTemplateHandlers.GetValueOrDefault(taskTypeId);
             return selectedHandler;
         }
     }
