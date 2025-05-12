@@ -1,221 +1,391 @@
-CREATE TABLE department (
-    DepartmentId VARCHAR(255) PRIMARY KEY,
-    DisplayName VARCHAR(255) NOT NULL
-);
-CREATE TABLE account (
-    AccountId VARCHAR(255) PRIMARY KEY,
-    DisplayName VARCHAR(255) NOT NULL,
-    EmailAddress VARCHAR(255) NOT NULL,
-    HashedPassword VARCHAR(255) NOT NULL,    
-    IsSupervisor TINYINT(1) NOT NULL,
-    DepartmentId VARCHAR(255),
-    OrganisationId VARCHAR(255),
-    AccountStatus VARCHAR(255)
-);
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: onboarding-wfms-db-4
+-- ------------------------------------------------------
+-- Server version	8.0.40
 
-CREATE TABLE organisation (
-    OrganisationId VARCHAR(255) PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE TABLE organisationAdminLink (
-    Id VARCHAR(255) PRIMARY KEY,
-    OrganisationId VARCHAR(255),
-    AccountId VARCHAR(255)
-);
+--
+-- Table structure for table `account`
+--
 
-CREATE TABLE tasktype (
-    TaskTypeId VARCHAR(255) NOT NULL,
-    TaskName VARCHAR(255) NOT NULL,
-    PRIMARY KEY (TaskTypeId)
-);
+DROP TABLE IF EXISTS `account`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `account` (
+  `AccountId` varchar(255) NOT NULL,
+  `DisplayName` varchar(255) NOT NULL,
+  `EmailAddress` varchar(255) NOT NULL,
+  `HashedPassword` varchar(255) NOT NULL,
+  `IsSupervisor` tinyint(1) NOT NULL,
+  `DepartmentId` varchar(255) NOT NULL,
+  `OrganisationId` varchar(255) NOT NULL,
+  `AccountStatus` varchar(255) NOT NULL,
+  PRIMARY KEY (`AccountId`),
+  KEY `account_ibfk_1` (`OrganisationId`),
+  KEY `account_ibfk_2` (`DepartmentId`),
+  CONSTRAINT `account_ibfk_1` FOREIGN KEY (`OrganisationId`) REFERENCES `organisation` (`OrganisationId`),
+  CONSTRAINT `account_ibfk_2` FOREIGN KEY (`DepartmentId`) REFERENCES `department` (`DepartmentId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE tasktemplate (
-    TaskTemplateId VARCHAR(255) NOT NULL,
-    Name VARCHAR(255) UNIQUE NOT NULL ,
-    Description TEXT,
-    CreatorAccountId VARCHAR(255) NOT NULL,
-    DateCreated DATETIME NOT NULL,
-    TaskTypeId VARCHAR(255) NOT NULL,
-    PRIMARY KEY (TaskTemplateId),
-    Status VARCHAR(255) NOT NULL,
-    LastModifiedTimestamp DATETIME
-);
+--
+-- Table structure for table `checklisttaskinstance`
+--
 
-CREATE TABLE fileuploadtasktemplate (
-    Id VARCHAR(255) NOT NULL,
-    TaskTemplateId VARCHAR(255) NOT NULL,
-    SupportedDocumentType VARCHAR(255) NOT NULL,
-    DocumentName VARCHAR(255) NOT NULL,
-    PRIMARY KEY (Id)
-);
+DROP TABLE IF EXISTS `checklisttaskinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `checklisttaskinstance` (
+  `Id` varchar(255) NOT NULL,
+  `TaskInstanceId` varchar(255) DEFAULT NULL,
+  `ItemCompletionStatuses` json DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_checklist_instance_task_instance_id` (`TaskInstanceId`),
+  CONSTRAINT `fk_checklist_instance_task_instance_id` FOREIGN KEY (`TaskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE readdocumenttasktemplate (
-    Id VARCHAR(255) NOT NULL,
-    TaskTemplateId VARCHAR(255) NOT NULL,
-    DocumentName VARCHAR(255) NOT NULL,
-    DocumentUrl VARCHAR(2083) NOT NULL,
-    CheckBoxLabel VARCHAR(255) NOT NULL,
-    PRIMARY KEY (Id)
-);
+--
+-- Table structure for table `checklisttasktemplate`
+--
 
-CREATE TABLE checklisttasktemplate (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskTemplateId VARCHAR(255),
-    Items JSON
-);
+DROP TABLE IF EXISTS `checklisttasktemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `checklisttasktemplate` (
+  `Id` varchar(255) NOT NULL,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `Items` json DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_task_template_id` (`TaskTemplateId`),
+  CONSTRAINT `fk_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE taskinstance (
-    TaskInstanceId VARCHAR(255) PRIMARY KEY,
-    AssigneeAccountId VARCHAR(255),
-    AssignerAccountId VARCHAR(255),
-    TaskTemplateId VARCHAR(255),
-    WorkflowInstanceId VARCHAR(255),
-    CreationTimestamp DATETIME,
-    Status VARCHAR(255),    
-    DueDate DATETIME,
-    WorkflowInstanceNodeId VARCHAR(255),
-    CompletionTimestamp DATETIME,
-);
+--
+-- Table structure for table `comment`
+--
 
-CREATE TABLE checklisttaskinstance (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskInstanceId VARCHAR(255),
-    ItemCompletionStatuses JSON
-);
+DROP TABLE IF EXISTS `comment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `comment` (
+  `Id` varchar(255) NOT NULL,
+  `CommenterId` varchar(255) DEFAULT NULL,
+  `Text` text,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `CreationTimestamp` datetime DEFAULT NULL,
+  `ParentCommentId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_comment_commenter_id` (`CommenterId`),
+  KEY `fk_comment__task_template_id` (`TaskTemplateId`),
+  KEY `fk_comment_parent_comment_id` (`ParentCommentId`),
+  CONSTRAINT `fk_comment__task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`),
+  CONSTRAINT `fk_comment_commenter_id` FOREIGN KEY (`CommenterId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_comment_parent_comment_id` FOREIGN KEY (`ParentCommentId`) REFERENCES `comment` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE readdocumenttaskinstance (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskInstanceId VARCHAR(255),
-    CheckboxChecked BOOLEAN,
-    LinkClicked BOOLEAN
-);
+--
+-- Table structure for table `department`
+--
 
-CREATE TABLE projectasktemplate (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskTemplateId VARCHAR(255),
-    Brief TEXT,
-    Deliverable VARCHAR(255),
-    Objectives JSON,
-    SupportLinks JSON,
-    Skills JSON
-);
+DROP TABLE IF EXISTS `department`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `department` (
+  `DepartmentId` varchar(255) NOT NULL,
+  `DisplayName` varchar(255) NOT NULL,
+  PRIMARY KEY (`DepartmentId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE projecttaskinstance (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskInstanceId VARCHAR(255),
-    ObjectiveStates JSON
-);
+--
+-- Table structure for table `document`
+--
 
+DROP TABLE IF EXISTS `document`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document` (
+  `Id` varchar(255) NOT NULL,
+  `TaskInstanceId` varchar(255) DEFAULT NULL,
+  `CreatorId` varchar(255) DEFAULT NULL,
+  `WorkflowInstanceId` varchar(255) DEFAULT NULL,
+  `DocumentData` longblob,
+  `FileExtension` varchar(50) DEFAULT NULL,
+  `UploadTimestamp` datetime DEFAULT NULL,
+  `FileName` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_document_creator_id` (`CreatorId`),
+  KEY `fk_document_workflow_instance_idx` (`WorkflowInstanceId`),
+  KEY `fk_document_task_instance_id` (`TaskInstanceId`),
+  CONSTRAINT `fk_document_creator_id` FOREIGN KEY (`CreatorId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_document_task_instance_id` FOREIGN KEY (`TaskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_document_workflow_instance` FOREIGN KEY (`WorkflowInstanceId`) REFERENCES `workflowinstance` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `documentaccesslink`
+--
 
+DROP TABLE IF EXISTS `documentaccesslink`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `documentaccesslink` (
+  `Id` varchar(255) NOT NULL,
+  `AccountId` varchar(255) DEFAULT NULL,
+  `DocumentId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_document_access_document_id` (`DocumentId`),
+  CONSTRAINT `fk_document_access_document_id` FOREIGN KEY (`DocumentId`) REFERENCES `document` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE document (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskInstanceId VARCHAR(255),
-    CreatorId VARCHAR(255),
-    WorkflowInstanceId VARCHAR(255),
-    DocumentData LONGBLOB,
-    FileExtension VARCHAR(50),
-    UploadTimestamp DATETIME,
-    FileName VARCHAR(255),
-    AccessAccountIds JSON
-);
+--
+-- Table structure for table `feedbacktaskinstance`
+--
 
-CREATE TABLE documentaccesslink (
-    Id VARCHAR(255) PRIMARY KEY,
-    AccountId VARCHAR(255),
-    DocumentId VARCHAR(255)
-);
+DROP TABLE IF EXISTS `feedbacktaskinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `feedbacktaskinstance` (
+  `id` varchar(255) NOT NULL,
+  `taskInstanceId` varchar(255) DEFAULT NULL,
+  `responses` json DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `taskInstanceId` (`taskInstanceId`),
+  CONSTRAINT `feedbacktaskinstance_ibfk_1` FOREIGN KEY (`taskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE fileuploadtaskinstance (
-    Id VARCHAR(255) PRIMARY KEY,
-    TaskInstanceId VARCHAR(255),
-    DocumentId VARCHAR(255)
-);
+--
+-- Table structure for table `feedbacktasktemplate`
+--
 
-/* Everything workflow template related */
-CREATE TABLE workflowtemplate (
-    Id VARCHAR(255) PRIMARY KEY,
-    IsOnboardingWF BOOLEAN,
-    Name VARCHAR(255),
-    Description TEXT,
-    Status VARCHAR(255)
-);
+DROP TABLE IF EXISTS `feedbacktasktemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `feedbacktasktemplate` (
+  `id` varchar(255) NOT NULL,
+  `taskTemplateId` varchar(255) DEFAULT NULL,
+  `questions` json DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `taskTemplateId` (`taskTemplateId`),
+  CONSTRAINT `feedbacktasktemplate_ibfk_1` FOREIGN KEY (`taskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE workflowtemplatenode (
-    Id VARCHAR(255) PRIMARY KEY,
-    WorkflowTemplateId VARCHAR(255),
-    TaskTemplateId VARCHAR(255),
-    AssigneeId VARCHAR(255),
-    AccountsToNotify JSON,
-    `Order` INT,
-    WorkflowSection VARCHAR(255)
-);
+--
+-- Table structure for table `fileuploadtaskinstance`
+--
 
-CREATE TABLE nodetaskdependency (
-    Id VARCHAR(255) PRIMARY KEY,
-    NodeId VARCHAR(255),
-    DependencyNodeId VARCHAR(255),
-    WorkflowTemplateId VARCHAR(255)
-);
+DROP TABLE IF EXISTS `fileuploadtaskinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fileuploadtaskinstance` (
+  `Id` varchar(255) NOT NULL,
+  `TaskInstanceId` varchar(255) DEFAULT NULL,
+  `DocumentId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_file_upload_task_instance_id` (`TaskInstanceId`),
+  KEY `fk_file_upload__document_id` (`DocumentId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-/* Workflow instance */
-CREATE TABLE workflowinstance (
-    Id VARCHAR(255) PRIMARY KEY,
-    WorkflowTemplateId VARCHAR(255) NOT NULL,
-    OnboarderAccountId VARCHAR(255),
-    SupervisorAccountId VARCHAR(255),
-    CreationTimestamp DATETIME,    
-    MainflowStartTimestamp DATETIME,
-    CompletionTimestamp DATETIME
-);
+--
+-- Table structure for table `fileuploadtasktemplate`
+--
 
-CREATE TABLE workflowinstancenode (
-    Id VARCHAR(255) PRIMARY KEY,
-    WorkflowInstanceId VARCHAR(255),
-    WorkflowTemplateId VARCHAR(255),
-    WorkflowTemplateNodeId VARCHAR(255),
-    TaskTemplateId VARCHAR(255),
-    Status VARCHAR(255)
-);
+DROP TABLE IF EXISTS `fileuploadtasktemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fileuploadtasktemplate` (
+  `Id` varchar(255) NOT NULL,
+  `TaskTemplateId` varchar(255) NOT NULL,
+  `SupportedDocumentType` varchar(255) NOT NULL,
+  `DocumentName` varchar(255) NOT NULL,
+  `AccessAccountIds` json NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_fileuploadtasktemplate_tasktemplate` (`TaskTemplateId`),
+  CONSTRAINT `fk_fileuploadtasktemplate_tasktemplate` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE onboardingemployeedetails (
-    Id VARCHAR(255) PRIMARY KEY,
-    WorkflowInstanceId VARCHAR(255),
-    DisplayName VARCHAR(255),
-    EmailAddress VARCHAR(255),
-    DepartmentId VARCHAR(255),
-    OnboarderAccountId VARCHAR(255)
-);
+--
+-- Table structure for table `nodetaskdependency`
+--
 
-CREATE TABLE comment (
-    Id VARCHAR(255) PRIMARY KEY,
-    CommenterId VARCHAR(255),
-    Text TEXT,
-    TaskTemplateId VARCHAR(255),
-    CreationTimestamp DATETIME,
-    ParentCommentId VARCHAR(255)
-);
+DROP TABLE IF EXISTS `nodetaskdependency`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `nodetaskdependency` (
+  `Id` varchar(255) NOT NULL,
+  `NodeId` varchar(255) DEFAULT NULL,
+  `DependencyNodeId` varchar(255) DEFAULT NULL,
+  `WorkflowTemplateId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_nodetaskdependency_node_id` (`NodeId`),
+  KEY `fk_nodetaskdependency_dependency_node_id` (`DependencyNodeId`),
+  KEY `fk_nodetaskdependency_workflow_template_id` (`WorkflowTemplateId`),
+  CONSTRAINT `fk_nodetaskdependency_dependency_node_id` FOREIGN KEY (`DependencyNodeId`) REFERENCES `workflowtemplatenode` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_nodetaskdependency_node_id` FOREIGN KEY (`NodeId`) REFERENCES `workflowtemplatenode` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_nodetaskdependency_workflow_template_id` FOREIGN KEY (`WorkflowTemplateId`) REFERENCES `workflowtemplate` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `notification`
+--
 
-CREATE TABLE workflowinstanceauditlog (
-    Id VARCHAR(255) PRIMARY KEY,
-    WorkflowInstanceId VARCHAR(255),
-    Log TEXT,
-    Timestamp DATETIME,
-    AccountId VARCHAR(255)
-);
+DROP TABLE IF EXISTS `notification`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notification` (
+  `Id` varchar(255) NOT NULL,
+  `RecipientId` varchar(255) DEFAULT NULL,
+  `Status` varchar(255) DEFAULT NULL,
+  `Description` text,
+  `Tags` json DEFAULT NULL,
+  `Timestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_recipient_id` (`RecipientId`),
+  CONSTRAINT `fk_recipient_id` FOREIGN KEY (`RecipientId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE notification (
-    Id VARCHAR(255) PRIMARY KEY,
-    RecipientId VARCHAR(255),
-    Status VARCHAR(255),
-    Description TEXT,
-    Tags JSON,
-    Timestamp DATETIME
-);
+--
+-- Table structure for table `onboardingemployeedetails`
+--
 
+DROP TABLE IF EXISTS `onboardingemployeedetails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `onboardingemployeedetails` (
+  `Id` varchar(255) NOT NULL,
+  `WorkflowInstanceId` varchar(255) DEFAULT NULL,
+  `DisplayName` varchar(255) DEFAULT NULL,
+  `EmailAddress` varchar(255) DEFAULT NULL,
+  `DepartmentId` varchar(255) DEFAULT NULL,
+  `OnboarderAccountId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_onboarding_employee_details_department_id` (`DepartmentId`),
+  KEY `fk_onboarding_employee_details_workflow_instance_id` (`WorkflowInstanceId`),
+  KEY `fk_onboarder_account_id` (`OnboarderAccountId`),
+  CONSTRAINT `fk_onboarder_account_id` FOREIGN KEY (`OnboarderAccountId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_onboarding_employee_details_department_id` FOREIGN KEY (`DepartmentId`) REFERENCES `department` (`DepartmentId`),
+  CONSTRAINT `fk_onboarding_employee_details_workflow_instance_id` FOREIGN KEY (`WorkflowInstanceId`) REFERENCES `workflowinstance` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `organisation`
+--
+
+DROP TABLE IF EXISTS `organisation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `organisation` (
+  `OrganisationId` varchar(255) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  PRIMARY KEY (`OrganisationId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `projectasktemplate`
+--
+
+DROP TABLE IF EXISTS `projectasktemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `projectasktemplate` (
+  `Id` varchar(255) NOT NULL,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `Brief` text,
+  `Objectives` json DEFAULT NULL,
+  `Skills` json DEFAULT NULL,
+  `SupportLinks` json DEFAULT NULL,
+  `Deliverable` varchar(255) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_project_task_task_template_id` (`TaskTemplateId`),
+  CONSTRAINT `fk_project_task_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `projecttaskinstance`
+--
+
+DROP TABLE IF EXISTS `projecttaskinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `projecttaskinstance` (
+  `Id` varchar(255) NOT NULL,
+  `TaskInstanceId` varchar(255) DEFAULT NULL,
+  `ObjectiveStates` json DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_task_instance_id` (`TaskInstanceId`),
+  CONSTRAINT `fk_task_instance_id` FOREIGN KEY (`TaskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `readdocumenttaskinstance`
+--
+
+DROP TABLE IF EXISTS `readdocumenttaskinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `readdocumenttaskinstance` (
+  `Id` varchar(255) NOT NULL,
+  `TaskInstanceId` varchar(255) DEFAULT NULL,
+  `CheckboxChecked` tinyint(1) DEFAULT NULL,
+  `LinkClicked` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_readdoc_instance_task_instance_id` (`TaskInstanceId`),
+  CONSTRAINT `fk_readdoc_instance_task_instance_id` FOREIGN KEY (`TaskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `readdocumenttasktemplate`
+--
+
+DROP TABLE IF EXISTS `readdocumenttasktemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `readdocumenttasktemplate` (
+  `Id` varchar(255) NOT NULL,
+  `TaskTemplateId` varchar(255) NOT NULL,
+  `DocumentName` varchar(255) NOT NULL,
+  `DocumentUrl` varchar(2083) NOT NULL,
+  `CheckBoxLabel` varchar(255) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_readdocumenttasktemplate_tasktemplate` (`TaskTemplateId`),
+  CONSTRAINT `fk_readdocumenttasktemplate_tasktemplate` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `reportedissue`
+--
+
+DROP TABLE IF EXISTS `reportedissue`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reportedissue` (
   `Id` varchar(255) NOT NULL,
   `TaskTemplateId` varchar(255) DEFAULT NULL,
@@ -228,243 +398,205 @@ CREATE TABLE `reportedissue` (
   `Remark` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `fk_reported_issue_issue_creator_id` (`IssueCreatorId`),
+  KEY `fk_reported_issue_task_instance_id` (`TaskInstanceId`),
+  KEY `fk_reported_issue_task_template_id` (`TaskTemplateId`),
   CONSTRAINT `fk_reported_issue_issue_creator_id` FOREIGN KEY (`IssueCreatorId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
   CONSTRAINT `fk_reported_issue_task_instance_id` FOREIGN KEY (`TaskInstanceId`) REFERENCES `taskinstance` (`TaskInstanceId`) ON DELETE CASCADE,
   CONSTRAINT `fk_reported_issue_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE
-)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE feedbacktasktemplate (
-    id VARCHAR(255) NOT NULL,
-    taskTemplateId VARCHAR(255),
-    -- 'Questions' is an array of complex types, so store it as JSON
-    questions JSON,
-    PRIMARY KEY (id),
-    FOREIGN KEY (taskTemplateId) REFERENCES tasktemplate(TaskTemplateId) ON DELETE CASCADE
-);
+--
+-- Table structure for table `taskinstance`
+--
 
-CREATE TABLE feedbacktaskinstance (
-    id VARCHAR(255) NOT NULL,
-    taskInstanceId VARCHAR(255),
-    -- 'responses' is an int array, so store as JSON
-    responses JSON,
-    PRIMARY KEY (id),
-    FOREIGN KEY (taskInstanceId) REFERENCES taskinstance(TaskInstanceId) ON DELETE CASCADE
-);
+DROP TABLE IF EXISTS `taskinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `taskinstance` (
+  `TaskInstanceId` varchar(255) NOT NULL,
+  `AssigneeAccountId` varchar(255) DEFAULT NULL,
+  `AssignerAccountId` varchar(255) DEFAULT NULL,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `CreationTimestamp` datetime DEFAULT NULL,
+  `Status` varchar(255) DEFAULT NULL,
+  `WorkflowInstanceId` varchar(255) DEFAULT NULL,
+  `WorkflowNodeId` varchar(255) DEFAULT NULL,
+  `DueDate` datetime DEFAULT NULL,
+  `WorkflowInstanceNodeId` varchar(255) DEFAULT NULL,
+  `CompletionTimestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`TaskInstanceId`),
+  KEY `fk_task_instance_assignee_account_id` (`AssigneeAccountId`),
+  KEY `fk_task_instance_assigner_account_id` (`AssignerAccountId`),
+  KEY `fk_task_instance_workflow_instance_id` (`WorkflowInstanceId`),
+  KEY `fk_task_instance_workflow_node_id` (`WorkflowNodeId`),
+  KEY `fk_task_instance_task_template_id` (`TaskTemplateId`),
+  KEY `fk_task_instance_workflow_instance_node_id` (`WorkflowInstanceNodeId`),
+  CONSTRAINT `fk_task_instance_assignee_account_id` FOREIGN KEY (`AssigneeAccountId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_task_instance_assigner_account_id` FOREIGN KEY (`AssignerAccountId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_task_instance_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_task_instance_workflow_instance_id` FOREIGN KEY (`WorkflowInstanceId`) REFERENCES `workflowinstance` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_task_instance_workflow_instance_node_id` FOREIGN KEY (`WorkflowInstanceNodeId`) REFERENCES `workflowinstancenode` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_task_instance_workflow_node_id` FOREIGN KEY (`WorkflowNodeId`) REFERENCES `workflowtemplatenode` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `tasktemplate`
+--
 
+DROP TABLE IF EXISTS `tasktemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tasktemplate` (
+  `TaskTemplateId` varchar(255) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `Description` text,
+  `CreatorAccountId` varchar(255) NOT NULL,
+  `DateCreated` datetime NOT NULL,
+  `TaskTypeId` varchar(255) NOT NULL,
+  `Status` varchar(255) NOT NULL,
+  `LastModifiedTimestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`TaskTemplateId`),
+  UNIQUE KEY `Name_UNIQUE` (`Name`),
+  KEY `fk_tasktemplate_creator` (`CreatorAccountId`),
+  KEY `fk_tasktemplate_tasktype` (`TaskTypeId`),
+  CONSTRAINT `fk_tasktemplate_creator` FOREIGN KEY (`CreatorAccountId`) REFERENCES `account` (`AccountId`),
+  CONSTRAINT `fk_tasktemplate_tasktype` FOREIGN KEY (`TaskTypeId`) REFERENCES `tasktype` (`TaskTypeId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `organisation` (`OrganisationId`, `Name`) VALUES ('organisation', 'My Org');
+--
+-- Table structure for table `tasktype`
+--
 
-INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('checklist', 'Checklist');
-INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('upload-document', 'Upload Document');
-INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('read-document', 'Read Document');
-INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('project-task', 'Project Task');
-INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('feedback', 'Feedback Task');
+DROP TABLE IF EXISTS `tasktype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tasktype` (
+  `TaskTypeId` varchar(255) NOT NULL,
+  `TaskName` varchar(255) NOT NULL,
+  PRIMARY KEY (`TaskTypeId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `account` (`AccountId`, `DisplayName`, `EmailAddress`, `HashedPassword`, `IsSupervisor`, `DepartmentId`, `OrganisationId`, `AccountStatus`) VALUES ('21cd6d67-b9a5-46ff-b262-88d4ba12ba2f', 'Jane Doe', 'user4@test.com', '6C401F2BD62E73B2055055BFA471078F6BC94D1DA382B0A156BE4443A6A6281C', '1', 'hr', 'organisation', 'registered');
+--
+-- Table structure for table `workflowinstance`
+--
 
+DROP TABLE IF EXISTS `workflowinstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflowinstance` (
+  `Id` varchar(255) NOT NULL,
+  `WorkflowTemplateId` varchar(255) NOT NULL,
+  `SupervisorAccountId` varchar(255) DEFAULT NULL,
+  `CreationTimestamp` datetime DEFAULT NULL,
+  `MainflowStartTimestamp` datetime DEFAULT NULL,
+  `CompletionTimestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_workflow_instance_workflow_template_id` (`WorkflowTemplateId`),
+  KEY `fk_workflow_instance_supervisor_account_id` (`SupervisorAccountId`),
+  CONSTRAINT `fk_workflow_instance_supervisor_account_id` FOREIGN KEY (`SupervisorAccountId`) REFERENCES `account` (`AccountId`),
+  CONSTRAINT `fk_workflow_instance_workflow_template_id` FOREIGN KEY (`WorkflowTemplateId`) REFERENCES `workflowtemplate` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-ALTER TABLE organisationAdminLink 
-ADD CONSTRAINT fk_orgAdminLink_organisation FOREIGN KEY (OrganisationId) REFERENCES organisation(OrganisationId);
+--
+-- Table structure for table `workflowinstanceauditlog`
+--
 
-ALTER TABLE organisationAdminLink 
-ADD CONSTRAINT fk_orgAdminLink_account FOREIGN KEY (AccountId) REFERENCES account(AccountId);
+DROP TABLE IF EXISTS `workflowinstanceauditlog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflowinstanceauditlog` (
+  `Id` varchar(255) NOT NULL,
+  `WorkflowInstanceId` varchar(255) DEFAULT NULL,
+  `Log` text,
+  `Timestamp` datetime DEFAULT NULL,
+  `AccountId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_workflow_audit_logworkflow_instance_id` (`WorkflowInstanceId`),
+  KEY `fk_workflow_audit_log_account_id` (`AccountId`),
+  CONSTRAINT `fk_workflow_audit_log_account_id` FOREIGN KEY (`AccountId`) REFERENCES `account` (`AccountId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_workflow_audit_logworkflow_instance_id` FOREIGN KEY (`WorkflowInstanceId`) REFERENCES `workflowinstance` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `workflowinstancenode`
+--
 
-ALTER TABLE account
-ADD FOREIGN KEY (OrganisationId) REFERENCES organisation(OrganisationId);
+DROP TABLE IF EXISTS `workflowinstancenode`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflowinstancenode` (
+  `Id` varchar(255) NOT NULL,
+  `WorkflowInstanceId` varchar(255) DEFAULT NULL,
+  `WorkflowTemplateId` varchar(255) DEFAULT NULL,
+  `Status` varchar(255) DEFAULT NULL,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `WorkflowTemplateNodeId` varchar(255) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_workflow_instance_id` (`WorkflowInstanceId`),
+  KEY `fk_workflow_template_id` (`WorkflowTemplateId`),
+  KEY `fk_node_instance_task_template_id` (`TaskTemplateId`),
+  KEY `fk_node_instance_workflow_template_node_id` (`WorkflowTemplateNodeId`),
+  CONSTRAINT `fk_node_instance_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_node_instance_workflow_template_node_id` FOREIGN KEY (`WorkflowTemplateNodeId`) REFERENCES `workflowtemplatenode` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_workflow_instance_id` FOREIGN KEY (`WorkflowInstanceId`) REFERENCES `workflowinstance` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_workflow_template_id` FOREIGN KEY (`WorkflowTemplateId`) REFERENCES `workflowtemplate` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-ALTER TABLE account
-ADD FOREIGN KEY (DepartmentId) REFERENCES department(DepartmentId);
+--
+-- Table structure for table `workflowtemplate`
+--
 
-ALTER TABLE tasktemplate 
-ADD CONSTRAINT fk_tasktemplate_creator FOREIGN KEY (CreatorAccountId) 
-REFERENCES account (AccountId);
+DROP TABLE IF EXISTS `workflowtemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflowtemplate` (
+  `Id` varchar(255) NOT NULL,
+  `IsOnboardingWF` tinyint(1) DEFAULT NULL,
+  `Name` varchar(255) DEFAULT NULL,
+  `Description` text,
+  `Status` varchar(255) NOT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-ALTER TABLE tasktemplate 
-ADD CONSTRAINT fk_tasktemplate_tasktype FOREIGN KEY (TaskTypeId) 
-REFERENCES tasktype (TaskTypeId);
+--
+-- Table structure for table `workflowtemplatenode`
+--
 
-ALTER TABLE fileuploadtasktemplate 
-ADD CONSTRAINT fk_fileuploadtasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
-REFERENCES tasktemplate (TaskTemplateId)
-ON DELETE CASCADE;
+DROP TABLE IF EXISTS `workflowtemplatenode`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflowtemplatenode` (
+  `Id` varchar(255) NOT NULL,
+  `WorkflowTemplateId` varchar(255) DEFAULT NULL,
+  `TaskTemplateId` varchar(255) DEFAULT NULL,
+  `AssigneeId` varchar(255) DEFAULT NULL,
+  `Order` int DEFAULT NULL,
+  `WorkflowSection` varchar(255) DEFAULT NULL,
+  `DaysUntilDue` int DEFAULT NULL,
+  `AccountsToNotify` json DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `fk_workflow_template_node_task_template_id` (`TaskTemplateId`),
+  KEY `fk_workflow_template_node_workflow_template_id` (`WorkflowTemplateId`),
+  CONSTRAINT `fk_workflow_template_node_task_template_id` FOREIGN KEY (`TaskTemplateId`) REFERENCES `tasktemplate` (`TaskTemplateId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_workflow_template_node_workflow_template_id` FOREIGN KEY (`WorkflowTemplateId`) REFERENCES `workflowtemplate` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-ALTER TABLE readdocumenttasktemplate 
-ADD CONSTRAINT fk_readdocumenttasktemplate_tasktemplate FOREIGN KEY (TaskTemplateId) 
-REFERENCES tasktemplate (TaskTemplateId)
-ON DELETE CASCADE;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-ALTER TABLE checklisttasktemplate
-ADD CONSTRAINT fk_task_template_id
-FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
-ON DELETE CASCADE;
-
-ALTER TABLE taskinstance
-    ADD CONSTRAINT fk_task_instance_assignee_account_id
-    FOREIGN KEY (AssigneeAccountId) REFERENCES account(AccountId);
-
-ALTER TABLE taskinstance
-    ADD CONSTRAINT fk_task_instance_assigner_account_id
-    FOREIGN KEY (AssignerAccountId) REFERENCES account(AccountId);
-
-ALTER TABLE taskinstance
-    ADD CONSTRAINT fk_task_instance_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
-    ON DELETE CASCADE;
-
-ALTER TABLE taskinstance
-    ADD CONSTRAINT fk_task_instance_workflow_instance_id
-    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id);
-
-ALTER TABLE taskinstance    
-    ADD CONSTRAINT fk_task_instance_workflow_instance_node_id
-    FOREIGN KEY (WorkflowInstanceNodeId) REFERENCES workflowinstancenode(Id);
-
-
-ALTER TABLE checklisttaskinstance
-    ADD CONSTRAINT fk_checklist_instance_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
-
-ALTER TABLE readdocumenttaskinstance
-    ADD CONSTRAINT fk_readdoc_instance_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
-    ON DELETE CASCADE; 
-
-ALTER TABLE document
-    ADD CONSTRAINT fk_document_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
-    ON DELETE CASCADE;
-
-ALTER TABLE document
-    ADD CONSTRAINT fk_document_creator_id
-    FOREIGN KEY (CreatorId) REFERENCES account(AccountId)
-    ON DELETE CASCADE;
-
-ALTER TABLE fileuploadtaskinstance
-    ADD CONSTRAINT fk_file_upload_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId);
-
-ALTER TABLE fileuploadtaskinstance
-    ADD CONSTRAINT fk_file_upload_document_id
-    FOREIGN KEY (DocumentId) REFERENCES document(Id);
-
-/* Workflow Template Node Constraints */
-ALTER TABLE workflowtemplatenode
-    ADD CONSTRAINT  fk_workflow_template_node_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
-    ON DELETE CASCADE;
-
-ALTER TABLE workflowtemplatenode
-    ADD CONSTRAINT fk_workflow_template_node_workflow_template_id
-    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
-    ON DELETE CASCADE;
-
-/* No constraint for assigneId because of resevered placeholder ids i.e. onboarder */
-
-ALTER TABLE nodetaskdependency
-    ADD CONSTRAINT fk_nodetaskdependency_node_id
-    FOREIGN KEY (NodeId) REFERENCES workflowtemplatenode(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE nodetaskdependency
-    ADD CONSTRAINT fk_nodetaskdependency_dependency_node_id
-    FOREIGN KEY (DependencyNodeId) REFERENCES workflowtemplatenode(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE nodetaskdependency
-    ADD CONSTRAINT fk_nodetaskdependency_workflow_template_id
-    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
-    ON DELETE CASCADE;
-
-/* Workflow instance */
-ALTER TABLE workflowinstance
-    ADD CONSTRAINT fk_workflow_instance_workflow_template_id
-    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE workflowinstance
-    ADD CONSTRAINT fk_workflow_instance_supervisor_account_id
-    FOREIGN KEY (SupervisorAccountId) REFERENCES account(AccountId);
-
-ALTER TABLE onboardingemployeedetails
-    ADD CONSTRAINT fk_onboarding_employee_details_workflow_instance_id
-    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE onboardingemployeedetails
-    ADD CONSTRAINT fk_onboarding_employee_details_department_id
-    FOREIGN KEY (DepartmentId) REFERENCES department(DepartmentId);
-
-ALTER TABLE onboardingemployeedetails
-    ADD CONSTRAINT fk_onboarder_account_id
-    FOREIGN KEY (OnboarderAccountId) REFERENCES account(AccountId);
-
-/* Workflow instance node */
-ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_node_instance_workflow_instance_id
-    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_node_instance_workflow_template_id
-    FOREIGN KEY (WorkflowTemplateId) REFERENCES workflowtemplate(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_node_instance_workflow_template_node_id
-    FOREIGN KEY (WorkflowTemplateNodeId) REFERENCES workflowtemplatenode(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE workflowinstancenode
-    ADD CONSTRAINT fk_node_instance_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
-    ON DELETE CASCADE;
-
-/* Comment table constraints */
-ALTER TABLE comment
-    ADD CONSTRAINT fk_comment_commenter_id
-    FOREIGN KEY (CommenterId) REFERENCES account(AccountId)
-    ON DELETE CASCADE;
-
-ALTER TABLE comment
-    ADD CONSTRAINT fk_comment__task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId);
-
-ALTER TABLE comment
-    ADD CONSTRAINT fk_comment_parent_comment_id
-    FOREIGN KEY (ParentCommentId) REFERENCES comment(Id);
-
-/* Document table constraints */
-ALTER TABLE documentaccesslink
-    ADD CONSTRAINT fk_document_access_document_id
-    FOREIGN KEY (DocumentId) REFERENCES document(Id)
-    ON DELETE CASCADE;
-
-/* Project Task Template */
-ALTER TABLE projectasktemplate
-    ADD CONSTRAINT fk_project_task_task_template_id
-    FOREIGN KEY (TaskTemplateId) REFERENCES tasktemplate(TaskTemplateId)
-    ON DELETE CASCADE;
-
-ALTER TABLE projecttaskinstance
-    ADD CONSTRAINT fk_task_instance_id
-    FOREIGN KEY (TaskInstanceId) REFERENCES taskinstance(TaskInstanceId)
-    ON DELETE CASCADE;
-
-/* Workflow instance Audit Log constraints */
-ALTER TABLE workflowinstanceauditlog
-    ADD CONSTRAINT fk_workflow_audit_logworkflow_instance_id
-    FOREIGN KEY (WorkflowInstanceId) REFERENCES workflowinstance(Id)
-    ON DELETE CASCADE;
-
-ALTER TABLE workflowinstanceauditlog
-    ADD CONSTRAINT fk_workflow_audit_log_account_id
-    FOREIGN KEY (AccountId) REFERENCES account(AccountId)
-    ON DELETE CASCADE;
-    
-/* Notification constraints */
-ALTER TABLE notification
-    ADD CONSTRAINT fk_recipient_id
-    FOREIGN KEY (RecipientId) REFERENCES account(AccountId)
-    ON DELETE CASCADE;
+-- Dump completed on 2025-05-12 21:33:57
