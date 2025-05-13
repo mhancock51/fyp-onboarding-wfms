@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: onboarding-wfms-db-service
+    environment:
+      MYSQL_ROOT_PASSWORD: pword123
+      MYSQL_DATABASE: onboarding-wfms-db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  backend:
+    build:
+      context: ./fyp-backend
+      dockerfile: OnboardingWFMSApi/Dockerfile
+    container_name: backend
+    depends_on:
+      - mysql
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=appdb;User=appuser;Password=apppassword;
+    ports:
+      - "5000:80"
+
+  frontend:
+    build:
+      context: ./fyp-frontend
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_SERVICE_ROUTE_URL=http://localhost:5000
+
+volumes:
+  mysql_data:
