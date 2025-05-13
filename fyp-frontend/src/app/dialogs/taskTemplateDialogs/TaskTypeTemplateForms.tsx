@@ -20,7 +20,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ChecklistForm from '@/components/ChecklistForm';
-import Select from 'react-select';
+import Select, { ActionMeta, MultiValue } from 'react-select';
 import { FeedbackTaskTemplate, LikertQuestion } from '@/models/tasks/FeedbackTaskTemplate';
 
 export function ChecklistTemplateCreationForm(props: { initialTaskData?: ChecklistTaskTemplate, restrictInputs: boolean, updateTaskTypeData: (data: any) => void; backButtonClick: () => void;}) {
@@ -164,7 +164,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
           className='w-100'
           options={FILE_EXTENSION_OPTIONS} 
           value={FILE_EXTENSION_OPTIONS.filter(o => fileExtensions.includes(o.value))}
-          onChange={(options: any[]) => { setFileExtensions(options.map((option) => (option.value)));}}
+          onChange={(options: MultiValue<{ label: string; value: string; }>, actionMeta: ActionMeta<{ label: string; value: string; }>) => {setFileExtensions(options.map((option) => (option.value)));}}          
           isMulti={true}          
         />        
       </div>
@@ -173,8 +173,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
         <Select
           className='w-100'
           options={ACCOUNTS}
-          onChange={(options: any[]) => {setAccessAccountIds(options.map((option) => (option.value)));}}
-          value={accessAccountIds.map((accountId) => (ACCOUNTS.find(a => a.value === accountId)))} 
+          onChange={(options: MultiValue<{ label: string; value: string; }>, actionMeta: ActionMeta<{ label: string; value: string; }>) => {setAccessAccountIds(options.map((option) => (option.value)));}}                    
           isMulti={true}      
         />
         
