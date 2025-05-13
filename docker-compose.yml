@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: onboarding-wfms-db-service
+    container_name: db-service
     environment:
       MYSQL_ROOT_PASSWORD: pword123
       MYSQL_DATABASE: onboarding-wfms-db
@@ -14,7 +14,7 @@ services:
     build:
       context: ./fyp-backend     
       dockerfile: OnboardingWFMSApi/Dockerfile 
-    container_name: backend
+    container_name: wfm-backend
     depends_on:
       - mysql
     environment:
@@ -26,7 +26,7 @@ services:
   frontend:
     build:
       context: ./fyp-frontend
-    container_name: frontend
+    container_name: wfm-frontend
     depends_on:
       - backend
     ports:
