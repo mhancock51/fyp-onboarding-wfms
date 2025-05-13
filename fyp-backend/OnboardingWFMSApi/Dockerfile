@@ -1,26 +1,34 @@
-# Use the official .NET SDK image as the base image for building the app
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /source
+# Use the official .NET SDK image to build the application
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
-# Copy the solution file
-COPY OnboardingWFMSApi/OnboardingWFMSApi.sln . 
-
-# Copy each .csproj file and restore as distinct layers
-COPY OnboardingWFMSApi/OnboardingWFMSApi.BusinessLogic/OnboardingWFMSApi.BusinessLogic.csproj ./OnboardingWFMSApi.BusinessLogic/
-COPY OnboardingWFMSApi/OnboardingWFMSApi.DataAccess/OnboardingWFMSApi.DataAccess.csproj ./OnboardingWFMSApi.DataAccess/
-COPY OnboardingWFMSApi/OnboardingWFMSApi.DataModels/OnboardingWFMSApi.DataModels.csproj ./OnboardingWFMSApi.DataModels/
-COPY OnboardingWFMSApi/OnboardingWFMSApi.Presentation/OnboardingWFMSApi.Presentation.csproj ./OnboardingWFMSApi.Presentation/
-
-# Restore dependencies
-RUN dotnet restore
-
-# Copy everything else and build the app
-COPY OnboardingWFMSApi/. ./OnboardingWFMSApi/
-WORKDIR /source/OnboardingWFMSApi
-RUN dotnet publish -c release -o /app --no-restore
-
-# Final stage/image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+# Set the working directory inside the container
 WORKDIR /app
-COPY --from=build /app ./ 
-ENTRYPOINT ["dotnet", "OnboardingWFMSApi.dll"]  
+
+# Copy the solution file and restore dependencies
+COPY fyp-backend/OnboardingWFMSApi/*.sln ./
+COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.BusinessLogic/OnboardingWFMSApi.BusinessLogic.csproj ./OnboardingWFMSApi.BusinessLogic/
+COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.DataAccess/OnboardingWFMSApi.DataAccess.csproj ./OnboardingWFMSApi.DataAccess/
+COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.DataModels/OnboardingWFMSApi.DataModels.csproj ./OnboardingWFMSApi.DataModels/
+COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.Presentation/OnboardingWFMSApi.Presentation.csproj ./OnboardingWFMSApi.Presentation/
+
+# Restore the dependencies
+RUN dotnet restore OnboardingWFMSApi.sln
+
+# Copy all the source files and build the solution
+COPY fyp-backend/OnboardingWFMSApi/. ./
+RUN dotnet build OnboardingWFMSApi.sln -c Release -o /app/build
+
+# Publish the application
+FROM build AS publish
+RUN dotnet publish OnboardingWFMSApi.sln -c Release -o /app/publish
+
+# Use the official .NET runtime image to run the application
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 80
+
+# Copy the published application from the build container
+COPY --from=publish /app/publish .
+
+# Set the entry point to the application
+ENTRYPOINT ["dotnet", "OnboardingWFMSApi.dll"]
