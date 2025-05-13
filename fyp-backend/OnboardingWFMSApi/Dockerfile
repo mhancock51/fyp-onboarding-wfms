@@ -5,17 +5,17 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app
 
 # Copy the solution file and restore dependencies
-COPY fyp-backend/OnboardingWFMSApi/*.sln ./
-COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.BusinessLogic/OnboardingWFMSApi.BusinessLogic.csproj ./OnboardingWFMSApi.BusinessLogic/
-COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.DataAccess/OnboardingWFMSApi.DataAccess.csproj ./OnboardingWFMSApi.DataAccess/
-COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.DataModels/OnboardingWFMSApi.DataModels.csproj ./OnboardingWFMSApi.DataModels/
-COPY fyp-backend/OnboardingWFMSApi/OnboardingWFMSApi.Presentation/OnboardingWFMSApi.Presentation.csproj ./OnboardingWFMSApi.Presentation/
+COPY ./OnboardingWFMSApi/*.sln ./
+COPY ./OnboardingWFMSApi/OnboardingWFMSApi.BusinessLogic/OnboardingWFMSApi.BusinessLogic.csproj ./OnboardingWFMSApi.BusinessLogic/
+COPY ./OnboardingWFMSApi/OnboardingWFMSApi.DataAccess/OnboardingWFMSApi.DataAccess.csproj ./OnboardingWFMSApi.DataAccess/
+COPY ./OnboardingWFMSApi/OnboardingWFMSApi.DataModels/OnboardingWFMSApi.DataModels.csproj ./OnboardingWFMSApi.DataModels/
+COPY ./OnboardingWFMSApi/OnboardingWFMSApi.Presentation/OnboardingWFMSApi.Presentation.csproj ./OnboardingWFMSApi.Presentation/
 
 # Restore the dependencies
 RUN dotnet restore OnboardingWFMSApi.sln
 
 # Copy all the source files and build the solution
-COPY fyp-backend/OnboardingWFMSApi/. ./
+COPY ./OnboardingWFMSApi/. ./
 RUN dotnet build OnboardingWFMSApi.sln -c Release -o /app/build
 
 # Publish the application
