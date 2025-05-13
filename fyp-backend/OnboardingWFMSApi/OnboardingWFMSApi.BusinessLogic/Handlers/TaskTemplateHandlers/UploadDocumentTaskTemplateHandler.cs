@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
@@ -25,7 +26,7 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
             ".docx",
         };
 
-        public UploadDocumentTaskTemplateHandler(IFileUploadTaskTemplateRepository repository) : base(repository)
+        public UploadDocumentTaskTemplateHandler(ITaskTemplateRepository<FileUploadTaskTemplateTable> repository, ILogger<BaseTaskTemplateHandler<FileUploadTaskTemplateTable>> logger) : base(repository, logger)
         {
         }
 

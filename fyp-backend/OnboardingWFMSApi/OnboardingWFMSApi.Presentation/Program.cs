@@ -24,6 +24,7 @@ using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Reflection;
 using System.Text;
@@ -43,10 +44,10 @@ builder.Services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
 builder.Services.AddScoped<ITaskTemplateRepository, TaskTemplateRepository>();
 
 builder.Services.AddScoped<IFileUploadTaskTemplateRepository, FileUploadTaskTemplateRepository>();
-builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTaskTemplateRepository>();
-builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTemplateRepository>();
-builder.Services.AddScoped<IProjectTaskTemplateRepository, ProjectTaskTemplateRepository>();
-builder.Services.AddScoped<IFeedbackTaskTemplateRepository, FeedbackTaskTemplateRepository>();
+builder.Services.AddScoped<ITaskTemplateRepository<ChecklistTaskTemplateTable>, ChecklistTaskTemplateRepository>();
+builder.Services.AddScoped<ITaskTemplateRepository<FileUploadTaskTemplateTable>, FileUploadTaskTemplateRepository>();
+builder.Services.AddScoped<ITaskTemplateRepository<ProjectTaskTemplateTable>, ProjectTaskTemplateRepository>();
+builder.Services.AddScoped<ITaskTemplateRepository<FeedbackTaskTemplateTable>, FeedbackTaskTemplateRepository>();
 
 builder.Services.AddScoped<ITaskInstanceRepository, TaskInstanceRepository>();
 
@@ -55,6 +56,11 @@ builder.Services.AddScoped<IReadDocumentTaskInstanceRepository, ReadDocumentTask
 builder.Services.AddScoped<IFileUploadTaskInstanceRepository, FileUploadTaskInstanceRepository>();
 builder.Services.AddScoped<IProjectTaskInstanceRepository, ProjectTaskInstanceRepository>();
 builder.Services.AddScoped<IFeedbackTaskInstanceRepository, FeedbackTaskInstanceRepository>();
+
+builder.Services.AddScoped<IReadDocumentTaskTemplateRepository, ReadDocumentTaskTemplateRepository>();
+builder.Services.AddScoped<IChecklistTaskTemplateRepository, ChecklistTaskTemplateRepository>();
+builder.Services.AddScoped<IProjectTaskTemplateRepository, ProjectTaskTemplateRepository>();
+
 
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IDocumentAccessLinkRepository, DocumentAccessLinkRepository>();

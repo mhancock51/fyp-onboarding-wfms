@@ -1,4 +1,5 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
@@ -18,9 +19,8 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 
     public class ChecklistTaskTemplateHandler : BaseTaskTemplateHandler<ChecklistTaskTemplateTable>, IChecklistTaskTemplateHandler
     {
-        public ChecklistTaskTemplateHandler(IChecklistTaskTemplateRepository repository) : base(repository)
+        public ChecklistTaskTemplateHandler(ITaskTemplateRepository<ChecklistTaskTemplateTable> repository, ILogger<BaseTaskTemplateHandler<ChecklistTaskTemplateTable>> logger) : base(repository, logger)
         {
-
         }
 
         public string GetTaskTypeId()

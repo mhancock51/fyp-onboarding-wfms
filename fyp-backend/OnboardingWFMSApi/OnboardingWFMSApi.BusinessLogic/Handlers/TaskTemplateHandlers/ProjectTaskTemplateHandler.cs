@@ -1,4 +1,6 @@
-﻿using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+﻿using Microsoft.Extensions.Logging;
+using OnboardingWFMSApi.DataAccess.Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
@@ -17,9 +19,8 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
 
     public class ProjectTaskTemplateHandler : BaseTaskTemplateHandler<ProjectTaskTemplateTable>, IProjectTaskTemplateHandler
     {
-        public ProjectTaskTemplateHandler(IProjectTaskTemplateRepository repository) : base(repository)
+        public ProjectTaskTemplateHandler(ITaskTemplateRepository<ProjectTaskTemplateTable> repository, ILogger<BaseTaskTemplateHandler<ProjectTaskTemplateTable>> logger) : base(repository, logger)
         {
-
         }
 
         public string GetTaskTypeId()
