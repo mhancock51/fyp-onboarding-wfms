@@ -2,6 +2,10 @@
 FROM node:18 AS build
 WORKDIR /app
 
+ARG VITE_BACKEND_SERVICE_ROUTE_URL
+# Set it as an environment variable for Vite to read
+ENV VITE_BACKEND_SERVICE_ROUTE_URL=$VITE_BACKEND_SERVICE_ROUTE_URL
+
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 

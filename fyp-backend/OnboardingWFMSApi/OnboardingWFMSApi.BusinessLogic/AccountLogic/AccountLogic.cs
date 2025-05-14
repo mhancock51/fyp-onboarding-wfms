@@ -158,6 +158,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Failed to invite user: {ex}");
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Failed to invite user" };
             }
 

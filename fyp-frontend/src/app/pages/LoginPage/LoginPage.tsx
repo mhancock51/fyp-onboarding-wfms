@@ -86,7 +86,7 @@ export default function LoginPage() {
         <CardFooter className='flex flex-row w-full justify-center'>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
-            <a href="/register" className="underline underline-offset-4">Sign up</a>
+            <a onClick={() => navigate("/register")} className="underline underline-offset-4 cursor-pointer">Sign up</a>
           </div>
         </CardFooter>
       </Card>

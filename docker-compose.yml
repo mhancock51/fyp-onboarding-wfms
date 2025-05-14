@@ -19,20 +19,19 @@ services:
       - mysql
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=appdb;User=appuser;Password=apppassword;
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=onboarding-wfms-db;User=root;Password=pword123;
     ports:
       - "5000:80"
-
   frontend:
     build:
       context: ./fyp-frontend
+      args:
+        VITE_BACKEND_SERVICE_ROUTE_URL: http://localhost:5000/api
     container_name: wfm-frontend
     depends_on:
       - backend
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_BACKEND_SERVICE_ROUTE_URL=http://localhost:5000
+      - "5173:80"
 
 volumes:
   mysql_data:

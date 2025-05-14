@@ -16,6 +16,8 @@ import { FeedbackTaskInstance } from './models/tasks/FeedbackTaskInstance';
 import { parseArgs } from 'util';
 const ROUTE_URL = import.meta.env.VITE_BACKEND_SERVICE_ROUTE_URL;
 
+console.log("Test:", ROUTE_URL);
+
 const AuthInstance = axios.create();
 AuthInstance.interceptors.request.use((config: any) => {
   const token = store.getState().app.user?.jwtToken;

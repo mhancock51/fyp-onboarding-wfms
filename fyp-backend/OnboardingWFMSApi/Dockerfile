@@ -1,34 +1,37 @@
-# Use the official .NET 8.0 SDK image to build the application
+# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the solution file and restore dependencies
+# Copy the solution and project files
 COPY ./OnboardingWFMSApi/*.sln ./
 COPY ./OnboardingWFMSApi/OnboardingWFMSApi.BusinessLogic/OnboardingWFMSApi.BusinessLogic.csproj ./OnboardingWFMSApi.BusinessLogic/
 COPY ./OnboardingWFMSApi/OnboardingWFMSApi.DataAccess/OnboardingWFMSApi.DataAccess.csproj ./OnboardingWFMSApi.DataAccess/
 COPY ./OnboardingWFMSApi/OnboardingWFMSApi.DataModels/OnboardingWFMSApi.DataModels.csproj ./OnboardingWFMSApi.DataModels/
 COPY ./OnboardingWFMSApi/OnboardingWFMSApi.Presentation/OnboardingWFMSApi.Presentation.csproj ./OnboardingWFMSApi.Presentation/
 
-# Restore the dependencies
-RUN dotnet restore OnboardingWFMSApi.sln
+# Restore dependencies
+RUN dotnet restore
 
-# Copy all the source files and build the solution
+# Copy the rest of the source code
 COPY ./OnboardingWFMSApi/. ./
+
+# Build the solution
 RUN dotnet build OnboardingWFMSApi.sln -c Release -o /app/build
 
-# Publish the application
+# Stage 2: Publish
 FROM build AS publish
-RUN dotnet publish OnboardingWFMSApi.sln -c Release -o /app/publish
+RUN dotnet publish ./OnboardingWFMSApi.Presentation/OnboardingWFMSApi.Presentation.csproj -c Release -o /app/publish
 
-# Use the official .NET 8.0 runtime image to run the application
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Stage 3: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+
 WORKDIR /app
 EXPOSE 80
 
-# Copy the published application from the build container
+# Copy published output
 COPY --from=publish /app/publish .
 
-# Set the entry point to the application
-ENTRYPOINT ["dotnet", "OnboardingWFMSApi.dll"]
+# Set the entrypoint
+ENTRYPOINT ["dotnet", "OnboardingWFMSApi.Presentation.dll"]
