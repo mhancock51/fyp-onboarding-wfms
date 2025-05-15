@@ -19,18 +19,22 @@ namespace OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers
         public BaseTaskTemplateHandler(ITaskTemplateRepository<TTaskType> repository, ILogger<BaseTaskTemplateHandler<TTaskType>> logger)
         {
             _repository = repository;
-            _logger = logger;
-        }
-
-        protected BaseTaskTemplateHandler(IReadDocumentTaskTemplateRepository repository)
-        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<ServerResponse<object, string>> FetchTaskTemplateData(string taskTemplateId)
-        {            
-            var taskInstanceMetaData = await _repository.GetByTaskTemplateId(taskTemplateId);
-            return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
-                : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
+        {
+            try
+            {
+                var taskInstanceMetaData = await _repository.GetByTaskTemplateId(taskTemplateId);
+                return taskInstanceMetaData == null ? new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task instance metadata" }
+                    : new ServerResponse<object, string>() { Success = true, Data = taskInstanceMetaData };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"Failed to retrieve task template data for task template {taskTemplateId}: {ex}");
+                return new ServerResponse<object, string>() { Success = false, Error = "Failed to retrieve task template data" };
+            }            
         }
 
         public virtual async Task<ServerResponse<string, string>> CreateTaskTemplateData(object taskTypeData, string taskTemplateId)
