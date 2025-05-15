@@ -14,8 +14,8 @@ interface Props {
   comments: CommentDTO[];
   comment: string;
   parentCommentId: string;
-  setComment: React.Dispatch<SetStateAction<string>>;
-  setParentCommentId: React.Dispatch<SetStateAction<string>>;
+  setComment: (comment: string) => void;
+  setParentCommentId: (parentCommentId: string) => void;
   postComment: () => Promise<void>;
 }
 
@@ -39,7 +39,7 @@ export default function CommentSection(props: Props) {
             <NoResults text={'No comments on this task template yet'}/>
           }
           {
-            !props.loadingComments && props.comments.length > 0 && 
+            !props.loadingComments && 
             <GroupedComments comments={props.comments} setParentCommentId={props.setParentCommentId}/>
           }
           {

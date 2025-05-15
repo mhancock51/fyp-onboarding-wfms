@@ -21,7 +21,7 @@ import { AccordionTrigger } from '@radix-ui/react-accordion';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import CommentDTO from '@/models/DTOs/CommentDTO';
-import { Flag, MessageSquareMore, } from 'lucide-react';
+import { Check, Flag, MessageSquareMore, } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import CommentSection from '@/components/CommentSection';
 import ProjectTask from './ProjectTask';
@@ -34,6 +34,8 @@ import FeedbackTask from './FeedbackTask';
 import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
 import { Spinner } from '@/components/ui/spinner';
+import { Progress } from '@/components/ui/progress';
+import CommentState from '@/models/CommentState';
 
 interface Props {
   open: boolean;
@@ -44,18 +46,21 @@ interface Props {
 
 export default function TaskDrawer(props: Props) {  
   const [canCompleteTask, setCanCompleteTask] = useState<boolean>(false);
-  const [comments, setComments] = useState<CommentDTO[]>([]);
-
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [loadingComments, setLoadingComments] = useState<boolean>(false);
-  const [postingComment, setPostingComment] = useState<boolean>(false);
+  const [commentState, setCommentState] = useState<CommentState>({
+    loadingComments: false,
+    postingComment: false,
+    comment: "",
+    parentCommentId: "",
+    comments: []
+  })
 
-  const [comment, setComment] = useState<string>("");
-  const [parentCommentId, setParentCommentId] = useState<string>("");
 
   const [updatedTaskInstance, setUpdatedTaskInstance] = useState<ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null>(null);
   const [instanceHasChanged, setInstanceHasChanged] = useState<boolean>(false);
+
+  const [progress, setProgress] = useState<number>(0);
 
   const dispatch = useDispatch();
 
@@ -81,32 +86,32 @@ export default function TaskDrawer(props: Props) {
   }
 
   async function postComment() {
-    setPostingComment(true);
-    await Api.postTaskTemplateComment(props.task.taskTemplateId, comment, parentCommentId)
-    .then(() => {      
-      setComment("");
+    setCommentState(prevState => ({...prevState, postingComment: true}));    
+    await Api.postTaskTemplateComment(props.task.taskTemplateId, commentState.comment, commentState.parentCommentId)
+    .then(() => {    
+      setCommentState(prevState => ({...prevState, comment: ""}));      
       void fetchComments();
     })
     .catch(() => {
-      toast.error("Failed to post comment");
+      toast.error("Failed to post comment");      
     })
     .finally(() => {
-      setPostingComment(false);
+      setCommentState(prevState => ({...prevState, postingComment: false}));      
     })
   }
 
   async function fetchComments() {
-    setLoadingComments(true);
+    setCommentState(prevState => ({...prevState, loadingComments: true}));    
     await Api.fetchTaskTemplateComments(props.task.taskTemplateId)
     .then((response: AxiosResponse<HTTPresponse<CommentDTO[], string>>) => {
-      setComments(response.data.data);
+      setCommentState(prevState => ({...prevState, comments: response.data.data}));      
+      console.log(response.data.data);
     })
-    .catch((error) => {
-      console.error("EEE:", error);
+    .catch((error) => {      
       toast.error("Failed to retrieve comments for task template");
     })
     .finally(() => {
-      setLoadingComments(false);
+      setCommentState(prevState => ({...prevState, loadingComments: false}));
     })
   }
 
@@ -136,8 +141,8 @@ export default function TaskDrawer(props: Props) {
   }
   
   useEffect(() => {
-    setComments([]);
-    setParentCommentId("");
+    setCommentState(prevState => ({...prevState, comments: [], parentCommentId: ""}));
+
     if (props.task.taskTemplateId !== "") {
       void fetchComments();
     }
@@ -146,7 +151,29 @@ export default function TaskDrawer(props: Props) {
   useEffect(() => {
     setUpdatedTaskInstance(props.task.instanceData);
     setInstanceHasChanged(false);
+    setProgress(getProgress(props.task.instanceData));
   }, [props.task]);
+
+  useEffect(() => {
+    if (updatedTaskInstance !== null) {
+      setProgress(getProgress(updatedTaskInstance));
+    }
+  }, [updatedTaskInstance]);  
+
+  function getProgress(taskInstanceData: ChecklistTaskInstance | ReadDocumentTaskInstance | FileUploadTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) {    
+    if (props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST) {      
+      const checkedTasks = ((taskInstanceData || updatedTaskInstance) as ChecklistTaskInstance).itemCompletionStatuses.filter(i => i === true).length;            
+      const totalTasks = (props.task.template.taskTypeData as ChecklistTaskTemplate).items.length;       
+      const progress = (checkedTasks / totalTasks) * 100;      
+      return progress;
+    }
+    else if (props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT) {
+      return ((taskInstanceData || updatedTaskInstance) as FileUploadTaskInstance).documentId === "" ? 0 : 100;
+    }
+    else {
+      return 50;
+    }
+  }
 
   return (
     <Drawer direction='right'  onClose={handleClose} open={props.open}>
@@ -164,9 +191,9 @@ export default function TaskDrawer(props: Props) {
           </div>
           <div className='flex flex-row w-full text-center justify-center'>
             <Label className='font-normal'>{props.task.template.description}</Label>
-          </div>
+          </div>                           
         </div>
-        <div className='flex-9 flex flex-col min-h-[40vh]'>
+        <div className='flex-9 flex flex-col min-h-[40vh] gap-2'>
           {
             props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.CHECKLIST &&
             <ChecklistTask 
@@ -226,16 +253,21 @@ export default function TaskDrawer(props: Props) {
               taskStatus={props.task.status}
               updateTaskInstance={updateTaskInstance}  
             />
+          }          
+        </div>
+        <DrawerFooter className='flex flex-col gap-2 w-full p-0'>
+          {
+            props.task.status === "open" &&
+            <Progress value={progress} className={progress === 100 ? '[&>div]:bg-green-500' : '[&>div]:bg-blue-500'}/>   
           }
-          <Button className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+          <Button className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4 items-center' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
             {
               loading &&
               <Spinner className="text-primary-foreground"/>
             }
+            <Check/>
             Complete Task
-          </Button>
-        </div>
-        <DrawerFooter className='flex flex-col gap-2 w-full p-0'>
+          </Button>          
           <Button variant={"outline"} className='w-full' onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
             <Flag/>
             Flag an issue with this task
@@ -250,14 +282,14 @@ export default function TaskDrawer(props: Props) {
                 </Button>              
               </AccordionTrigger>
               <AccordionContent className='py-1'>
-                <CommentSection 
-                  loadingComments={loadingComments} 
-                  postingComment={postingComment} 
-                  comments={comments} 
-                  comment={comment} 
-                  parentCommentId={parentCommentId}
-                  setComment={setComment} 
-                  setParentCommentId={setParentCommentId}
+                <CommentSection                   
+                  loadingComments={commentState.loadingComments} 
+                  postingComment={commentState.postingComment} 
+                  comments={commentState.comments} 
+                  comment={commentState.comment} 
+                  parentCommentId={commentState.parentCommentId}
+                  setComment={(comment: string) => {setCommentState(prevState => ({...prevState, comment}))}} 
+                  setParentCommentId={(parentCommentId: string) => {setCommentState(prevState => ({...prevState, parentCommentId}))}}
                   postComment={postComment}
                 />
               </AccordionContent>

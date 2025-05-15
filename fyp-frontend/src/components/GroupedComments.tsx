@@ -1,6 +1,5 @@
 import CommentDTO from '@/models/DTOs/CommentDTO';
 import { RootState } from '@/store';
-import React, { SetStateAction } from 'react'
 import { useSelector } from 'react-redux';
 import { Card } from './ui/card';
 import { Label } from './ui/label';
@@ -8,7 +7,7 @@ import { Separator } from './ui/separator';
 
 interface Props {
   comments: CommentDTO[];
-  setParentCommentId: React.Dispatch<SetStateAction<string>>
+  setParentCommentId: (parentCommentId: string) => void;
 }
 
 export function GroupedComments(props: Props) {
