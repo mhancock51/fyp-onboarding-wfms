@@ -36,6 +36,7 @@ import { FeedbackTaskTemplate } from '@/models/tasks/FeedbackTaskTemplate';
 import { Spinner } from '@/components/ui/spinner';
 import { Progress } from '@/components/ui/progress';
 import CommentState from '@/models/CommentState';
+import {HoverButton} from '@/components/HoverButton';
 
 interface Props {
   open: boolean;
@@ -170,6 +171,12 @@ export default function TaskDrawer(props: Props) {
     else if (props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.UPLOAD_DOCUMENT) {
       return ((taskInstanceData || updatedTaskInstance) as FileUploadTaskInstance).documentId === "" ? 0 : 100;
     }
+    else if (props.task.template.taskTypeId.toLowerCase() === TASK_TYPE_IDS.READ_DOCUMENT) {
+      var data = ((taskInstanceData || updatedTaskInstance) as ReadDocumentTaskInstance);
+      if (!data.linkClicked) return 0;
+      if (!data.checkboxChecked) return 50;
+      return 100;
+    }
     else {
       return 50;
     }
@@ -259,15 +266,16 @@ export default function TaskDrawer(props: Props) {
           {
             props.task.status === "open" &&
             <Progress value={progress} className={progress === 100 ? '[&>div]:bg-green-500' : '[&>div]:bg-blue-500'}/>   
-          }
-          <Button className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4 items-center' disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}>
+          }   
+          <HoverButton className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4 items-center text-md'
+            disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}
+          >
             {
               loading &&
               <Spinner className="text-primary-foreground"/>
             }
-            <Check/>
             Complete Task
-          </Button>          
+          </HoverButton>
           <Button variant={"outline"} className='w-full' onClick={() => {dispatch(SET_OPEN_REPORT_ISSUE_DIALOG(true));}}>
             <Flag/>
             Flag an issue with this task
