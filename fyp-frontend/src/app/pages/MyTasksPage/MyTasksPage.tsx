@@ -45,6 +45,7 @@ export default function MyTasksPage() {
             className='h-[100%] overflow-y-auto'
             hideCompletedDate={true}
             noTasksMessage='No open tasks assigned to you'
+            showNewTask={true}
           />
           {/* Completed tasks accordian */}
           <Accordion type="single" collapsible className="w-full flex-2">

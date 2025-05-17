@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import WorkflowInstanceBadge from '../WorkflowInstanceBadge';
 import clsx from 'clsx';
 import moment from 'moment';
+import Utils from '@/util';
 
 interface Props {
   tasks: TaskInstanceDTO[];
@@ -17,6 +18,7 @@ interface Props {
   hideDueDate?: boolean;
   hideCompletedDate?: boolean;
   noTasksMessage?: string;
+  showNewTask?: boolean;
 }
 
 export default function TaskInstancesTable(props: Props) {
@@ -82,6 +84,7 @@ export default function TaskInstancesTable(props: Props) {
               <TableCell style={{textAlign: "center"}} width={100}>Due  </TableCell>
             }
             <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
+            <TableCell className='text-center'>Assigned</TableCell>
             <TableCell style={{textAlign: "center"}}>Description</TableCell>
             {
               (props.hideCompletedDate === undefined || props.hideCompletedDate === false) &&
@@ -94,7 +97,11 @@ export default function TaskInstancesTable(props: Props) {
               .sort((a, b) => (new Date(b.completionTimestamp ?? 0).getTime() - new Date(a.completionTimestamp ?? 0).getTime()))
               .map((task, index) => (
                 <TableRow key={index} onClick={() => {props.handleTaskClicked(task)}} className='cursor-pointer'>
-                  <TableCell style={{maxWidth: "150px", overflowX: "hidden", textOverflow: "ellipsis"}}>
+                  <TableCell className='overflow-x-hidden text-ellipsis flex flex-row gap-2 items-center'>
+                    {
+                      props.showNewTask && index === 0 && Utils.minutesSince(new Date(task.creationTimestamp)) < 5 &&
+                      <Badge className='bg-blue-500 rounded-full p-1 px-2'>NEW</Badge>
+                    }
                     {task.template.name}
                   </TableCell>
                   <TableCell width={"175px"}>                    
@@ -105,7 +112,7 @@ export default function TaskInstancesTable(props: Props) {
                   </TableCell>
                   {
                     (props.hideDueDate === undefined || props.hideDueDate === false) &&
-                    <TableCell width={"50px"}>
+                    <TableCell width={"20px"}>
                       {
                         task.dueDate === null || task.status.toLowerCase() === "complete" &&
                         <div className='text-foreground w-full flex flex-row justify-center text-xs'>
@@ -133,6 +140,9 @@ export default function TaskInstancesTable(props: Props) {
                       task.workflowInstance !== null &&
                       <WorkflowInstanceBadge workflowInstance={task.workflowInstance}/>
                     }
+                  </TableCell>
+                  <TableCell>
+                    {moment(task.creationTimestamp).fromNow()}                    
                   </TableCell>
                   <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
                     {task.template.description}

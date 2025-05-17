@@ -137,6 +137,12 @@ const Utils = {
       accountsToNotify: node.accountsToNotify
     }    
     return result;
+  },
+  minutesSince(timestamp: Date) {
+    const now = new Date();
+    const diffInMs = now.getTime() - timestamp.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    return diffInMinutes;
   }
 
 }

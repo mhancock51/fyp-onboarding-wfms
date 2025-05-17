@@ -87,7 +87,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
                 TaskTemplateId = payload.TaskTemplateId,
                 WorkflowInstanceId = payload.WorkflowInstanceId ?? null,
                 WorkflowInstanceNodeId = payload.WorkflowInstanceNodeId ?? null,
-                CreationTimestamp = DateTime.Now,
+                CreationTimestamp = DateTime.UtcNow,
                 Status = TaskInstanceConstants.OPEN_TASK_STATUS,
                 DueDate = payload.DueDate,
             };

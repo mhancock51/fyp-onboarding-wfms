@@ -11,7 +11,7 @@ export default interface TaskInstanceDTO {
     assigneeAccountId: string;
     assignerAccountId: string;
     taskTemplateId: string;
-    creationTimestamp: string;
+    creationTimestamp: Date;
     status: string;
     template: TaskTemplate;
     workflowInstanceTemplateName: string;
