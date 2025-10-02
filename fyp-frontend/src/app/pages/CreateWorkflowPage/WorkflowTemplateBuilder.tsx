@@ -337,7 +337,7 @@ export default function WorkflowTemplateBuilder(props: Props) {
           defaultViewport={{x: 800, y: 200, zoom: 0.75}}
           nodeOrigin={[0.5, 0.5]}
         >
-          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />  
+          <Background variant={BackgroundVariant.Dots} gap={12} size={1} style={{backgroundColor: "#f0f0f0ff"}}/>  
           <Controls />
         </ReactFlow> 
       </div>

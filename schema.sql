@@ -600,3 +600,12 @@ CREATE TABLE `workflowtemplatenode` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-05-12 21:33:57
+
+
+INSERT INTO `organisation` (`OrganisationId`, `Name`) VALUES ('organisation', 'My Org');
+
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('checklist', 'Checklist');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('upload-document', 'Upload Document');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('read-document', 'Read Document');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('project-task', 'Project Task');
+INSERT INTO `tasktype` (`TaskTypeId`, `TaskName`) VALUES ('feedback', 'Feedback Task');
