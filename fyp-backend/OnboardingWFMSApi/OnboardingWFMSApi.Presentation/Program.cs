@@ -18,6 +18,7 @@ using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess;
+using OnboardingWFMSApi.DataAccess.Infrastructure;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -182,6 +183,8 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+await DatabaseStartupInitializer.InitializeAsync(app.Services, app.Logger);
 
 app.UseCors("AllowAllOrigins");
 
