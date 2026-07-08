@@ -655,18 +655,26 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
         {
             if (node.DaysUntilDue == null) return null;
 
-            if (node.WorkflowSection == "mainflowtasks" && workflowInstance.MainflowStartTimestamp != null)
-            {
-                return workflowInstance.MainflowStartTimestamp.Value.AddDays((double)node.DaysUntilDue);
-            }
-            else if (node.WorkflowSection == "preflowtasks")
+            var workflowSection = node.WorkflowSection?.Trim().ToLowerInvariant();
+            if (workflowSection == "preflowtasks")
             {
                 return workflowInstance.CreationTimestamp.AddDays((double)node.DaysUntilDue);
             }
-            else
+
+            if (workflowSection == "mainflowtasks")
             {
-                throw new Exception("Invalid state reached");
+                // Non-onboarding workflows can assign mainflow tasks immediately after instance creation.
+                var dueDateAnchor = workflowInstance.MainflowStartTimestamp ?? workflowInstance.CreationTimestamp;
+                if (workflowInstance.MainflowStartTimestamp == null)
+                {
+                    _logger.LogWarning("MainflowStartTimestamp was null while assigning due date for workflow instance {WorkflowInstanceId}; using CreationTimestamp as fallback anchor.", workflowInstance.Id);
+                }
+
+                return dueDateAnchor.AddDays((double)node.DaysUntilDue);
             }
+
+            _logger.LogWarning("Unknown workflow section '{WorkflowSection}' for node {WorkflowTemplateNodeId}; due date will not be assigned.", node.WorkflowSection, node.Id);
+            return null;
         }
 
         public async Task<HTTPResponse<List<WorkflowInstanceDTO>, string>> GetAlllOnboardingWorkflowInstances(DateTime? from, DateTime? to)
