@@ -94,7 +94,8 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
             var organisation = await context.Organisations.AddAsync(new OrganisationTable
             {
                 Id = DefaultOrganisationId,
-                Name = DefaultOrganisationName
+                Name = DefaultOrganisationName,
+                TenantId = tenant.Entity.Id
             }, cancellationToken);
             hasChanges = true;
 
@@ -113,7 +114,8 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 await context.taskTypes.AddAsync(new TaskTypeTable
                 {
                     Id = id,
-                    TaskName = name
+                    TaskName = name,
+                    TenantId = tenant.Entity.Id
                 }, cancellationToken);
                 hasChanges = true;
             }
@@ -123,7 +125,8 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 await context.Departments.AddAsync(new DepartmentTable
                 {
                     Id = DefaultDepartmentId,
-                    DisplayName = DefaultDepartmentName
+                    DisplayName = DefaultDepartmentName,
+                    TenantId = tenant.Entity.Id,
                 }, cancellationToken);
                 hasChanges = true;
             }

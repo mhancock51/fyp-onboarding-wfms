@@ -8,4 +8,5 @@ export default interface AuthenticatedUser {
     organisationId: string;
     accountStatus: string;
     jwtToken: string;
+    tenantId: string;
 }

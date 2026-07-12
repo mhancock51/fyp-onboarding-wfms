@@ -35,6 +35,9 @@ namespace OnboardingWFMSApi.DataModels.DTOs
 
         [JsonPropertyName("jwtToken")]
         public string JwtToken { get; set; }
+
+        [JsonPropertyName("tenantId")]
+        public string TenantId {get; set;}
     }
 
 }
