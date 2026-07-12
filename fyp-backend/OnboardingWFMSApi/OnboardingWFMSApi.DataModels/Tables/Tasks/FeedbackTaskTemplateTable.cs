@@ -23,6 +23,8 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 
         [JsonPropertyName("questions")]
         public List<LikertQuestion> Questions { get; set; }
+
+        public string TenantId { get; set; }
        
     }
 }

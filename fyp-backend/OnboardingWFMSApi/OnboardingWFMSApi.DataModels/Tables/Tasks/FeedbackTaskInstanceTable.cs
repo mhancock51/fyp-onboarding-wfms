@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("feedbacktaskinstance")]
-    public class FeedbackTaskInstanceTable : ITableEntity
+    public class FeedbackTaskInstanceTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -21,5 +21,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskInstanceId { get; set; }
         [JsonPropertyName("responses")]
         public int[] Responses { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

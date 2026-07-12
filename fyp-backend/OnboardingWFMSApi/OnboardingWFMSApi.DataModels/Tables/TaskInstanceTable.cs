@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("taskinstance")]
-    public class TaskInstanceTable : ITableEntity
+    public class TaskInstanceTable : ITenantTableEntity
     {
         [Key]
         [Column("TaskInstanceId")]
@@ -43,6 +43,8 @@ namespace OnboardingWFMSApi.DataModels.Tables
 
         [JsonPropertyName("completionTimestamp")]
         public DateTime? CompletionTimestamp { get; set; }
+
+        public string TenantId { get; set; }
 
     }
 }

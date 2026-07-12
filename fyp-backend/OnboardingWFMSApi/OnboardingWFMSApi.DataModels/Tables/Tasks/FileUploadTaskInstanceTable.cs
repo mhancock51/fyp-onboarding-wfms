@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("fileuploadtaskinstance")]
-    public class FileUploadTaskInstanceTable : ITableEntity
+    public class FileUploadTaskInstanceTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -22,5 +22,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [ForeignKey(nameof(DocumentTable.Id))]
         [JsonPropertyName("documentId")]
         public string DocumentId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

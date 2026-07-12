@@ -25,5 +25,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string DocumentUrl { get; set; }
         [JsonPropertyName("checkBoxLabel")]
         public string CheckBoxLabel { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

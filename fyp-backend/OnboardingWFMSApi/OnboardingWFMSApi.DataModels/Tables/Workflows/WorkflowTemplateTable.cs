@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("workflowtemplate")]
-    public class WorkflowTemplateTable : ITableEntity
+    public class WorkflowTemplateTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -24,5 +24,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string Description { get; set; }
         [JsonPropertyName("status")]
         public string Status { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

@@ -33,5 +33,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         [JsonPropertyName("supportLinks")]
         [JsonInclude]
         public List<ProjectSupportLink> SupportLinks { get; set; }
+
+        public string TenantId { get; set; }
     }    
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("reportedissue")]
-    public class ReportedIssueTable : ITableEntity
+    public class ReportedIssueTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -35,5 +35,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string Status { get; set; }
         [JsonPropertyName("remark")]
         public string? Remark { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

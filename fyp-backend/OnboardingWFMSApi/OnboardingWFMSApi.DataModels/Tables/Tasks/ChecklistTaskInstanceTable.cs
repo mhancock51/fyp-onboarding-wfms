@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("checklisttaskinstance")]
-    public class ChecklistTaskInstanceTable : ITableEntity
+    public class ChecklistTaskInstanceTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -24,5 +24,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         /// </summary>
         [JsonPropertyName("itemCompletionStatuses")]
         public bool[] ItemCompletionStatuses { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

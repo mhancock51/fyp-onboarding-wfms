@@ -10,7 +10,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("nodetaskdependency")]
-    public class NodeTaskDependencyTable : ITableEntity
+    public class NodeTaskDependencyTable : ITenantTableEntity
     {
         [Key]
         public string Id { get; set; }
@@ -20,5 +20,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string DependencyNodeId { get; set; }
         [ForeignKey(nameof(WorkflowTemplateTable.Id))]
         public string WorkflowTemplateId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

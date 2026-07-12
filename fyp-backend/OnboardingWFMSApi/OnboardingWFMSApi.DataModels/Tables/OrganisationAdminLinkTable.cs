@@ -10,7 +10,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("organisationAdminLink")]
-    public class OrganisationAdminLinkTable : ITableEntity
+    public class OrganisationAdminLinkTable : ITenantTableEntity
     {
         [Key]
         public string Id { get; set; }
@@ -18,5 +18,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string OrganisationId { get; set; }
         [ForeignKey(nameof(AccountTable.Id))]
         public string AccountId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

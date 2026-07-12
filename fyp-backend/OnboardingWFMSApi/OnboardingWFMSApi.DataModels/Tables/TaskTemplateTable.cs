@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("tasktemplate")]
-    public class TaskTemplateTable : ITableEntity
+    public class TaskTemplateTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -33,5 +33,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string Status { get; set; }
         [JsonPropertyName("lastModifiedTimestamp")]
         public DateTime? LastModifiedTimestamp { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

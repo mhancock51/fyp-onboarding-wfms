@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("projecttaskinstance")]
-    public class ProjectTaskInstanceTable : ITableEntity
+    public class ProjectTaskInstanceTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -21,5 +21,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskInstanceId { get; set; }
         [JsonPropertyName("objectiveStates")]
         public List<bool> ObjectiveStates { get; set; }
+
+        public string TenantId { get; set; }
     }    
 }

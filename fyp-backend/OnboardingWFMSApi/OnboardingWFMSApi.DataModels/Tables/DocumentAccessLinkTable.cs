@@ -10,7 +10,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("documentaccesslink")]
-    public class DocumentAccessLinkTable : ITableEntity
+    public class DocumentAccessLinkTable : ITenantTableEntity
     {
         [Key]
         public string Id { get; set; }
@@ -18,5 +18,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string AccountId { get; set; }
         [ForeignKey(nameof(DocumentTable.Id))]
         public string DocumentId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

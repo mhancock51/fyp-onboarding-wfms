@@ -10,11 +10,13 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("tasktype")]
-    public class TaskTypeTable : ITableEntity
+    public class TaskTypeTable : ITenantTableEntity
     {
         [Key]
         [Column("TaskTypeId")]
         public string Id { get; set; }
         public string TaskName { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

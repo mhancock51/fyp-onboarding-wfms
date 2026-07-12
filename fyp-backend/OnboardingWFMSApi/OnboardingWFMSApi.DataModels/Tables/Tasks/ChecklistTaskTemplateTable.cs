@@ -21,5 +21,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string TaskTemplateId { get; set; }
         [JsonPropertyName("items")]
         public string[] Items { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

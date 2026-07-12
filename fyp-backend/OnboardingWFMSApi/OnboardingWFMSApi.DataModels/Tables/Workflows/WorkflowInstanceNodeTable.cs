@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("workflowinstancenode")]
-    public class WorkflowInstanceNodeTable : ITableEntity
+    public class WorkflowInstanceNodeTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -30,5 +30,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         [ForeignKey(nameof(TaskTemplateTable.Id))]
         [JsonPropertyName("taskTemplateId")]
         public string TaskTemplateId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("workflowinstanceauditlog")]
-    public class WorkflowInstanceAuditLogTable : ITableEntity
+    public class WorkflowInstanceAuditLogTable : ITenantTableEntity
     {
         public WorkflowInstanceAuditLogTable(string workflowInstanceId, string log, string? accountId)
         {
@@ -35,5 +35,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public DateTime Timestamp { get; set; }
         [ForeignKey(nameof(AccountTable.Id))]
         public string? AccountId { get; set; }  
+
+        public string TenantId { get; set; }
     }
 }

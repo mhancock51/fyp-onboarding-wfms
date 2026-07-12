@@ -12,7 +12,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("workflowinstance")]
-    public class WorkflowInstanceTable : ITableEntity
+    public class WorkflowInstanceTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -30,5 +30,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public DateTime? MainflowStartTimestamp { get; set; }
         [JsonPropertyName("completionTimestamp")]
         public DateTime? CompletionTimestamp { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

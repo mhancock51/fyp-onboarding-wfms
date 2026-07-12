@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("onboardingemployeedetails")]
-    public class OnboardingEmployeeDetailsTable : ITableEntity
+    public class OnboardingEmployeeDetailsTable : ITenantTableEntity
     {
         [Key]
         public string Id { get; set; }
@@ -23,5 +23,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string DepartmentId { get; set; }
         [ForeignKey(nameof(AccountTable.Id))]
         public string? OnboarderAccountId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

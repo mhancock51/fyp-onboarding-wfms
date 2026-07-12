@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("notification")]
-    public class NotificationTable : ITableEntity
+    public class NotificationTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -27,5 +27,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string[] Tags { get; set; }
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

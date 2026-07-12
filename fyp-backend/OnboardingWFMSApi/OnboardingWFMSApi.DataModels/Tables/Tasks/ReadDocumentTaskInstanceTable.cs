@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Tasks
 {
     [Table("readdocumenttaskinstance")]
-    public class ReadDocumentTaskInstanceTable : ITableEntity
+    public class ReadDocumentTaskInstanceTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -23,5 +23,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public bool CheckboxChecked { get; set; }
         [JsonPropertyName("linkClicked")]
         public bool LinkClicked { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

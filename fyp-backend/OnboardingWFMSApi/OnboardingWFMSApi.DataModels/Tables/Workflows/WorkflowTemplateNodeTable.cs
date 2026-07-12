@@ -10,7 +10,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables.Workflows
 {
     [Table("workflowtemplatenode")]
-    public class WorkflowTemplateNodeTable : ITableEntity
+    public class WorkflowTemplateNodeTable : ITenantTableEntity
     {
         [Key]
         public string Id { get; set; }
@@ -24,5 +24,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Workflows
         public string WorkflowSection {  get; set; }
         public int? DaysUntilDue { get; set; }
         public string[]? AccountsToNotify { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

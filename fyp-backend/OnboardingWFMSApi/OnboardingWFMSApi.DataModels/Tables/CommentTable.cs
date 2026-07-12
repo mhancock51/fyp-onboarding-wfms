@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("comment")]
-    public class CommentTable : ITableEntity
+    public class CommentTable : ITenantTableEntity
     {
         [JsonPropertyName("id")]
         [Key]
@@ -29,5 +29,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         [JsonPropertyName("parentCommentId")]
         [ForeignKey(nameof(CommentTable.Id))]
         public string? ParentCommentId { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

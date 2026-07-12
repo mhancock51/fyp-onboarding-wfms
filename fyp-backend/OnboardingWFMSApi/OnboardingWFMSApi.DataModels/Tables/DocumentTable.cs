@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("document")]
-    public class DocumentTable : ITableEntity
+    public class DocumentTable : ITenantTableEntity
     {
         [Key]
         [JsonPropertyName("id")]
@@ -34,5 +34,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public DateTime UploadTimestamp { get; set; }
         [JsonPropertyName("fileName")]
         public string FileName { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

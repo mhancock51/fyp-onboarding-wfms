@@ -25,5 +25,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.Tasks
         public string DocumentName { get; set; }
         [JsonPropertyName("accessAccountIds")]
         public string[] AccessAccountIds { get; set; }
+
+        public string TenantId { get; set; }
     }
 }
