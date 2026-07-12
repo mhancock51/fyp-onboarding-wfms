@@ -15,14 +15,16 @@ import Utils from './util';
 import RegisterPage from './app/pages/RegisterPage/RegisterPage';
 import MyTasksPage from './app/pages/MyTasksPage/MyTasksPage';
 import { Spinner } from './components/ui/spinner';
-import { SET_ACCOUNTS_DIRECTORY, SET_DEPARTMENTS, SET_ORGANISATION, SET_TASK_TEMPLATES, SET_TASK_TYPES } from './features/appSlice';
+import { SET_ACCOUNTS_DIRECTORY, SET_DEPARTMENTS, SET_ORGANISATION, SET_TASK_TEMPLATES, SET_TASK_TYPES, SET_USER } from './features/appSlice';
 import WorkflowInstancesPage from './app/pages/WorkflowInstancesPage/WorkflowInstancesPage';
 import WorkflowDashboardPage from './app/pages/WorkflowDashboardPage/WorkflowDashboardPage';
 import IssuesPage from './app/pages/IssuesPage/IssuesPage';
 import SettingsPage from './app/pages/SettingsPage/SettingsPage';
+import AuthenticatedUser from './models/AuthenticatedUser';
+import Department from './models/Department';
 
 export default function App() {
-  const user = useSelector((state: RootState) => state.app.user);
+  const user: AuthenticatedUser = useSelector((state: RootState) => state.app.user);
   const taskTypes = useSelector((state: RootState) => state.app.taskTypes);
   const dispatcher = useDispatch();
 
@@ -73,9 +75,12 @@ export default function App() {
   async function fetchDepartments() {
     try {
       const response = await Api.fetchDepartments();
-      dispatcher(SET_DEPARTMENTS(response.data.data));
+      const departments = response.data.data as Department[];
+      dispatcher(SET_DEPARTMENTS(departments));
+      dispatcher(SET_USER({...user, departmentName: departments.find(d => d.id == user.departmentId)?.displayName}));
     } catch (error) {
       toast.error("Failed to load departments");
+      console.log(error);
     } finally {
       setLoaded(prev => ({ ...prev, departments: true }));
     }

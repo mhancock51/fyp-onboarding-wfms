@@ -10,6 +10,8 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
 {
     public static class DatabaseStartupInitializer
     {
+        private const string DefaultTenantId = "default-tenant";
+
         private const string DefaultOrganisationId = "my-org";
         private const string DefaultOrganisationName = "My Org";
         private const string DefaultDepartmentId = "default-department";
@@ -76,30 +78,45 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
         private static async Task SeedBaselineDataAsync(ApplicationDbContext context, CancellationToken cancellationToken)
         {
             var hasChanges = false;
+            var baseTierId = defaultSubscriptionTiers.First().Id;
 
-            // seed subscription data
-            await context.SubscriptionTierEntitlements.AddAsync(defaultSubscriptionTiers.First());
-
-            // create test tenant
-            var tenant = await context.Tennants.AddAsync(new TenantTable()
+            // Subscription tier
+            if (!await context.SubscriptionTierEntitlements.AnyAsync(t => t.Id == baseTierId, cancellationToken))
             {
-                Id = "default-tenant",
-                CreatedDateTime = DateTime.Now,
-                OwnerEmailAddress = "admin@test.co.uk",
-                HasActiveSubscription = true,
-                IsOnHold = false,
-                SubscriptionTeirId = defaultSubscriptionTiers.First().Id,
-            });
+                await context.SubscriptionTierEntitlements.AddAsync(defaultSubscriptionTiers.First(), cancellationToken);
+                hasChanges = true;
+            }
 
-            var organisation = await context.Organisations.AddAsync(new OrganisationTable
+            // Tenant
+            if (!await context.Tennants.AnyAsync(t => t.Id == DefaultTenantId, cancellationToken))
             {
-                Id = DefaultOrganisationId,
-                Name = DefaultOrganisationName,
-                TenantId = tenant.Entity.Id
-            }, cancellationToken);
-            hasChanges = true;
+                await context.Tennants.AddAsync(new TenantTable
+                {
+                    Id = DefaultTenantId,
+                    CreatedDateTime = DateTime.Now,
+                    OwnerEmailAddress = DefaultAdminEmail,
+                    HasActiveSubscription = true,
+                    IsOnHold = false,
+                    SubscriptionTeirId = baseTierId,
+                }, cancellationToken);
+                hasChanges = true;
+            }
 
+            // Organisation
+            if (!await context.Organisations.AnyAsync(o => o.Id == DefaultOrganisationId, cancellationToken))
+            {
+                await context.Organisations.AddAsync(new OrganisationTable
+                {
+                    Id = DefaultOrganisationId,
+                    Name = DefaultOrganisationName,
+                    TenantId = DefaultTenantId
+                }, cancellationToken);
+                hasChanges = true;
+            }
+
+            // Task types
             var existingTaskTypeIds = await context.taskTypes
+                .Where(t => t.TenantId == DefaultTenantId)
                 .Select(t => t.Id)
                 .ToListAsync(cancellationToken);
             var taskTypeIdSet = existingTaskTypeIds.ToHashSet(StringComparer.Ordinal);
@@ -115,23 +132,25 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 {
                     Id = id,
                     TaskName = name,
-                    TenantId = tenant.Entity.Id
+                    TenantId = DefaultTenantId
                 }, cancellationToken);
                 hasChanges = true;
             }
 
-            if (!await context.Departments.AnyAsync(d => d.Id == DefaultDepartmentId, cancellationToken))
+            // Department
+            if (!await context.Departments.AnyAsync(d => d.Id == DefaultDepartmentId && d.TenantId == DefaultTenantId, cancellationToken))
             {
                 await context.Departments.AddAsync(new DepartmentTable
                 {
                     Id = DefaultDepartmentId,
                     DisplayName = DefaultDepartmentName,
-                    TenantId = tenant.Entity.Id,
+                    TenantId = DefaultTenantId,
                 }, cancellationToken);
                 hasChanges = true;
             }
 
-            if (!await context.Accounts.AnyAsync(a => a.EmailAddress.ToLower() == DefaultAdminEmail.ToLower(), cancellationToken))
+            // Default admin account
+            if (!await context.Accounts.AnyAsync(a => a.EmailAddress.ToLower() == DefaultAdminEmail.ToLower() && a.TenantId == DefaultTenantId, cancellationToken))
             {
                 await context.Accounts.AddAsync(new AccountTable
                 {
@@ -141,9 +160,9 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                     HashedPassword = ComputeSha256Hex(DefaultAdminPlainPassword),
                     IsSupervisor = true,
                     DepartmentId = DefaultDepartmentId,
-                    OrganisationId = organisation.Entity.Id,
+                    OrganisationId = DefaultOrganisationId,
                     AccountStatus = RegisteredAccountStatus,
-                    TenantId = tenant.Entity.Id
+                    TenantId = DefaultTenantId
                 }, cancellationToken);
                 hasChanges = true;
             }
@@ -153,7 +172,6 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 await context.SaveChangesAsync(cancellationToken);
             }
         }
-
         private static string ComputeSha256Hex(string value)
         {
             using var hashAlgorithm = SHA256.Create();

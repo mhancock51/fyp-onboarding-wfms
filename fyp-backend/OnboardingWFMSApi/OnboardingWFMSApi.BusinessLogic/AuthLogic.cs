@@ -121,9 +121,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             var authenticatedAccount = _mapper.Map<AuthenticatedAccountDTO>(account);
             authenticatedAccount.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            var department = await _departmentRepository.GetById(account.DepartmentId);
-            authenticatedAccount.DepartmentName = department.DisplayName;
-
             return authenticatedAccount;
         }
 
