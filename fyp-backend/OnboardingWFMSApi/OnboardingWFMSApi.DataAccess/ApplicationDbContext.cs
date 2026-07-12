@@ -16,6 +16,9 @@ namespace OnboardingWFMSApi.DataAccess
 {
     public class ApplicationDbContext : DbContext
     {
+        // SaaS tenancy data management
+        public DbSet<TenantTable> Tennants { get; set; }
+
         public DbSet<OrganisationTable> Organisations { get; set; }
         public DbSet<AccountTable> Accounts { get; set; }
         public DbSet<DepartmentTable> Departments { get; set; }
@@ -80,6 +83,11 @@ namespace OnboardingWFMSApi.DataAccess
                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
                    v => JsonSerializer.Deserialize<List<LikertQuestion>>(v, new JsonSerializerOptions()) ?? new List<LikertQuestion>()
                );
+
+            // make tentant tables unique
+            modelBuilder.Entity<TenantTable>()
+                .HasIndex(t => t.OwnerEmailAddress)
+                .IsUnique();
 
         }
     }
