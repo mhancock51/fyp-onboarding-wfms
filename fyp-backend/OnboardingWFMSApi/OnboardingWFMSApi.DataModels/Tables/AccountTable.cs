@@ -11,7 +11,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("account")]
-    public class AccountTable : ITableEntity
+    public class AccountTable : ITenantTableEntity
     {
         [Key]
         [Column("AccountId")]
@@ -24,6 +24,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public string DepartmentId { get; set; }
         [ForeignKey(nameof(OrganisationTable.Id))]
         public string OrganisationId { get; set; }
-        public string AccountStatus { get; set; }        
+        public string AccountStatus { get; set; }
+        public string TenantId { get; set;}
     }
 }

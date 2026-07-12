@@ -42,6 +42,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorNumbersToAdd: null)));
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentTenantService, CurrentTenantService>();
+
 builder.Services.AddScoped<IOrganisationRepository, OrganisationRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();

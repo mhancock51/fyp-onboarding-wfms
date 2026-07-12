@@ -134,6 +134,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id),
+                new Claim("TenantId", account.TenantId)
             };
 
             var token = new JwtSecurityToken(

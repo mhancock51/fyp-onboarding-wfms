@@ -1,12 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
+using OnboardingWFMSApi.DataModels.Tables.TenantMangement;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
@@ -16,8 +20,19 @@ namespace OnboardingWFMSApi.DataAccess
 {
     public class ApplicationDbContext : DbContext
     {
+        private readonly ICurrentTenantService _currentTenantService;
+        private string? CurrentTenantId => _currentTenantService.TenantId;
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            ICurrentTenantService currentTenantService) : base(options)
+        {
+            _currentTenantService = currentTenantService;
+        }
+
         // SaaS tenancy data management
         public DbSet<TenantTable> Tennants { get; set; }
+        public DbSet<SubscriptionTierEntitlementTable> SubscriptionTierEntitlements { get; set; } 
 
         public DbSet<OrganisationTable> Organisations { get; set; }
         public DbSet<AccountTable> Accounts { get; set; }
@@ -63,6 +78,18 @@ namespace OnboardingWFMSApi.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+                        .Where(t => typeof(ITenantTableEntity).IsAssignableFrom(t.ClrType)))
+            {
+                var method = typeof(ApplicationDbContext)
+                    .GetMethod(nameof(ApplyTenantFilter), BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .MakeGenericMethod(entityType.ClrType);
+
+                method.Invoke(this, new object[] { modelBuilder });
+            }
+
             // make sure ProjectObjective is treated like a json property, not another table - like so for ProjectSupportLink
             modelBuilder.Entity<ProjectTaskTemplateTable>()
                 .Property(e => e.Objectives)
@@ -89,6 +116,13 @@ namespace OnboardingWFMSApi.DataAccess
                 .HasIndex(t => t.OwnerEmailAddress)
                 .IsUnique();
 
+        }
+
+        private void ApplyTenantFilter<TEntity>(ModelBuilder modelBuilder)
+            where TEntity : class, ITenantTableEntity
+        {
+            modelBuilder.Entity<TEntity>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
     }
 }

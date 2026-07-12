@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.TenantMangement;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
 {
     public static class DatabaseStartupInitializer
     {
-        private const string DefaultOrganisationId = "organisation";
+        private const string DefaultOrganisationId = "my-org";
         private const string DefaultOrganisationName = "My Org";
         private const string DefaultDepartmentId = "default-department";
         private const string DefaultDepartmentName = "General";
@@ -18,6 +19,21 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
         private const string DefaultAdminEmail = "admin@test.co.uk";
         private const string DefaultAdminPlainPassword = "pword123";
         private const string RegisteredAccountStatus = "registered";
+
+        private static readonly SubscriptionTierEntitlementTable[] defaultSubscriptionTiers =
+        {
+            new SubscriptionTierEntitlementTable()
+            {
+                Id = "base-tier",
+                DisplayName = "Base tier",
+                CanUploadDocuments = true,
+                MaxActiveWorkflowInstances = 99,
+                MaxDocumentStorageSpaceInMb = 999999,
+                MaxUsers = 999,
+                CreatedDate = DateTime.Now,
+                IsActive = true,
+            },
+        };
 
         private static readonly (string Id, string Name)[] DefaultTaskTypes =
         {
@@ -61,15 +77,26 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
         {
             var hasChanges = false;
 
-            if (!await context.Organisations.AnyAsync(o => o.Id == DefaultOrganisationId, cancellationToken))
+            // seed subscription data
+            await context.SubscriptionTierEntitlements.AddAsync(defaultSubscriptionTiers.First());
+
+            // create test tenant
+            var tenant = await context.Tennants.AddAsync(new TenantTable()
             {
-                await context.Organisations.AddAsync(new OrganisationTable
-                {
-                    Id = DefaultOrganisationId,
-                    Name = DefaultOrganisationName
-                }, cancellationToken);
-                hasChanges = true;
-            }
+                Id = "default-tenant",
+                CreatedDateTime = DateTime.Now,
+                OwnerEmailAddress = "admin@test.co.uk",
+                HasActiveSubscription = true,
+                IsOnHold = false,
+                SubscriptionTeirId = defaultSubscriptionTiers.First().Id,
+            });
+
+            var organisation = await context.Organisations.AddAsync(new OrganisationTable
+            {
+                Id = DefaultOrganisationId,
+                Name = DefaultOrganisationName
+            }, cancellationToken);
+            hasChanges = true;
 
             var existingTaskTypeIds = await context.taskTypes
                 .Select(t => t.Id)
@@ -111,8 +138,9 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                     HashedPassword = ComputeSha256Hex(DefaultAdminPlainPassword),
                     IsSupervisor = true,
                     DepartmentId = DefaultDepartmentId,
-                    OrganisationId = DefaultOrganisationId,
-                    AccountStatus = RegisteredAccountStatus
+                    OrganisationId = organisation.Entity.Id,
+                    AccountStatus = RegisteredAccountStatus,
+                    TenantId = tenant.Entity.Id
                 }, cancellationToken);
                 hasChanges = true;
             }
