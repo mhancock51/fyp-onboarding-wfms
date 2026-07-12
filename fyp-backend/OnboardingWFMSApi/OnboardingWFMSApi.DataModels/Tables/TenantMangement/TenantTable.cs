@@ -20,7 +20,6 @@ namespace OnboardingWFMSApi.DataModels.Tables
         // - Has an active subscription? - is customer paying?
         // - On hold -> flag to block users from this tennant from accessing the org/software
 
-
         [Key]
         public string Id { get; set;}
         public DateTime CreatedDateTime {get; set; }
