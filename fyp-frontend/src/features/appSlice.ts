@@ -60,6 +60,22 @@ export const appSlice = createSlice({
     initialState: initialState,
     reducers: {
         SET_USER: (state, action: PayloadAction<AuthenticatedUser | null>) => {
+            const previousTenantId = state.user?.tenantId;
+            const nextTenantId = action.payload?.tenantId;
+            const isLogout = action.payload === null;
+            const tenantChanged = previousTenantId !== undefined && nextTenantId !== undefined && previousTenantId !== nextTenantId;
+
+            if (isLogout || tenantChanged) {
+                state.organisation = null;
+                state.departments = [];
+                state.taskTypes = [];
+                state.accountsDirectory = [];
+                state.taskTemplates = [];
+                state.selectedTaskTemplate = null;
+                state.notifications = [];
+                state.workflowTemplates = [];
+            }
+
             state.user = action.payload;            
             saveUserToLocalStorage(state.user);            
         },

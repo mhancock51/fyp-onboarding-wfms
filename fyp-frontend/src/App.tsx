@@ -24,7 +24,7 @@ import AuthenticatedUser from './models/AuthenticatedUser';
 import Department from './models/Department';
 
 export default function App() {
-  const user: AuthenticatedUser = useSelector((state: RootState) => state.app.user);
+  const user: AuthenticatedUser | null = useSelector((state: RootState) => state.app.user);
   const taskTypes = useSelector((state: RootState) => state.app.taskTypes);
   const dispatcher = useDispatch();
 
@@ -45,6 +45,27 @@ export default function App() {
     }
   }, []);
 
+  useEffect(function () {
+    if (!loaded.validatedToken || user === null) {
+      return;
+    }
+
+    if (Utils.isCurrentLocationLoginPage() || Utils.isCurrentLocationRegisterPage()) {
+      return;
+    }
+
+    setLoaded(prev => ({
+      ...prev,
+      accounts: false,
+      taskTypes: false,
+      taskTemplates: false,
+      departments: false,
+      organisation: false
+    }));
+
+    void fetchAll();
+  }, [loaded.validatedToken, user?.id, user?.tenantId]);
+
   async function testValidityOfToken() {
     setLoading(true);
     try {
@@ -56,9 +77,6 @@ export default function App() {
     } finally {
       setLoaded(prev => ({ ...prev, validatedToken: true }));
       setLoading(false);
-      if (!Utils.isCurrentLocationLoginPage() && !Utils.isCurrentLocationRegisterPage()) {
-        void fetchAll();
-      }
     }
   }
 
@@ -77,7 +95,9 @@ export default function App() {
       const response = await Api.fetchDepartments();
       const departments = response.data.data as Department[];
       dispatcher(SET_DEPARTMENTS(departments));
-      dispatcher(SET_USER({...user, departmentName: departments.find(d => d.id == user.departmentId)?.displayName}));
+      if (user !== null) {
+        dispatcher(SET_USER({ ...user, departmentName: departments.find(d => d.id == user.departmentId)?.displayName }));
+      }
     } catch (error) {
       toast.error("Failed to load departments");
       console.log(error);
