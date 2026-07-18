@@ -21,7 +21,11 @@ export default function layout() {
 
   return (
     <SidebarProvider>
-      <AppSidebar organisationName={app.organisation?.name ?? "ERROR"} />
+      <AppSidebar
+        organisationName={app.organisation?.name ?? "Organisation"}
+        organisationLogoData={app.organisation?.logoImageData ?? null}
+        organisationLogoMimeType={app.organisation?.logoImageMimeType ?? null}
+      />
       <main className='m-4 m-b-0 flex flex-col h-[96vh] w-[100%]'>
         <Outlet />                  
       </main>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables;
@@ -15,6 +16,7 @@ namespace OnboardingWFMSApi.BusinessLogic
         public Task<HTTPResponse<string, string>> CreateOrganisation(string name);        
         public Task<HTTPResponse<OrganisationTable, string>> GetOrganisation();
         public Task<HTTPResponse<string, string>> RenameOrganisation(string newName);
+        public Task<HTTPResponse<string, string>> UpdateOrganisationLogo(IFormFile logoFile);
     }
     public class OrganisationLogic : IOrganisationLogic
     {
@@ -35,7 +37,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 await _organisationRepository.AddAsync(new OrganisationTable(){Name = name });
                 return new HTTPResponse<string, string>() { Success = true, Data = "Created organisation", HttpCode = 200 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new HTTPResponse<string, string>() { Success = false, Error = "Couldn't create organisation", HttpCode = 500 };
             }
@@ -43,14 +45,13 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         public async Task<HTTPResponse<OrganisationTable, string>> GetOrganisation()
         {
-            var orgs = await _organisationRepository.GetAll();
-            if (orgs.Count() == 0)
+            var org = await GetCurrentOrganisation();
+            if (org == null)
             {
                 return new HTTPResponse<OrganisationTable, string>() { Success = false, HttpCode = 400, Error = "No organisation exists" };
             }
             else
             {
-                var org = orgs.First();
                 return new HTTPResponse<OrganisationTable, string>() { Success = true, HttpCode = 200, Data = org };
             }
         }
@@ -62,7 +63,12 @@ namespace OnboardingWFMSApi.BusinessLogic
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please provide a new name" };
             }
 
-            var organisation = await _organisationRepository.GetById("organisation");
+            var organisation = await GetCurrentOrganisation();
+            if (organisation == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "No organisation exists" };
+            }
+
             organisation.Name = newName;
             try
             {
@@ -70,11 +76,62 @@ namespace OnboardingWFMSApi.BusinessLogic
                 _logger.LogInformation($"Renamed organisation to {newName}");
                 return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = $"Successfully renamed organisation to {organisation.Name}" };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to rename organisation" };
             }
 
+        }
+
+        public async Task<HTTPResponse<string, string>> UpdateOrganisationLogo(IFormFile logoFile)
+        {
+            if (logoFile == null || logoFile.Length == 0)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Please upload an image file" };
+            }
+
+            if (logoFile.Length > 2 * 1024 * 1024)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Logo file size must be 2MB or less" };
+            }
+
+            if (string.IsNullOrWhiteSpace(logoFile.ContentType) || !logoFile.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Only image files are allowed" };
+            }
+
+            var organisation = await GetCurrentOrganisation();
+            if (organisation == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "No organisation exists" };
+            }
+
+            byte[] fileBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await logoFile.CopyToAsync(memoryStream);
+                fileBytes = memoryStream.ToArray();
+            }
+
+            organisation.LogoImageData = fileBytes;
+            organisation.LogoImageMimeType = logoFile.ContentType;
+
+            try
+            {
+                await _organisationRepository.UpdateAsync(organisation);
+                _logger.LogInformation("Updated organisation logo");
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Successfully updated organisation logo" };
+            }
+            catch (Exception)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to update organisation logo" };
+            }
+        }
+
+        private async Task<OrganisationTable?> GetCurrentOrganisation()
+        {
+            var organisations = await _organisationRepository.GetAll();
+            return organisations.FirstOrDefault();
         }
     }
 }

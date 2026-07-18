@@ -21,7 +21,7 @@ namespace OnboardingWFMSApi.DataAccess
     public class ApplicationDbContext : DbContext
     {
         private readonly ICurrentTenantService _currentTenantService;
-        private string? CurrentTenantId => _currentTenantService.TenantId;
+        public string? CurrentTenantId => _currentTenantService.TenantId;
 
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options,

@@ -10,7 +10,7 @@ using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 namespace OnboardingWFMSApi.DataModels.Tables
 {
     [Table("tasktype")]
-    public class TaskTypeTable : ITenantTableEntity
+    public class TaskTypeTable : ITableEntity
     {
         [Key]
         [Column("TaskTypeId")]

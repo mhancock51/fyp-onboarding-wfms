@@ -22,6 +22,8 @@ import NotificationsSidebarMenu from "./NotificationSidebarMenu"
 
 interface Props {
   organisationName: string;
+  organisationLogoData: string | null;
+  organisationLogoMimeType: string | null;
 }
 
 export function AppSidebar(props: Props) {
@@ -95,12 +97,20 @@ export function AppSidebar(props: Props) {
     },
   ]
 
+  const logoSrc = props.organisationLogoData && props.organisationLogoMimeType
+    ? `data:${props.organisationLogoMimeType};base64,${props.organisationLogoData}`
+    : null;
+
   return (
     <>
       <Sidebar collapsible="icon" className="cursor-pointer">
         <SidebarHeader onClick={() => { navigate("/");}}>
           <div className="w-full flex flex-col justify-center items-center gap-1 py-1">
-            <h2 className="text-xl text-center">{props.organisationName}</h2>
+            {
+              logoSrc !== null
+                ? <img src={logoSrc} alt={`${props.organisationName} logo`} className="max-h-32 w-auto object-contain" />
+                : <h2 className="text-xl text-center">{props.organisationName}</h2>
+            }
             <SidebarSeparator/>
           </div>
         </SidebarHeader>

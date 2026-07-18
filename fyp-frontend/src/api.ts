@@ -111,6 +111,15 @@ const Api = {
     },
     renameOrganisation: async(newName: string) => {
       return AuthInstance.post(`${ROUTE_URL}/organisation/rename`, null, { params: {newName: newName}});
+    },
+    uploadOrganisationLogo: async(file: File) => {
+      const formData = new FormData();
+      formData.append("logoFile", file);
+      return AuthInstance.post(`${ROUTE_URL}/organisation/logo`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
     }
   },
   audit: {

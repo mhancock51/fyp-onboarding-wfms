@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.DataModels.Tables;
 using OnboardingWFMSApi.DataModels.Tables.TenantMangement;
+using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -77,6 +79,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
 
                     // Creates the database schema from the EF Core model when missing.
                     await context.Database.EnsureCreatedAsync(cancellationToken);
+                    await EnsureOrganisationLogoColumnsAsync(context, cancellationToken);
                     await SeedBaselineDataAsync(context, cancellationToken);
 
                     logger.LogInformation("Database initialization completed.");
@@ -90,6 +93,48 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
             }
 
             throw new InvalidOperationException("Database initialization failed after all retry attempts.");
+        }
+
+        private static async Task EnsureOrganisationLogoColumnsAsync(ApplicationDbContext context, CancellationToken cancellationToken)
+        {
+            if (!await OrganisationColumnExistsAsync(context, "LogoImageData", cancellationToken))
+            {
+                const string addLogoDataColumnSql = "ALTER TABLE organisation ADD COLUMN LogoImageData MEDIUMBLOB NULL;";
+                await RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, addLogoDataColumnSql, cancellationToken);
+            }
+
+            if (!await OrganisationColumnExistsAsync(context, "LogoImageMimeType", cancellationToken))
+            {
+                const string addLogoMimeTypeColumnSql = "ALTER TABLE organisation ADD COLUMN LogoImageMimeType LONGTEXT NULL;";
+                await RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, addLogoMimeTypeColumnSql, cancellationToken);
+            }
+        }
+
+        private static async Task<bool> OrganisationColumnExistsAsync(ApplicationDbContext context, string columnName, CancellationToken cancellationToken)
+        {
+            var connectionString = context.Database.GetConnectionString();
+            var connectionStringBuilder = new DbConnectionStringBuilder { ConnectionString = connectionString };
+            var dbName = connectionStringBuilder["Database"]?.ToString();
+
+            if (string.IsNullOrWhiteSpace(dbName) && connectionStringBuilder.ContainsKey("Initial Catalog"))
+            {
+                dbName = connectionStringBuilder["Initial Catalog"]?.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(dbName))
+            {
+                throw new InvalidOperationException("Database name was not found in connection string while checking organisation columns.");
+            }
+
+            var columnLookupSql = @"
+                SELECT COUNT(*) AS Value
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = {0}
+                AND TABLE_NAME = 'organisation'
+                AND COLUMN_NAME = {1}";
+
+            var count = await context.Database.SqlQueryRaw<long>(columnLookupSql, dbName, columnName).SingleAsync(cancellationToken);
+            return count > 0;
         }
 
         private static async Task SeedBaselineDataAsync(ApplicationDbContext context, CancellationToken cancellationToken)

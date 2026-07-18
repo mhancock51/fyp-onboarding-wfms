@@ -26,6 +26,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
     public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class, ITableEntity
     {
+
         protected readonly ApplicationDbContext _dbContext;
 
         public BaseRepository(ApplicationDbContext dbContext) 
@@ -39,7 +40,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             Guid guid = Guid.NewGuid();
             var guidStr = guid.ToString();
 
-            var keyProp = typeof(TEntity).GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.KeyAttribute))).First();
+            var keyProp = typeof(TEntity).GetProperties().First(prop => Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.KeyAttribute)));
 
             if (keyProp != null && keyProp.CanWrite)
             {
@@ -53,6 +54,18 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             else
             {
                 throw new InvalidOperationException("Table datamodel doesn't have a key property");
+            }
+
+            // if table has tenant Id column, set this
+            var tentantProp = typeof(TEntity).GetProperties().First(prop => prop.Name == nameof(ITenantTableEntity.TenantId));
+            if (keyProp != null && keyProp.CanWrite)
+            {
+                // ensure id hasn't already been set
+                var value = keyProp.GetValue(entity);
+                if (value == null || (value is string str && str == ""))
+                {
+                    keyProp.SetValue(entity, _dbContext.CurrentTenantId, null);
+                }
             }
 
             var result = await _dbContext.AddAsync(entity);

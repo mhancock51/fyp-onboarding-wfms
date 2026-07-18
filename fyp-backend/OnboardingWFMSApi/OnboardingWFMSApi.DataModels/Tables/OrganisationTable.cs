@@ -12,11 +12,17 @@ namespace OnboardingWFMSApi.DataModels.Tables
     [Table("organisation")]
     public class OrganisationTable : ITenantTableEntity
     {
-     
+
         [Key]
         [Column("OrganisationId")]
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string TenantId { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+
+        [Column(TypeName = "mediumblob")]
+        public byte[]? LogoImageData { get; set; }
+
+        public string? LogoImageMimeType { get; set; }
+
+        public string TenantId { get; set; } = string.Empty;
     }
 }

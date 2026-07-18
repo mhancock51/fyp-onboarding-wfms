@@ -33,5 +33,13 @@ namespace OnboardingWFMSApi.Presentation
             var result = await _organisationLogic.RenameOrganisation(newName);
             return StatusCode(result.HttpCode, result);
         }
+
+        [Authorize(Policy = "SupervisorRoleClaim")]
+        [HttpPost("logo")]
+        public async Task<IActionResult> UpdateOrganisationLogo([FromForm] IFormFile logoFile)
+        {
+            var result = await _organisationLogic.UpdateOrganisationLogo(logoFile);
+            return StatusCode(result.HttpCode, result);
+        }
     }
 }
