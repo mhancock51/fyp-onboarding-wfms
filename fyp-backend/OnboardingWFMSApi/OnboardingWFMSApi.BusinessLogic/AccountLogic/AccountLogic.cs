@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
+using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
@@ -36,13 +37,15 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IOrganisationRepository _organisationRepository;
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly ICurrentTenantService _currentTenantService;
 
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
         private readonly ILogger<AccountLogic> _logger;
 
         public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository,
-            IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository, ILogger<AccountLogic> logger)
+            IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository, ILogger<AccountLogic> logger,
+            ICurrentTenantService currentTenantService)
         {
             _accountRepository = accountRepository;
             _departmentRepository = departmentRepository;
@@ -51,6 +54,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             _mediator = mediator;
             _workflowInstanceRepository = workflowInstanceRepository;
             _logger = logger;
+            _currentTenantService = currentTenantService;
         }
 
         public async Task<HTTPResponse<string, string>> DeleteAccount(string accountId)
@@ -85,20 +89,44 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             if (account == null) return null;
             var dto = _mapper.Map<AccountDirectoryDTO>(account);
             // set department name
-            dto.DepartmentName = (await _departmentRepository.GetById(account.DepartmentId)).DisplayName;
+            var department = await _departmentRepository.GetById(account.DepartmentId);
+            dto.DepartmentName = department?.DisplayName ?? string.Empty;
             return dto;
         }
 
         public async Task<HTTPResponse<List<AccountDirectoryDTO>, string>> GetDirectoryOfAllRegisteredAccounts()
         {
+            var currentTenantId = _currentTenantService.TenantId;
+            if (string.IsNullOrWhiteSpace(currentTenantId))
+            {
+                _logger.LogWarning("Account directory requested without a resolved tenant id.");
+                return new HTTPResponse<List<AccountDirectoryDTO>, string>()
+                {
+                    Success = false,
+                    HttpCode = 401,
+                    Error = "Unable to resolve tenant context"
+                };
+            }
+
             // get all registed accounts
-            var registeredAccounts = (await _accountRepository.GetAll()).Where(i => i.AccountStatus == AccountConstants.REGISTERED_STATUS);
+            var registeredAccounts = (await _accountRepository.GetAll())
+                .Where(i => i.AccountStatus == AccountConstants.REGISTERED_STATUS)
+                .Where(i => i.TenantId == currentTenantId);
+
             var directory = new List<AccountDirectoryDTO>();
             foreach (var account in registeredAccounts)
             {
                 var directoryItem = _mapper.Map<AccountDirectoryDTO>(account);
-                // set department name
-                directoryItem.DepartmentName = (await _departmentRepository.GetById(account.DepartmentId)).DisplayName;
+
+                // set department name when present; skip cross-tenant leakage safely.
+                var department = await _departmentRepository.GetById(account.DepartmentId);
+                if (department == null)
+                {
+                    _logger.LogWarning("Skipping account {AccountId} in directory because department {DepartmentId} was not found for tenant {TenantId}.", account.Id, account.DepartmentId, currentTenantId);
+                    continue;
+                }
+
+                directoryItem.DepartmentName = department.DisplayName;
                 directory.Add(directoryItem);
             }
             return new HTTPResponse<List<AccountDirectoryDTO>, string>() { Success = true, HttpCode = 200, Data = directory };
