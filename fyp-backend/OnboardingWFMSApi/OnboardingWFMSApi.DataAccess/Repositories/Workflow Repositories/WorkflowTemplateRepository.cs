@@ -45,14 +45,26 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
                 await using var transaction = await _dbContext.Database.BeginTransactionAsync();
                 try
                 {
+                    var tenantId = _dbContext.CurrentTenantId;
+                    if (string.IsNullOrWhiteSpace(tenantId))
+                    {
+                        throw new InvalidOperationException("Workflow template insert attempted without a current tenant context.");
+                    }
+
                     // insert template data
                     workflowTemplate.Id = Guid.NewGuid().ToString();
+                    workflowTemplate.TenantId = tenantId;
                     workflowTemplate = (await _dbContext.workflowTemplates.AddAsync(workflowTemplate)).Entity;
 
                     // update nodes to reference new workflow template Id
                     foreach (var node in nodes)
                     {
+                        if (string.IsNullOrWhiteSpace(node.Id))
+                        {
+                            node.Id = Guid.NewGuid().ToString();
+                        }
                         node.WorkflowTemplateId = workflowTemplate.Id;
+                        node.TenantId = tenantId;
                     }
 
                     // insert node data
@@ -62,7 +74,12 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
                     // update dependencies to reference workflow template id
                     foreach (var depdency in dependencies)
                     {
+                        if (string.IsNullOrWhiteSpace(depdency.Id))
+                        {
+                            depdency.Id = Guid.NewGuid().ToString();
+                        }
                         depdency.WorkflowTemplateId = workflowTemplate.Id;
+                        depdency.TenantId = tenantId;
                     }
 
                     // insert node dependencies
@@ -93,6 +110,17 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
                 await using var transaction = await _dbContext.Database.BeginTransactionAsync();
                 try
                 {
+                    var tenantId = _dbContext.CurrentTenantId;
+                    if (string.IsNullOrWhiteSpace(tenantId))
+                    {
+                        throw new InvalidOperationException("Workflow template update attempted without a current tenant context.");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(workflowTemplate.TenantId))
+                    {
+                        workflowTemplate.TenantId = tenantId;
+                    }
+
                     // update base template data
                     _dbContext.workflowTemplates.Update(workflowTemplate);
                     await _dbContext.SaveChangesAsync();
@@ -107,6 +135,15 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
 
                     // find new nodes and insert
                     var newNodes = nodes.Where(n => !existingNodes.Contains(n));
+                    foreach (var node in newNodes)
+                    {
+                        if (string.IsNullOrWhiteSpace(node.Id))
+                        {
+                            node.Id = Guid.NewGuid().ToString();
+                        }
+                        node.WorkflowTemplateId = workflowTemplate.Id;
+                        node.TenantId = tenantId;
+                    }
                     await _dbContext.workflowTemplateNodes.AddRangeAsync(newNodes);
                     await _dbContext.SaveChangesAsync();
                     // remove deleted nodes
@@ -124,6 +161,15 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
 
                     // find new dependencies and insert
                     var newDependencies = dependencies.Where(d => !existingDependencies.Contains(d));
+                    foreach (var dependency in newDependencies)
+                    {
+                        if (string.IsNullOrWhiteSpace(dependency.Id))
+                        {
+                            dependency.Id = Guid.NewGuid().ToString();
+                        }
+                        dependency.WorkflowTemplateId = workflowTemplate.Id;
+                        dependency.TenantId = tenantId;
+                    }
                     await _dbContext.workflowTemplateNodeDependencies.AddRangeAsync(newDependencies);
                     await _dbContext.SaveChangesAsync();
                     // remove deleted dependencies

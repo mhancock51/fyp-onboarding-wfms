@@ -56,15 +56,19 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
                 throw new InvalidOperationException("Table datamodel doesn't have a key property");
             }
 
-            // if table has tenant Id column, set this
-            var tentantProp = typeof(TEntity).GetProperties().First(prop => prop.Name == nameof(ITenantTableEntity.TenantId));
-            if (keyProp != null && keyProp.CanWrite)
+            // If this entity is tenant-scoped, set TenantId when it hasn't been provided.
+            var tenantProp = typeof(TEntity).GetProperty(nameof(ITenantTableEntity.TenantId));
+            if (tenantProp != null && tenantProp.CanWrite)
             {
-                // ensure id hasn't already been set
-                var value = keyProp.GetValue(entity);
+                var value = tenantProp.GetValue(entity);
                 if (value == null || (value is string str && str == ""))
                 {
-                    keyProp.SetValue(entity, _dbContext.CurrentTenantId, null);
+                    if (string.IsNullOrWhiteSpace(_dbContext.CurrentTenantId))
+                    {
+                        throw new InvalidOperationException("Tenant-scoped entity insert attempted without a current tenant context.");
+                    }
+
+                    tenantProp.SetValue(entity, _dbContext.CurrentTenantId, null);
                 }
             }
 
