@@ -11,12 +11,12 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Blocks, Building, ChartNoAxesColumn, ClipboardList, ListTodo, MessageSquareWarning, Route, UserPlus, Users } from "lucide-react"
+import { Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon, UserPlus, Users } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG } from "@/features/appSlice"
+import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG } from "@/features/appSlice"
 import NotificationsSidebarMenu from "./NotificationSidebarMenu"
   
 
@@ -42,7 +42,7 @@ export function AppSidebar(props: Props) {
     {
       title: "Workflows",
       url: "/workflows",
-      icon: Route,
+      icon: WorkflowRouteIcon,
     },
     {
       title: "Task Issues",
@@ -71,31 +71,11 @@ export function AppSidebar(props: Props) {
 
   const supervisorItems = [
     {
-      title: "Workflows Dashboard",
-      onClickAction: () => { navigate("/workflows/dashboard")},
-      icon: ChartNoAxesColumn
-    }, 
-    {
-      title: "Start A Workflow Instance",
-      onClickAction: () => { dispatch(SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG(true));},
-      icon: Route
-    },
-    {
-      title: "Task Templates",
-      onClickAction: () => { dispatch(SET_OPEN_TASK_TEMPLATES_LIST_DIALOG(true));},
-      icon: ListTodo
-    },
-    {
-      title: "Workflow Templates",
-      onClickAction: () => { dispatch(SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG(true));},
-      icon: Route
-    },  
-    {
-      title: "Build a Workflow",
-      onClickAction: () => { navigate("/workflows/build")},
-      icon: Blocks
-    },
-  ]
+      title: "Workflow Dashboard",
+      onClickAction: () => { navigate("/workflows/dashboard"); },
+      icon: WorkflowRouteIcon
+    }
+  ];
 
   const logoSrc = props.organisationLogoData && props.organisationLogoMimeType
     ? `data:${props.organisationLogoMimeType};base64,${props.organisationLogoData}`
@@ -133,31 +113,26 @@ export function AppSidebar(props: Props) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          {
-            /* change this to isSupervisor check */
-            user?.isSupervisor &&
+          {user?.isSupervisor && (
             <SidebarGroup>
               <SidebarGroupLabel>Supervisor</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {
-                    supervisorItems.map((item, index) => (
-                      <SidebarMenuItem key={index}>
-                        <SidebarMenuButton asChild className="min-h-[34px]"> 
+                  {supervisorItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild className="min-h-[34px]">
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
                         </a>
                       </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))  
-                  }
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-          }
-          {
-            user?.isSupervisor &&
+          )}
+          {user?.isSupervisor && (
             <SidebarGroup>
               <SidebarGroupLabel>Organisation</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -175,7 +150,7 @@ export function AppSidebar(props: Props) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-          }
+          )}
         </SidebarContent>
         <SidebarFooter className="p-0 outline-none">          
           <SidebarUser user={{
