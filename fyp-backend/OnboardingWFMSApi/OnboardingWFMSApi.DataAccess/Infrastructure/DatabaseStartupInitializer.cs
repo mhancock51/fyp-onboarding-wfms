@@ -45,15 +45,52 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
         {
             new SubscriptionTierEntitlementTable()
             {
-                Id = "base-tier",
-                DisplayName = "Base tier",
+                Id = "admin-tier",
+                DisplayName = "Admin tier",
                 CanUploadDocuments = true,
                 MaxActiveWorkflowInstances = 99,
                 MaxDocumentStorageSpaceInMb = 999999,
                 MaxUsers = 999,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
+                PriceId = "",
             },
+            new SubscriptionTierEntitlementTable()
+            {
+                Id = "tier-1-subscription",
+                DisplayName = "Starter Tier",
+                CanUploadDocuments = true,
+                MaxActiveWorkflowInstances = 3,
+                MaxDocumentStorageSpaceInMb = 5000,
+                MaxUsers = 5,
+                CreatedDate = DateTime.Now,
+                IsActive = true,
+                PriceId = "price_1Tv0PwF3XLGavbWVRjlVnbia",
+            },
+            new SubscriptionTierEntitlementTable()
+            {
+                Id = "tier-2-subscription",
+                DisplayName = "Professional Tier",
+                CanUploadDocuments = true,
+                MaxActiveWorkflowInstances = 15,
+                MaxDocumentStorageSpaceInMb = 50000,
+                MaxUsers = 5,
+                CreatedDate = DateTime.Now,
+                IsActive = true,
+                PriceId = "price_1Tv0QcF3XLGavbWVOPdjuuvm",
+            },
+            new SubscriptionTierEntitlementTable()
+            {
+                Id = "tier-3-subscription",
+                DisplayName = "Enterprise Tier",
+                CanUploadDocuments = true,
+                MaxActiveWorkflowInstances = 9999,
+                MaxDocumentStorageSpaceInMb = 500000,
+                MaxUsers = 5,
+                CreatedDate = DateTime.Now,
+                IsActive = true,
+                PriceId = "price_1Tv0RbF3XLGavbWVpFO4fJbO",
+            }
         };
 
         private static readonly (string Id, string Name)[] DefaultTaskTypes =
@@ -151,10 +188,13 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
             var unfilteredAccounts = context.Accounts.IgnoreQueryFilters();
 
             // Subscription tier
-            if (!await unfilteredTiers.AnyAsync(t => t.Id == baseTierId, cancellationToken))
+            foreach(var tier in defaultSubscriptionTiers)
             {
-                await context.SubscriptionTierEntitlements.AddAsync(defaultSubscriptionTiers.First(), cancellationToken);
-                hasChanges = true;
+                if (!await unfilteredTiers.AnyAsync(t => t.Id == tier.Id, cancellationToken))
+                {
+                    await context.SubscriptionTierEntitlements.AddAsync(tier, cancellationToken);
+                    hasChanges = true;
+                }
             }
 
             // Task types are globally keyed by Id, so seed them once.
@@ -190,8 +230,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                         Id = seed.TenantId,
                         CreatedDateTime = DateTime.Now,
                         OwnerEmailAddress = seed.AdminEmail,
-                        HasActiveSubscription = true,
-                        IsOnHold = false,
+                        Status = TenantTable.TENANT_PROCURED_STATUS,
                         SubscriptionTeirId = baseTierId,
                     }, cancellationToken);
                     hasChanges = true;

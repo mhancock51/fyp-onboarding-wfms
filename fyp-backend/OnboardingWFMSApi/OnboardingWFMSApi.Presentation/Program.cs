@@ -129,6 +129,8 @@ builder.Services.AddScoped<IWorkflowInstanceAuditLogic, WorkflowInstanceAuditLog
 builder.Services.AddScoped<INotificationLogic, NotificationLogic>();
 builder.Services.AddScoped<IFeedbackLogic, FeedbackLogic>();
 
+// builder.Services.AddScoped<IStripeLogic, StripeLogic>();
+
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(TaskCompletedRequest).Assembly));

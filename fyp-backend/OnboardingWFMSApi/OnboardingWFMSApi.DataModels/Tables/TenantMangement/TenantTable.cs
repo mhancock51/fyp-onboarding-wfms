@@ -13,6 +13,11 @@ namespace OnboardingWFMSApi.DataModels.Tables
     [Table("Tenants")]
     public class TenantTable : ITableEntity
     {
+        public const string TENANT_PROCURED_STATUS = "procured";
+        public const string TENANT_ACTIVE_SUBSCRIPTION_STATUS = "active_subscription";
+        public const string TENANT_ON_HOLD_STATUS = "on_hold";
+        public const string TENANT_CLOSED_STATUS = "closed";
+
         // Per tentant:
         // - Id
         // - Email of owner of the organisation/subscription payer
@@ -25,13 +30,16 @@ namespace OnboardingWFMSApi.DataModels.Tables
         public DateTime CreatedDateTime {get; set; }
 
         public string OwnerEmailAddress { get; set; }
+
         /// <summary>
-        /// Flag for if tennant has an active subscription
+        /// Procured -> setup, subscription not active yet
+        /// Active Subscription -> active subscription, still paying
+        /// On Hold -> has subscription but hasn't paid for it
+        /// Closed -> no active subscription
         /// </summary>
-        public bool HasActiveSubscription {get; set; }
-        public bool IsOnHold {get; set;}
+        public string Status {get; set;}
 
         [ForeignKey(nameof(SubscriptionTierEntitlementTable.Id))]
-        public string SubscriptionTeirId { get; set; }
+        public string? SubscriptionTeirId { get; set; }
     }
 }

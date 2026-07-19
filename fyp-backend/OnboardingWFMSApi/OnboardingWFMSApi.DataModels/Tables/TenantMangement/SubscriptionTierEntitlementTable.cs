@@ -26,5 +26,7 @@ namespace OnboardingWFMSApi.DataModels.Tables.TenantMangement
         /// Is available to tenants
         /// </summary>
         public bool IsActive {get; set; }
+
+        public string PriceId {get; set;}
     }
 }
