@@ -2,7 +2,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner';
 import { TrendingDownIcon, TrendingUpIcon, TriangleAlert } from 'lucide-react'
-import { JSX } from 'react';
 
 interface Props {
   label: string;
@@ -17,7 +16,7 @@ interface Props {
   errored?: boolean;
 }
 
-export default function DataCard(props: Props) {
+const DataCard = (): React.FC => {
   return (
     <Card className={`@container/card min-h-[150px] ${props.colSpan ? props.colSpan : ""} ${props.rowSpan ? props.rowSpan : ""}`}>
       <CardHeader className="relative">
@@ -69,3 +68,5 @@ export default function DataCard(props: Props) {
     </Card>
   )
 }
+
+export default DataCard

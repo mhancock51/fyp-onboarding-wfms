@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;
@@ -85,6 +86,30 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public virtual async Task UpdateAsync(TEntity entity)
         {
+            // Detached update payloads often omit tenant metadata. Ensure tenant-scoped entities keep TenantId.
+            var tenantProp = typeof(TEntity).GetProperty(nameof(ITenantTableEntity.TenantId));
+            if (tenantProp != null && tenantProp.CanWrite)
+            {
+                var incomingTenantId = tenantProp.GetValue(entity) as string;
+                if (string.IsNullOrWhiteSpace(incomingTenantId))
+                {
+                    var currentTenantId = _dbContext.CurrentTenantId;
+                    var persistedEntity = await _dbContext.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(e => e.Id == entity.Id);
+                    var persistedTenantId = persistedEntity != null ? tenantProp.GetValue(persistedEntity) as string : null;
+
+                    var tenantIdToUse = !string.IsNullOrWhiteSpace(persistedTenantId)
+                        ? persistedTenantId
+                        : currentTenantId;
+
+                    if (string.IsNullOrWhiteSpace(tenantIdToUse))
+                    {
+                        throw new InvalidOperationException("Tenant-scoped entity update attempted without tenant context.");
+                    }
+
+                    tenantProp.SetValue(entity, tenantIdToUse, null);
+                }
+            }
+
             // prevent duplicate tracking
             var existingEntity = _dbContext.Set<TEntity>().Local
             .FirstOrDefault(e => e == entity || e.Id == entity.Id); // Assuming 'Id' is the primary key

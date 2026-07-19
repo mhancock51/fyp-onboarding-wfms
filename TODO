@@ -1,0 +1,1 @@
+1) implement a way of automatically inserting tentant ID when a tenant table entity is created/inserted into dbContext
