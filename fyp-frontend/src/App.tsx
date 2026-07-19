@@ -18,6 +18,7 @@ import { Spinner } from './components/ui/spinner';
 import { SET_ACCOUNTS_DIRECTORY, SET_DEPARTMENTS, SET_ORGANISATION, SET_TASK_TEMPLATES, SET_TASK_TYPES, SET_USER } from './features/appSlice';
 import WorkflowInstancesPage from './app/pages/WorkflowInstancesPage/WorkflowInstancesPage';
 import WorkflowDashboardPage from './app/pages/WorkflowDashboardPage/WorkflowDashboardPage';
+import OrganisationDashboardPage from './app/pages/OrganisationDashboardPage/OrganisationDashboardPage';
 import IssuesPage from './app/pages/IssuesPage/IssuesPage';
 import SettingsPage from './app/pages/SettingsPage/SettingsPage';
 import AuthenticatedUser from './models/AuthenticatedUser';
@@ -174,6 +175,7 @@ export default function App() {
         <Route path="settings" element={<SettingsPage/>} />
         <Route path="issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
         <Route path="workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
+        <Route path="organisation" element={user?.isSupervisor ? <OrganisationDashboardPage /> : <Navigate to="/" />} />
         <Route path="workflows/build" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />
       </Route>
     );

@@ -11,12 +11,11 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon, UserPlus, Users } from "lucide-react"
+import { Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
-import { useDispatch, useSelector } from "react-redux"
+import { useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG } from "@/features/appSlice"
 import NotificationsSidebarMenu from "./NotificationSidebarMenu"
   
 
@@ -30,8 +29,6 @@ export function AppSidebar(props: Props) {
   const navigate = useNavigate();
 
   const user = useSelector((state: RootState) => state.app.user);
-
-  const dispatch = useDispatch();
 
   const mainItems = [  
     {
@@ -51,29 +48,16 @@ export function AppSidebar(props: Props) {
     }
   ];
 
-  const adminItems = [    
-    {
-      title: "Invite User",
-      onClickAction: () => { dispatch(SET_OPEN_INVITE_DIALOG(true)); },
-      icon: UserPlus
-    },
-    {
-      title: "Manage Accounts",
-      onClickAction: () => { dispatch(SET_OPEN_ACCOUNTS_DIALOG(true)); },
-      icon: Users
-    },
-    {
-      title: "Manage Organisation",
-      onClickAction: () => { dispatch(SET_OPEN_ORGANISATION_DIALOG(true));},
-      icon: Building
-    }
-  ];
-
   const supervisorItems = [
     {
-      title: "Workflow Dashboard",
+      title: "Workflows",
       onClickAction: () => { navigate("/workflows/dashboard"); },
       icon: WorkflowRouteIcon
+    },
+    {
+      title: "Organisation",
+      onClickAction: () => { navigate("/organisation"); },
+      icon: Building
     }
   ];
 
@@ -115,31 +99,12 @@ export function AppSidebar(props: Props) {
           </SidebarGroup>
           {user?.isSupervisor && (
             <SidebarGroup>
-              <SidebarGroupLabel>Supervisor</SidebarGroupLabel>
+              <SidebarGroupLabel>Management</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {supervisorItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild className="min-h-[34px]">
-                        <a onClick={item.onClickAction}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          )}
-          {user?.isSupervisor && (
-            <SidebarGroup>
-              <SidebarGroupLabel>Organisation</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {adminItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild className="min-h-[38px]"> 
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
