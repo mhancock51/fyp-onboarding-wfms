@@ -23,6 +23,7 @@ import IssuesPage from './app/pages/IssuesPage/IssuesPage';
 import SettingsPage from './app/pages/SettingsPage/SettingsPage';
 import AuthenticatedUser from './models/AuthenticatedUser';
 import Department from './models/Department';
+import StripeCheckoutTestPage from './app/pages/StripeCheckoutTestPage/StripeCheckoutTestPage';
 
 export default function App() {
   const user: AuthenticatedUser | null = useSelector((state: RootState) => state.app.user);
@@ -173,6 +174,7 @@ export default function App() {
         <Route index element={<MyTasksPage />} />
         <Route path="workflows" element={<WorkflowInstancesPage />} />
         <Route path="settings" element={<SettingsPage/>} />
+        <Route path="stripe-test" element={user !== null ? <StripeCheckoutTestPage /> : <Navigate to="/login" />} />
         <Route path="issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
         <Route path="workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
         <Route path="organisation" element={user?.isSupervisor ? <OrganisationDashboardPage /> : <Navigate to="/" />} />

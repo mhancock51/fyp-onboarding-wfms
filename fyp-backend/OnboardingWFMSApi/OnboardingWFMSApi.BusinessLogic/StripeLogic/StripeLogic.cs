@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using OnboardingWFMSApi.BusinessLogic.TenantLogic;
 using OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Tables;
@@ -13,7 +16,8 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
 {
     public interface IStripeLogic
     {
-        public Task<HTTPResponse<Session, string>> CreateCheckoutSession(string tenantId, string tierId); 
+        public Task<HTTPResponse<Session, string>> CreateCheckoutSession(string tenantId, string tierId);
+        public Task<HTTPResponse<string, string>> HandleStripeEvent(Event stripeEvent); 
     }
 
     public class StripeLogic : IStripeLogic
@@ -21,16 +25,74 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
         private readonly ILogger<StripeLogic> _logger;
         private readonly ITenantRepository _tenantRepository;
         private readonly ISubscriptionTierRepository _subscriptionTierRepository;
+        private readonly string _stripeSecretKey;
+        private readonly string _stripeMode;
+        private readonly string _checkoutSuccessUrl;
+        private readonly string _checkoutCancelUrl;
 
-        public StripeLogic(ILogger<StripeLogic> logger, ITenantRepository tenantRepository, ISubscriptionTierRepository subscriptionTierRepository)
+        private const string TENANT_ID_META_DATA_KEY = "TenantId";
+        private const string SUBSCRIPTION_TIER_ID_META_DATA_KEY = "SubscriptionTierId";
+
+        private readonly ITenantOnboardingLogic _tenantOnboardingLogic;
+
+        public StripeLogic(
+            ILogger<StripeLogic> logger,
+            ITenantRepository tenantRepository,
+            ISubscriptionTierRepository subscriptionTierRepository,
+            IConfiguration configuration,
+            ITenantOnboardingLogic tenantOnboardingLogic)
         {
             _logger = logger;
             _tenantRepository = tenantRepository;
             _subscriptionTierRepository = subscriptionTierRepository;
+            _stripeSecretKey = configuration["Stripe:SecretKey"] ?? string.Empty;
+            _stripeMode = (configuration["Stripe:Mode"] ?? "test").Trim().ToLowerInvariant();
+            _checkoutSuccessUrl = configuration["Stripe:SuccessUrl"] ?? string.Empty;
+            _checkoutCancelUrl = configuration["Stripe:CancelUrl"] ?? string.Empty;
+            _tenantOnboardingLogic = tenantOnboardingLogic;
         }
 
         public async Task<HTTPResponse<Session, string>> CreateCheckoutSession(string tenantId, string tierId)
         {
+            if (string.IsNullOrWhiteSpace(_stripeSecretKey))
+            {
+                _logger.LogError("Stripe secret key is missing. Set Stripe:SecretKey in configuration or Stripe__SecretKey as an environment variable.");
+                return new HTTPResponse<Session, string>()
+                {
+                    Success = false,
+                    HttpCode = 500,
+                    Error = "Stripe is not configured."
+                };
+            }
+
+            if (_stripeMode == "test" && _stripeSecretKey.StartsWith("sk_live_", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogError("Stripe is configured for test mode but a live secret key was provided.");
+                return new HTTPResponse<Session, string>()
+                {
+                    Success = false,
+                    HttpCode = 500,
+                    Error = "Stripe test mode is enabled, but a live API key is configured."
+                };
+            }
+
+            if (_stripeMode == "live" && _stripeSecretKey.StartsWith("sk_test_", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("Stripe is configured for live mode but a test secret key was provided.");
+            }
+
+            if (!Uri.TryCreate(_checkoutSuccessUrl, UriKind.Absolute, out _)
+                || !Uri.TryCreate(_checkoutCancelUrl, UriKind.Absolute, out _))
+            {
+                _logger.LogError("Stripe checkout URLs are invalid. Configure absolute Stripe:SuccessUrl and Stripe:CancelUrl values.");
+                return new HTTPResponse<Session, string>()
+                {
+                    Success = false,
+                    HttpCode = 500,
+                    Error = "Stripe checkout URLs are not configured correctly."
+                };
+            }
+
             // check tenant exists
             var tenant = await _tenantRepository.GetById(tenantId);
             if (tenant == null)
@@ -87,12 +149,22 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                             Quantity = 1,
                         },
                     },
+                    Metadata = new Dictionary<string, string>
+                    {
+                        {
+                            TENANT_ID_META_DATA_KEY, tenantId
+                        },
+                        {
+                            SUBSCRIPTION_TIER_ID_META_DATA_KEY, subscriptionTier.Id
+                        }
+                    },
                     Mode = "subscription", 
-                    SuccessUrl = $"/",
-                    CancelUrl = $"/",
+                    SuccessUrl = _checkoutSuccessUrl,
+                    CancelUrl = _checkoutCancelUrl,
                 };
 
-                var service = new SessionService();
+                var client = new StripeClient(_stripeSecretKey);
+                var service = new SessionService(client);
                 Session session = await service.CreateAsync(options);
 
                 _logger.LogInformation($"Successfully created checkout for tenant: {tenant.Id}, owned by: {tenant.OwnerEmailAddress}");
@@ -116,6 +188,87 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                     Error = "Failed to create stripe checkout."
                 };
             }
+        }
+
+        public async Task<HTTPResponse<string, string>> HandleStripeEvent(Event stripeEvent)
+        {
+            HTTPResponse<string, string> result = new HTTPResponse<string, string>()
+            {
+                Success = false,
+                HttpCode = 500,
+            };
+            // pipe event into switch statement to determine what happens
+            Session session = stripeEvent.Data.Object as Session;
+
+            _logger.LogInformation("Session Object:");
+            _logger.LogInformation(JsonConvert.SerializeObject(session));
+            switch(stripeEvent.Type)
+            {
+                case EventTypes.CheckoutSessionCompleted:
+                    result = await HandleCheckoutSessionCompletedEvent(stripeEvent, session);
+                    break;
+                default:
+                    _logger.LogInformation($"Stripe event {stripeEvent.Type} not supported by this method");
+                    result = new HTTPResponse<string, string>()
+                    {
+                        Success = false,
+                        HttpCode = 202
+                    };
+                    break;
+
+            }
+
+            return result;
+        }
+
+        private async Task<HTTPResponse<string, string>> HandleCheckoutSessionCompletedEvent(Event stripeEvent, Session? session)
+        {
+            if (session == null)
+            {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    HttpCode = 400,
+                    Message = "Event doesn't have a session."
+                };
+            }
+
+            if (session.Mode != "subscription")
+            {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    HttpCode = 400,
+                    Message = "Session mode is not for a subscription"
+                };
+            }
+
+            // get meta data:
+            session.Metadata.TryGetValue(TENANT_ID_META_DATA_KEY, out string tenantId);
+            session.Metadata.TryGetValue(SUBSCRIPTION_TIER_ID_META_DATA_KEY, out string subscriptionTierId);
+
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                _logger.LogError("Tenant ID from meta data of checkout completed event can't be empty.");
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "Tenant ID from meta data of checkout completed event can't be empty.",
+                    HttpCode = 400
+                };
+            }
+            if (string.IsNullOrEmpty(subscriptionTierId))
+            {
+                _logger.LogError("Subscription tier ID from meta data of checkout completed event can't be empty.");
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "Subscription tier ID from meta data of checkout completed event can't be empty.",
+                    HttpCode = 400
+                };
+            }
+
+            return await _tenantOnboardingLogic.ActivateTenantWithSubscription(tenantId, subscriptionTierId);            
         }
     }
 }

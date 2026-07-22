@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
+import { BadgeDollarSign, Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useNavigate } from "react-router"
 import { useSelector } from "react-redux"
@@ -58,6 +58,11 @@ export function AppSidebar(props: Props) {
       title: "Organisation",
       onClickAction: () => { navigate("/organisation"); },
       icon: Building
+    },
+    {
+      title: "Stripe Test",
+      onClickAction: () => { navigate("/stripe-test"); },
+      icon: BadgeDollarSign
     }
   ];
 

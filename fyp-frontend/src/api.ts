@@ -42,6 +42,13 @@ AuthInstance.interceptors.response.use(
 );
 
 const Api = {  
+  stripe: {
+    createCheckoutSession: async(subscriptionTierId: string) => {
+      return AuthInstance.post(`${ROUTE_URL}/stripe/create-checkout-session`, {
+        subscriptionTierId: subscriptionTierId
+      });
+    }
+  },
   notifications: {
     fetchNotifications: async() => {
       return AuthInstance.get(`${ROUTE_URL}/notifications/all`);

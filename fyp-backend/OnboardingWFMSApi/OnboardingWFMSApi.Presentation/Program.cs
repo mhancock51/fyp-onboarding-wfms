@@ -13,14 +13,17 @@ using OnboardingWFMSApi.BusinessLogic.Handlers.TaskInstanceHandlers;
 using OnboardingWFMSApi.BusinessLogic.Handlers.TaskTemplateHandlers;
 using OnboardingWFMSApi.BusinessLogic.NotificationLogic;
 using OnboardingWFMSApi.BusinessLogic.ReportedIssuesLogic;
+using OnboardingWFMSApi.BusinessLogic.StripeLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
+using OnboardingWFMSApi.BusinessLogic.TenantLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
 using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Infrastructure;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
@@ -90,6 +93,9 @@ builder.Services.AddScoped<IWorkflowInstanceAuditLogRepository, WorkflowInstance
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
+builder.Services.AddScoped<ISubscriptionTierRepository, SubscriptionTierRepository>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
@@ -129,7 +135,8 @@ builder.Services.AddScoped<IWorkflowInstanceAuditLogic, WorkflowInstanceAuditLog
 builder.Services.AddScoped<INotificationLogic, NotificationLogic>();
 builder.Services.AddScoped<IFeedbackLogic, FeedbackLogic>();
 
-// builder.Services.AddScoped<IStripeLogic, StripeLogic>();
+builder.Services.AddScoped<ITenantOnboardingLogic, TenantBoardingLogic>();
+builder.Services.AddScoped<IStripeLogic, StripeLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies

@@ -65,7 +65,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 MaxUsers = 5,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
-                PriceId = "price_1Tv0PwF3XLGavbWVRjlVnbia",
+                PriceId = "price_1TvHoUF3XLGavbWV0MF0ZXIW",
             },
             new SubscriptionTierEntitlementTable()
             {
@@ -77,7 +77,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 MaxUsers = 5,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
-                PriceId = "price_1Tv0QcF3XLGavbWVOPdjuuvm",
+                PriceId = "price_1TvHolF3XLGavbWVTeoOaQar",
             },
             new SubscriptionTierEntitlementTable()
             {
@@ -89,7 +89,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 MaxUsers = 5,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
-                PriceId = "price_1Tv0RbF3XLGavbWVpFO4fJbO",
+                PriceId = "price_1TvHowF3XLGavbWVvEe7buh3",
             }
         };
 
