@@ -111,7 +111,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                 {
                     Success = false,
                     Error = "Tenant already has a subscription",
-                    HttpCode = 200
+                    HttpCode = 400
                 };
             }
 

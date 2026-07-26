@@ -239,7 +239,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         public async Task<bool> DoesTenantHaveSubscription(string tenantId)
         {
             var tenantSubscription = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
-            return tenantSubscription == null;
+            return tenantSubscription != null;
         }
 
         public async Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId)

@@ -23,7 +23,8 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories
 
         public async Task<TenantSubscriptionTable?> GetTenantSubscriptionByTenantId(string tenantId)
         {
-            return await _dbContext.TenantSubscriptions.FirstAsync(t => t.TenantId == tenantId);
+            return await _dbContext.TenantSubscriptions
+                .FirstOrDefaultAsync(t => t.TenantId == tenantId);
         }
     }
 }

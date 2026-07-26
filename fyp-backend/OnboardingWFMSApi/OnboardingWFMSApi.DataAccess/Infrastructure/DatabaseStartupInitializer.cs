@@ -13,6 +13,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
     public static class DatabaseStartupInitializer
     {
         private const string DefaultAdminPlainPassword = "pword123";
+        private const string DefaultNonAdminPlainPassword = "pword123";
         private const string RegisteredAccountStatus = "registered";
 
         private static readonly TenantSeedDefinition[] DefaultTenantSeeds =
@@ -27,6 +28,15 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 AdminAccountId = "default-supervisor-admin-1",
                 AdminDisplayName = "Default Supervisor 1",
                 AdminEmail = "admin1@test.co.uk",
+                NonAdminAccounts = new[]
+                {
+                    new NonAdminSeedDefinition
+                    {
+                        AccountId = "default-user-1",
+                        DisplayName = "Default User 1",
+                        Email = "user1@test.co.uk"
+                    }
+                }
             },
             new()
             {
@@ -38,6 +48,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 AdminAccountId = "default-supervisor-admin-2",
                 AdminDisplayName = "Default Supervisor 2",
                 AdminEmail = "admin2@test.co.uk",
+                NonAdminAccounts = Array.Empty<NonAdminSeedDefinition>()
             },
         };
 
@@ -188,7 +199,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
             var unfilteredAccounts = context.Accounts.IgnoreQueryFilters();
 
             // Subscription tier
-            foreach(var tier in defaultSubscriptionTiers)
+            foreach (var tier in defaultSubscriptionTiers)
             {
                 if (!await unfilteredTiers.AnyAsync(t => t.Id == tier.Id, cancellationToken))
                 {
@@ -229,7 +240,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                     {
                         Id = seed.TenantId,
                         CreatedDateTime = DateTime.Now,
-                        OwnerAccountId = seed.AdminAccountId,                                               
+                        OwnerAccountId = seed.AdminAccountId,
                     }, cancellationToken);
                     hasChanges = true;
                 }
@@ -276,6 +287,31 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                     }, cancellationToken);
                     hasChanges = true;
                 }
+
+                // Optional non-admin accounts
+                if (seed.NonAdminAccounts != null)
+                {
+                    foreach (var nonAdmin in seed.NonAdminAccounts)
+                    {
+                        var nonAdminEmail = nonAdmin.Email.ToLowerInvariant();
+                        if (!await unfilteredAccounts.AnyAsync(a => a.EmailAddress.ToLower() == nonAdminEmail && a.TenantId == seed.TenantId, cancellationToken))
+                        {
+                            await context.Accounts.AddAsync(new AccountTable
+                            {
+                                Id = nonAdmin.AccountId,
+                                DisplayName = nonAdmin.DisplayName,
+                                EmailAddress = nonAdmin.Email,
+                                HashedPassword = ComputeSha256Hex(DefaultNonAdminPlainPassword),
+                                IsSupervisor = false,
+                                DepartmentId = seed.DepartmentId,
+                                OrganisationId = seed.OrganisationId,
+                                AccountStatus = RegisteredAccountStatus,
+                                TenantId = seed.TenantId
+                            }, cancellationToken);
+                            hasChanges = true;
+                        }
+                    }
+                }
             }
 
             if (hasChanges)
@@ -283,6 +319,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 await context.SaveChangesAsync(cancellationToken);
             }
         }
+
         private static string ComputeSha256Hex(string value)
         {
             using var hashAlgorithm = SHA256.Create();
@@ -307,6 +344,14 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
             public required string AdminAccountId { get; init; }
             public required string AdminDisplayName { get; init; }
             public required string AdminEmail { get; init; }
+            public IReadOnlyList<NonAdminSeedDefinition>? NonAdminAccounts { get; init; }
+        }
+
+        private sealed class NonAdminSeedDefinition
+        {
+            public required string AccountId { get; init; }
+            public required string DisplayName { get; init; }
+            public required string Email { get; init; }
         }
     }
 }
