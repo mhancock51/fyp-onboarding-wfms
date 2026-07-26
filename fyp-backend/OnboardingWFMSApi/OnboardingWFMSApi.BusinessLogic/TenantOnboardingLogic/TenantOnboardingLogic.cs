@@ -31,14 +31,16 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         private readonly ITenantRepository _tenantRepository;
         private readonly ISubscriptionTierRepository _subscriptionTierRepository;
         private readonly ITenantSubscriptionRepository _tenantSubscriptionRepository;
+        private readonly ITenantSubscriptionAuditLogsRepository _auditLogsRepository;
         private readonly ILogger<TenantBoardingLogic> _logger;
 
-        public TenantBoardingLogic(ITenantRepository tenantRepository, ILogger<TenantBoardingLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository)
+        public TenantBoardingLogic(ITenantRepository tenantRepository, ILogger<TenantBoardingLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository)
         {
             _tenantRepository = tenantRepository;
             _logger = logger;
             _subscriptionTierRepository = subscriptionTierRepository;
             _tenantSubscriptionRepository = tenantSubscriptionRepository;
+            _auditLogsRepository = auditLogsRepository;
         }
 
         /// <summary>
@@ -144,7 +146,15 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
                 };
                 await _tenantSubscriptionRepository.AddAsync(tenantSubscription);
 
-                _logger.LogInformation($"Successfully activated subscription for tenant: {tenant.Id}");
+                string successMsg = $"Successfully activated subscription for tenant";
+                await _auditLogsRepository.AddAsync(new TenantSubscriptionAuditLogsTable()
+                {
+                    TenantId = tenantId,
+                    Timestamp = DateTime.Now,
+                    EventDescription = $"{successMsg} ({tenantSubscription.StripeCustomerId}, {tenantSubscription.StripeSubscriptionId}, {tenantSubscription.StripeSubscriptionStatus})"
+                });
+
+                _logger.LogInformation(successMsg);
                 
                 return new HTTPResponse<string, string>()
                 {
@@ -155,11 +165,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to update tenant: {ex}");
+                _logger.LogError($"Failed to activate tenant's subscription: {ex}");
                 return new HTTPResponse<string, string>()
                 {
                     Success = false,
-                    Error = "Failed to update tenant",
+                    Error = "Failed to activate tenant's subscription",
                     HttpCode = 500
                 };
             }
@@ -174,10 +184,18 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         {
             try
             {
-                await _tenantRepository.AddAsync(new TenantTable
+                var tenant = await _tenantRepository.AddAsync(new TenantTable
                 {
                     CreatedDateTime = DateTime.Now,          
                     OwnerAccountId = ownerAccountId      
+                });
+
+                var successMsg = $"Successfully created tenant {tenant.Id}";
+                await _auditLogsRepository.AddAsync(new TenantSubscriptionAuditLogsTable()
+                {
+                    TenantId = tenant.Id,
+                    Timestamp = DateTime.Now,
+                    EventDescription = successMsg
                 });
                 return new HTTPResponse<string, string>() { Success = true, Message = "Successfully created tenant", HttpCode = 200 };
             }
@@ -215,7 +233,15 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             subscription.StripeSubscriptionStatus = "active";
             await _tenantSubscriptionRepository.UpdateAsync(subscription);
 
-            _logger.LogInformation($"Subscription extended from {previousCurrentPeriodEnd} to {subscription.StripeCurrentPeriodEnd} for customer: {subscription.StripeCustomerId} (sub: {subscription.StripeSubscriptionId})");
+            string successMsg = $"Subscription extended from {previousCurrentPeriodEnd} to {subscription.StripeCurrentPeriodEnd} for customer: {subscription.StripeCustomerId} (sub: {subscription.StripeSubscriptionId})";
+            await _auditLogsRepository.AddAsync(new TenantSubscriptionAuditLogsTable()
+            {
+                TenantId = subscription.TenantId,
+                Timestamp = DateTime.Now,
+                EventDescription = successMsg
+            });
+
+            _logger.LogInformation(successMsg);
             return new HTTPResponse<string, string>()
             {
                 Success = true,
@@ -236,7 +262,16 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             subscription.StripeSubscriptionStatus = "overdue";
             await _tenantSubscriptionRepository.UpdateAsync(subscription);
 
-            _logger.LogInformation($"Successfully moved tenant subscription to overdue");
+            string successMsg = "Successfully moved tenant subscription to overdue";
+            await _auditLogsRepository.AddAsync(new TenantSubscriptionAuditLogsTable()
+            {
+                TenantId = subscription.TenantId,
+                Timestamp = DateTime.Now,
+                EventDescription = successMsg
+            });
+
+            _logger.LogInformation(successMsg);
+
             return new HTTPResponse<string, string>()
             {
                 Success = true,
@@ -262,10 +297,20 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
                     throw new Exception("Tenant subscription doesn't exist");
                 }
                 await _tenantSubscriptionRepository.DeleteAsync(tenantSubscription);
+
+                string successMsg = $"Successfully delete tenant subscription {tenantSubscription.Id} ({tenantSubscription.StripeCustomerId}, {tenantSubscription.StripeSubscriptionId})";
+                await _auditLogsRepository.AddAsync(new TenantSubscriptionAuditLogsTable()
+                {
+                    TenantId = tenantSubscription.TenantId,
+                    Timestamp = DateTime.Now,
+                    EventDescription = successMsg
+                });
+                _logger.LogInformation(successMsg);
+
                 return new HTTPResponse<string, string>()
                 {
                     Success = true,
-                    Message = "Successfully delete tenant subscription",
+                    Message = successMsg,
                     HttpCode = 200
                 };
             }

@@ -34,6 +34,7 @@ namespace OnboardingWFMSApi.DataAccess
         public DbSet<TenantTable> Tennants { get; set; }
         public DbSet<SubscriptionTierEntitlementTable> SubscriptionTierEntitlements { get; set; } 
         public DbSet<TenantSubscriptionTable> TenantSubscriptions {get; set; }
+        public DbSet<TenantSubscriptionAuditLogsTable> TenantSubscriptionAuditLogs {get; set;}
 
         public DbSet<OrganisationTable> Organisations { get; set; }
         public DbSet<AccountTable> Accounts { get; set; }
