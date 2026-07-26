@@ -229,8 +229,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                     {
                         Id = seed.TenantId,
                         CreatedDateTime = DateTime.Now,
-                        OwnerEmailAddress = seed.AdminEmail,
-                        Status = TenantTable.TENANT_PROCURED_STATUS,
+                        OwnerAccountId = seed.AdminAccountId,                                               
                     }, cancellationToken);
                     hasChanges = true;
                 }

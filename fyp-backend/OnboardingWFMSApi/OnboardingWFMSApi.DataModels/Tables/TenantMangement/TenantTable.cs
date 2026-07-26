@@ -20,8 +20,9 @@ namespace OnboardingWFMSApi.DataModels.Tables
 
         [Key]
         public string Id { get; set;}
-        public DateTime CreatedDateTime {get; set; }
+        public DateTime CreatedDateTime {get; set; }        
 
-        public string OwnerEmailAddress { get; set; }
+        [ForeignKey(nameof(AccountTable.Id))]
+        public string OwnerAccountId {get; set;}
     }
 }

@@ -110,7 +110,7 @@ namespace OnboardingWFMSApi.DataAccess
 
             // make tentant tables unique
             modelBuilder.Entity<TenantTable>()
-                .HasIndex(t => t.OwnerEmailAddress)
+                .HasIndex(t => t.OwnerAccountId)
                 .IsUnique();
 
         }

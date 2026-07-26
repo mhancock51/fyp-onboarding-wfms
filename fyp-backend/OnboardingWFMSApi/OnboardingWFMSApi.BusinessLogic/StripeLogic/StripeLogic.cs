@@ -167,7 +167,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                 var service = new SessionService(client);
                 Session session = await service.CreateAsync(options);
 
-                _logger.LogInformation($"Successfully created checkout for tenant: {tenant.Id}, owned by: {tenant.OwnerEmailAddress}");
+                _logger.LogInformation($"Successfully created checkout for tenant: {tenant.Id}, owned by: {tenant.OwnerAccountId}");
 
                 // Return the checkout URL to your frontend
                 return new HTTPResponse<Session, string>()

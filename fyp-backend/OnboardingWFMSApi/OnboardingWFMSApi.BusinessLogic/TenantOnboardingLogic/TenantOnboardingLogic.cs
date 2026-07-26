@@ -17,7 +17,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
 {
     public interface ITenantOnboardingLogic
     {
-        public Task<HTTPResponse<string, string>> InitialiseTenant(CreateTenantPayload payload);
+        public Task<HTTPResponse<string, string>> InitialiseTenant(string ownerAccountId);
         public Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Subscription subscription);
         public Task<HTTPResponse<string, string>> ExtendTenantSubscription(Invoice invoice);
         public Task<HTTPResponse<string, string>> ChangeTenantSubscriptionStatusToOverdue(string stripeSubscriptionId, string stripeCustomerId);
@@ -166,14 +166,14 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        public async Task<HTTPResponse<string, string>> InitialiseTenant(CreateTenantPayload payload)
+        public async Task<HTTPResponse<string, string>> InitialiseTenant(string ownerAccountId)
         {
             try
             {
                 await _tenantRepository.AddAsync(new TenantTable
                 {
-                    CreatedDateTime = DateTime.Now,
-                    OwnerEmailAddress = payload.OwnerEmailAddress,
+                    CreatedDateTime = DateTime.Now,          
+                    OwnerAccountId = ownerAccountId      
                 });
                 return new HTTPResponse<string, string>() { Success = true, Message = "Successfully created tenant", HttpCode = 200 };
             }
