@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using OnboardingWFMSApi.BusinessLogic.TenantLogic;
 using OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
 using Stripe;
 using Stripe.Checkout;
@@ -17,7 +18,8 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
     public interface IStripeLogic
     {
         public Task<HTTPResponse<Session, string>> CreateCheckoutSession(string tenantId, string tierId);
-        public Task<HTTPResponse<string, string>> HandleStripeEvent(Event stripeEvent); 
+        public Task<HTTPResponse<string, string>> HandleStripeEvent(Event stripeEvent);
+        public Task<HTTPResponse<List<PricingTierDTO>, string>> GetPublicPricingTiers();
     }
 
     public class StripeLogic : IStripeLogic
@@ -254,5 +256,171 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
 
             return result;
         }
+
+        #region Public pricing (for landing page)
+        /// <summary>
+        /// Returns active subscription tiers with live Stripe price data
+        /// and feature lists for display on the public landing page.
+        /// </summary>
+        public async Task<HTTPResponse<List<PricingTierDTO>, string>> GetPublicPricingTiers()
+        {
+            try
+            {
+                // 1. Get all active tiers from the database
+                var allTiers = await _subscriptionTierRepository.GetAll();
+                var activeTiers = allTiers.Where(t => t.IsActive && t.Id != "admin-tier").ToList();
+
+                // 2. Build a feature map keyed by tier Id
+                var featureMap = GetTierFeatureMap();
+
+                // 3. Create a Stripe client for fetching live price data
+                var stripeClient = new StripeClient(_stripeSecretKey);
+                var priceService = new PriceService(stripeClient);
+
+                // 4. For each tier, try to fetch the Stripe Price
+                var result = new List<PricingTierDTO>();
+                foreach (var tier in activeTiers)
+                {
+                    var dto = new PricingTierDTO
+                    {
+                        Id = tier.Id,
+                        DisplayName = tier.DisplayName,
+                        Description = GetTierDescription(tier.Id),
+                        Highlighted = tier.Id == "tier-2-subscription",
+                        CtaText = tier.Id == "tier-3-subscription" ? "Contact Sales" : "Start Free Trial",
+                        Features = featureMap.TryGetValue(tier.Id, out var features)
+                            ? features
+                            : new List<string>()
+                    };
+
+                    // Try to fetch live price from Stripe
+                    if (!string.IsNullOrWhiteSpace(tier.PriceId))
+                    {
+                        try
+                        {
+                            var stripePrice = await priceService.GetAsync(tier.PriceId);
+                            dto.UnitAmount = stripePrice.UnitAmount;
+                            dto.Currency = stripePrice.Currency?.ToUpperInvariant() ?? "USD";
+                            dto.Interval = stripePrice.Recurring?.Interval ?? "month";
+
+                            dto.PriceDisplay = FormatPriceDisplay(
+                                stripePrice.UnitAmount,
+                                stripePrice.Currency,
+                                stripePrice.Recurring?.Interval,
+                                stripePrice.Recurring?.IntervalCount ?? 1);
+                        }
+                        catch (StripeException ex)
+                        {
+                            _logger.LogWarning(
+                                "Failed to fetch Stripe price {PriceId} for tier {TierId}: {Message}",
+                                tier.PriceId, tier.Id, ex.Message);
+                            // Fall back to a placeholder so the page still renders
+                            dto.PriceDisplay = "Contact us";
+                        }
+                    }
+                    else
+                    {
+                        // Enterprise / custom-priced tier
+                        dto.PriceDisplay = "Custom";
+                        dto.Interval = string.Empty;
+                    }
+
+                    result.Add(dto);
+                }
+
+                return new HTTPResponse<List<PricingTierDTO>, string>
+                {
+                    Success = true,
+                    HttpCode = 200,
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to build public pricing tiers");
+                return new HTTPResponse<List<PricingTierDTO>, string>
+                {
+                    Success = false,
+                    HttpCode = 500,
+                    Error = "Unable to retrieve pricing information."
+                };
+            }
+        }
+
+        private static string FormatPriceDisplay(long? unitAmount, string? currency, string? interval, long intervalCount)
+        {
+            if (unitAmount == null) return "Contact us";
+
+            var symbol = (currency?.ToUpperInvariant()) switch
+            {
+                "USD" => "$",
+                "EUR" => "€",
+                "GBP" => "£",
+                "CAD" => "CA$",
+                "AUD" => "A$",
+                _ => (currency ?? "") + " "
+            };
+
+            var amount = (decimal)unitAmount.Value / 100m;
+            var amountStr = amount % 1 == 0 ? $"{amount:0}" : $"{amount:0.00}";
+
+            var intervalStr = interval?.ToLowerInvariant() switch
+            {
+                "month" when intervalCount == 1 => "/month",
+                "month" => $"/{intervalCount} months",
+                "year" when intervalCount == 1 => "/year",
+                "year" => $"/{intervalCount} years",
+                _ => ""
+            };
+
+            return $"{symbol}{amountStr}{intervalStr}";
+        }
+
+        private static string GetTierDescription(string tierId) => tierId switch
+        {
+            "tier-1-subscription" => "Perfect for small teams getting started with structured onboarding.",
+            "tier-2-subscription" => "For growing companies that need advanced workflows and integrations.",
+            "tier-3-subscription" => "For large organizations with complex, multi-department onboarding needs.",
+            _ => ""
+        };
+
+        private static Dictionary<string, List<string>> GetTierFeatureMap() => new()
+        {
+            ["tier-1-subscription"] = new List<string>
+            {
+                "Up to 5 workflow templates",
+                "10 task templates",
+                "5 active onboardings",
+                "Basic document storage (100 MB)",
+                "Email support"
+            },
+            ["tier-2-subscription"] = new List<string>
+            {
+                "Unlimited workflow templates",
+                "Unlimited task templates",
+                "50 active onboardings",
+                "1 GB document storage",
+                "Custom branding",
+                "API access & webhooks",
+                "Priority support"
+            },
+            ["tier-3-subscription"] = new List<string>
+            {
+                "Everything in Professional",
+                "Unlimited active onboardings",
+                "Unlimited document storage",
+                "SSO / SAML / OAuth",
+                "Dedicated tenant isolation",
+                "Custom integrations",
+                "Dedicated account manager"
+            },
+            ["admin-tier"] = new List<string>
+            {
+                "All features",
+                "Unlimited everything",
+                "Full administrative access"
+            }
+        };
+        #endregion
     }
 }

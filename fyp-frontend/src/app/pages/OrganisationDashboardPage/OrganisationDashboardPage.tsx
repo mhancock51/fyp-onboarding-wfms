@@ -30,7 +30,7 @@ export default function OrganisationDashboardPage() {
       icon: Building,
       buttonLabel: 'Open organisation settings',
       onClick: () => { dispatch(SET_OPEN_ORGANISATION_DIALOG(true)); }
-    }
+    }    
   ];
 
   return (
