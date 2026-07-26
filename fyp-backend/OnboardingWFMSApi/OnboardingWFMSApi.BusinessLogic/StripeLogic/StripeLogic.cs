@@ -268,26 +268,9 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                     };
                 }
             
-                // if (invoice.BillingReason == "subscription_created")
-                // {
-                //     return await _tenantOnboardingLogic.ActivateTenantWithSubscription(tenantId, subscriptionTierId, session); 
-                // }
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Not implemented",
-                    HttpCode = 500
-                };
-
+                return await _tenantOnboardingLogic.ExtendTenantSubscription(tenantId, subscriptionTierId, invoice);
             }
-            else
-            {
-                return new HTTPResponse<string, string>() {
-                    Success = false,
-                    HttpCode = 400,
-                    Error = "Event data object isn't a subscription."
-                };
-            }
+            
             return new HTTPResponse<string, string>() {
                 Success = false,
                 HttpCode = 400,
