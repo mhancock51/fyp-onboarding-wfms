@@ -18,7 +18,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
     public interface ITenantOnboardingLogic
     {
         public Task<HTTPResponse<string, string>> InitialiseTenant(string ownerAccountId);
-        public Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Subscription subscription);
+        public Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Session session);
         public Task<HTTPResponse<string, string>> ExtendTenantSubscription(Invoice invoice);
         public Task<HTTPResponse<string, string>> ChangeTenantSubscriptionStatusToOverdue(string stripeSubscriptionId, string stripeCustomerId);
         public Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId);
@@ -46,13 +46,15 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="subscriptionTierId"></param>
-        /// <param name="subscription"></param>
+        /// <param name="session"></param>
         /// <returns></returns>
-        public async Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Subscription subscription)
+        public async Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Session session)
         {
+            _logger.LogInformation("Activating tenant with subscription...");
+
             // get meta data:
-            subscription.Metadata.TryGetValue(StripeConstants.TENANT_ID_META_DATA_KEY, out string tenantId);
-            subscription.Metadata.TryGetValue(StripeConstants.SUBSCRIPTION_TIER_ID_META_DATA_KEY, out string subscriptionTierId);
+            session.Metadata.TryGetValue(StripeConstants.TENANT_ID_META_DATA_KEY, out string tenantId);
+            session.Metadata.TryGetValue(StripeConstants.SUBSCRIPTION_TIER_ID_META_DATA_KEY, out string subscriptionTierId);
             if (string.IsNullOrEmpty(tenantId))
             {
                 _logger.LogError("Tenant ID from meta data of checkout completed event can't be empty.");
@@ -88,8 +90,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
 
             // check there isn't already an active subscription linked to this tenant
             var existingSubscription = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);            
-            if (existingSubscription == null)
+            if (existingSubscription != null)
             {
+                _logger.LogError("Failed to activated subscription: tenant already has an active subscription");
                 return new HTTPResponse<string, string>()
                 {
                     Success = false,
@@ -126,21 +129,22 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             try
             {
                 // update status and creat subscription link 
-                await _tenantRepository.UpdateAsync(tenant);
-                _logger.LogInformation($"Successfully activated subscription for tenant: {tenant.Id}");
+                await _tenantRepository.UpdateAsync(tenant);   
+
 
                 var tenantSubscription = new TenantSubscriptionTable()
                 {
                     TenantId = tenantId,
                     SubscriptionTierId = subscriptionTierId,
                     CreatedDate = DateTime.Now,
-                    StripeCustomerId = subscription.CustomerId,
-                    StripeSubscriptionId = subscription.Id,
-                    StripeCurrentPeriodEnd = subscription.Items.First().CurrentPeriodEnd,
+                    StripeCustomerId = session.CustomerId,
+                    StripeSubscriptionId = session.SubscriptionId,
+                    StripeCurrentPeriodEnd = DateTime.Now.AddMonths(1),
                     StripeSubscriptionStatus = "active"
                 };
-
                 await _tenantSubscriptionRepository.AddAsync(tenantSubscription);
+
+                _logger.LogInformation($"Successfully activated subscription for tenant: {tenant.Id}");
                 
                 return new HTTPResponse<string, string>()
                 {
@@ -197,7 +201,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             var subscription = await _tenantSubscriptionRepository.FindAsync(ts => ts.StripeSubscriptionId == subscriptionLine.SubscriptionId && ts.StripeCustomerId == invoice.CustomerId);
             if (subscription == null)
             {
-                throw new Exception("Tenant subscription doesn't exist");                
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "Tenant subscription doesn't exist",
+                    HttpCode = 400
+                };
             }
                         
             var previousCurrentPeriodEnd = subscription.StripeCurrentPeriodEnd;
@@ -244,12 +253,13 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
 
         public async Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId)
         {
+            _logger.LogInformation($"Deleting tenant subscription ({stripeCustomerId}, {stripeSubscriptionId})");
             try
             {
                 var tenantSubscription = await _tenantSubscriptionRepository.FindAsync(ts => ts.StripeSubscriptionId == stripeSubscriptionId && ts.StripeCustomerId == stripeCustomerId);
                 if (tenantSubscription == null)
                 {
-                    throw new Exception("Tenant subscription");
+                    throw new Exception("Tenant subscription doesn't exist");
                 }
                 await _tenantSubscriptionRepository.DeleteAsync(tenantSubscription);
                 return new HTTPResponse<string, string>()

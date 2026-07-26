@@ -200,21 +200,21 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                 Error = "Failed to process stripe event"
             };
 
-            _logger.LogInformation("Stripe Event Object:");
-            _logger.LogInformation(JsonConvert.SerializeObject(stripeEvent));
+            _logger.LogInformation($"Handling stripe event, event type: {stripeEvent.Type}");
+
             switch(stripeEvent.Type)
             {
                 case EventTypes.InvoicePaymentSucceeded:
                     if (stripeEvent.Data.Object is Invoice invoice)
-                    {
-                        return await _tenantOnboardingLogic.ExtendTenantSubscription(invoice);                    
+                    {                        
+                        return await _tenantOnboardingLogic.ExtendTenantSubscription(invoice);                                            
                     }
                     break;
-                case EventTypes.CheckoutSessionCompleted:
-                    if (stripeEvent.Data.Object is Subscription subscription)
+                case EventTypes.CheckoutSessionCompleted:                    
+                    if (stripeEvent.Data.Object is Session session)
                     {
-                        return await _tenantOnboardingLogic.ActivateTenantWithSubscription(subscription);
-                    }
+                        return await _tenantOnboardingLogic.ActivateTenantWithSubscription(session);
+                    }                    
                     break;
                 case EventTypes.InvoicePaymentFailed:
                     if (stripeEvent.Data.Object is Invoice invc)
@@ -227,8 +227,19 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                     break;
                 case EventTypes.CustomerSubscriptionDeleted:
                     if (stripeEvent.Data.Object is Subscription subscription1)
-                    {
-                        return await _tenantOnboardingLogic.ChangeTenantSubscriptionStatusToOverdue(subscription1.Id, subscription1.CustomerId);
+                    {                                                
+                        string subscriptionId = subscription1.Items.First().Subscription;
+                        return await _tenantOnboardingLogic.DeleteTenantSubscription(subscriptionId, subscription1.CustomerId);
+                    }
+                    break;
+                case EventTypes.CustomerSubscriptionUpdated:
+                    if (stripeEvent.Data.Object is Subscription subscription2)
+                    {                        
+                        if (subscription2.Status == "unpaid")
+                        {                                                        
+                            string subscriptionId = subscription2.Items.First().Subscription;
+                            return await _tenantOnboardingLogic.DeleteTenantSubscription(subscriptionId, subscription2.CustomerId);
+                        }
                     }
                     break;
                 default:
@@ -239,7 +250,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                         HttpCode = 202
                     };
                     break;
-            }
+            }            
 
             return result;
         }
