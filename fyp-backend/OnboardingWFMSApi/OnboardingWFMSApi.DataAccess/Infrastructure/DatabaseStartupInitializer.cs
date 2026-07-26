@@ -231,7 +231,6 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                         CreatedDateTime = DateTime.Now,
                         OwnerEmailAddress = seed.AdminEmail,
                         Status = TenantTable.TENANT_PROCURED_STATUS,
-                        SubscriptionTeirId = baseTierId,
                     }, cancellationToken);
                     hasChanges = true;
                 }

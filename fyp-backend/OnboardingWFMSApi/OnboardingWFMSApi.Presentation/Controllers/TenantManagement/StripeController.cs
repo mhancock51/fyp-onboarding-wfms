@@ -67,6 +67,8 @@ namespace OnboardingWFMSApi.Presentation.Controllers.TenantManagement
                     _webhookSecret,
                     throwOnApiVersionMismatch: false
                 );
+
+                _logger.LogInformation($"Stripe event recieved, event type: {stripeEvent.Type}");
                 var result = await _stripeLogic.HandleStripeEvent(stripeEvent);
                 return StatusCode(result.HttpCode, result.Data);
             }

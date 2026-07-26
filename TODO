@@ -1,3 +1,3 @@
-[]  Implement automatically moving tenant to on hold when invoice payment for subscription fails
+[] Implement automatically moving tenant to on hold when invoice payment for subscription fails
 [] Implement way to automatically move tenant to on hold when they cancel their subscription
 [] Implement way to migrate a tenant from one subscription to another and setup the strip subscription/cancel the existing one

@@ -38,8 +38,5 @@ namespace OnboardingWFMSApi.DataModels.Tables
         /// Closed -> no active subscription
         /// </summary>
         public string Status {get; set;}
-
-        [ForeignKey(nameof(SubscriptionTierEntitlementTable.Id))]
-        public string? SubscriptionTeirId { get; set; }
     }
 }

@@ -96,6 +96,9 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ISubscriptionTierRepository, SubscriptionTierRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 
+builder.Services.AddScoped<ITenantSubscriptionRepository, TenantSubscriptionRepository>();
+builder.Services.AddScoped<ITenantSubscriptionAuditLogsRepository, TenantSubscriptionAuditLogsRepository>();
+
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
