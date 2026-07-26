@@ -6,6 +6,7 @@ using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +22,18 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public Task<bool> ExistsById(string id);
         public Task<List<TEntity>> GetAll();
         public Task<List<TEntity>> AddManyAsync(List<TEntity> entities);
+
+        /// <summary>
+        /// Asynchronously fetches a list of entities that match the specified condition.
+        /// </summary>
+        public Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> predicate);
+
+        /// <summary>
+        /// Asynchronously fetches the first entity that matches the specified condition, return null if none are found.
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate);
     }
 
     
@@ -154,6 +167,24 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
             var rows = await _dbContext.SaveChangesAsync();
 
             return savedEntities;
+        }
+
+        /// <summary>
+        /// Queries the database with a lambda expression predicate asynchronously.
+        /// </summary>
+        public virtual async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbContext.Set<TEntity>()
+                .Where(predicate)
+                .ToListAsync();
+        }
+
+        public virtual async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var items = await _dbContext.Set<TEntity>()
+                .Where(predicate)
+                .ToListAsync();
+            return items.Count() == 0 ? null : items.First();
         }
     }
 }

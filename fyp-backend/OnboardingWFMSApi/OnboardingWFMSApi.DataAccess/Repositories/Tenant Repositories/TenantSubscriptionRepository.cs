@@ -9,7 +9,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories
 {
     public interface ITenantSubscriptionRepository : IRepository<TenantSubscriptionTable>
     {
-        public Task<List<TenantSubscriptionTable>> GetTenantSubscriptionByTenantId(string tenantId);
+        public Task<TenantSubscriptionTable?> GetTenantSubscriptionByTenantId(string tenantId);
     }
 
     public class TenantSubscriptionRepository : BaseRepository<TenantSubscriptionTable>, ITenantSubscriptionRepository
@@ -21,9 +21,9 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<List<TenantSubscriptionTable>> GetTenantSubscriptionByTenantId(string tenantId)
+        public async Task<TenantSubscriptionTable?> GetTenantSubscriptionByTenantId(string tenantId)
         {
-            return await _dbContext.TenantSubscriptions.Where(t => t.TenantId == tenantId).ToListAsync();
+            return await _dbContext.TenantSubscriptions.FirstAsync(t => t.TenantId == tenantId);
         }
     }
 }

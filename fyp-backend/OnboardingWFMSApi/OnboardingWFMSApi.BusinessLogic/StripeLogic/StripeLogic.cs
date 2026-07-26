@@ -30,9 +30,6 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
         private readonly string _checkoutSuccessUrl;
         private readonly string _checkoutCancelUrl;
 
-        private const string TENANT_ID_META_DATA_KEY = "TenantId";
-        private const string SUBSCRIPTION_TIER_ID_META_DATA_KEY = "SubscriptionTierId";
-
         private readonly ITenantOnboardingLogic _tenantOnboardingLogic;
 
         public StripeLogic(
@@ -52,6 +49,8 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
             _tenantOnboardingLogic = tenantOnboardingLogic;
         }
 
+
+        #region Checkout event management
         public async Task<HTTPResponse<Session, string>> CreateCheckoutSession(string tenantId, string tierId)
         {
             if (string.IsNullOrWhiteSpace(_stripeSecretKey))
@@ -104,14 +103,15 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                     Message = "Tenant doesn't exist"
                 };
             }
-            // check tentant doesn't already have a subscription
-            if (tenant.Status != TenantTable.TENANT_PROCURED_STATUS)
+
+            var tenantHasSubscription = await _tenantOnboardingLogic.DoesTenantHaveSubscription(tenantId);                        
+            if (tenantHasSubscription)
             {
                 return new HTTPResponse<Session, string>()
                 {
                     Success = false,
-                    HttpCode = 400,
-                    Message = "Can't create subscription for this tenant"
+                    Error = "Tenant already has a subscription",
+                    HttpCode = 200
                 };
             }
 
@@ -152,10 +152,10 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                     Metadata = new Dictionary<string, string>
                     {
                         {
-                            TENANT_ID_META_DATA_KEY, tenantId
+                            StripeConstants.TENANT_ID_META_DATA_KEY, tenantId
                         },
                         {
-                            SUBSCRIPTION_TIER_ID_META_DATA_KEY, subscriptionTier.Id
+                            StripeConstants.SUBSCRIPTION_TIER_ID_META_DATA_KEY, subscriptionTier.Id
                         }
                     },
                     Mode = "subscription", 
@@ -189,6 +189,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                 };
             }
         }
+        #endregion
 
         public async Task<HTTPResponse<string, string>> HandleStripeEvent(Event stripeEvent)
         {
@@ -204,160 +205,43 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
             switch(stripeEvent.Type)
             {
                 case EventTypes.InvoicePaymentSucceeded:
-                    result = await HandleInvoicePaymentSucceedEvent(stripeEvent);
+                    if (stripeEvent.Data.Object is Invoice invoice)
+                    {
+                        return await _tenantOnboardingLogic.ExtendTenantSubscription(invoice);                    
+                    }
                     break;
                 case EventTypes.CheckoutSessionCompleted:
-                    result = await HandleCheckoutSessionCompletedEvent(stripeEvent);
+                    if (stripeEvent.Data.Object is Subscription subscription)
+                    {
+                        return await _tenantOnboardingLogic.ActivateTenantWithSubscription(subscription);
+                    }
                     break;
-                // case EventTypes.customer:
+                case EventTypes.InvoicePaymentFailed:
+                    if (stripeEvent.Data.Object is Invoice invc)
+                    {
+                        if (invc.Lines.Count() == 0) throw new Exception("Invoice has no line items");                        
+                        var subscriptionLine = invc.Lines.First();
 
-                // case EventTypes.CustomerSubscriptionDeleted:
-                //     result = await HandleSubscriptionCancelledEvent(stripeEvent);
-                //     break;
-                // default:
-                //     _logger.LogInformation($"Stripe event {stripeEvent.Type} not supported by this method");
-                //     result = new HTTPResponse<string, string>()
-                //     {
-                //         Success = false,
-                //         HttpCode = 202
-                //     };
-                //     break;
-
+                        return await _tenantOnboardingLogic.ChangeTenantSubscriptionStatusToOverdue(subscriptionLine.SubscriptionId, invc.CustomerId);
+                    }
+                    break;
+                case EventTypes.CustomerSubscriptionDeleted:
+                    if (stripeEvent.Data.Object is Subscription subscription1)
+                    {
+                        return await _tenantOnboardingLogic.ChangeTenantSubscriptionStatusToOverdue(subscription1.Id, subscription1.CustomerId);
+                    }
+                    break;
+                default:
+                    _logger.LogInformation($"Stripe event {stripeEvent.Type} not supported by this method");
+                    result = new HTTPResponse<string, string>()
+                    {
+                        Success = false,
+                        HttpCode = 202
+                    };
+                    break;
             }
 
             return result;
-        }
-
-        private async Task<HTTPResponse<string, string>> HandleInvoicePaymentSucceedEvent(Event stripeEvent)
-        {
-            if (stripeEvent.Type != EventTypes.InvoicePaymentSucceeded)
-            {
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Incorrect event type",
-                    HttpCode = 500
-                };
-            }
-
-            if (stripeEvent.Data.Object is Invoice invoice)
-            {
-                // get tenant, check if it exists and is active
-                // get meta data:
-                invoice.Metadata.TryGetValue(TENANT_ID_META_DATA_KEY, out string tenantId);
-                invoice.Metadata.TryGetValue(SUBSCRIPTION_TIER_ID_META_DATA_KEY, out string subscriptionTierId);
-
-                if (string.IsNullOrEmpty(tenantId))
-                {
-                    _logger.LogError("Tenant ID from meta data of checkout completed event can't be empty.");
-                    return new HTTPResponse<string, string>()
-                    {
-                        Success = false,
-                        Error = "Tenant ID from meta data of checkout completed event can't be empty.",
-                        HttpCode = 400
-                    };
-                }
-                if (string.IsNullOrEmpty(subscriptionTierId))
-                {
-                    _logger.LogError("Subscription tier ID from meta data of checkout completed event can't be empty.");
-                    return new HTTPResponse<string, string>()
-                    {
-                        Success = false,
-                        Error = "Subscription tier ID from meta data of checkout completed event can't be empty.",
-                        HttpCode = 400
-                    };
-                }
-            
-                return await _tenantOnboardingLogic.ExtendTenantSubscription(tenantId, subscriptionTierId, invoice);
-            }
-            
-            return new HTTPResponse<string, string>() {
-                Success = false,
-                HttpCode = 400,
-                Error = "Event data object isn't a subscription."
-            };
-        }
-
-        private async Task<HTTPResponse<string, string>> HandleCheckoutSessionCompletedEvent(Event stripeEvent)
-        {
-            if (stripeEvent.Data.Object is Subscription subscription)
-            {
-                // get meta data:
-                subscription.Metadata.TryGetValue(TENANT_ID_META_DATA_KEY, out string tenantId);
-                subscription.Metadata.TryGetValue(SUBSCRIPTION_TIER_ID_META_DATA_KEY, out string subscriptionTierId);
-
-                if (string.IsNullOrEmpty(tenantId))
-                {
-                    _logger.LogError("Tenant ID from meta data of checkout completed event can't be empty.");
-                    return new HTTPResponse<string, string>()
-                    {
-                        Success = false,
-                        Error = "Tenant ID from meta data of checkout completed event can't be empty.",
-                        HttpCode = 400
-                    };
-                }
-                if (string.IsNullOrEmpty(subscriptionTierId))
-                {
-                    _logger.LogError("Subscription tier ID from meta data of checkout completed event can't be empty.");
-                    return new HTTPResponse<string, string>()
-                    {
-                        Success = false,
-                        Error = "Subscription tier ID from meta data of checkout completed event can't be empty.",
-                        HttpCode = 400
-                    };
-                }
-            
-                return await _tenantOnboardingLogic.ActivateTenantWithSubscription(tenantId, subscriptionTierId, subscription);            
-            }
-            else
-            {
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Stripe event object was not a session",
-                    HttpCode = 500
-                };
-            }
-        }
-
-        private async Task<HTTPResponse<string, string>> HandleSubscriptionCancelledEvent(Event stripeEvent)
-        {
-            if (stripeEvent.Type != EventTypes.CustomerSubscriptionDeleted)
-            {
-                return new HTTPResponse<string, string>() {
-                    Success = false,
-                    HttpCode = 400,
-                    Error = "Event type is wrong."
-                };
-            }
-
-            if (stripeEvent.Data.Object is Subscription subscription)
-            {
-                // get tenant Id and then revoke access.
-                subscription.Metadata.TryGetValue(TENANT_ID_META_DATA_KEY, out string tenantId);
-                if (string.IsNullOrEmpty(tenantId))
-                    {
-                        return new HTTPResponse<string, string>() {
-                        Success = false,
-                        HttpCode = 400,
-                        Error = "Event doesn't have correct meta data."
-                    };
-                } 
-
-                var result = await _tenantOnboardingLogic.ScheduleTenantSubscriptionCancellation(tenantId);
-                return result;
-            }
-            else
-            {
-                return new HTTPResponse<string, string>() {
-                    Success = false,
-                    HttpCode = 400,
-                    Error = "Event data object isn't a subscription."
-                };
-            }
-
-
-
         }
     }
 }

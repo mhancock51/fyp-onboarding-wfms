@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OnboardingWFMSApi.BusinessLogic.StripeLogic;
 using OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
@@ -17,10 +18,12 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
     public interface ITenantOnboardingLogic
     {
         public Task<HTTPResponse<string, string>> InitialiseTenant(CreateTenantPayload payload);
-        public Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(string tenantId, string subscriptionTierId, Subscription subscription);
-        public Task<HTTPResponse<string, string>> ExtendTenantSubscription(string tenantId, string subscriptionTierId, Invoice invoice);
-        public Task<HTTPResponse<string, string>> ScheduleTenantSubscriptionCancellation(string tenantId);
-        public Task<HTTPResponse<string, string>> CancelTenantSubscriptionImmediately(string tenantId);
+        public Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Subscription subscription);
+        public Task<HTTPResponse<string, string>> ExtendTenantSubscription(Invoice invoice);
+        public Task<HTTPResponse<string, string>> ChangeTenantSubscriptionStatusToOverdue(string stripeSubscriptionId, string stripeCustomerId);
+        public Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId);
+
+        public Task<bool> DoesTenantHaveSubscription(string tenantId);
     }
 
     public class TenantBoardingLogic : ITenantOnboardingLogic
@@ -45,8 +48,32 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         /// <param name="subscriptionTierId"></param>
         /// <param name="subscription"></param>
         /// <returns></returns>
-        public async Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(string tenantId, string subscriptionTierId, Subscription subscription)
+        public async Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Subscription subscription)
         {
+            // get meta data:
+            subscription.Metadata.TryGetValue(StripeConstants.TENANT_ID_META_DATA_KEY, out string tenantId);
+            subscription.Metadata.TryGetValue(StripeConstants.SUBSCRIPTION_TIER_ID_META_DATA_KEY, out string subscriptionTierId);
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                _logger.LogError("Tenant ID from meta data of checkout completed event can't be empty.");
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "Tenant ID from meta data of checkout completed event can't be empty.",
+                    HttpCode = 400
+                };
+            }
+            if (string.IsNullOrEmpty(subscriptionTierId))
+            {
+                _logger.LogError("Subscription tier ID from meta data of checkout completed event can't be empty.");
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "Subscription tier ID from meta data of checkout completed event can't be empty.",
+                    HttpCode = 400
+                };
+            }
+
             var tenant = await _tenantRepository.GetById(tenantId);
             if (tenant == null)
             {
@@ -59,21 +86,9 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
                 };
             }
 
-            // check its status is "procurred"
-            if (tenant.Status != TenantTable.TENANT_PROCURED_STATUS)
-            {
-                _logger.LogError($"Tenant has already exited the 'procured' state ({tenant.Status})");
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Tenant has already exited the 'procured' state",
-                    HttpCode = 400
-                };
-            }
-
             // check there isn't already an active subscription linked to this tenant
-            var tenantSubscriptions = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
-            if (tenantSubscriptions.Count() > 0)
+            var existingSubscription = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);            
+            if (existingSubscription == null)
             {
                 return new HTTPResponse<string, string>()
                 {
@@ -111,9 +126,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             try
             {
                 // update status and creat subscription link 
-                tenant.Status = TenantTable.TENANT_ACTIVE_SUBSCRIPTION_STATUS;
                 await _tenantRepository.UpdateAsync(tenant);
-                _logger.LogInformation($"Successfully moved tenant status to {TenantTable.TENANT_ACTIVE_SUBSCRIPTION_STATUS} and set subscription tier to {subscriptionTier.Id}");
+                _logger.LogInformation($"Successfully activated subscription for tenant: {tenant.Id}");
 
                 var tenantSubscription = new TenantSubscriptionTable()
                 {
@@ -147,96 +161,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             }
         }
 
-        public async Task<HTTPResponse<string, string>> ScheduleTenantSubscriptionCancellation(string tenantId)
-        {
-            // var result = new HTTPResponse<string, string>()
-            // {
-            //     Success = false,
-            //     HttpCode = 500,
-            //     Error = "Not implemented"
-            // };
-
-            // // get tenant, check if it exists
-            // var tenant = await _tenantRepository.GetById(tenantId);
-            // if (tenant == null)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant doesn't exist",
-            //         HttpCode = 400
-            //     };
-            // }
-
-            // if (tenant.Status != TenantTable.TENANT_ACTIVE_SUBSCRIPTION_STATUS)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant isn't active",
-            //         HttpCode = 400
-            //     };
-            // }
-
-            // // find their subscription
-            // var subscriptions = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
-            // if (subscriptions.Count() == 0)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant doesn't have a subscription",
-            //         HttpCode = 500
-            //     };
-            // }
-
-            // var subscription = subscriptions.First();
-            // if (!subscription.IsActive)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant subscription is inactive",
-            //         HttpCode = 400
-            //     };    
-            // }
-
-            // if (subscription.CancelAtEndOfPeriod)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant is already scheduled to be cancelled",
-            //         HttpCode = 400
-            //     };
-            // }
-
-            try
-            {
-                // set cancel at end of period to true
-                // subscription.CancelAtEndOfPeriod = true;
-                // await _tenantSubscriptionRepository.UpdateAsync(subscription);
-
-                _logger.LogInformation("Successfully scheduled subscription to end at end of current period");
-                return new HTTPResponse<string, string>()
-                {
-                    Success = true,
-                    Message = "Successfully scheduled subscription to end at end of current period",
-                    HttpCode = 200
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to schedule subscription to be cancelled: {ex}");
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Message = "Failed to schedule subscription to be cancelled",
-                    HttpCode = 500
-                };
-            }
-        }
-
         /// <summary>
         /// responsible for initial setup of tenant and creation of organisation, doesn't activate the tenant so access can't be made until subscription is called
         /// </summary>
@@ -250,7 +174,6 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
                 {
                     CreatedDateTime = DateTime.Now,
                     OwnerEmailAddress = payload.OwnerEmailAddress,
-                    Status = TenantTable.TENANT_PROCURED_STATUS,
                 });
                 return new HTTPResponse<string, string>() { Success = true, Message = "Successfully created tenant", HttpCode = 200 };
             }
@@ -261,148 +184,88 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             }
         }
 
-        public async Task<HTTPResponse<string, string>> CancelTenantSubscriptionImmediately(string tenantId)
+        public async Task<HTTPResponse<string, string>> ExtendTenantSubscription(Invoice invoice)
         {
-            var result = new HTTPResponse<string, string>()
+            if (invoice.Lines.Count() == 0)
             {
-                Success = false,
-                HttpCode = 500,
-                Error = "Not implemented"
+                throw new Exception("Invoice has no line items");
+            }
+
+            var subscriptionLine = invoice.Lines.First();
+
+            // find subscription by stripe subscriptionId and customerId
+            var subscription = await _tenantSubscriptionRepository.FindAsync(ts => ts.StripeSubscriptionId == subscriptionLine.SubscriptionId && ts.StripeCustomerId == invoice.CustomerId);
+            if (subscription == null)
+            {
+                throw new Exception("Tenant subscription doesn't exist");                
+            }
+                        
+            var previousCurrentPeriodEnd = subscription.StripeCurrentPeriodEnd;
+            
+            subscription.StripeCurrentPeriodEnd = invoice.Lines.First().Period.End;
+            subscription.StripeSubscriptionStatus = "active";
+            await _tenantSubscriptionRepository.UpdateAsync(subscription);
+
+            _logger.LogInformation($"Subscription extended from {previousCurrentPeriodEnd} to {subscription.StripeCurrentPeriodEnd} for customer: {subscription.StripeCustomerId} (sub: {subscription.StripeSubscriptionId})");
+            return new HTTPResponse<string, string>()
+            {
+                Success = true,
+                Message = "Successfully extended subscription",
+                HttpCode = 200
             };
+        }
 
-            // get tenant, check if it exists
-            var tenant = await _tenantRepository.GetById(tenantId);
-            if (tenant == null)
+        public async Task<HTTPResponse<string, string>> ChangeTenantSubscriptionStatusToOverdue(string stripeSubscriptionId, string stripeCustomerId)
+        {
+            // find subscription by stripe subscriptionId and customerId            
+            var subscription = await _tenantSubscriptionRepository.FindAsync(ts => ts.StripeSubscriptionId == stripeSubscriptionId && ts.StripeCustomerId == stripeCustomerId);
+            if (subscription == null)
             {
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Tenant doesn't exist",
-                    HttpCode = 400
-                };
+                throw new Exception("Tenant subscription doesn't exist");                
             }
+            
+            subscription.StripeSubscriptionStatus = "overdue";
+            await _tenantSubscriptionRepository.UpdateAsync(subscription);
 
-            if (tenant.Status != TenantTable.TENANT_ACTIVE_SUBSCRIPTION_STATUS)
+            _logger.LogInformation($"Successfully moved tenant subscription to overdue");
+            return new HTTPResponse<string, string>()
             {
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Tenant isn't active",
-                    HttpCode = 400
-                };
-            }
+                Success = true,
+                Message = "Successfully extended subscription",
+                HttpCode = 200
+            };
+        }
 
-            // find their subscription
-            var subscriptions = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
-            if (subscriptions.Count() == 0)
-            {
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Tenant doesn't have a subscription",
-                    HttpCode = 500
-                };
-            }
+        public async Task<bool> DoesTenantHaveSubscription(string tenantId)
+        {
+            var tenantSubscription = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
+            return tenantSubscription == null;
+        }
 
-            // var subscription = subscriptions.First();
-            // if (!subscription.IsActive)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant subscription is inactive",
-            //         HttpCode = 400
-            //     };    
-            // }
-
-            // if (subscription.CancelAtEndOfPeriod)
-            // {
-            //     return new HTTPResponse<string, string>()
-            //     {
-            //         Success = false,
-            //         Error = "Tenant is already scheduled to be cancelled",
-            //         HttpCode = 400
-            //     };
-            // }
-
+        public async Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId)
+        {
             try
             {
-                // set cancel at end of period to true
-                // subscription.IsActive = false;
-                //await _tenantSubscriptionRepository.UpdateAsync(subscription);
-
-                _logger.LogInformation("Successfully marked subscription as inactive");
+                var tenantSubscription = await _tenantSubscriptionRepository.FindAsync(ts => ts.StripeSubscriptionId == stripeSubscriptionId && ts.StripeCustomerId == stripeCustomerId);
+                if (tenantSubscription == null)
+                {
+                    throw new Exception("Tenant subscription");
+                }
+                await _tenantSubscriptionRepository.DeleteAsync(tenantSubscription);
                 return new HTTPResponse<string, string>()
                 {
                     Success = true,
-                    Message = "Successfully cancelled subscription with immediate effect",
+                    Message = "Successfully delete tenant subscription",
                     HttpCode = 200
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to schedule subscription to be cancelled: {ex}");
+                _logger.LogError($"Failed to delete tenant subscription: {ex}");
                 return new HTTPResponse<string, string>()
                 {
                     Success = false,
-                    Message = "Failed to schedule subscription to be cancelled",
-                    HttpCode = 500
-                };
-            }
-        }
-
-        public async Task<HTTPResponse<string, string>> ExtendTenantSubscription(string tenantId, string subscriptionTierId, Invoice invoice)
-        {
-            var tenant = await _tenantRepository.GetById(tenantId);
-            if (tenant == null)
-            {
-                _logger.LogError("Tenant doesn't exist");
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Tenant doesn't exist",
-                    HttpCode = 400
-                };
-            }
-
-            if (tenant.Status != TenantTable.TENANT_ACTIVE_SUBSCRIPTION_STATUS)
-            {
-                _logger.LogError($"Tenant must have an active subscription status, current status: ({tenant.Status})");
-                return new HTTPResponse<string, string>()
-                {
-                    Success = false,
-                    Error = "Tenant must have an active subscription status",
-                    HttpCode = 400
-                };
-            }
-
-            try
-            {
-                // find the tenant subscription
-                var tenantSubscriptions = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
-                if (tenantSubscriptions == null || tenantSubscriptions.Count(s => s.StripeSubscriptionStatus == "active") == 0)
-                {
-                    throw new Exception("Tenant subscription doesn't exist");
-                }
-                var subscription = tenantSubscriptions.First(s => s.StripeSubscriptionStatus == "active");
-                var previousCurrentPeriodEnd = subscription.StripeCurrentPeriodEnd;
-                
-                subscription.StripeCurrentPeriodEnd = invoice.Lines.First().Period.End;
-                subscription.StripeSubscriptionStatus = "active";
-                _logger.LogInformation($"Subscription extended from {previousCurrentPeriodEnd} to {subscription.StripeCurrentPeriodEnd} for customer: {subscription.StripeCustomerId} (sub: {subscription.StripeSubscriptionId})");
-                return new HTTPResponse<string, string>()
-                {
-                    Success = true,
-                    Message = "Successfully extended subscription",
-                    HttpCode = 200
-                };
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError($"Error extending tenant subscription: {ex}");
-                return new HTTPResponse<string, string>() {
-                    Success = false,
-                    Error = "Failed to extend tenant subscription",
+                    Error = "Failed to delete tenant subscription",
                     HttpCode = 500
                 };
             }
