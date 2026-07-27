@@ -16,6 +16,7 @@ const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhos
 
 type PricingTier = {
   id: string
+  name: string
   displayName: string
   description: string
   unitAmount: number | null
@@ -27,9 +28,13 @@ type PricingTier = {
   features: string[]
 }
 
+// Static fallback tiers used only when the API is unreachable.
+// In normal operation, pricing is fetched dynamically from the backend →
+// Stripe so prices and features are always up to date.
 const fallbackTiers: PricingTier[] = [
   {
     id: "tier-1-subscription",
+    name: "tier-1-subscription",
     displayName: "Starter",
     description: "For small teams getting started with structured onboarding.",
     unitAmount: 4900,
@@ -48,6 +53,7 @@ const fallbackTiers: PricingTier[] = [
   },
   {
     id: "tier-2-subscription",
+    name: "tier-2-subscription",
     displayName: "Professional",
     description: "For growing companies that need advanced workflows and integrations.",
     unitAmount: 14900,
@@ -68,6 +74,7 @@ const fallbackTiers: PricingTier[] = [
   },
   {
     id: "tier-3-subscription",
+    name: "tier-3-subscription",
     displayName: "Enterprise",
     description: "For large organizations with complex, multi-department onboarding needs.",
     unitAmount: null,

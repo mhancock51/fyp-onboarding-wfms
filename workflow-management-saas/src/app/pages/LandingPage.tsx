@@ -66,6 +66,7 @@ const features = [
 
 type PricingTier = {
   id: string
+  name: string
   displayName: string
   description: string
   unitAmount: number | null
@@ -77,10 +78,13 @@ type PricingTier = {
   features: string[]
 }
 
-// Static fallback tiers used when the API is unreachable
+// Static fallback tiers used only when the API is completely unreachable.
+// In normal operation, pricing is fetched dynamically from the backend →
+// Stripe so prices and features are always up to date.
 const fallbackTiers: PricingTier[] = [
   {
-    id: "starter",
+    id: "tier-1-subscription",
+    name: "tier-1-subscription",
     displayName: "Starter",
     description: "Perfect for small teams getting started with structured onboarding.",
     unitAmount: 4900,
@@ -98,7 +102,8 @@ const fallbackTiers: PricingTier[] = [
     ],
   },
   {
-    id: "professional",
+    id: "tier-2-subscription",
+    name: "tier-2-subscription",
     displayName: "Professional",
     description: "For growing companies that need advanced workflows and integrations.",
     unitAmount: 14900,
@@ -118,7 +123,8 @@ const fallbackTiers: PricingTier[] = [
     ],
   },
   {
-    id: "enterprise",
+    id: "tier-3-subscription",
+    name: "tier-3-subscription",
     displayName: "Enterprise",
     description: "For large organizations with complex, multi-department onboarding needs.",
     unitAmount: null,
@@ -462,6 +468,24 @@ export function LandingPage() {
                 Choose the plan that fits your team. Upgrade anytime as you grow.
               </p>
             </div>
+
+            {tiersLoading ? (
+              <div className="grid gap-8 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="rounded-2xl border bg-card p-8 animate-pulse">
+                    <div className="h-6 w-24 bg-muted rounded mb-4" />
+                    <div className="h-10 w-32 bg-muted rounded mb-2" />
+                    <div className="h-4 w-48 bg-muted rounded mb-6" />
+                    <div className="space-y-3 mb-8">
+                      {[...Array(5)].map((_, j) => (
+                        <div key={j} className="h-4 bg-muted rounded" style={{ width: `${70 + Math.random() * 30}%` }} />
+                      ))}
+                    </div>
+                    <div className="h-12 w-full bg-muted rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            ) : (
             <div className="grid gap-8 lg:grid-cols-3">
               {tiers.map((tier) => {
                 const priceParts = tier.priceDisplay.match(/^(\$?\d+|[A-Za-z]+)(.*)$/)
@@ -513,6 +537,7 @@ export function LandingPage() {
                 )
               })}
             </div>
+            )}
           </div>
         </section>
 

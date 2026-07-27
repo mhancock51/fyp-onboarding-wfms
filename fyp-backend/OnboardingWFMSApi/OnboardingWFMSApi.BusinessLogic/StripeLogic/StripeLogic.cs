@@ -284,6 +284,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                     var dto = new PricingTierDTO
                     {
                         Id = tier.Id,
+                        Name = tier.Id,
                         DisplayName = tier.DisplayName,
                         Description = GetTierDescription(tier.Id),
                         Highlighted = tier.Id == "tier-2-subscription",

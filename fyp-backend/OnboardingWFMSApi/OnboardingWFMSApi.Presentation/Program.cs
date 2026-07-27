@@ -238,6 +238,8 @@ var app = builder.Build();
 
 await DatabaseStartupInitializer.InitializeAsync(app.Services, app.Logger);
 
+app.UseRouting();
+
 app.UseCors("AllowAllOrigins");
 
 app.UseRateLimiter();
