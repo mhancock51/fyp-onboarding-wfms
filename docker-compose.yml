@@ -19,8 +19,12 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=onboarding-wfms-db;User=root;Password=pword123;
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      - Stripe__Mode=test
+      - Stripe__SuccessUrl=http://localhost:5173/
+      - Stripe__CancelUrl=http://localhost:5174/pricing
     ports:
-      - "5000:80"
+      - "5000:8080"
   frontend:
     build:
       context: ./fyp-frontend
