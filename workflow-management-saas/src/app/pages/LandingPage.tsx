@@ -264,7 +264,7 @@ export function LandingPage() {
               <a href={`${APP_URL}/login`}>Sign In</a>
             </Button>
             <Button size="sm" asChild>
-              <a href="#pricing">Get Started</a>
+              <a href="/get-started">Get Started</a>
             </Button>
           </div>
 
@@ -304,7 +304,7 @@ export function LandingPage() {
                   <a href={`${APP_URL}/login`}>Sign In</a>
                 </Button>
                 <Button size="sm" asChild>
-                  <a href="#pricing">Get Started</a>
+                  <a href="/get-started">Get Started</a>
                 </Button>
               </div>
             </div>
@@ -331,7 +331,7 @@ export function LandingPage() {
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center animate-fade-in-up">
               <Button size="xl" asChild>
-                <a href="#pricing">
+                <a href="/get-started">
                   Start Free Trial
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
@@ -505,7 +505,7 @@ export function LandingPage() {
                     size="lg"
                     asChild
                   >
-                    <a href={isEnterprise ? "mailto:sales@onboardflow.com" : `${APP_URL}/register`}>
+                    <a href={isEnterprise ? "mailto:sales@onboardflow.com" : "/get-started"}>
                       {tier.ctaText}
                     </a>
                   </Button>
@@ -552,7 +552,7 @@ export function LandingPage() {
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button size="xl" variant="secondary" asChild>
-                <a href={`${APP_URL}/register`}>
+                <a href="/get-started">
                   Get Started Free
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </a>

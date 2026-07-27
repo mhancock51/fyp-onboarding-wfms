@@ -27,15 +27,19 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
 
         public override async Task<OrganisationTable> AddAsync(OrganisationTable entity)
         {
-            if (_dbContext.Organisations.Count() > 0)
+            // Multi-tenancy: each tenant may have its own organisation.
+            // Only enforce that a given tenant has at most one organisation.
+            if (!string.IsNullOrWhiteSpace(entity.TenantId))
             {
-                throw new Exception("Only one organisation can exist");
-            }
-            else
-            {
-                return await base.AddAsync(entity);
+                var existingForTenant = await _dbContext.Organisations
+                    .FirstOrDefaultAsync(o => o.TenantId == entity.TenantId);
+                if (existingForTenant != null)
+                {
+                    throw new Exception($"An organisation already exists for tenant {entity.TenantId}");
+                }
             }
 
+            return await base.AddAsync(entity);
         }
 
         public async Task<int> GetNumberOfOrganisations()

@@ -32,8 +32,6 @@ using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Reflection;
 using System.Text;
-using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,9 +96,6 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ISubscriptionTierRepository, SubscriptionTierRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 
-builder.Services.AddScoped<ITenantSubscriptionRepository, TenantSubscriptionRepository>();
-builder.Services.AddScoped<ITenantSubscriptionAuditLogsRepository, TenantSubscriptionAuditLogsRepository>();
-
 builder.Services.AddScoped<IChecklistTaskTemplateHandler, ChecklistTaskTemplateHandler>();
 builder.Services.AddScoped<IUploadDocumentTaskTemplateHandler, UploadDocumentTaskTemplateHandler>();
 builder.Services.AddScoped<IReadDocumentTaskTemplateHandler, ReadDocumentTaskTemplateHandler>();
@@ -142,6 +137,7 @@ builder.Services.AddScoped<IFeedbackLogic, FeedbackLogic>();
 
 builder.Services.AddScoped<ITenantOnboardingLogic, TenantBoardingLogic>();
 builder.Services.AddScoped<IStripeLogic, StripeLogic>();
+builder.Services.AddScoped<IGetStartedLogic, GetStartedLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies
@@ -192,12 +188,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Rate limiting – used by the public pricing endpoint
+// Rate limiting
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter(policyName: "pricing-policy", config =>
     {
         config.PermitLimit = 30;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        config.QueueLimit = 0;
+    });
+    options.AddFixedWindowLimiter(policyName: "get-started-policy", config =>
+    {
+        config.PermitLimit = 5;
         config.Window = TimeSpan.FromMinutes(1);
         config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         config.QueueLimit = 0;
