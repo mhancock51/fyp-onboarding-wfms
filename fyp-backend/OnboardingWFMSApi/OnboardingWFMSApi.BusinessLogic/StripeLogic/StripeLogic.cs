@@ -32,14 +32,14 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
         private readonly string _checkoutSuccessUrl;
         private readonly string _checkoutCancelUrl;
 
-        private readonly ITenantOnboardingLogic _tenantOnboardingLogic;
+        private readonly ITenantLogic _tenantOnboardingLogic;
 
         public StripeLogic(
             ILogger<StripeLogic> logger,
             ITenantRepository tenantRepository,
             ISubscriptionTierRepository subscriptionTierRepository,
             IConfiguration configuration,
-            ITenantOnboardingLogic tenantOnboardingLogic)
+            ITenantLogic tenantOnboardingLogic)
         {
             _logger = logger;
             _tenantRepository = tenantRepository;

@@ -141,7 +141,7 @@ builder.Services.AddScoped<IWorkflowInstanceAuditLogic, WorkflowInstanceAuditLog
 builder.Services.AddScoped<INotificationLogic, NotificationLogic>();
 builder.Services.AddScoped<IFeedbackLogic, FeedbackLogic>();
 
-builder.Services.AddScoped<ITenantOnboardingLogic, TenantBoardingLogic>();
+builder.Services.AddScoped<ITenantLogic, TenantLogic>();
 builder.Services.AddScoped<IStripeLogic, StripeLogic>();
 builder.Services.AddScoped<IGetStartedLogic, GetStartedLogic>();
 

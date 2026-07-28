@@ -15,7 +15,7 @@ using Stripe.Checkout;
 
 namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
 {
-    public interface ITenantOnboardingLogic
+    public interface ITenantLogic
     {
         public Task<HTTPResponse<string, string>> InitialiseTenant(string ownerAccountId);
         public Task<HTTPResponse<string, string>> ActivateTenantWithSubscription(Session session);
@@ -26,15 +26,15 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         public Task<bool> DoesTenantHaveSubscription(string tenantId);
     }
 
-    public class TenantBoardingLogic : ITenantOnboardingLogic
+    public class TenantLogic : ITenantLogic
     {
         private readonly ITenantRepository _tenantRepository;
         private readonly ISubscriptionTierRepository _subscriptionTierRepository;
         private readonly ITenantSubscriptionRepository _tenantSubscriptionRepository;
         private readonly ITenantSubscriptionAuditLogsRepository _auditLogsRepository;
-        private readonly ILogger<TenantBoardingLogic> _logger;
+        private readonly ILogger<TenantLogic> _logger;
 
-        public TenantBoardingLogic(ITenantRepository tenantRepository, ILogger<TenantBoardingLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository)
+        public TenantLogic(ITenantRepository tenantRepository, ILogger<TenantLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository)
         {
             _tenantRepository = tenantRepository;
             _logger = logger;
