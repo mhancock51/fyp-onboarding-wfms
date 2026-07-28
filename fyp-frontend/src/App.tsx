@@ -174,7 +174,6 @@ export default function App() {
         <Route index element={<MyTasksPage />} />
         <Route path="workflows" element={<WorkflowInstancesPage />} />
         <Route path="settings" element={<SettingsPage/>} />
-        <Route path="stripe-test" element={user !== null ? <StripeCheckoutTestPage /> : <Navigate to="/login" />} />
         <Route path="issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
         <Route path="workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
         <Route path="organisation" element={user?.isSupervisor ? <OrganisationDashboardPage /> : <Navigate to="/" />} />

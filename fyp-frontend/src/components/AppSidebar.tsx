@@ -59,11 +59,6 @@ export function AppSidebar(props: Props) {
       onClickAction: () => { navigate("/organisation"); },
       icon: Building
     },
-    {
-      title: "Stripe Test",
-      onClickAction: () => { navigate("/stripe-test"); },
-      icon: BadgeDollarSign
-    }
   ];
 
   const logoSrc = props.organisationLogoData && props.organisationLogoMimeType
