@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OnboardingWFMSApi.BusinessLogic.StripeLogic;
 using OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
 using OnboardingWFMSApi.DataModels.Tables.TenantMangement;
@@ -22,8 +24,8 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         public Task<HTTPResponse<string, string>> ExtendTenantSubscription(Invoice invoice);
         public Task<HTTPResponse<string, string>> ChangeTenantSubscriptionStatusToOverdue(string stripeSubscriptionId, string stripeCustomerId);
         public Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId);
-
         public Task<bool> DoesTenantHaveSubscription(string tenantId);
+        public Task<HTTPResponse<TenantSubscriptionDTO, string>> GetTenantSubscription(string tenantId);
     }
 
     public class TenantLogic : ITenantLogic
@@ -34,13 +36,16 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         private readonly ITenantSubscriptionAuditLogsRepository _auditLogsRepository;
         private readonly ILogger<TenantLogic> _logger;
 
-        public TenantLogic(ITenantRepository tenantRepository, ILogger<TenantLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository)
+        private readonly IMapper _mapper;
+
+        public TenantLogic(ITenantRepository tenantRepository, ILogger<TenantLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository, IMapper mapper)
         {
             _tenantRepository = tenantRepository;
             _logger = logger;
             _subscriptionTierRepository = subscriptionTierRepository;
             _tenantSubscriptionRepository = tenantSubscriptionRepository;
             _auditLogsRepository = auditLogsRepository;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -324,6 +329,30 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
                     HttpCode = 500
                 };
             }
+        }
+
+        public async Task<HTTPResponse<TenantSubscriptionDTO, string>> GetTenantSubscription(string tenantId)
+        {
+            // fetch tenant subscription state
+            var tenantSubscription = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
+            if (tenantSubscription == null) 
+                return new HTTPResponse<TenantSubscriptionDTO, string>() { Success = false, Error = "Tenant subscription doesn't exist", HttpCode = 400};
+            
+            // get subscription tier
+            var subscriptionTier = await _subscriptionTierRepository.GetById(tenantSubscription.SubscriptionTierId);
+
+            // Map table → DTO (CreatedDate auto-mapped, StripeCurrentPeriodEnd → SubscriptionCurrentPeriodEnd)
+            var subscriptionDTO = _mapper.Map<TenantSubscriptionDTO>(tenantSubscription);
+
+            // Separately resolve and map the nested tier (ignored in the table→DTO mapping)
+            subscriptionDTO.subscriptionTier = _mapper.Map<SubscriptionTierDTO>(subscriptionTier);
+
+            return new HTTPResponse<TenantSubscriptionDTO, string>()
+            {
+                Success = true,
+                Data = subscriptionDTO,
+                HttpCode = 200
+            };
         }
     }
 }

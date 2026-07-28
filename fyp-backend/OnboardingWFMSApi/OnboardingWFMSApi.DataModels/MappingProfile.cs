@@ -3,6 +3,7 @@ using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
+using OnboardingWFMSApi.DataModels.Tables.TenantMangement;
 using OnboardingWFMSApi.DataModels.Tables.Workflows;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,11 @@ namespace OnboardingWFMSApi.DataModels
 
             CreateMap<ReportedIssueTable, IssueDTO>();
             CreateMap<NotificationTable, NotificationDTO>();
+            CreateMap<SubscriptionTierEntitlementTable, SubscriptionTierDTO>();
+
+            CreateMap<TenantSubscriptionTable, TenantSubscriptionDTO>()
+                .ForMember(dest => dest.SubscriptionCurrentPeriodEnd, opt => opt.MapFrom(src => src.StripeCurrentPeriodEnd))
+                .ForMember(dest => dest.subscriptionTier, opt => opt.Ignore());
 
             CreateMap<CreateWorkflowTemplateNode, WorkflowTemplateNodeTable>();
             CreateMap<CreateWorkflowTemplatePayload, WorkflowTemplateTable>();
