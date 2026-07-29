@@ -27,10 +27,13 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
         private readonly ILogger<StripeLogic> _logger;
         private readonly ITenantRepository _tenantRepository;
         private readonly ISubscriptionTierRepository _subscriptionTierRepository;
+        private readonly ITenantSubscriptionRepository _tenantSubscriptionRepository;
         private readonly string _stripeSecretKey;
         private readonly string _stripeMode;
         private readonly string _checkoutSuccessUrl;
         private readonly string _checkoutCancelUrl;
+
+        private readonly SubscriptionService _subscriptionService;
 
         private readonly ITenantLogic _tenantOnboardingLogic;
 
@@ -39,7 +42,9 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
             ITenantRepository tenantRepository,
             ISubscriptionTierRepository subscriptionTierRepository,
             IConfiguration configuration,
-            ITenantLogic tenantOnboardingLogic)
+            ITenantLogic tenantOnboardingLogic,
+            SubscriptionService subscriptionService,
+            ITenantSubscriptionRepository tenantSubscriptionRepository)
         {
             _logger = logger;
             _tenantRepository = tenantRepository;
@@ -49,6 +54,8 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
             _checkoutSuccessUrl = configuration["Stripe:SuccessUrl"] ?? string.Empty;
             _checkoutCancelUrl = configuration["Stripe:CancelUrl"] ?? string.Empty;
             _tenantOnboardingLogic = tenantOnboardingLogic;
+            _subscriptionService = subscriptionService;
+            _tenantSubscriptionRepository = tenantSubscriptionRepository;
         }
 
 
@@ -422,6 +429,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                 "Full administrative access"
             }
         };
+
         #endregion
     }
 }

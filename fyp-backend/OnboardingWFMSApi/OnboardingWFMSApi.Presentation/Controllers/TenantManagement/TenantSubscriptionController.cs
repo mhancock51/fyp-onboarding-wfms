@@ -41,5 +41,21 @@ namespace OnboardingWFMSApi.Presentation.Controllers.TenantManagement
                 return StatusCode(500, "Error occurred fetching tenant subscription.");
             }
         }
+
+        [HttpPut("cancel")]
+        public async Task<IActionResult> CancelTenantSubscription()
+        {
+            try
+            {
+                var response = await _tenantLogic.CancelTenantSubscription(_currentTenant.TenantId);
+                return StatusCode(response.HttpCode, response);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"Error occurred cancelling tenant subscription: {ex}");
+                return StatusCode(500, "Error occurred cancelling tenant subscription.");
+            }
+        }
+
     }
 }

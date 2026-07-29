@@ -35,6 +35,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -157,6 +158,8 @@ builder.Services.AddScoped<IRequestHandler<RetrieveWorkflowInstanceRequest, Serv
 builder.Services.AddScoped<IRequestHandler<CreateTaskInstanceRequest, ServerResponse<string, string>>, CreateTaskInstanceHandler>();
 builder.Services.AddScoped<IRequestHandler<RetrieveAccountDirectoryRequest, AccountDirectoryDTO>, RetrieveAccountDirectoryHandler>();
 builder.Services.AddScoped<IRequestHandler<RetrieveAccountsWorkflowInstancesRequest, List<WorkflowInstanceDTO>>, RetrieveAccountsWorkflowInstancesHandler>();
+
+builder.Services.AddScoped<SubscriptionService>();
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

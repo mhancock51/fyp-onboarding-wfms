@@ -26,6 +26,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         public Task<HTTPResponse<string, string>> DeleteTenantSubscription(string stripeSubscriptionId, string stripeCustomerId);
         public Task<bool> DoesTenantHaveSubscription(string tenantId);
         public Task<HTTPResponse<TenantSubscriptionDTO, string>> GetTenantSubscription(string tenantId);
+        public Task<HTTPResponse<string, string>> CancelTenantSubscription(string tenantId);
     }
 
     public class TenantLogic : ITenantLogic
@@ -353,6 +354,21 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
                 Data = subscriptionDTO,
                 HttpCode = 200
             };
+        }
+
+        public async Task<HTTPResponse<string, string>> CancelTenantSubscription(string tenantId)
+        {
+            // find tenant subscription
+            var tenantSubscription = await _tenantSubscriptionRepository.GetTenantSubscriptionByTenantId(tenantId);
+            if (tenantSubscription == null) 
+                return new HTTPResponse<string, string>() {Success = false, Error = "Tenant has no subscription", HttpCode = 400};
+
+            var options = new SubscriptionUpdateOptions
+            {
+                CancelAtPeriodEnd = true
+            };
+            await _subscriptionService.UpdateAsync(tenantSubscription.StripeSubscriptionId, options);
+            return new HTTPResponse<string, string>() {Success = true, Message = $"Subscription will be cancelled at: {tenantSubscription.StripeCurrentPeriodEnd}"};
         }
     }
 }
