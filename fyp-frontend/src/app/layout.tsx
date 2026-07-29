@@ -14,6 +14,7 @@ import OrganisationDialog from "./dialogs/OrganisationDialog";
 import UpdateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/UpdateTaskTemplateDialog";
 import ViewWorkflowTemplateDialog from "./dialogs/ViewWorkflowTemplateDialog";
 import ManageSubscriptionDialog from "./dialogs/ManageSubscriptionDialog";
+import CancelSubscriptionDialog from "./dialogs/CancelSubscriptionDialog";
 
 export default function layout() {
   const dispatch = useDispatch();
@@ -40,6 +41,7 @@ export default function layout() {
       <UpdateTaskTemplateDialog/> 
       <ViewWorkflowTemplateDialog/>
       <ManageSubscriptionDialog/>
+      <CancelSubscriptionDialog/>
     </SidebarProvider>
   )
 }

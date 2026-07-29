@@ -36,10 +36,11 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
         private readonly ITenantSubscriptionRepository _tenantSubscriptionRepository;
         private readonly ITenantSubscriptionAuditLogsRepository _auditLogsRepository;
         private readonly ILogger<TenantLogic> _logger;
+        private readonly SubscriptionService _subscriptionService;
 
         private readonly IMapper _mapper;
 
-        public TenantLogic(ITenantRepository tenantRepository, ILogger<TenantLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository, IMapper mapper)
+        public TenantLogic(ITenantRepository tenantRepository, ILogger<TenantLogic> logger, ISubscriptionTierRepository subscriptionTierRepository, ITenantSubscriptionRepository tenantSubscriptionRepository, ITenantSubscriptionAuditLogsRepository auditLogsRepository, IMapper mapper, SubscriptionService subscriptionService)
         {
             _tenantRepository = tenantRepository;
             _logger = logger;
@@ -47,6 +48,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantLogic
             _tenantSubscriptionRepository = tenantSubscriptionRepository;
             _auditLogsRepository = auditLogsRepository;
             _mapper = mapper;
+            _subscriptionService = subscriptionService;
         }
 
         /// <summary>

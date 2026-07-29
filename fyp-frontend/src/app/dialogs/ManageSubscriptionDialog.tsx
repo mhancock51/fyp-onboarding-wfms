@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { SET_OPEN_MANAGE_SUBSCRIPTION_DIALOG, SET_TENANT_SUBSCRIPTION } from '@/features/appSlice';
+import { SET_OPEN_CANCEL_SUBSCRIPTION_DIALOG, SET_OPEN_MANAGE_SUBSCRIPTION_DIALOG, SET_TENANT_SUBSCRIPTION } from '@/features/appSlice';
 import HTTPresponse from '@/models/HTTPresponse';
 import TenantSubscription from '@/models/TenantSubscription';
 import { RootState } from '@/store';
@@ -136,7 +136,14 @@ export default function ManageSubscriptionDialog() {
         )}
 
         <DialogFooter>
-          <Button variant="destructive">
+          <Button
+            variant="destructive"
+            disabled={tenantSubscription?.stripeSubscriptionStatus?.toLowerCase() === 'canceled'}
+            onClick={() => {
+              closeDialog();
+              dispatch(SET_OPEN_CANCEL_SUBSCRIPTION_DIALOG(true));
+            }}
+          >
             Cancel Subscription
           </Button>
           <Button variant="outline" onClick={closeDialog}>

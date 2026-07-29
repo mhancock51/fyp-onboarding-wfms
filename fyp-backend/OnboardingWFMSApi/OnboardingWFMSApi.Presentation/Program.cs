@@ -159,7 +159,11 @@ builder.Services.AddScoped<IRequestHandler<CreateTaskInstanceRequest, ServerResp
 builder.Services.AddScoped<IRequestHandler<RetrieveAccountDirectoryRequest, AccountDirectoryDTO>, RetrieveAccountDirectoryHandler>();
 builder.Services.AddScoped<IRequestHandler<RetrieveAccountsWorkflowInstancesRequest, List<WorkflowInstanceDTO>>, RetrieveAccountsWorkflowInstancesHandler>();
 
+#region Stripe Services Configuration
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 builder.Services.AddScoped<SubscriptionService>();
+#endregion
 
 var jwtKey = builder.Configuration["Auth:Key"];
 var jwtIssuer = builder.Configuration["Auth:Issuer"];

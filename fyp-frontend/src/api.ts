@@ -132,6 +132,9 @@ const Api = {
   tenantSubscription: {
     fetchTenantSubscription: async() => {
       return AuthInstance.get(`${ROUTE_URL}/tenantsubscription`);
+    },
+    cancelTenantSubscription: async() => {
+      return AuthInstance.put(`${ROUTE_URL}/tenantsubscription/cancel`);
     }
   },
   audit: {
