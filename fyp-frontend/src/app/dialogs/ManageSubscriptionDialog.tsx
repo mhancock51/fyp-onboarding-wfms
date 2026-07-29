@@ -123,7 +123,7 @@ export default function ManageSubscriptionDialog() {
               </div>
             </div>
             <div className="flex items-center justify-center text-sm">
-              <Button className='w-full'>
+              <Button className='w-full cursor-not-allowed' variant={"secondary"} disabled={true}>
                 Upgrade Tier
                 <Sparkles className='mr-2 h-4 w-4' />
               </Button>
