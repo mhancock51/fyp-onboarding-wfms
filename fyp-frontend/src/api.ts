@@ -129,6 +129,11 @@ const Api = {
       });
     }
   },
+  tenantSubscription: {
+    fetchTenantSubscription: async() => {
+      return AuthInstance.get(`${ROUTE_URL}/tenantsubscription`);
+    }
+  },
   audit: {
     fetchWorkflowInstanceAuditLogs: async(workflowInstanceId: string) => {
       return AuthInstance.get(`${ROUTE_URL}/audit/workflow-instance-logs?workflowInstanceId=${workflowInstanceId}`);

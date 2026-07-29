@@ -41,6 +41,7 @@ namespace OnboardingWFMSApi.DataModels
 
             CreateMap<TenantSubscriptionTable, TenantSubscriptionDTO>()
                 .ForMember(dest => dest.SubscriptionCurrentPeriodEnd, opt => opt.MapFrom(src => src.StripeCurrentPeriodEnd))
+                .ForMember(dest => dest.StripeSubscriptionStatus, opt => opt.MapFrom(src => src.StripeSubscriptionStatus))
                 .ForMember(dest => dest.subscriptionTier, opt => opt.Ignore());
 
             CreateMap<CreateWorkflowTemplateNode, WorkflowTemplateNodeTable>();

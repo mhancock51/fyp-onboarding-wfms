@@ -7,16 +7,20 @@ namespace OnboardingWFMSApi.DataModels.DTOs
 {
     public class TenantSubscriptionDTO
     {
-        public TenantSubscriptionDTO(DateTime createdDate, DateTime subscriptionCurrentPeriodEnd, SubscriptionTierDTO subscriptionTier)
+        public TenantSubscriptionDTO() { }
+
+        public TenantSubscriptionDTO(DateTime createdDate, DateTime subscriptionCurrentPeriodEnd, SubscriptionTierDTO subscriptionTier, string stripeSubscriptionStatus)
         {
             CreatedDate = createdDate;
             SubscriptionCurrentPeriodEnd = subscriptionCurrentPeriodEnd;
             this.subscriptionTier = subscriptionTier;
+            StripeSubscriptionStatus = stripeSubscriptionStatus;
         }
 
         public DateTime CreatedDate {get; set;}
         public DateTime SubscriptionCurrentPeriodEnd {get; set;}
-        public SubscriptionTierDTO subscriptionTier {get; set;}
+        public SubscriptionTierDTO subscriptionTier {get; set;} = null!;
+        public string StripeSubscriptionStatus {get; set;} = string.Empty;
 
     }
 
