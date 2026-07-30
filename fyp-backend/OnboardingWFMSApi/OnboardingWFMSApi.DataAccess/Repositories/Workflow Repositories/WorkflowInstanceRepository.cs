@@ -18,6 +18,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         public Task<List<WorkflowInstanceTable>> GetInstancesByOnboarderEmailAddress(string onboarderEmailAddress);
         public Task<List<WorkflowInstanceTable>> GetCompletedOnboardingWorkflowInstances(DateTime? from, DateTime? to);
         public Task<List<WorkflowInstanceTable>> GetOpenOnboardingWorkflowInstances();
+        public Task<int> CountActiveWorkflowInstances();
     }
 
     public class WorkflowInstanceRepository : BaseRepository<WorkflowInstanceTable>, IWorkflowInstanceRepository
@@ -77,6 +78,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories
         public async Task<List<WorkflowInstanceTable>> GetOpenOnboardingWorkflowInstances()
         {
             return await _dbContext.workflowInstances.Where(i => i.CompletionTimestamp == null && _dbContext.workflowTemplates.FirstOrDefault(t => t.Id == i.WorkflowTemplateId).IsOnboardingWF).ToListAsync();
+        }
+
+        public async Task<int> CountActiveWorkflowInstances()
+        {
+            return await _dbContext.workflowInstances.CountAsync(wi => wi.CompletionTimestamp == null);
         }
     }
 }

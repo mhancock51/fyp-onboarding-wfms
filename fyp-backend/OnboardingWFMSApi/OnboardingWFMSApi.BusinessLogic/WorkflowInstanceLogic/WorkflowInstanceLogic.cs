@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
 using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
+using OnboardingWFMSApi.BusinessLogic.TenantManagement;
 using OnboardingWFMSApi.BusinessLogic.WorkflowTemplateLogic;
+using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -52,10 +54,12 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
 
         private readonly ITaskTemplateRepository _taskTemplateRepository;
         private readonly ITaskInstanceRepository _taskInstanceRepository;
+        private readonly ITenantEntitlementLogic _tenantEntitlementLogic;
+        private readonly ICurrentTenantService _currentTenant;
 
         public WorkflowInstanceLogic(IWorkflowInstanceRepository workflowInstanceRepository, IWorkflowTemplateLogic workflowTemplateLogic,
             ILogger<WorkflowInstanceLogic> logger, IMapper mapper, IAccountUtility utility,
-            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceRepository taskInstanceRepository, IAccountRepository accountRepository)
+            IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository, IMediator mediator, IWorkflowNodeInstanceRepository workflowNodeInstanceRepository, IWorkflowTemplateNodeRepository workflowTemplateNodeRepository, ITaskTemplateRepository taskTemplateRepository, ITaskInstanceRepository taskInstanceRepository, IAccountRepository accountRepository, ITenantEntitlementLogic tenantEntitlementLogic, ICurrentTenantService currentTenant)
         {
             _workflowInstanceRepository = workflowInstanceRepository;
             _workflowTemplateLogic = workflowTemplateLogic;
@@ -69,6 +73,8 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
             _taskTemplateRepository = taskTemplateRepository;
             _taskInstanceRepository = taskInstanceRepository;
             _accountRepository = accountRepository;
+            _tenantEntitlementLogic = tenantEntitlementLogic;
+            _currentTenant = currentTenant;
         }
 
         public async Task<HTTPResponse<string, string>> CreateWorkflowInstance(CreateWorkflowInstancePayload payload)
@@ -176,6 +182,10 @@ namespace OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic
 
             // ensure onboarding employee details and supervisor details are valid
             response = await ValidateOnboardingEmployeeDetails(payload);
+            if (response.Success == false) return new ServerResponse<string, string>() { Success = false, Error = response.Error };
+
+            // ensure workflow instance can be created with current subscription tier (max workflow instances)
+            response = await _tenantEntitlementLogic.CanCreateWorkflowInstance(_currentTenant.TenantId);
             if (response.Success == false) return new ServerResponse<string, string>() { Success = false, Error = response.Error };
 
             return new ServerResponse<string, string>() { Success = true, Data = "Payload data is valid" };

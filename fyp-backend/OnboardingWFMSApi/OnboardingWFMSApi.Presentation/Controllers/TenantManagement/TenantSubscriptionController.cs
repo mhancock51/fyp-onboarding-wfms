@@ -12,7 +12,7 @@ using OnboardingWFMSApi.DataAccess;
 namespace OnboardingWFMSApi.Presentation.Controllers.TenantManagement
 {
     [ApiController]
-    [Authorize(Policy = "SupervisorRoleClaim")]
+    [Authorize]
     [Route("api/tenantsubscription")]
     public class TenantSubscriptionController : ControllerBase
     {
@@ -42,6 +42,7 @@ namespace OnboardingWFMSApi.Presentation.Controllers.TenantManagement
             }
         }
 
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPut("cancel")]
         public async Task<IActionResult> CancelTenantSubscription()
         {

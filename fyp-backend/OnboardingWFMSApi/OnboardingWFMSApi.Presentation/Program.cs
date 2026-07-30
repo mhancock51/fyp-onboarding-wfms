@@ -36,6 +36,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using Stripe;
+using OnboardingWFMSApi.BusinessLogic.TenantManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -145,6 +146,8 @@ builder.Services.AddScoped<IFeedbackLogic, FeedbackLogic>();
 builder.Services.AddScoped<ITenantLogic, TenantLogic>();
 builder.Services.AddScoped<IStripeLogic, StripeLogic>();
 builder.Services.AddScoped<IGetStartedLogic, GetStartedLogic>();
+
+builder.Services.AddScoped<ITenantEntitlementLogic, TenantEntitlementLogic>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // register mediatR and register all services from assemblies
