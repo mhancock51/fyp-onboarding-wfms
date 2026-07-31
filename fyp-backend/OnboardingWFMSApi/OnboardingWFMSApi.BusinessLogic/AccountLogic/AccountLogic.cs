@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
+using OnboardingWFMSApi.BusinessLogic.TenantManagement;
 using OnboardingWFMSApi.BusinessLogic.WorkflowInstanceLogic;
 using OnboardingWFMSApi.DataAccess;
 using OnboardingWFMSApi.DataAccess.Repositories;
@@ -38,6 +39,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
         private readonly IOrganisationRepository _organisationRepository;
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
         private readonly ICurrentTenantService _currentTenantService;
+        private readonly ITenantEntitlementLogic _tenantEntitlementLogic;
 
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
@@ -45,7 +47,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
 
         public AccountLogic(IAccountRepository accountRepository, IDepartmentRepository departmentRepository, IOrganisationRepository organisationRepository,
             IMapper mapper, IMediator mediator, IWorkflowInstanceRepository workflowInstanceRepository, ILogger<AccountLogic> logger,
-            ICurrentTenantService currentTenantService)
+            ICurrentTenantService currentTenantService, ITenantEntitlementLogic tenantEntitlementLogic)
         {
             _accountRepository = accountRepository;
             _departmentRepository = departmentRepository;
@@ -55,6 +57,7 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
             _workflowInstanceRepository = workflowInstanceRepository;
             _logger = logger;
             _currentTenantService = currentTenantService;
+            _tenantEntitlementLogic = tenantEntitlementLogic;
         }
 
         public async Task<HTTPResponse<string, string>> DeleteAccount(string accountId)
@@ -155,6 +158,17 @@ namespace OnboardingWFMSApi.BusinessLogic.AccountLogic
 
         public async Task<HTTPResponse<string, string>> InviteUser(string displayName, string emailAddress, string departmentId)
         {
+            var result = await _tenantEntitlementLogic.CanInviteUser();
+            if (!result.Success || !result.HasData)
+            {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = result.Error,
+                    HttpCode = result.HttpCode
+                };
+            }
+            
             // check email address doesn't already exist
             var existingAccount = await _accountRepository.GetByEmailAddress(emailAddress);
             if (existingAccount != null)

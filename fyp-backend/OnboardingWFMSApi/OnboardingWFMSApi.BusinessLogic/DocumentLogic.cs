@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
@@ -12,12 +11,6 @@ using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.Payloads;
 using OnboardingWFMSApi.DataModels.Tables;
-using OnboardingWFMSApi.DataModels.Tables.Workflows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.BusinessLogic
 {
@@ -45,6 +38,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ILogger<DocumentLogic> _logger;
         private readonly IMediator _mediator;
 
+        private const double MAX_DOCUMENT_SIZE_IN_MB = 20;
+
         public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
             IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger,
             IWorkflowInstanceRepository workflowInstanceRepository, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository,
@@ -61,15 +56,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
             _mediator = mediator;
-        }
-
-        public async Task<byte[]> ConvertIFormFileToByteArray(IFormFile file)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                await file.CopyToAsync(memoryStream);
-                return memoryStream.ToArray();
-            }
         }
 
         public async Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId, string accountId)
@@ -114,8 +100,22 @@ namespace OnboardingWFMSApi.BusinessLogic
                 workflowInstanceId = taskInstance.WorkflowInstanceId;
             }
 
-            DocumentTable document = null;
-            document = new DocumentTable()
+            byte[] fileBytes = Convert.FromBase64String(payload.FileBase64);
+            long sizeInBytes = fileBytes.Length;
+            double sizeInMb = (double)sizeInBytes / 1000000;
+
+            if (sizeInMb > MAX_DOCUMENT_SIZE_IN_MB)
+            {
+                _logger.LogError($"Document size was too big ({sizeInMb} mb), must be less than {MAX_DOCUMENT_SIZE_IN_MB} mb");
+                return new HTTPResponse<DocumentDTO, string>()
+                {
+                    Success = false,
+                    Error = $"Document must be smaller than {MAX_DOCUMENT_SIZE_IN_MB} MB",
+                    HttpCode = 400
+                };
+            }
+
+            DocumentTable document = new DocumentTable()
             {
                 TaskInstanceId = payload.TaskInstanceId,
                 CreatorId = accountId,
@@ -123,7 +123,7 @@ namespace OnboardingWFMSApi.BusinessLogic
                 FileExtension = Path.GetExtension(payload.FileName),
                 UploadTimestamp = DateTime.Now,
                 FileName = payload.DocumentName,
-                DocumentData = Convert.FromBase64String(payload.FileBase64)
+                DocumentData = fileBytes
             };
 
             try
@@ -132,6 +132,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Failed to upload document: {ex}");
                 return new HTTPResponse<DocumentDTO, string>() { Success = false, HttpCode = 500, Error = "Failed to upload document" };
             }
 
