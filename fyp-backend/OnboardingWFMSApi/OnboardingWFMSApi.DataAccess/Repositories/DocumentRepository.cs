@@ -11,6 +11,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
     public interface IDocumentRepository : IRepository<DocumentTable>
     {
         public Task<List<DocumentTable>> GetDocumentsFromWorkflowInstance(string workflowInstanceId);
+        public Task<int> GetDocumentStorageSpaceUsed();
     }
     public class DocumentRepository : BaseRepository<DocumentTable>, IDocumentRepository
     {
@@ -21,6 +22,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public async Task<List<DocumentTable>> GetDocumentsFromWorkflowInstance(string workflowInstanceId)
         {
             return await _dbContext.documents.Where(d => d.WorkflowInstanceId == workflowInstanceId).ToListAsync();
+        }
+
+        public async Task<int> GetDocumentStorageSpaceUsed()
+        {
+            return await _dbContext.documents.SumAsync(d => d.DocumentData.Length);
         }
     }
 

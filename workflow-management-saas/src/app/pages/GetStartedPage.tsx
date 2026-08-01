@@ -11,6 +11,7 @@ import {
   Shield,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { APP_NAME } from "@/constants"
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
 
@@ -42,7 +43,7 @@ const fallbackTiers: PricingTier[] = [
     interval: "month",
     priceDisplay: "$49/month",
     highlighted: false,
-    ctaText: "Start Free Trial",
+    ctaText: "Start Today",
     features: [
       "Up to 5 workflow templates",
       "10 active onboardings",
@@ -61,7 +62,7 @@ const fallbackTiers: PricingTier[] = [
     interval: "month",
     priceDisplay: "$149/month",
     highlighted: true,
-    ctaText: "Start Free Trial",
+    ctaText: "Start Today",
     features: [
       "Unlimited workflow templates",
       "Unlimited task templates",
@@ -274,7 +275,7 @@ export default function GetStartedPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold tracking-tight">Create your account</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Set up your admin account to get started with OnboardFlow.
+            Set up your admin account to get started with {APP_NAME}.
           </p>
         </div>
 
@@ -421,7 +422,7 @@ export default function GetStartedPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold tracking-tight">Name your organisation</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            This is the name that will appear across your OnboardFlow workspace.
+            This is the name that will appear across your {APP_NAME} workspace.
           </p>
         </div>
 
@@ -543,7 +544,7 @@ export default function GetStartedPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold">OnboardFlow</span>
+            <span className="text-lg font-bold">{APP_NAME}</span>
           </div>
           <div className="w-24" /> {/* spacer */}
         </div>
@@ -588,7 +589,7 @@ export default function GetStartedPage() {
 
           {step < 3 && (
             <p className="mt-6 text-center text-xs text-muted-foreground">
-              By continuing, you agree to OnboardFlow&apos;s{" "}
+              By continuing, you agree to {APP_NAME}&apos;s{" "}
               <a href="#" className="underline underline-offset-2 hover:text-foreground">
                 Terms of Service
               </a>{" "}

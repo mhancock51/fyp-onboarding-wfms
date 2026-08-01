@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.BusinessLogic.Handlers.MediatRHandlers;
 using OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic;
+using OnboardingWFMSApi.BusinessLogic.TenantManagement;
 using OnboardingWFMSApi.DataAccess.Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories;
 using OnboardingWFMSApi.DataAccess.Repositories.Workflow_Repositories;
@@ -30,6 +31,8 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ITaskInstanceRepository _taskInstanceRepository;
 
         private readonly IFileUploadTaskInstanceRepository _uploadTaskInstanceRepository;
+        private readonly ITenantEntitlementLogic _tenantEntitlementLogic;
+
 
         private readonly IAccountLogic _accountLogic;
         private readonly ITaskInstanceLogic _taskInstanceLogic;
@@ -38,12 +41,10 @@ namespace OnboardingWFMSApi.BusinessLogic
         private readonly ILogger<DocumentLogic> _logger;
         private readonly IMediator _mediator;
 
-        private const double MAX_DOCUMENT_SIZE_IN_MB = 20;
-
         public DocumentLogic(IDocumentRepository documentRepository, ITaskInstanceRepository taskInstanceRepository, IMapper mapper,
             IAccountLogic accountLogic, ITaskInstanceLogic taskInstanceLogic, IDocumentAccessLinkRepository documentAccessLinkRepository, ILogger<DocumentLogic> logger,
             IWorkflowInstanceRepository workflowInstanceRepository, IOnboardingEmployeeDetailsRepository onboardingEmployeeDetailsRepository,
-            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, IMediator mediator)
+            IFileUploadTaskInstanceRepository uploadTaskInstanceRepository, IMediator mediator, ITenantEntitlementLogic tenantEntitlementLogic)
         {
             _documentRepository = documentRepository;
             _taskInstanceRepository = taskInstanceRepository;
@@ -56,6 +57,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             _onboardingEmployeeDetailsRepository = onboardingEmployeeDetailsRepository;
             _uploadTaskInstanceRepository = uploadTaskInstanceRepository;
             _mediator = mediator;
+            _tenantEntitlementLogic = tenantEntitlementLogic;
         }
 
         public async Task<HTTPResponse<DocumentDTO, string>> GetDocument(string documentId, string accountId)
@@ -100,17 +102,29 @@ namespace OnboardingWFMSApi.BusinessLogic
                 workflowInstanceId = taskInstance.WorkflowInstanceId;
             }
 
+            // check that user can upload document
+            var result = await _tenantEntitlementLogic.CanUploadDocument();
+            if (!result.Success || result.HasError)
+            {
+                return new HTTPResponse<DocumentDTO, string>()
+                {
+                    Success = false,
+                    Error = result.Error,
+                    HttpCode = result.HttpCode
+                };
+            }
+
             byte[] fileBytes = Convert.FromBase64String(payload.FileBase64);
             long sizeInBytes = fileBytes.Length;
             double sizeInMb = (double)sizeInBytes / 1000000;
 
-            if (sizeInMb > MAX_DOCUMENT_SIZE_IN_MB)
+            if (sizeInMb > Constants.MAX_DOCUMENT_SIZE_IN_MB)
             {
-                _logger.LogError($"Document size was too big ({sizeInMb} mb), must be less than {MAX_DOCUMENT_SIZE_IN_MB} mb");
+                _logger.LogError($"Document size was too big ({sizeInMb} mb), must be less than {Constants.MAX_DOCUMENT_SIZE_IN_MB} mb");
                 return new HTTPResponse<DocumentDTO, string>()
                 {
                     Success = false,
-                    Error = $"Document must be smaller than {MAX_DOCUMENT_SIZE_IN_MB} MB",
+                    Error = $"Document must be smaller than {Constants.MAX_DOCUMENT_SIZE_IN_MB} MB",
                     HttpCode = 400
                 };
             }

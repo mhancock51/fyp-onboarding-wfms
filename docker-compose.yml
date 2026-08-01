@@ -42,6 +42,8 @@ services:
       args:
         VITE_BACKEND_API_URL: http://localhost:5000/api
         VITE_APP_URL: http://localhost:5173
+        VITE_APP_NAME: FlowPath
+        VITE_EMAIL_DOMAIN: flowpath.com
     container_name: wfm-landing
     depends_on:
       - backend

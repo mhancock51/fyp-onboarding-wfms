@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { APP_NAME, APP_SALES_EMAIL, APP_SUPPORT_EMAIL } from "@/constants"
 
 const APP_URL = import.meta.env.VITE_APP_URL || "http://localhost:5173"
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
@@ -30,37 +31,37 @@ const features = [
     icon: LayoutDashboard,
     title: "Visual Workflow Builder",
     description:
-      "Drag-and-drop interface to design onboarding workflows tailored to every role, department, and location.",
+      "Drag-and-drop interface to design workflows for any business process — onboarding, approvals, compliance reviews, and more.",
   },
   {
     icon: Clock,
     title: "Automated Task Assignment",
     description:
-      "Auto-assign checklist items, document requests, and training modules the moment a new hire is added.",
+      "Auto-assign tasks, collect documents, and trigger notifications the moment a process is kicked off — no manual chasing required.",
   },
   {
     icon: Users,
     title: "Role-Based Dashboards",
     description:
-      "Dedicated views for HR, managers, IT, and new hires — everyone sees exactly what they need to do.",
+      "Dedicated views for HR, managers, IT, and employees — everyone sees exactly what they need to do and when.",
   },
   {
     icon: FileText,
     title: "Document Management",
     description:
-      "Collect signed offer letters, tax forms, and policy acknowledgements — all stored securely per employee.",
+      "Collect signed forms, contracts, and policy acknowledgements — securely stored and organized by process instance.",
   },
   {
     icon: Shield,
     title: "Compliance & Audit Trails",
     description:
-      "Every step is logged with timestamps. Prove compliance with SOC 2, ISO 27001, and internal policies.",
+      "Every step is logged with timestamps. Prove compliance with SOC 2, ISO 27001, and internal policies across all your processes.",
   },
   {
     icon: CheckCircle2,
-    title: "Progress Tracking",
+    title: "Progress Tracking & Analytics",
     description:
-      "Real-time dashboards show onboarding completion rates, bottlenecks, and time-to-productivity metrics.",
+      "Real-time dashboards show completion rates, identify bottlenecks, and surface time-to-completion metrics for every workflow.",
   },
 ]
 
@@ -78,72 +79,9 @@ type PricingTier = {
   features: string[]
 }
 
-// Static fallback tiers used only when the API is completely unreachable.
-// In normal operation, pricing is fetched dynamically from the backend →
-// Stripe so prices and features are always up to date.
-const fallbackTiers: PricingTier[] = [
-  {
-    id: "tier-1-subscription",
-    name: "tier-1-subscription",
-    displayName: "Starter",
-    description: "Perfect for small teams getting started with structured onboarding.",
-    unitAmount: 4900,
-    currency: "USD",
-    interval: "month",
-    priceDisplay: "$49/month",
-    highlighted: false,
-    ctaText: "Start Free Trial",
-    features: [
-      "Up to 5 workflow templates",
-      "10 task templates",
-      "5 active onboardings",
-      "Basic document storage (100 MB)",
-      "Email support",
-    ],
-  },
-  {
-    id: "tier-2-subscription",
-    name: "tier-2-subscription",
-    displayName: "Professional",
-    description: "For growing companies that need advanced workflows and integrations.",
-    unitAmount: 14900,
-    currency: "USD",
-    interval: "month",
-    priceDisplay: "$149/month",
-    highlighted: true,
-    ctaText: "Start Free Trial",
-    features: [
-      "Unlimited workflow templates",
-      "Unlimited task templates",
-      "50 active onboardings",
-      "1 GB document storage",
-      "Custom branding",
-      "API access & webhooks",
-      "Priority support",
-    ],
-  },
-  {
-    id: "tier-3-subscription",
-    name: "tier-3-subscription",
-    displayName: "Enterprise",
-    description: "For large organizations with complex, multi-department onboarding needs.",
-    unitAmount: null,
-    currency: "",
-    interval: "",
-    priceDisplay: "Custom",
-    highlighted: false,
-    ctaText: "Contact Sales",
-    features: [
-      "Everything in Professional",
-      "Unlimited active onboardings",
-      "Unlimited document storage",
-      "SSO / SAML / OAuth",
-      "Dedicated tenant isolation",
-      "Custom integrations",
-      "Dedicated account manager",
-    ],
-  },
-]
+// No hardcoded fallback pricing — if the Stripe-backed API is unreachable we
+// show a smooth notice inline instead of stale or misleading numbers.
+const EMPTY_TIERS: PricingTier[] = []
 
 const steps = [
   {
@@ -153,37 +91,37 @@ const steps = [
   },
   {
     number: "02",
-    title: "Build Workflows",
-    description: "Design onboarding templates with our visual builder or start from a pre-built template.",
+    title: "Design Your Workflow",
+    description: "Use our visual builder to map out any business process — from employee onboarding to vendor approvals — or pick a ready-made template.",
   },
   {
     number: "03",
-    title: "Add New Hires",
-    description: "Enter a new hire's details and assign them to the right workflow with one click.",
+    title: "Launch & Assign",
+    description: "Kick off a workflow instance, assign tasks to the right people, and let the platform handle reminders and deadlines.",
   },
   {
     number: "04",
     title: "Track & Optimize",
-    description: "Watch progress in real time and use analytics to improve your onboarding process.",
+    description: "Watch progress in real time, spot bottlenecks, and use analytics to continuously refine your processes.",
   },
 ]
 
 const testimonials = [
   {
     quote:
-      "OnboardFlow cut our time-to-productivity by 40%. New hires now have a clear, structured path from day one.",
+      `We started with employee onboarding, but now we run our entire vendor approval and compliance review processes through ${APP_NAME}. It's become the backbone of our operations.`,
     author: "Sarah Chen",
     role: "VP of People, TechScale Inc.",
   },
   {
     quote:
-      "The audit trail alone paid for itself. Our SOC 2 auditor was impressed with how clean our onboarding records are.",
+      "The audit trail alone paid for itself. Our SOC 2 auditor was impressed with how clean and consistent our process records are across every department.",
     author: "Marcus Rivera",
     role: "CTO, CloudPeak Solutions",
   },
   {
     quote:
-      "We onboarded 200 people last quarter with zero missed steps. The role-based dashboards are a game-changer.",
+      "We onboarded 200 people last quarter and run dozens of internal workflows — all with zero missed steps. The dashboards are a game-changer.",
     author: "Priya Patel",
     role: "HR Director, Nexus Group",
   },
@@ -191,12 +129,12 @@ const testimonials = [
 
 const faqs = [
   {
-    q: "How long does it take to set up?",
-    a: "Most teams are up and running within an hour. We provide pre-built workflow templates for common roles so you don't have to start from scratch.",
+    q: "What kinds of processes can I manage?",
+    a: "Any repeatable business process — employee onboarding, offboarding, expense approvals, compliance reviews, vendor management, and more. We provide pre-built templates for common use cases like new-hire onboarding to get you started fast.",
   },
   {
-    q: "Can I integrate with my HRIS?",
-    a: "Yes — Professional and Enterprise plans include API access and webhooks. We also offer native integrations with popular HRIS platforms on the Enterprise tier.",
+    q: "Can I integrate with my existing tools?",
+    a: `Yes — Professional and Enterprise plans include API access and webhooks so you can connect ${APP_NAME} to your HRIS, ERP, Slack, and other systems. Enterprise plans also include native integrations with popular platforms.`,
   },
   {
     q: "Is my data secure?",
@@ -206,16 +144,13 @@ const faqs = [
     q: "Can I cancel anytime?",
     a: "Yes. There are no long-term contracts on Starter and Professional plans. You can cancel at any time and export your data.",
   },
-  {
-    q: "Do you offer a free trial?",
-    a: "Yes! Every plan comes with a 14-day free trial. No credit card required to start.",
-  },
 ]
 
 export function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [tiers, setTiers] = useState<PricingTier[]>(fallbackTiers)
+  const [tiers, setTiers] = useState<PricingTier[]>(EMPTY_TIERS)
   const [tiersLoading, setTiersLoading] = useState(true)
+  const [usingFallback, setUsingFallback] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -228,8 +163,8 @@ export function LandingPage() {
           setTiers(json.data as PricingTier[])
         }
       } catch (err) {
-        console.warn("Failed to fetch pricing from API, using fallback tiers:", err)
-        // keep fallback tiers already in state
+        console.warn("Failed to fetch pricing from API:", err)
+        if (!cancelled) setUsingFallback(true)
       } finally {
         if (!cancelled) setTiersLoading(false)
       }
@@ -248,7 +183,7 @@ export function LandingPage() {
               <CheckCircle2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground">
-              OnboardFlow
+              {APP_NAME}
             </span>
           </div>
 
@@ -289,7 +224,7 @@ export function LandingPage() {
             <div className="fixed inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} />
             <div className="fixed right-0 top-0 h-full w-64 bg-white p-6 shadow-xl animate-fade-in">
               <div className="flex items-center justify-between mb-8">
-                <span className="text-lg font-bold">OnboardFlow</span>
+                <span className="text-lg font-bold">{APP_NAME}</span>
                 <button onClick={() => setMobileMenuOpen(false)}>
                   <X className="h-5 w-5" />
                 </button>
@@ -323,22 +258,22 @@ export function LandingPage() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" />
           <div className="container relative pt-20 pb-16 sm:pt-28 sm:pb-20 text-center">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground mb-8 animate-fade-in">
+            {/* <div className="mx-auto inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground mb-8 animate-fade-in">
               <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
               Trusted by 500+ companies worldwide
-            </div>
+            </div> */}
             <h1 className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl animate-fade-in-up">
-              Employee Onboarding{" "}
-              <span className="text-primary">That Actually Works</span>
+              Business Processes{" "}
+              <span className="text-primary">That Run Themselves</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground animate-fade-in-up">
-              Automate your onboarding workflows, eliminate manual checklists, and give every new
-              hire a seamless first day — all from one platform.
+              Automate any repeatable business process — from employee onboarding to compliance
+              reviews — with workflows that keep everyone on track, on time, and accountable.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center animate-fade-in-up">
               <Button size="xl" asChild>
                 <a href="/get-started">
-                  Start Free Trial
+                  Start Today
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </Button>
@@ -346,14 +281,11 @@ export function LandingPage() {
                 <a href="#features">See How It Works</a>
               </Button>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              No credit card required · 14-day free trial
-            </p>
           </div>
         </section>
 
         {/* Social proof bar */}
-        <section className="border-y bg-muted/30 py-8">
+        {/* <section className="border-y bg-muted/30 py-8">
           <div className="container">
             <p className="text-center text-sm font-medium text-muted-foreground mb-6">
               TRUSTED BY TEAMS AT
@@ -368,17 +300,18 @@ export function LandingPage() {
               )}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Features */}
         <section id="features" className="py-20 sm:py-28">
           <div className="container">
             <div className="mx-auto max-w-2xl text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Everything You Need for Smooth Onboarding
+                Everything You Need to Run Smarter Processes
               </h2>
               <p className="mt-4 text-muted-foreground">
-                From offer letter to first month review — manage every step in one place.
+                From employee onboarding to vendor approvals — design, automate, and track every
+                business workflow in one place.
               </p>
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -408,7 +341,7 @@ export function LandingPage() {
                 Get Started in Minutes
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Four simple steps to transform your onboarding process.
+                Four simple steps to automate any business process.
               </p>
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -426,7 +359,7 @@ export function LandingPage() {
         </section>
 
         {/* Testimonials */}
-        <section className="py-20 sm:py-28">
+        {/* <section className="py-20 sm:py-28">
           <div className="container">
             <div className="mx-auto max-w-2xl text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -455,7 +388,7 @@ export function LandingPage() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Pricing */}
         <section id="pricing" className="bg-muted/30 py-20 sm:py-28">
@@ -484,6 +417,25 @@ export function LandingPage() {
                     <div className="h-12 w-full bg-muted rounded-lg" />
                   </div>
                 ))}
+              </div>
+            ) : usingFallback ? (
+              <div className="mx-auto max-w-xl rounded-2xl border bg-card p-10 text-center shadow-sm">
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                  <Clock className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  Pricing details are being refreshed
+                </h3>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                  We're unable to load our latest pricing right now, but we'll have it back
+                  shortly. In the meantime, reach out and we'll get you set up with the right plan.
+                </p>
+                <Button className="mt-7" size="lg" asChild>
+                  <a href={`mailto:${APP_SALES_EMAIL}`}>
+                    Talk to Sales
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </a>
+                </Button>
               </div>
             ) : (
             <div className="grid gap-8 lg:grid-cols-3">
@@ -529,7 +481,7 @@ export function LandingPage() {
                     size="lg"
                     asChild
                   >
-                    <a href={isEnterprise ? "mailto:sales@onboardflow.com" : "/get-started"}>
+                    <a href={isEnterprise ? `mailto:${APP_SALES_EMAIL}` : "/get-started"}>
                       {tier.ctaText}
                     </a>
                   </Button>
@@ -569,11 +521,11 @@ export function LandingPage() {
         <section className="bg-primary py-20 sm:py-28">
           <div className="container text-center">
             <h2 className="text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
-              Ready to Transform Your Onboarding?
+              Ready to Automate Your Business Processes?
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80">
-              Join 500+ companies that have automated their employee onboarding with OnboardFlow.
-              Start your free trial today.
+              Join 500+ companies that use {APP_NAME} to run employee onboarding, compliance
+              reviews, and more — all on autopilot. Start your free trial today.
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button size="xl" variant="secondary" asChild>
@@ -582,14 +534,14 @@ export function LandingPage() {
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </Button>
-              <Button
+              {/* <Button
                 size="xl"
                 variant="outline"
                 className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
                 asChild
               >
-                <a href="mailto:sales@onboardflow.com">Talk to Sales</a>
-              </Button>
+                <a href={`mailto:${APP_SALES_EMAIL}`}>Talk to Sales</a>
+              </Button> */}
             </div>
           </div>
         </section>
@@ -603,7 +555,7 @@ export function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="text-lg font-bold">OnboardFlow</span>
+              <span className="text-lg font-bold">{APP_NAME}</span>
             </div>
             <div className="flex gap-8 text-sm text-muted-foreground">
               <a href="#" className="hover:text-foreground transition-colors">
@@ -615,12 +567,12 @@ export function LandingPage() {
               <a href="#" className="hover:text-foreground transition-colors">
                 Security
               </a>
-              <a href="mailto:support@onboardflow.com" className="hover:text-foreground transition-colors">
+              <a href={`mailto:${APP_SUPPORT_EMAIL}`} className="hover:text-foreground transition-colors">
                 Contact
               </a>
             </div>
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} OnboardFlow. All rights reserved.
+              &copy; {new Date().getFullYear()} {APP_NAME}. All rights reserved.
             </p>
           </div>
         </div>

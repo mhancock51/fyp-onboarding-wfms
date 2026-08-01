@@ -289,7 +289,7 @@ namespace OnboardingWFMSApi.BusinessLogic.StripeLogic
                         DisplayName = tier.DisplayName,
                         Description = GetTierDescription(tier.Id),
                         Highlighted = tier.Id == "tier-2-subscription",
-                        CtaText = tier.Id == "tier-3-subscription" ? "Contact Sales" : "Start Free Trial",
+                        CtaText = tier.Id == "tier-3-subscription" ? "Contact Sales" : "Get started today",
                         Features = featureMap.TryGetValue(tier.Id, out var features)
                             ? features
                             : new List<string>()

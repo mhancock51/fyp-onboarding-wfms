@@ -5,7 +5,7 @@ using OnboardingWFMSApi.BusinessLogic.StripeLogic;
 namespace OnboardingWFMSApi.Presentation.Controllers
 {
     /// <summary>
-    /// Public pricing endpoint consumed by the OnboardFlow landing page.
+    /// Public pricing endpoint consumed by the FlowPath landing page.
     /// No authentication required. Rate-limited to prevent abuse.
     /// </summary>
     [ApiController]

@@ -14,21 +14,22 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantManagement
 {
     public interface ITenantEntitlementLogic
     {
-        public Task<HTTPResponse<string, string>> CanCreateWorkflowInstance(string tenantId);
-        public Task<HTTPResponse<string, string>> CanUploadDocument(string tenantId);
+        public Task<HTTPResponse<string, string>> CanCreateWorkflowInstance();
+        public Task<HTTPResponse<string, string>> CanUploadDocument();
         public Task<HTTPResponse<string, string>> CanInviteUser();
     }
 
     public class TenantEntitlementLogic : ITenantEntitlementLogic
     {
         private readonly ITenantSubscriptionRepository _tenantSubscriptions;
+        private readonly IDocumentRepository _documents;
         private readonly ISubscriptionTierRepository _subscriptionTiers; 
         private readonly IWorkflowInstanceRepository _workflowInstances;
         private readonly IAccountRepository _accountRepository;
         private readonly ILogger<TenantEntitlementLogic> _logger;
         private readonly ICurrentTenantService _currentTenantService;
 
-        public TenantEntitlementLogic(ITenantSubscriptionRepository tenantSubscriptions, ILogger<TenantEntitlementLogic> logger, ISubscriptionTierRepository subscriptionTiers, IWorkflowInstanceRepository workflowInstances, IAccountRepository accountRepository, ICurrentTenantService currentTenantService)
+        public TenantEntitlementLogic(ITenantSubscriptionRepository tenantSubscriptions, ILogger<TenantEntitlementLogic> logger, ISubscriptionTierRepository subscriptionTiers, IWorkflowInstanceRepository workflowInstances, IAccountRepository accountRepository, ICurrentTenantService currentTenantService, IDocumentRepository documents)
         {
             _tenantSubscriptions = tenantSubscriptions;
             _logger = logger;
@@ -36,6 +37,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantManagement
             _workflowInstances = workflowInstances;
             _accountRepository = accountRepository;
             _currentTenantService = currentTenantService;
+            _documents = documents;
         }
 
         private async Task<HTTPResponse<SubscriptionTierEntitlementTable, string>> GetSubscriptionTier(string tenantId)
@@ -56,10 +58,10 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantManagement
             };
         }
 
-        public async Task<HTTPResponse<string, string>> CanCreateWorkflowInstance(string tenantId)
+        public async Task<HTTPResponse<string, string>> CanCreateWorkflowInstance()
         {
             _logger.LogDebug("Handling requirement...");
-            var result = await GetSubscriptionTier(tenantId);
+            var result = await GetSubscriptionTier(_currentTenantService.TenantId);
             if (!result.Success || !result.HasData)
             {
                 return new HTTPResponse<string, string>()
@@ -112,10 +114,49 @@ namespace OnboardingWFMSApi.BusinessLogic.TenantManagement
             }
         }
 
-        public async Task<HTTPResponse<string, string>> CanUploadDocument(string tenantId)
+        public async Task<HTTPResponse<string, string>> CanUploadDocument()
         {
+            // check if tenant has the entitlement to upload documents
+            _logger.LogDebug("Handling requirement...");
+            var result = await GetSubscriptionTier(_currentTenantService.TenantId);
+            if (!result.Success || !result.HasData)
+            {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = result.Error,
+                    HttpCode = result.HttpCode
+                };
+            }
+            var subscriptionTier = result.Data;
 
-            throw new NotImplementedException();
+            if (!subscriptionTier.CanUploadDocuments)
+            {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "Can't upload documents at this tier"
+                };
+            }
+            // check document storage capacity hasn't been met
+            var storageSpaceInBytes = await _documents.GetDocumentStorageSpaceUsed();
+            double storageSpaceInMb = (double)storageSpaceInBytes / 1000000;
+            if (storageSpaceInMb >= subscriptionTier.MaxDocumentStorageSpaceInMb) {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = false,
+                    Error = "No more space to upload this document",
+                    HttpCode = 200
+                };
+            }
+            else
+            {
+                return new HTTPResponse<string, string>()
+                {
+                    Success = true,
+                    HttpCode = 200
+                };
+            }
         }
     }
 }
