@@ -54,7 +54,7 @@ export default function WorkflowDashboardPage() {
   const [, setPageTitle] = usePageTitle();
     
   useEffect(() => {
-    setPageTitle(`Workflow Management Dashboard`);
+    setPageTitle(`Workflow Management`);
   }, [setPageTitle]);
 
   return (
