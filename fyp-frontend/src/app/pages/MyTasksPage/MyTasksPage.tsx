@@ -8,6 +8,7 @@ import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
 import TaskInstancesTable from '@/components/Tables/TaskInstancesTable'
 import { Accordion, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { AccordionContent } from '@radix-ui/react-accordion'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function MyTasksPage() {
   const [openTasks, setOpenTasks] = useState<TaskInstanceDTO[]>([]);
@@ -31,6 +32,12 @@ export default function MyTasksPage() {
     })
   }
 
+  const [, setPageTitle] = usePageTitle();
+
+  useEffect(() => {
+    setPageTitle(`Tasks (${openTasks.length} open)`);
+  }, [setPageTitle, openTasks]);
+
   useEffect(() => {
     void fetchTaskInstances();
   }, []);
@@ -38,7 +45,6 @@ export default function MyTasksPage() {
   return (
     <div>
       <div className='flex flex-col gap-2'>
-        <h1 className='text-xl text-foreground font-bold'>Your Tasks ({openTasks.length} open)</h1>
         <div className='flex flex-col gap-1 h-full'>
           <TaskInstancesTable tasks={openTasks} loading={loading} 
             handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}

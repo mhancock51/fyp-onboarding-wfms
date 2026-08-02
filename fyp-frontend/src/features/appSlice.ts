@@ -35,9 +35,11 @@ export interface AppState {
     notifications: NotificationDTO[];
     workflowTemplates: WorkflowTemplateDTO[];
     tenantSubscription: TenantSubscription | null;
+    pageTitle: string;
 }
 
 const initialState: AppState = {
+    pageTitle: "",
     user: loadUserFromLocalStorage(),
     organisation: null,
     openAccountsDialog: false,
@@ -66,6 +68,9 @@ export const appSlice = createSlice({
     name: "app",
     initialState: initialState,
     reducers: {
+        SET_PAGE_TITLE: (state, action: PayloadAction<string>) => {
+            state.pageTitle = action.payload;
+        },
         SET_USER: (state, action: PayloadAction<AuthenticatedUser | null>) => {
             const previousTenantId = state.user?.tenantId;
             const nextTenantId = action.payload?.tenantId;
@@ -156,7 +161,8 @@ export const appSlice = createSlice({
 export const {
     SET_USER, SET_ORGANISATION, SET_OPEN_ACCOUNTS_DIALOG, SET_OPEN_ORGANISATION_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_CREATE_DPT_DIALOG, SET_TASK_TYPES, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG,
     SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_ACCOUNTS_DIRECTORY, SET_TASK_TEMPLATES, SET_OPEN_REPORT_ISSUE_DIALOG, SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_DEPARTMENTS, SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG,
-    SET_SELECTED_TASK_TEMPLATE, SET_NOTIFICATIONS, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG, SET_WORKFLOW_TEMPLATES, SET_OPEN_MANAGE_SUBSCRIPTION_DIALOG, SET_OPEN_CANCEL_SUBSCRIPTION_DIALOG, SET_TENANT_SUBSCRIPTION
+    SET_SELECTED_TASK_TEMPLATE, SET_NOTIFICATIONS, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG, SET_WORKFLOW_TEMPLATES, SET_OPEN_MANAGE_SUBSCRIPTION_DIALOG, SET_OPEN_CANCEL_SUBSCRIPTION_DIALOG, SET_TENANT_SUBSCRIPTION,
+    SET_PAGE_TITLE
 } = appSlice.actions;
 
 export default appSlice.reducer;

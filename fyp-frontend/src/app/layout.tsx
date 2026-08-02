@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG, SET_OPEN_INVITE_DIALOG } from "@/features/appSlice";
 import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +15,7 @@ import UpdateTaskTemplateDialog from "./dialogs/taskTemplateDialogs/UpdateTaskTe
 import ViewWorkflowTemplateDialog from "./dialogs/ViewWorkflowTemplateDialog";
 import ManageSubscriptionDialog from "./dialogs/ManageSubscriptionDialog";
 import CancelSubscriptionDialog from "./dialogs/CancelSubscriptionDialog";
+import Navbar from "@/components/Navbar";
 
 export default function layout() {
   const dispatch = useDispatch();
@@ -28,9 +29,12 @@ export default function layout() {
         organisationLogoData={app.organisation?.logoImageData ?? null}
         organisationLogoMimeType={app.organisation?.logoImageMimeType ?? null}
       />
-      <main className='m-4 m-b-0 flex flex-col h-[96vh] w-[100%]'>
-        <Outlet />                  
-      </main>
+      <div className="flex flex-col w-full">
+        <Navbar/>
+        <main className='m-4 m-b-0 flex flex-col h-[89vh]'>
+          <Outlet />                  
+        </main>
+      </div>
       <InviteUserDialog open={app.openInviteDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_INVITE_DIALOG(open));}}/>      
       <DepartmentCreationDialog open={app.openCreateDepartmentDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_DPT_DIALOG(open));}}/>
       <CreateTaskTemplateDialog open={app.openCreateTaskTemplateDialog} setOpenDialog={(open: boolean) => {dispatch(SET_OPEN_CREATE_TASK_TEMPLATE_DIALOG(open))}}/>

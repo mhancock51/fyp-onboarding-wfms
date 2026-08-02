@@ -55,6 +55,12 @@ const Api = {
     },
     deleteNotification: async(notificationId: string) => {
       return AuthInstance.delete(`${ROUTE_URL}/notifications/delete?notificationId=${notificationId}`);
+    },
+    markAsRead: async(notificationId: string) => {
+      return AuthInstance.put(`${ROUTE_URL}/notifications/mark-read?notificationId=${notificationId}`);
+    },
+    markAllAsRead: async() => {
+      return AuthInstance.put(`${ROUTE_URL}/notifications/mark-all-read`);
     }
   },
   issues: {

@@ -2,11 +2,17 @@ import DocumentsDialog from '@/app/dialogs/DocumentsDialog';
 import WorkflowInstanceAuditDialog from '@/app/dialogs/WorkflowInstanceAuditDialog';
 import { DropdownAction } from '@/components/TableActionsDropdown'
 import WorkflowInstancesTable from '@/components/Tables/WorkflowInstancesTable'
-import { Separator } from '@/components/ui/separator'
+import { usePageTitle } from '@/hooks/usePageTitle';
 import WorkflowInstanceDTO from '@/models/DTOs/WorkflowInstanceDTO';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function WorkflowInstancesPage() {
+  const [, setPageTitle] = usePageTitle();
+  
+    useEffect(() => {
+      setPageTitle(`Workflows`);
+    }, [setPageTitle]);
+
   const actions: DropdownAction[] = [
     {
       label: "View Documents",
@@ -26,8 +32,6 @@ export default function WorkflowInstancesPage() {
   return (
     <div>
       <div>        
-        <h1 className='text-xl text-foreground font-bold m-2'>Workflows Assinged To You</h1>
-        <Separator/>
         <WorkflowInstancesTable actions={actions} setSelectedWorkflow={setSelectedWorkflow}/>
       </div>
       {

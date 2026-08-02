@@ -8,12 +8,13 @@ import HTTPresponse from '@/models/HTTPresponse'
 import Utils from '@/util'
 import { AxiosResponse } from 'axios'
 import { TriangleAlert } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect  } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import ChangePasswordForm from './ChangePasswordForm'
 import UpdateDetailsForm from './UpdateDetailsForm'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function SettingsPage() {
   const DELETE_ACCOUNT_CONFIRMATION_INPUT = "DELETE MY ACCOUNT";
@@ -60,10 +61,14 @@ export default function SettingsPage() {
     void deleteAccount();
   }
 
+  const [, setPageTitle] = usePageTitle();
+  
+  useEffect(() => {
+    setPageTitle(`Account Settings`);
+  }, [setPageTitle]);
+
   return (
     <div className='flex flex-col gap-2 w-full'>
-      <h1 className='text-xl text-foreground font-bold m-2'>Settings</h1>
-      <Separator/>
       <UpdateDetailsForm/>
       <Separator/>
       <ChangePasswordForm onSuccessful={logOutUser}/>

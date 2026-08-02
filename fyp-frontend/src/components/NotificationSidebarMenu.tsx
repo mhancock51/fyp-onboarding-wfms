@@ -1,10 +1,10 @@
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
 import { Badge } from "./ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { Button } from "./ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import NotificationDTO from "@/models/DTOs/NotificationDTO"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import NoResults from "./NoResults"
-import { Bell, X } from "lucide-react";
+import { Bell, CheckCheck, X } from "lucide-react";
 import moment from 'moment';
 import { Spinner } from "./ui/spinner";
 import Api from "@/api";
@@ -19,17 +19,24 @@ export default function NotificationsSidebarMenu() {
   const notifications = useSelector((state: RootState) => state.app.notifications);
   const dispatch = useDispatch();
 
-  const [loading, setLoading] = useState<boolean>(false);
-  
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const previousUnseenCount = useRef(0);
+
+  const unseenCount = notifications.filter(n => n.status === "unseen").length;
+  const hasNew = unseenCount > previousUnseenCount.current;
+
+  // Track when new notifications arrive for pulse animation
+  useEffect(() => {
+    previousUnseenCount.current = unseenCount;
+  }, [unseenCount]);
 
   async function fetchNotifications() {  
     setLoading(true);
-
     await Api.notifications.fetchNotifications()
     .then((response: AxiosResponse<HTTPresponse<NotificationDTO[], string>>) => {      
       const fetchedNotifications = (response.data.data as NotificationDTO[])
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
       dispatch(SET_NOTIFICATIONS([...fetchedNotifications]));        
     })
     .catch(() => {
@@ -37,33 +44,48 @@ export default function NotificationsSidebarMenu() {
     })
     .finally(() => {
       setLoading(false);
-    })
+    });
   }
 
-  async function deleteNotification(notification: NotificationDTO) {
-    setLoading(true);
-    await Api.notifications.deleteNotification(notification.id)
-    .then(() => {
-      void fetchNotifications();
-    })
+  async function markAsRead(notification: NotificationDTO) {
+    if (notification.status !== "unseen") return;
+    // Optimistic update
+    const updated = notifications.map(n =>
+      n.id === notification.id ? { ...n, status: "seen" as const } : n
+    );
+    dispatch(SET_NOTIFICATIONS(updated));
+    // Fire-and-forget API call
+    Api.notifications.markAsRead(notification.id).catch(() => {});
+  }
+
+  async function markAllAsRead() {
+    const updated = notifications.map(n =>
+      n.status === "unseen" ? { ...n, status: "seen" as const } : n
+    );
+    dispatch(SET_NOTIFICATIONS(updated));
+    Api.notifications.markAllAsRead().catch(() => {});
+  }
+
+  async function dismissNotification(notification: NotificationDTO) {
+    // Optimistic removal
+    const updated = notifications.filter(n => n.id !== notification.id);
+    dispatch(SET_NOTIFICATIONS(updated));
+    // API call
+    Api.notifications.deleteNotification(notification.id)
     .catch(() => {
-      toast.error("Failed to delete notification");
-    })
-    .finally(() => {
-      setLoading(false);
-    })
+      toast.error("Failed to dismiss notification");
+      void fetchNotifications(); // refetch on failure to restore state
+    });
   }
 
-  function removeNotification(index: number) {
-    if (notifications.length <= index) return
-    void deleteNotification(notifications[index]);
-  }
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+  }, []);
 
   useEffect(() => {    
     if (notifications.length === 0) {
       void fetchNotifications();
     }
-    // start refresh timer
     const interval = setInterval(() => {
       void fetchNotifications();
     }, 15000);
@@ -71,72 +93,85 @@ export default function NotificationsSidebarMenu() {
   }, []);
 
   return (
-    <SidebarGroup>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  // size="lg"
-                  // className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"    
-                  className="cursor-pointer min-h-[38px] outline-none"           
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="cursor-pointer gap-2 outline-none relative"           
+        >
+          <div className="relative">
+            <Bell className={hasNew ? "animate-pulse text-blue-500" : ""} />
+          </div>
+          <Badge className="py-[2px] min-w-[24px] bg-blue-500 rounded-full">{unseenCount}</Badge>              
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="mx-3 py-2 w-[500px] rounded-lg max-h-[60vh] overflow-y-auto bg-secondary" side="bottom" align="end" sideOffset={4}
+      >
+        {unseenCount > 0 && (
+          <>
+            <DropdownMenuItem
+              className="cursor-pointer justify-center text-sm text-blue-500 font-medium"
+              onSelect={(e) => { e.preventDefault(); markAllAsRead(); }}
+            >
+              <CheckCheck className="size-4" />
+              Mark all as read
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        <DropdownMenuGroup className="gap-2 flex flex-col">
+          {loading && (
+            <div className="flex flex-row gap-2 w-full items-center justify-center my-4">
+              <Spinner/> loading notifications...
+            </div>
+          )}
+          {!loading && notifications.length === 0 && (
+            <NoResults text="No notifications"/>
+          )}
+          {!loading && notifications.map((notification) => (
+            <DropdownMenuItem
+              key={notification.id}
+              className="cursor-pointer rounded-none"
+              onSelect={(e) => {
+                e.preventDefault();
+                markAsRead(notification);
+              }}
+            >
+              <div className={[
+                "p-2 flex flex-col w-full relative gap-1 justify-between min-h-[50px] rounded-md transition-colors",
+                notification.status === "unseen" ? "bg-blue-500/10" : ""
+              ].join(" ")}>
+                <div
+                  className="p-[4px] rounded-lg absolute top-1 right-1 bg-background hover:bg-accent z-10"
+                  onClick={(e) => { e.stopPropagation(); dismissNotification(notification); }}
                 >
-                  <Bell/> Notifications  <Badge className="py-[2px] w-[32px] bg-blue-500 rounded-full">{notifications.length}</Badge>              
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="mx-3 py-2 w-[--radix-dropdown-menu-trigger-width] w-[500px] rounded-lg max-h-[60vh] overflow-y-auto" side={"right"} align="end" sideOffset={4}
-              >
-                <DropdownMenuGroup className="gap-2 flex flex-col">
-                  {
-                    loading &&
-                    <div className="flex flex-row gap-2 w-full items-center justify-center my-4">
-                      <Spinner/> loading notifications...
-                    </div>
-                  }
-                  {
-                    !loading && notifications.length === 0 &&
-                    <NoResults text={"No notifications"}/>
-                  }
-                  {
-                    !loading && notifications.map((notification, index) => (
-                      <DropdownMenuItem key={notification.id} className="cursor-pointer border-accent rounded-none" onSelect={(e) => {e.preventDefault();}}>
-                        <div className="p-1 flex flex-col w-full relative flex flex-col gap-1 justify-between min-h-[50px]">
-                          <div className="p-[4px] rounded-lg right absolute top-1 right-1 bg-background" onClick={() => {removeNotification(index);}}>
-                            <X/>
-                          </div>
-                          <div className="flex flex-row w-full justify-start gap-2 items-start">
-                            {
-                              notification.status === "unseen" &&
-                              <Badge className="px-4 rounded-full bg-blue-500 text-white">NEW</Badge>
-                            }
-                            <h1 className="text-base max-w-[435px] line-clamp-2">{notification.description}</h1>
-                          </div>    
-                          <div className="flex flex-row w-full justify-start">
-                            <span className="text-gray-500 text-xs">{moment(notification.timestamp).fromNow()}</span>                        
-                          </div>
-                          <div className="flex flex-row gap-4 justify-start my-1 items-center">
-                            {
-                              notification.tags.map((tag, index) => (
-                                <div key={index} className="bg-background border-blue-400 border-2 rounded-md px-4 py-[2px] min-w-[120px] flex flex-row justify-center">
-                                  <span key={index} className="text-xs text-blue-500">{tag}</span> 
-                                </div>
-                              ))
-                            }
-                          </div>
-                        </div>
-                      </DropdownMenuItem>    
-                    )
-                    )
-                  }
-                </DropdownMenuGroup>
-                
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+                  <X className="size-3" />
+                </div>
+                <div className="flex flex-row w-full justify-start gap-2 items-start pr-6">
+                  {notification.status === "unseen" && (
+                    <Badge className="px-2 rounded-full bg-blue-500 text-white text-xs shrink-0">NEW</Badge>
+                  )}
+                  <span className="text-sm line-clamp-2">{notification.description}</span>
+                </div>    
+                {notification.tags.length > 0 && (
+                  <div className="flex flex-row gap-2 justify-start items-center flex-wrap">
+                    {notification.tags.map((tag, i) => (
+                      <div key={i} className="bg-background border-blue-400 border rounded-md px-3 py-[1px]">
+                        <span className="text-xs text-blue-500">{tag}</span> 
+                      </div>
+                    ))}
+                <div className="flex flex-row w-full justify-start">
+                  <span className="text-gray-500 text-xs">{moment(notification.timestamp).fromNow()}</span>                        
+                </div>
+                  </div>
+                )}
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

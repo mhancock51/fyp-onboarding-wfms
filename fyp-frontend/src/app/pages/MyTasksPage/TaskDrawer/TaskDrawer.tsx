@@ -184,7 +184,7 @@ export default function TaskDrawer(props: Props) {
 
   return (
     <Drawer direction='right'  onClose={handleClose} open={props.open}>
-      <DrawerContent className="max-w-[600px] max-h-[100vh] w-full p-2 flex flex-col justify-start gap-2">
+      <DrawerContent className="max-w-[600px] max-h-[100vh] w-full p-2 flex flex-col justify-start gap-2 border-l-2 border-l-accent">
         {/* Drawer header - task information */}
         <div className='flex flex-col justify-center gap-2'>
           <DrawerTitle className='text-2xl items-center flex flex-row justify-center'>{props.task.template.name}</DrawerTitle>

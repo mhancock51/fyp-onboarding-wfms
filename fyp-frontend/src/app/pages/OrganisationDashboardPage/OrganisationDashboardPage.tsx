@@ -12,6 +12,7 @@ import Api from '@/api';
 import { AxiosResponse } from 'axios';
 import HTTPresponse from '@/models/HTTPresponse';
 import TenantSubscription from '@/models/TenantSubscription';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function OrganisationDashboardPage() {
   const dispatch = useDispatch();
@@ -80,6 +81,12 @@ export default function OrganisationDashboardPage() {
     }    
   ];
 
+  const [, setPageTitle] = usePageTitle();
+      
+    useEffect(() => {
+      setPageTitle(`Organisation`);
+    }, [setPageTitle]);
+
   return (
     <div className="min-h-full bg-gradient-to-br from-background via-background to-muted/30 md:p-6">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -87,7 +94,6 @@ export default function OrganisationDashboardPage() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl space-y-4">
               <div className="space-y-3">
-                <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Organisation Management</h1>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
                   All the tool you need to manage your organisation are here: invite new users, manage accounts, and update organisation details from one place.
                 </p>

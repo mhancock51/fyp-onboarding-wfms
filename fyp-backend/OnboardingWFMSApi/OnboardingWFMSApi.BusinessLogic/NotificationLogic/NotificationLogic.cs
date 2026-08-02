@@ -19,6 +19,8 @@ namespace OnboardingWFMSApi.BusinessLogic.NotificationLogic
         public Task<NotificationDTO> GetNotificationDTO(string notificationId);
         public Task<HTTPResponse<List<NotificationDTO>, string>> GetAccountsNotification(string accountId);
         public Task<HTTPResponse<string, string>> DeleteNotificaion(string notificationId, string accountId);
+        public Task<HTTPResponse<string, string>> MarkNotificationAsRead(string notificationId, string accountId);
+        public Task<HTTPResponse<string, string>> MarkAllNotificationsAsRead(string accountId);
     }
     public class NotificationLogic : INotificationLogic
     {
@@ -77,6 +79,52 @@ namespace OnboardingWFMSApi.BusinessLogic.NotificationLogic
             {
                 _logger.LogError($"Failed to delete notification: {ex.Message}");
                 return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to delete notification" };
+            }
+        }
+
+        public async Task<HTTPResponse<string, string>> MarkNotificationAsRead(string notificationId, string accountId)
+        {
+            var notification = await _notificationRepository.GetById(notificationId);
+            if (notification == null)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "Notification doesn't exist" };
+            }
+            if (notification.RecipientId != accountId)
+            {
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 400, Error = "User doesn't have permission to do this" };
+            }
+            try
+            {
+                notification.Status = NotificationConstants.NOTIFICATION_SEEN_STATUS;
+                await _notificationRepository.UpdateAsync(notification);
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = "Notification marked as read" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to mark notification as read: {ex.Message}");
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to mark notification as read" };
+            }
+        }
+
+        public async Task<HTTPResponse<string, string>> MarkAllNotificationsAsRead(string accountId)
+        {
+            try
+            {
+                var notifications = await _notificationRepository.GetAccountsNotifications(accountId);
+                var unseenNotifications = notifications.Where(n => n.Status == NotificationConstants.NOTIFICATION_UNSEEN_STATUS).ToList();
+
+                foreach (var notification in unseenNotifications)
+                {
+                    notification.Status = NotificationConstants.NOTIFICATION_SEEN_STATUS;
+                    await _notificationRepository.UpdateAsync(notification);
+                }
+
+                return new HTTPResponse<string, string>() { Success = true, HttpCode = 200, Data = $"Marked {unseenNotifications.Count} notifications as read" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to mark notifications as read: {ex.Message}");
+                return new HTTPResponse<string, string>() { Success = false, HttpCode = 500, Error = "Failed to mark notifications as read" };
             }
         }
 
