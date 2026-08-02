@@ -103,9 +103,16 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
                 // load template
                 var response = await _taskTemplateLogic.GetTaskTemplateDTOById(instance.TaskTemplateId);
                 taskTemplate = response.Data;
+                if (taskTemplate == null)
+                {
+                    _logger.LogError("Failed to load task template DTO for TaskTemplateId={TaskTemplateId}", instance.TaskTemplateId);
+                    await _taskInstanceRepository.DeleteAsync(taskInstance);
+                    return serverErrorResponse;
+                }
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to create task instance row or load template for TaskTemplateId={TaskTemplateId}", payload.TaskTemplateId);
                 return serverErrorResponse;
             }
 
@@ -141,6 +148,7 @@ namespace OnboardingWFMSApi.BusinessLogic.TaskInstanceLogic
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to create task type instance data for TaskInstanceId={TaskInstanceId} TaskTypeId={TaskTypeId}", taskInstance?.Id, taskTemplate?.TaskTypeId);
                 // rollback task instance creation
                 await _taskInstanceRepository.DeleteAsync(taskInstance);
                 return serverErrorResponse;
