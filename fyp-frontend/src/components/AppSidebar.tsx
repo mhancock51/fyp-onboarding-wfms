@@ -11,9 +11,9 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { BadgeDollarSign, Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
+import { Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
 import SidebarUser from "./SidebarUser"
-import { useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store"
 import NotificationsSidebarMenu from "./NotificationSidebarMenu"
@@ -25,15 +25,16 @@ interface Props {
   organisationLogoMimeType: string | null;
 }
 
-export function AppSidebar(props: Props) {
+export function AppSidebar({organisationName, organisationLogoData, organisationLogoMimeType}: Props) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const user = useSelector((state: RootState) => state.app.user);
 
   const mainItems = [  
     {
       title: "Tasks",
-      url: "",
+      url: "/",
       icon: ClipboardList,
     },
     {
@@ -52,17 +53,24 @@ export function AppSidebar(props: Props) {
     {
       title: "Workflows",
       onClickAction: () => { navigate("/workflows/dashboard"); },
+      matchUrl: "/workflows/dashboard",
       icon: WorkflowRouteIcon
     },
     {
       title: "Organisation",
       onClickAction: () => { navigate("/organisation"); },
+      matchUrl: "/organisation",
       icon: Building
     },
   ];
 
-  const logoSrc = props.organisationLogoData && props.organisationLogoMimeType
-    ? `data:${props.organisationLogoMimeType};base64,${props.organisationLogoData}`
+  const isActive = (url: string) => {
+    if (url === "/") return pathname === "/";
+    return pathname.startsWith(url);
+  };
+
+  const logoSrc = organisationLogoData && organisationLogoMimeType
+    ? `data:${organisationLogoMimeType};base64,${organisationLogoData}`
     : null;
 
   return (
@@ -72,21 +80,19 @@ export function AppSidebar(props: Props) {
           <div className="w-full flex flex-col justify-center items-center gap-1 py-1">
             {
               logoSrc !== null
-                ? <img src={logoSrc} alt={`${props.organisationName} logo`} className="max-h-32 w-auto object-contain" />
-                : <h2 className="text-xl text-center">{props.organisationName}</h2>
+                ? <img src={logoSrc} alt={`${organisationName} logo`} className="max-h-32 w-auto object-contain" />
+                : <h2 className="text-xl text-center">{organisationName}</h2>
             }
             <SidebarSeparator/>
           </div>
         </SidebarHeader>
         <SidebarContent className="gap-0">
-          <NotificationsSidebarMenu/>
           <SidebarGroup>
-            <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {mainItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className="min-h-[34px]">                    
+                    <SidebarMenuButton asChild isActive={isActive(item.url)} className="min-h-[34px]">                    
                       <a onClick={() => {navigate(item.url)}} >
                         <item.icon/>
                         {item.title}
@@ -104,7 +110,7 @@ export function AppSidebar(props: Props) {
                 <SidebarMenu>
                   {supervisorItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild className="min-h-[34px]">
+                      <SidebarMenuButton asChild isActive={isActive(item.matchUrl)} className="min-h-[34px]">
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>
