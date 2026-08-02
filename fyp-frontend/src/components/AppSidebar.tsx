@@ -16,7 +16,6 @@ import SidebarUser from "./SidebarUser"
 import { useLocation, useNavigate } from "react-router"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store"
-import NotificationsSidebarMenu from "./NotificationSidebarMenu"
   
 
 interface Props {

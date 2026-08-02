@@ -2,7 +2,9 @@ import DashboardActionCard, { DashboardAction } from '@/components/DashboardActi
 import { Button } from '@/components/ui/button';
 
 import { SET_OPEN_CREATE_WORKFLOW_INSTANCE_DIALOG, SET_OPEN_TASK_TEMPLATES_LIST_DIALOG, SET_OPEN_VIEW_WORKFLOW_TEMPLATE_DIALOG } from '@/features/appSlice';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { Blocks, ChartNoAxesColumn, ClipboardList, LayoutTemplate, ListTodo, Route as WorkflowRouteIcon } from 'lucide-react';
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,6 +51,12 @@ export default function WorkflowDashboardPage() {
     }
   ];
 
+  const [, setPageTitle] = usePageTitle();
+    
+  useEffect(() => {
+    setPageTitle(`Workflow Management Dashboard`);
+  }, [setPageTitle]);
+
   return (
     <div className="min-h-full bg-gradient-to-br from-background via-background to-muted/30 md:p-6">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -56,7 +64,6 @@ export default function WorkflowDashboardPage() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl space-y-4">
               <div className="space-y-3">
-                <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Workflow Management Dashboard</h1>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
                   All the tools you need to manage workflows is centralised here: build templates, manage task templates,
                   launch instances, and move between the workflow tools without hunting through the menu.

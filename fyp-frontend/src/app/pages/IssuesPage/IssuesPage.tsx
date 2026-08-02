@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner';
 import NoResults from '@/components/NoResults';
 import { SET_OPEN_UPDATE_TASK_TEMPLATE_DIALOG, SET_SELECTED_TASK_TEMPLATE } from '@/features/appSlice';
 import AccountDirectoryBadge from '@/components/AccountDirectoryBadge';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function IssuesPage() {  
   const dispatch = useDispatch();
@@ -26,6 +27,12 @@ export default function IssuesPage() {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [issues, setIssues] = useState<IssueDTO[]>([]);  
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [, setPageTitle] = usePageTitle();
+  
+  useEffect(() => {
+    setPageTitle(`Reported Issues ${user?.isSupervisor ? "(Showing all issuses)" : ""}`);
+  }, [setPageTitle, user]);
 
   function handleEditTaskTemplateActionClick(issue: IssueDTO) {
     const taskTemplate = templates.find(t => t.id === issue.taskTemplateId);
@@ -83,9 +90,7 @@ export default function IssuesPage() {
   }, []);
 
   return (
-    <div>
-      <h1 className='text-xl text-foreground font-bold m-2'>Reported Issues {user?.isSupervisor ? "(Showing all issuses)" : ""}</h1>      
-      <Separator/>
+    <div>    
       <div className='flex flex-col w-full p-2'>
         {
           loading &&

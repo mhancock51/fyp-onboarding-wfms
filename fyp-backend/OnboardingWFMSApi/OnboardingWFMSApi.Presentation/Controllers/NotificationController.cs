@@ -50,5 +50,39 @@ namespace OnboardingWFMSApi.Presentation.Controllers
                 return StatusCode(response.HttpCode, response);
             }
         }
+
+        [Authorize]
+        [HttpPut("mark-read")]
+        public async Task<IActionResult> MarkNotificationAsRead(string notificationId)
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _notificationLogic.MarkNotificationAsRead(notificationId, accountId);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
+
+        [Authorize]
+        [HttpPut("mark-all-read")]
+        public async Task<IActionResult> MarkAllNotificationsAsRead()
+        {
+            string accountId = UserIdentityUtils.GetAccountIdFromClaimIdentity(User.Identity as ClaimsIdentity);
+            if (accountId == "")
+            {
+                var response = new HTTPResponse<string, string>() { Success = false, HttpCode = 401, Message = "Invalid credentials" };
+                return StatusCode(response.HttpCode, response);
+            }
+            else
+            {
+                var response = await _notificationLogic.MarkAllNotificationsAsRead(accountId);
+                return StatusCode(response.HttpCode, response);
+            }
+        }
     }
 }
