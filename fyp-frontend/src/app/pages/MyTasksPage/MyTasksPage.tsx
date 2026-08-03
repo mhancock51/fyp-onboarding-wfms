@@ -60,7 +60,7 @@ export default function MyTasksPage() {
                 <div className='flex flex-col gap-2 w-full'>
                   <div className='flex flex-row gap-2 justify-between w-[180px] p-[6px] rounded-full items-center hover:bg-accent'>
                     <h2 className='text-[16px] font-semibold'>Completed Tasks</h2>
-                    <div className='bg-blue-500 rounded-full text-background w-8 py-[2px] text-center'>{closedTasks.length}</div>
+                    <div className='bg-primary rounded-full text-background w-8 py-[2px] text-center'>{closedTasks.length}</div>
                   </div>
                   <Separator/>
                 </div>

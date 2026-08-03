@@ -100,7 +100,7 @@ export default function TaskInstancesTable(props: Props) {
                   <TableCell className='overflow-x-hidden text-ellipsis flex flex-row gap-2 items-center'>
                     {
                       props.showNewTask && index === 0 && Utils.minutesSince(new Date(task.creationTimestamp)) < 5 &&
-                      <Badge className='bg-blue-500 rounded-full p-1 px-2'>NEW</Badge>
+                      <Badge className='bg-primary rounded-full p-1 px-2'>NEW</Badge>
                     }
                     {task.template.name}
                   </TableCell>

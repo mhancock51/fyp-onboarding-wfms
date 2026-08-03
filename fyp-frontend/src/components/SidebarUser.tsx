@@ -42,7 +42,7 @@ export default function SidebarUser(props: Props) {
           <DropdownMenuLabel className="px-2 py-1.5">
             <div className="flex flex-col">
               <div className="flex flex-row items-center gap-1">
-                {props.user.isSupervisor && <ShieldUser className="text-blue-500" size={16} />}
+                {props.user.isSupervisor && <ShieldUser className="text-primary" size={16} />}
                 <span className="truncate font-semibold text-sm">{props.user.name}</span>
               </div>
               <span className="truncate text-xs text-muted-foreground">{props.user.email}</span>
@@ -90,7 +90,7 @@ export default function SidebarUser(props: Props) {
                   <div className='flex flex-row items-center gap-1 justify-start'>
                     {
                       props.user.isSupervisor &&
-                      <ShieldUser className='text-blue-500' size={20}/>
+                      <ShieldUser className='text-primary' size={20}/>
                     }
                     <span className="truncate font-semibold text-md">{props.user.name} ({props.user.department})</span>
                   </div>

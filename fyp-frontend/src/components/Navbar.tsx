@@ -9,7 +9,7 @@ const Navbar = () => {
     <div className="w-full border-1 border-secondary p-3 items-center flex flex-row justify-between gap-2">
       <div className="flex flex-row gap-1 items-center">
         <SidebarTrigger size={"lg"}/>
-        <h1>{pageTitle}</h1>
+        <h1 className="font-semibold">{pageTitle}</h1>
       </div>
       <div className="flex flex-row gap-1">
         {/* <Input className="w-[400px]" placeholder="Search..."/>

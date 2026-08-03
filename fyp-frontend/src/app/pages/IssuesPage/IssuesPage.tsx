@@ -72,7 +72,7 @@ export default function IssuesPage() {
   function statusToColor(status: string) {
     switch(status.toLowerCase()) {
       case "open":
-        return "bg-blue-500";
+        return "bg-primary";
       case "closed":
         return "bg-green-500";
       case "resolved":

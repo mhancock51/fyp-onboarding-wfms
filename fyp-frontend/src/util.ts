@@ -118,7 +118,7 @@ const Utils = {
   getWorkflowStatusColor(status: string) {
     switch(status) {
       case "MAINFLOW":
-        return "bg-blue-500";
+        return "bg-primary";
       case "PREFLOW":
         return "bg-orange-600";
       case "COMPLETE":

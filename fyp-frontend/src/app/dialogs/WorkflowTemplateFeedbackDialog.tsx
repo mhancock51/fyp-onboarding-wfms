@@ -132,7 +132,7 @@ function LikertAggregateResponseBarChart(props: BarChartProps) {
   const RESPONSES_CHART_CONFIG = {
     total: {
       label: "Responses",
-      color: "#2563eb",
+      color: "hsl(var(--primary))",
     }
   } satisfies ChartConfig;
 

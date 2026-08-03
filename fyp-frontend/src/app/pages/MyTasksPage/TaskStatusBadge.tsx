@@ -7,7 +7,7 @@ export default function TaskStatusBadge(props: {status: string, className?: stri
       case "open":
         return "bg-green-500";
       case "complete":
-        return "bg-blue-500";
+        return "bg-primary";
       default:
         return ""
     }

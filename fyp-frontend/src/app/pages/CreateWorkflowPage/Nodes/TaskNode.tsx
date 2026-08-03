@@ -83,7 +83,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
      onOpenChange={handleOpenChange}
     >
       <PopoverTrigger asChild>
-        <div className={`group relative p-2 rounded-[20px] min-w-[30em] color-foreground bg-background ${props.data.isSelectedNode ? "border-blue-500 border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
+        <div className={`group relative p-2 rounded-[20px] min-w-[30em] color-foreground bg-background ${props.data.isSelectedNode ? "border-primary border-3" : ""} ${props.data.isADependency ? "border-red-300 border-3" : ""}`} 
           style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}} onClick={(event: any) => {event.stopPropagation(); handleClick();}}
         >
           {
@@ -143,13 +143,13 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
         props.data.isSelectedNode &&
         <PopoverContent side="right" className='rounded-full w-[40px] p-0 py-2'>
           <div className='flex flex-col gap-2 w-full justify-center items-center'>
-            <div className={`cursor-pointer ${!props.data.canMoveUp ? "text-gray-200" : "" } hover:${props.data.canMoveUp ? 'text-blue-700' : ''}`}   onClick={() => { if(!props.data.canMoveUp) return; props.data.moveTaskUp(); setOpenPopover(false);}}>
+            <div className={`cursor-pointer ${!props.data.canMoveUp ? "text-gray-200" : "" } hover:${props.data.canMoveUp ? 'text-primary' : ''}`}   onClick={() => { if(!props.data.canMoveUp) return; props.data.moveTaskUp(); setOpenPopover(false);}}>
               <ChevronUp />
             </div>
-            <div className={`cursor-pointer ${!props.data.canMoveDown ? "text-gray-200" : "" } hover:${props.data.canMoveDown ? 'text-blue-700' : 'text-gray-200'}`} onClick={() => { if(!props.data.canMoveDown) return; props.data.moveTaskDown(); setOpenPopover(false);}}>
+            <div className={`cursor-pointer ${!props.data.canMoveDown ? "text-gray-200" : "" } hover:${props.data.canMoveDown ? 'text-primary' : 'text-gray-200'}`} onClick={() => { if(!props.data.canMoveDown) return; props.data.moveTaskDown(); setOpenPopover(false);}}>
               <ChevronDown />
             </div>
-            <div className={`cursor-pointer hover:text-blue-700`} 
+            <div className={`cursor-pointer hover:text-primary`} 
               onClick={props.data.clearSelectedNode}
             >
               <X/>
