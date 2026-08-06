@@ -143,6 +143,10 @@ const Utils = {
     const diffInMs = now.getTime() - timestamp.getTime();
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     return diffInMinutes;
+  },
+  capitalizeFirstLetter(text: string) {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   }
 
 }
