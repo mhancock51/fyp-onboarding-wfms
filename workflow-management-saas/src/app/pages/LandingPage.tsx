@@ -174,9 +174,9 @@ export function LandingPage() {
   }, [])
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Header / Nav */}
-      <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <nav className="container flex h-16 items-center justify-between" aria-label="Global">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
@@ -222,7 +222,7 @@ export function LandingPage() {
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 md:hidden">
             <div className="fixed inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} />
-            <div className="fixed right-0 top-0 h-full w-64 bg-white p-6 shadow-xl animate-fade-in">
+            <div className="fixed right-0 top-0 h-full w-64 bg-background p-6 shadow-xl animate-fade-in">
               <div className="flex items-center justify-between mb-8">
                 <span className="text-lg font-bold">{APP_NAME}</span>
                 <button onClick={() => setMobileMenuOpen(false)}>

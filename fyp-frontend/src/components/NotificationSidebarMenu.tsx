@@ -98,7 +98,7 @@ export default function NotificationsSidebarMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="cursor-pointer gap-2 outline-none relative"           
+          className="cursor-pointer gap-2 outline-none relative hover:bg-muted/50"           
         >
           <div className="relative">
             <Bell className={hasNew ? "animate-pulse text-primary" : ""} />
