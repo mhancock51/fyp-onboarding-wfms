@@ -142,7 +142,7 @@ export default function TaskInstancesTable(props: Props) {
                       }
                     </TableCell>
                   }
-                  <TableCell>
+                  <TableCell className='text-center'>
                     {moment(task.creationTimestamp).fromNow()}                    
                   </TableCell>
                   {
