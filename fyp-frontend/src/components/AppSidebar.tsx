@@ -50,7 +50,7 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
 
   const supervisorItems = [
     {
-      title: "Workflows",
+      title: "Workflows Dashboard",
       onClickAction: () => { navigate("/workflows-dashboard"); },
       matchUrl: "/workflows-dashboard",
       icon: WorkflowRouteIcon
@@ -65,7 +65,7 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
 
   const isActive = (url: string) => {
     if (url === "/") return pathname === "/";
-    return pathname.startsWith(url);
+    return pathname === url || pathname.startsWith(`${url}/`);
   };
 
   const logoSrc = organisationLogoData && organisationLogoMimeType
