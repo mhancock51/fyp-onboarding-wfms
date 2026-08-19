@@ -1,6 +1,5 @@
 import DashboardActionCard, { DashboardAction } from '@/components/DashboardActionCard';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Building, CreditCard, UserPlus, Users } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,7 +17,6 @@ export default function OrganisationDashboardPage() {
   const dispatch = useDispatch();
   const tenantSubscription = useSelector((state: RootState) => state.app.tenantSubscription);
   const [fetchedSubscription, setFetched] = useState<boolean>(false);
-  const [erroredSubscription, setErrored] = useState<boolean>(false);
 
   useEffect(() => {
     Api.tenantSubscription.fetchTenantSubscription()
@@ -28,7 +26,6 @@ export default function OrganisationDashboardPage() {
       .catch((error) => {
         console.error(error);
         // tenant may not have a subscription yet — silently ignore
-        setErrored(true);
       })
       .finally(() => {
         setFetched(true);
@@ -118,47 +115,33 @@ export default function OrganisationDashboardPage() {
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {/* Subscription card */}
-          <Card className="border-border/60 bg-card/80 shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
-            <CardHeader className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <CreditCard className="h-6 w-6" />
-              </div>
-              <div className="space-y-2">
-                <CardTitle className="text-lg">Subscription</CardTitle>
-                <CardDescription className="text-sm leading-6">
-                  View and manage your current plan and billing details.
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {tenantSubscription ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">Plan</span>
-                    <div className="flex items-center justify-center gap-1">
-                      <span className="text-sm font-semibold">{tenantSubscription.subscriptionTier.displayName}</span>
-                      <Badge variant={subscriptionStatusVariant(tenantSubscription.stripeSubscriptionStatus)}>
-                        {tenantSubscription.stripeSubscriptionStatus}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">Current period ends</span>
-                    <span className="text-sm">{formatPeriodEnd(tenantSubscription.subscriptionCurrentPeriodEnd)}</span>
+          <DashboardActionCard
+            title="Subscription"
+            description="View and manage your current plan and billing details."
+            icon={CreditCard}
+            buttonLabel="Manage subscription"
+            onClick={() => { dispatch(SET_OPEN_MANAGE_SUBSCRIPTION_DIALOG(true)); }}
+          >
+            {tenantSubscription ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">Plan</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-semibold">{tenantSubscription.subscriptionTier.displayName}</span>
+                    <Badge variant={subscriptionStatusVariant(tenantSubscription.stripeSubscriptionStatus)}>
+                      {tenantSubscription.stripeSubscriptionStatus}
+                    </Badge>
                   </div>
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">{fetchedSubscription ? "No active subscription found." : "Fetching subscription..."}</p>
-              )}
-              <Button
-                className="w-full justify-between"
-                variant="secondary"
-                onClick={() => { dispatch(SET_OPEN_MANAGE_SUBSCRIPTION_DIALOG(true)); }}
-              >
-                <span>Manage subscription</span>
-              </Button>
-            </CardContent>
-          </Card>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">Current period ends</span>
+                  <span className="text-sm">{formatPeriodEnd(tenantSubscription.subscriptionCurrentPeriodEnd)}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">{fetchedSubscription ? "No active subscription found." : "Fetching subscription..."}</p>
+            )}
+          </DashboardActionCard>
 
           {organisationActions.map((action) => (
             <DashboardActionCard key={action.title} {...action} />

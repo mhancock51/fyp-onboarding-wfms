@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ArrowRight, Blocks } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from "./ui/button";
@@ -9,6 +10,7 @@ export type DashboardAction = {
   buttonLabel: string;
   onClick: () => void;
   isPrimary?: boolean;
+  children?: ReactNode;
 };
 
 const DashboardActionCard = (props: DashboardAction) => {
@@ -23,8 +25,9 @@ const DashboardActionCard = (props: DashboardAction) => {
           <CardDescription className="text-sm leading-6">{props.description}</CardDescription>
         </div>
       </CardHeader>
-      <CardContent>
-        <Button className="w-full justify-between" variant={props.isPrimary ? "default" : "secondary"} onClick={props.onClick}>
+      <CardContent className="space-y-4">
+        {props.children}
+        <Button className="w-full justify-between" variant={props.isPrimary ? "default" : "outline"} onClick={props.onClick}>
           <span>{props.buttonLabel}</span>
           <ArrowRight className="h-4 w-4" />
         </Button>
