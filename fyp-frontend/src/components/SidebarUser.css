@@ -1,4 +1,4 @@
-div[data-slot="sidebar-footer"] button[data-slot="dropdown-menu-trigger"] {
+div[data-slot="sidebar"]:not([data-state="collapsed"]) div[data-slot="sidebar-footer"] button[data-slot="dropdown-menu-trigger"] {
   border-radius: 0 !important;
   padding-top: 30px !important;
   padding-bottom: 30px !important;

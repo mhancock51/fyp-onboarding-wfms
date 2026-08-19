@@ -76,7 +76,7 @@ export default function SidebarUser(props: Props) {
               <SidebarMenuButton
                 size="default"
                 tooltip="Account"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground outline-none mx-auto mb-2"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground outline-none mx-auto mb-2 cursor-pointer"
               >
                 <EllipsisVertical className="size-4" />
               </SidebarMenuButton>
