@@ -175,7 +175,7 @@ export default function App() {
         <Route path="workflows" element={<WorkflowInstancesPage />} />
         <Route path="settings" element={<SettingsPage/>} />
         <Route path="issues" element={user !== null ? <IssuesPage /> : <Navigate to="/login" />} />
-        <Route path="workflows/dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
+        <Route path="workflows-dashboard" element={user?.isSupervisor ? <WorkflowDashboardPage /> : <Navigate to="/" />} />
         <Route path="organisation" element={user?.isSupervisor ? <OrganisationDashboardPage /> : <Navigate to="/" />} />
         <Route path="workflows/build" element={user?.isSupervisor ? <CreateWorkflowPage /> : <Navigate to="/" />} />
       </Route>

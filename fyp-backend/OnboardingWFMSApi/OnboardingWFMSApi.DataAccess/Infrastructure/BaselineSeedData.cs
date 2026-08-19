@@ -56,18 +56,6 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
         {
             new SubscriptionTierEntitlementTable()
             {
-                Id = "admin-tier",
-                DisplayName = "Admin tier",
-                CanUploadDocuments = true,
-                MaxActiveWorkflowInstances = 99,
-                MaxDocumentStorageSpaceInMb = 999999,
-                MaxUsers = 999,
-                CreatedDate = DateTime.Now,
-                IsActive = true,
-                PriceId = "",
-            },
-            new SubscriptionTierEntitlementTable()
-            {
                 Id = "tier-1-subscription",
                 DisplayName = "Starter Tier",
                 CanUploadDocuments = true,
@@ -76,7 +64,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 MaxUsers = 5,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
-                PriceId = "price_1TvHoUF3XLGavbWV0MF0ZXIW",
+                PriceId = "price_1U5lQkF3XLGavbWVubJCZ4Ap",
             },
             new SubscriptionTierEntitlementTable()
             {
@@ -88,7 +76,7 @@ namespace OnboardingWFMSApi.DataAccess.Infrastructure
                 MaxUsers = 5,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
-                PriceId = "price_1TvHolF3XLGavbWVTeoOaQar",
+                PriceId = "price_1U5lQOF3XLGavbWVzZG3Cp28",
             },
             new SubscriptionTierEntitlementTable()
             {

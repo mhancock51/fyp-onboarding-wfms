@@ -51,8 +51,8 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
   const supervisorItems = [
     {
       title: "Workflows",
-      onClickAction: () => { navigate("/workflows/dashboard"); },
-      matchUrl: "/workflows/dashboard",
+      onClickAction: () => { navigate("/workflows-dashboard"); },
+      matchUrl: "/workflows-dashboard",
       icon: WorkflowRouteIcon
     },
     {
