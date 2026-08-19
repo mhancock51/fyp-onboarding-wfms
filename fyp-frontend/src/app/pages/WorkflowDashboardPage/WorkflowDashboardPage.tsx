@@ -60,7 +60,7 @@ export default function WorkflowDashboardPage() {
   return (
     <div className="min-h-full">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <section className="overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-8">
+        <section className="rounded-xl overflow-hidden border border-border/60 bg-card/80 p-6 backdrop-blur md:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl space-y-4">
               <div className="space-y-3">

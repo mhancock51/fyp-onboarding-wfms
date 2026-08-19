@@ -13,7 +13,7 @@ export type DashboardAction = {
 
 const DashboardActionCard = (props: DashboardAction) => {
   return (
-    <Card className="border-border/60 bg-card/80 shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+    <Card className="border-border/60 bg-card/80 rounded-xl backdrop-blur">
       <CardHeader className="space-y-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <props.icon className="h-6 w-6" />
