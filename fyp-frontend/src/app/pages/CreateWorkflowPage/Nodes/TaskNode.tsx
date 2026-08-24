@@ -93,7 +93,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
           {
             props.data.isADependency && !props.data.isReadOnly &&
             /// button to remove dependency that selected node has on this
-            <div className='invisible group-hover:visible absolute top-[-12px] right-[-12px] bg-background rounded-full hover:bg-gray-200 p-2 cursor-pointer'
+            <div className='invisible group-hover:visible absolute top-[-12px] right-[-12px] bg-background rounded-full hover:bg-muted/50 p-2 cursor-pointer'
               onClick={(event: any) => { event.stopPropagation(); props.data.removeDependency();}}
             >
               <X size={20}/>
@@ -102,7 +102,7 @@ export default function TaskNode(props: NodeProps<TaskNode>) {
           {
             canCreateDependency() &&
             /// button to create a dependency on this node by the selected node
-            <div className='invisible group-hover:visible absolute top-[-12px] right-[-12px] bg-background rounded-full hover:bg-gray-200 p-2 cursor-pointer'
+            <div className='invisible group-hover:visible absolute top-[-12px] right-[-12px] bg-background rounded-full hover:bg-muted/50 p-2 cursor-pointer'
               onClick={(event: any) => { if (!canCreateDependency()) return; event.stopPropagation(); props.data.addDependency();}}
             >
               <Plus size={20}/>

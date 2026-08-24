@@ -104,7 +104,7 @@ export default function TaskTemplatesTable(props: Props) {
             <TableBody>
               {
                 filteredTemplates.map((taskTemplate, index) => (
-                  <TableRow key={index} className={`${props.selectedTemplate?.id === taskTemplate.id ? "bg-secondary" : ""} cursor-pointer hover:bg-accent`} onClick={() => { if (props.onRowClick) props.onRowClick(taskTemplate);}}>
+                  <TableRow key={index} className={`${props.selectedTemplate?.id === taskTemplate.id ? "bg-secondary" : ""} cursor-pointer hover:bg-muted/50`} onClick={() => { if (props.onRowClick) props.onRowClick(taskTemplate);}}>
                     <TableCell className={`${props.selectedTemplate?.id === taskTemplate.id ? "font-bold" : ""}`}>{taskTemplate.name}</TableCell>
                     <TableCell className='p-3'>
                       <TaskTypeBadge taskTypeId={taskTemplate.taskTypeId}/>                  

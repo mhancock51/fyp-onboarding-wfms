@@ -144,7 +144,7 @@ export default function NotificationsSidebarMenu() {
                 notification.status === "unseen" ? "bg-primary/10" : ""
               ].join(" ")}>
                 <div
-                  className="p-[4px] rounded-lg absolute top-1 right-1 bg-background hover:bg-accent z-10"
+                  className="p-[4px] rounded-lg absolute top-1 right-1 bg-background hover:bg-muted/50 z-10"
                   onClick={(e) => { e.stopPropagation(); dismissNotification(notification); }}
                 >
                   <X className="size-3" />

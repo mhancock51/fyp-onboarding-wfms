@@ -164,7 +164,7 @@ export default function WorkflowInstancesTable(props: Props) {
         <TableBody>
           {
             workflowInstances.map((instance, index) => (
-              <TableRow key={index} className='cursor-pointer hover:bg-accent hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
+              <TableRow key={index} className='cursor-pointer hover:bg-muted/50 hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
                 <TableCell>{instance.workflowTemplate.name}</TableCell>
                 <TableCell className='text-center'>
                   {Utils.dateToDDMMYYYY(new Date(instance.creationTimestamp))}

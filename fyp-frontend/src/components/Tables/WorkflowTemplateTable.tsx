@@ -103,7 +103,7 @@ export default function WorkflowTemplateTable(props: Props) {
               {
                 filteredTemplates.map((workflowTemplate, index) => (
                   <TableRow key={index} onClick={() => {props.onTemplateSelected(workflowTemplate)}}
-                    className={`${props.selectedTemplate?.id === workflowTemplate.id ? "bg-secondary" : ""} cursor-pointer hover:bg-accent`}
+                    className={`${props.selectedTemplate?.id === workflowTemplate.id ? "bg-secondary" : ""} cursor-pointer hover:bg-muted/50`}
                   >
                     <TableCell>{workflowTemplate.name}</TableCell>
                     <TableCell>{workflowTemplate.isOnboardingWF ? "Onboarding Workflow" : "Workflow"}</TableCell>
