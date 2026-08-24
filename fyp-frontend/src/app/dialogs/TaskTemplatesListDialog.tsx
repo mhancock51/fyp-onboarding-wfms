@@ -1,4 +1,3 @@
-import Api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useDispatch } from 'react-redux';
@@ -23,11 +22,11 @@ export default function TaskTemplatesListDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={closeAndClear}>
-      <DialogContent className="sm:max-w-[750px]">
+      <DialogContent className="min-w-[900px]">
         <DialogHeader>
           <DialogTitle>Task Templates</DialogTitle>          
         </DialogHeader>
-        <TaskTemplatesTable/>
+        <TaskTemplatesTable selectedTemplate={null}/>
         <DialogFooter>
           <Button type='button' onClick={openCreateTemplateMenu}>Create Template</Button>
         </DialogFooter>

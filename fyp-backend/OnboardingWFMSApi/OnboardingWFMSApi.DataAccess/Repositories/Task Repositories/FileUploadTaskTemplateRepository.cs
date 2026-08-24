@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IFileUploadTaskTemplateRepository : IRepository<FileUploadTaskTemplateTable>
+    public interface IFileUploadTaskTemplateRepository : ITaskTemplateRepository<FileUploadTaskTemplateTable>
     {
-        public Task<FileUploadTaskTemplateTable> GetByTaskTemplateId(string id);
     }
     public class FileUploadTaskTemplateRepository : BaseRepository<FileUploadTaskTemplateTable>, IFileUploadTaskTemplateRepository
     {
@@ -23,9 +22,11 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
             return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == id);
         }
 
-        public override async Task<FileUploadTaskTemplateTable> GetById(string id)
+        public async Task<FileUploadTaskTemplateTable> GetByTaskInstanceId(string id)
         {
-            return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(i => i.Id == id);            
+            // find checklist instanc
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.fileUploadTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
         }
     }
 

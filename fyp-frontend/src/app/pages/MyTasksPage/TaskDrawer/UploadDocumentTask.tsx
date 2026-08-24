@@ -1,11 +1,12 @@
-import Api from '@/api';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance';
 import { FileUploadTaskTemplate } from '@/models/tasks/FileUploadTaskTemplate';
 import React, { useEffect, useState } from 'react'
-import { toast } from 'sonner';
 import DocumentLinkBadge from '../DocumentLinkBadge';
+import UploadDocumentForm from '@/components/UploadDocumentForm';
+import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance';
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance';
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance';
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance';
 
 interface Props {
   taskInstanceId: string;
@@ -14,66 +15,40 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;  
 }
 
 export default function UploadDocumentTask(props: Props) {
-  const DEFAULT_STATE: FileUploadTaskInstance = {
-    id: '',
-    taskInstanceId: '',
-    documentId: '',
-    uploadedTimestamp: ''
-  }
-  const [fileUploadState, setFileUploadState] = useState<FileUploadTaskInstance>(DEFAULT_STATE);
-  const [file, setFile] = useState<File | null>(null);
-
-  function handleFileInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
-    }
-  }
-
-  async function handleFormSubmission() {
-    if (file === null) return;
-    await Api.updateUploadDocTaskState(props.taskInstanceId, file)
-    .then((response) => {
-      toast("Uploaded document");
-      props.setCanCompleteTask(true);
-    })
-    .catch((error) => {
-      toast.error("Failed to upload document");
-    })
-  }
-
-  useEffect(() => {
-    setFileUploadState(props.fileUploadInstance);
+  useEffect(() => {    
     if (props.fileUploadInstance.documentId !== "") {
       props.setCanCompleteTask(true);
     }
   }, [props.fileUploadInstance]);
 
   return (
-    <div className='flex flex-col gap-2 p-2'>
-      <div className='flex flex-col gap-2 item-center justify-center mx-auto'>
-        <Label>Supported document types: {props.fileUploadTemplate.supportedDocumentType}</Label>
-      </div>
+    <div className='flex flex-col gap-2 p-2'>      
       {
-        fileUploadState.documentId !== "" &&
-        <div className='flex flex-row gap-2 items-centers'>
-          <span>Uploaded file IDs:</span>
-          <DocumentLinkBadge documentId={fileUploadState.documentId}/>          
+        props.fileUploadInstance.documentId === "" &&
+        <UploadDocumentForm allowedFileExtensions={props.fileUploadTemplate.supportedDocumentType} 
+          documentName={props.fileUploadTemplate.documentName} 
+          accessAccountIds={props.fileUploadTemplate.accessAccountIds}
+          taskInstanceId={props.taskInstanceId}
+          onSuccessfullUpload={() => {void props.fetchTaskInstances()}}
+        />
+      }
+      {
+        props.fileUploadInstance.documentId !== "" &&
+        <div className='flex flex-row w-full justify-center'>
+          Document uploaded for this task
+        </div>        
+      }
+      {
+        props.fileUploadInstance.documentId !== "" &&
+        <div className='flex flex-row w-full gap-2 items-center'>
+          <span>Uploaded file:</span>
+          <DocumentLinkBadge documentId={props.fileUploadInstance.documentId}/>          
         </div>
-      }
-      {
-        props.taskStatus === "open" &&
-        <form className='mx-auto flex flex-col gap-2 w-100' onSubmit={async(event: any) => {event.preventDefault(); await handleFormSubmission()}}>
-          <input type='file' className='bg-gray-100 p-2 rounded-full cursor-pointer' required accept={props.fileUploadTemplate.supportedDocumentType} onChange={handleFileInputChange}/>
-          <Button type='submit'>Upload Document</Button>
-        </form>
-      }
-      {
-        props.taskStatus !== "open" &&
-        <span>File uploaded at {new Date(fileUploadState.uploadedTimestamp).toLocaleString()}</span>
-      }
+      }   
     </div>
   )
 }

@@ -1,20 +1,18 @@
 import Api from '@/api'
 import AuthenticatedUser from '@/models/AuthenticatedUser';
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@radix-ui/react-dropdown-menu'
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react'
+import { useDispatch } from 'react-redux';
 import { SET_USER } from '@/features/appSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { RootState } from '@/store';
 import { Checkbox } from '@/components/ui/checkbox';
 import Utils from '@/util';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Spinner } from '@/components/ui/spinner';
-import './LoginPage.css';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
@@ -52,17 +50,13 @@ export default function LoginPage() {
   return (
     <div className='canvas center-canvas'>
       <div className='m-auto w-96'>
-      <Card>
+      <Card className='min-h-[500px]'>
         <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription className='flex flex-col gap-4'>
-          Enter your email below to login to your account          
-          <span style={{color: "red", textAlign: "center"}}>{loading ? "loading..." : ""}</span>
-        </CardDescription>
         </CardHeader>
         <CardContent>
           <div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label>Email</Label>
                 <Input type="email" placeholder="m@example.com" value={email} required onChange={(event: any) => {setEmail(event.target.value);}}/>
@@ -72,9 +66,6 @@ export default function LoginPage() {
                   <Label>Password</Label>
                 </div>
                 <Input type="password" value={password} required onChange={(event: any) => {setPassword(event.target.value);}}/>
-                <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                  Forgot your password?
-                </a>
               </div>
               <div className="gap-2 flex flex-row items-center">
                 <label
@@ -85,17 +76,19 @@ export default function LoginPage() {
               </div>
               <Button type="submit" disabled={loading} className="w-full flex-6s" onClick={() => {void Login();}}>
                 {
-                  loading && <Spinner className="text-white text-sm"/>
+                  loading && <Spinner className="text-primary-foreground"/>
                 }
                 Login
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="underline underline-offset-4">Sign up</a>
-            </div>
           </div>
         </CardContent>
+        <CardFooter className='flex flex-row w-full justify-center'>
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <a onClick={() => navigate("/register")} className="underline underline-offset-4 cursor-pointer">Sign up</a>
+          </div>
+        </CardFooter>
       </Card>
       </div>
     </div>

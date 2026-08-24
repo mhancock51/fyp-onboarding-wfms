@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories.Interfaces;
 using OnboardingWFMSApi.DataModels.Tables.Tasks;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,8 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IReadDocumentTaskInstanceRepository : IRepository<ReadDocumentTaskInstanceTable>
+    public interface IReadDocumentTaskInstanceRepository : ITaskTypeInstanceRepository<ReadDocumentTaskInstanceTable>
     {
-        public Task<ReadDocumentTaskInstanceTable> GetByTaskInstanceId(string taskInstanceId);
     }
     public class ReadDocumentTaskInstanceRepository : BaseRepository<ReadDocumentTaskInstanceTable>, IReadDocumentTaskInstanceRepository
     {

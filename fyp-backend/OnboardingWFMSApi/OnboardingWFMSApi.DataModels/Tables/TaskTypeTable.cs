@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OnboardingWFMSApi.DataModels.Tables.Interfaces;
 
 namespace OnboardingWFMSApi.DataModels.Tables
 {
@@ -15,5 +16,7 @@ namespace OnboardingWFMSApi.DataModels.Tables
         [Column("TaskTypeId")]
         public string Id { get; set; }
         public string TaskName { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

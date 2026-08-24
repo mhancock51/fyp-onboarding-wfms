@@ -16,11 +16,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public TaskTypeRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
-
-        public override async Task<TaskTypeTable> GetById(string id)
-        {
-            return await _dbContext.taskTypes.FirstOrDefaultAsync(i => i.Id == id);
-        }
     }
 
 }

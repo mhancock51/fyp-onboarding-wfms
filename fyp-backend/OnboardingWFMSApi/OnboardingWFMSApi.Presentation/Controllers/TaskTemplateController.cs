@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnboardingWFMSApi.BusinessLogic;
+using OnboardingWFMSApi.BusinessLogic.TaskTemplateLogic;
 using OnboardingWFMSApi.DataModels;
+using OnboardingWFMSApi.DataModels.Models;
 using OnboardingWFMSApi.DataModels.Payloads;
 using System.Security.Claims;
 
@@ -18,14 +19,15 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             _taskTemplateLogic = taskTemplateLogic;
         }
 
+        [Authorize]
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllTemplates()
+        public async Task<IActionResult> GetAllTemplates(string? status)
         {
-            var response = await _taskTemplateLogic.GetAllTaskTemplates();
+            var response = await _taskTemplateLogic.GetAllTaskTemplates(status);
             return StatusCode(response.HttpCode, response);
         }
 
-        [Authorize]
+        [Authorize(Policy = "SupervisorRoleClaim")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTaskTemplate([FromBody] CreateTaskTemplatePayload payload)
         {
@@ -43,10 +45,11 @@ namespace OnboardingWFMSApi.Presentation.Controllers
             
         }
 
+        [Authorize]
         [HttpGet("get")]
         public async Task<IActionResult> GetTaskTemplate(string id)
         {
-            var response = await _taskTemplateLogic.GetTaskTemplateById(id);
+            var response = await _taskTemplateLogic.GetTaskTemplateDTOById(id);
             return StatusCode(response.HttpCode, response);
         }
 
@@ -55,6 +58,30 @@ namespace OnboardingWFMSApi.Presentation.Controllers
         public async Task<IActionResult> GetAllTaskTypes()
         {
             var response = await _taskTemplateLogic.GetAllTaskTypes();
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize(Policy = "SupervisorRoleClaim")]
+        [HttpPost("archive")]
+        public async Task<IActionResult> ArchiveTemplate(string taskTemplateId)
+        {
+            var response = await _taskTemplateLogic.ArchiveTaskTemplate(taskTemplateId);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize(Policy = "SupervisorRoleClaim")]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateTemplate([FromBody] UpdateTaskTemplatePayload payload)
+        {
+            var response = await _taskTemplateLogic.UpdateTaskTemplate(payload);
+            return StatusCode(response.HttpCode, response);
+        }
+
+        [Authorize(Policy = "SupervisorRoleClaim")]
+        [HttpGet("has-active-instances")]
+        public async Task<IActionResult> GetHasActiveInstances(string taskTemplateId)
+        {
+            var response = await _taskTemplateLogic.DoesTaskTemplateHaveActiveInstances(taskTemplateId);
             return StatusCode(response.HttpCode, response);
         }
     }

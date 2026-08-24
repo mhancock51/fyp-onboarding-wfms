@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using OnboardingWFMSApi.BusinessLogic.AccountLogic;
 using OnboardingWFMSApi.DataAccess.Repositories;
+using OnboardingWFMSApi.DataAccess.Repositories.Tenant_Repositories;
 using OnboardingWFMSApi.DataModels;
 using OnboardingWFMSApi.DataModels.DTOs;
 using OnboardingWFMSApi.DataModels.Tables;
@@ -34,6 +36,8 @@ namespace OnboardingWFMSApi.BusinessLogic
 
         private readonly IAccountRepository _accountRepository;
         private readonly IDepartmentRepository _departmentRepository;
+        private readonly ITenantRepository _tenantRepository;
+        private readonly ITenantSubscriptionRepository _tenantSubscriptionRepository;
 
         public static byte[] GetHash(string inputString)
         {
@@ -50,8 +54,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             return sb.ToString();
         }
 
-        public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper, ILogger<AuthLogic> logger, 
-            IDepartmentRepository departmentRepository)
+        public AuthLogic(IConfiguration configuration, IAccountRepository accountRepository, IMapper mapper, ILogger<AuthLogic> logger,
+            IDepartmentRepository departmentRepository, ITenantRepository tenantRepository, ITenantSubscriptionRepository tenantSubscriptionRepository)
         {
             _logger = logger;
             _accountRepository = accountRepository;
@@ -82,6 +86,8 @@ namespace OnboardingWFMSApi.BusinessLogic
             }
 
             _departmentRepository = departmentRepository;
+            _tenantRepository = tenantRepository;
+            _tenantSubscriptionRepository = tenantSubscriptionRepository;
         }
 
         public async Task<HTTPResponse<AuthenticatedAccountDTO, string>> LoginUser(string email, string password)
@@ -95,7 +101,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             {
                 return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Account doesn't exist" };
             }
-            if (account.AccountStatus != AccountLogic.REGISTERED_STATUS)
+            if (account.AccountStatus != AccountConstants.REGISTERED_STATUS)
             {
                 return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Account isn't registered" };
             }
@@ -104,6 +110,24 @@ namespace OnboardingWFMSApi.BusinessLogic
             if (account.HashedPassword != password)
             {
                 return new HTTPResponse<AuthenticatedAccountDTO, string>() { Success = false, HttpCode = 400, Error = "Incorrect password" };
+            }
+
+            // check that tenant has active subscription if user isn't admin
+            var possibleTenant = await _tenantRepository.FindAsync(t => t.Id == account.TenantId);
+            if (possibleTenant != null)
+            {
+                // user isn't owner and there isn't a subscription linked to the tenant
+                if (possibleTenant.OwnerAccountId != account.Id && await _tenantSubscriptionRepository.FindAsync(ts => ts.TenantId == possibleTenant.Id) == null)
+                {
+                    // don't allow access
+                    _logger.LogInformation($"Access to this organisation from non-admin accounts is blocked until subscription is activated ({account.Id}, {account.TenantId})");
+                    return new HTTPResponse<AuthenticatedAccountDTO, string>()
+                    {
+                        Success = false,
+                        HttpCode = 400,
+                        Error = "Access to this organisation from non-admin accounts is blocked until subscription is activated"
+                    };
+                }
             }
 
             // generate token 
@@ -120,9 +144,6 @@ namespace OnboardingWFMSApi.BusinessLogic
             var authenticatedAccount = _mapper.Map<AuthenticatedAccountDTO>(account);
             authenticatedAccount.JwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            var department = await _departmentRepository.GetById(account.DepartmentId);
-            authenticatedAccount.DepartmentName = department.DisplayName;
-
             return authenticatedAccount;
         }
 
@@ -133,6 +154,7 @@ namespace OnboardingWFMSApi.BusinessLogic
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id),
+                new Claim("TenantId", account.TenantId)
             };
 
             var token = new JwtSecurityToken(

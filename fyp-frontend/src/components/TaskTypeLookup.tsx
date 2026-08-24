@@ -1,10 +1,8 @@
-import TaskType from '@/models/tasks/taskType';
+import TaskType from '@/models/tasks/TaskType';
 import { RootState } from '@/store';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './ui/select';
-import { Button } from './ui/button';
-import { Plus } from 'lucide-react';
 
 interface Props {
   setTaskType: React.Dispatch<React.SetStateAction<TaskType | null>>;

@@ -10,6 +10,7 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
     public interface ITaskTemplateRepository : IRepository<TaskTemplateTable>
     {
+        public Task<List<TaskTemplateTable>> GetAllByStatus(string status);
     }
     public class TaskTemplateRepository : BaseRepository<TaskTemplateTable>, ITaskTemplateRepository
     {
@@ -17,9 +18,9 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         {
         }
 
-        public override async Task<TaskTemplateTable> GetById(string id)
+        public async Task<List<TaskTemplateTable>> GetAllByStatus(string status)
         {
-            return await _dbContext.taskTemplates.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.taskTemplates.Where(t => t.Status.ToLower() == status.ToLower()).ToListAsync();
         }
     }
 

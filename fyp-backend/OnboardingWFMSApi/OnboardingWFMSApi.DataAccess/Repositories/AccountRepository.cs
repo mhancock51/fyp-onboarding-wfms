@@ -12,6 +12,8 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
     {
         public Task<AccountTable> GetByEmailAddress(string emailAddress);
         public Task<int> GetNumberOfAccounts();
+        public Task<bool> IsAccountRegistered(string accountId);
+        public Task<bool> DoesAccountExistByEmail(string emailAddress);
     }
 
     public class AccountRepository : BaseRepository<AccountTable>, IAccountRepository
@@ -23,16 +25,6 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public async Task<AccountTable> GetByEmailAddress(string emailAddress)
         {
             return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.EmailAddress == emailAddress);
-        }
-
-        public override async Task<AccountTable> GetById(string id)
-        {
-            return await _dbContext.Accounts.FirstOrDefaultAsync(e => e.Id == id);            
-        }
-
-        public override async Task<bool> ExistsById(string id)
-        {
-            return await _dbContext.Accounts.FirstOrDefaultAsync(i => i.Id == id) != null ? true : false;
         }
 
         public override async Task<AccountTable> AddAsync(AccountTable entity)
@@ -51,6 +43,25 @@ namespace OnboardingWFMSApi.DataAccess.Repositories
         public async Task<int> GetNumberOfAccounts()
         {
             return _dbContext.Accounts.Count();
+        }
+
+        public async Task<bool> IsAccountRegistered(string accountId)
+        {
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+            if (account == null) return false;
+            if (account.AccountStatus == "registered")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DoesAccountExistByEmail(string emailAddress)
+        {
+            return (await GetByEmailAddress(emailAddress)) != null;
         }
     }
 }

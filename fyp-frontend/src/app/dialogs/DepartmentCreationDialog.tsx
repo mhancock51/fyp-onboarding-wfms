@@ -1,8 +1,9 @@
 import Api from '@/api';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -14,7 +15,7 @@ export default function DepartmentCreationDialog(props: {open: boolean, setOpenD
   async function createDepartment() {
     setLoading(true);
     await Api.createDepartment(name)
-    .then((response) => {
+    .then(() => {
       setLoading(false);
       toast(`Successfully created department: ${name}`, { duration: 600, onAutoClose: () => {
         closeAndClear();
@@ -49,7 +50,13 @@ export default function DepartmentCreationDialog(props: {open: boolean, setOpenD
           </div>       
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={createDepartment}>Create Department</Button>
+          <Button type="submit" onClick={createDepartment} disabled={loading}>
+            {
+              loading &&
+              <Spinner className="text-primary-foreground"/>
+            }
+            Create Department
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -3,4 +3,6 @@ export default interface AccountDirectory {
   id: string;
   departmentId: string;
   departmentName: string;
+  isSupervisor: boolean;
+  emailAddress: string;
 }

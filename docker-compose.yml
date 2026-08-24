@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: db-service
+    environment:
+      MYSQL_ROOT_PASSWORD: pword123
+      MYSQL_DATABASE: onboarding-wfms-db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  backend:
+    build:
+      context: ./fyp-backend     
+      dockerfile: OnboardingWFMSApi/Dockerfile 
+    container_name: wfm-backend
+    depends_on:
+      - mysql
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=onboarding-wfms-db;User=root;Password=pword123;
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
+      - Stripe__Mode=test
+      - Stripe__SuccessUrl=http://localhost:5173/
+      - Stripe__CancelUrl=http://localhost:5174/pricing
+    ports:
+      - "5000:8080"
+  frontend:
+    build:
+      context: ./fyp-frontend
+      args:
+        VITE_BACKEND_SERVICE_ROUTE_URL: http://localhost:5000/api
+    container_name: wfm-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+  landing:
+    build:
+      context: ./workflow-management-saas
+      args:
+        VITE_BACKEND_API_URL: http://localhost:5000/api
+        VITE_APP_URL: http://localhost:5173
+        VITE_APP_NAME: FlowPath
+        VITE_EMAIL_DOMAIN: flowpath.com
+    container_name: wfm-landing
+    depends_on:
+      - backend
+    ports:
+      - "5174:80"
+
+volumes:
+  mysql_data:

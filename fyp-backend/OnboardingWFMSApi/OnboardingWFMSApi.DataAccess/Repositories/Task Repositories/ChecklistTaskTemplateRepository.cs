@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
 {
-    public interface IChecklistTaskTemplateRepository : IRepository<ChecklistTaskTemplateTable>
+    public interface IChecklistTaskTemplateRepository : ITaskTemplateRepository<ChecklistTaskTemplateTable>
     {
-        public Task<ChecklistTaskTemplateTable> GetByTaskTemplateId(string taskTemplateId);
+        
     }
     public class ChecklistTaskTemplateRepository : BaseRepository<ChecklistTaskTemplateTable>, IChecklistTaskTemplateRepository
     {
@@ -21,6 +21,13 @@ namespace OnboardingWFMSApi.DataAccess.Repositories.Task_Repositories
         public async Task<ChecklistTaskTemplateTable> GetByTaskTemplateId(string id)
         {
             return await _dbContext.checklistTaskTemplates.FirstOrDefaultAsync(i => i.TaskTemplateId == id);
+        }
+
+        public async Task<ChecklistTaskTemplateTable> GetByTaskInstanceId(string id)
+        {
+            // find checklist instance
+            var taskInstance = await _dbContext.taskInstances.FirstOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.checklistTaskTemplates.FirstOrDefaultAsync(t => t.TaskTemplateId == taskInstance.TaskTemplateId);
         }
     }
 

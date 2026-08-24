@@ -1,120 +1,88 @@
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
-import TaskInstance from '@/models/tasks/TaskInstance'
-import React, { useEffect, useState } from 'react'
+import TaskInstanceDTO from '@/models/tasks/TaskInstanceDTO'
+import { useEffect, useState } from 'react'
 import TaskDrawer from './TaskDrawer/TaskDrawer'
-import TaskTypeBadge from './TaskTypeBadge'
 import Api from '@/api'
 import { toast } from 'sonner'
-import { Spinner } from '@/components/ui/spinner'
-import NoResults from '@/components/NoResults'
-import { useDispatch } from 'react-redux'
-import { SET_TASK_TYPES } from '@/features/appSlice'
-import TaskType from '@/models/tasks/taskType'
-import TaskStatusBadge from './TaskStatusBadge'
+import ReportIssueDialog from '@/app/dialogs/ReportIssueDialog'
+import TaskInstancesTable from '@/components/Tables/TaskInstancesTable'
+import { Accordion, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { AccordionContent } from '@radix-ui/react-accordion'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function MyTasksPage() {
-  const dispatcher = useDispatch(); 
-
-  const [tasks, setTasks] = useState<TaskInstance[]>([]);
-  const [currentTask, setCurrentTask] = useState<TaskInstance | null>(null);
+  const [openTasks, setOpenTasks] = useState<TaskInstanceDTO[]>([]);
+  const [closedTasks, setClosedTasks] = useState<TaskInstanceDTO[]>([]);
+  const [currentTask, setCurrentTask] = useState<TaskInstanceDTO | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   async function fetchTaskInstances() {
     setLoading(true);
     Api.fetchAssignedTaskInstance()
-    .then((response) => {
-      console.log(response);
+    .then((response) => {      
       setLoading(false);
-      setTasks(response.data.data as TaskInstance[]);
+      const tasks = response.data.data as TaskInstanceDTO[];
+      setOpenTasks(tasks.filter(t => t.status === "open"));
+      setClosedTasks(tasks.filter(t => t.status !== "open"));
     })
-    .catch((error) => {
+    .catch(() => {
       setLoading(false);
       toast.error("Failed to load assigned taks");      
     })
   }
 
-  function dueInColor(dueIn: number) {
-    if (dueIn < 3) {
-      return "bg-red-600";
-    }
-    else if (dueIn < 7) {
-      return "bg-orange-500";
-    }
-    else {
-      return "bg-green-600";
-    }
-  }  
+  const [, setPageTitle] = usePageTitle();
+
+  useEffect(() => {
+    setPageTitle(`Tasks (${openTasks.length} open)`);
+  }, [setPageTitle, openTasks]);
 
   useEffect(() => {
     void fetchTaskInstances();
   }, []);
 
   return (
-    <div className='m-4 flex flex-col gap-4'>
-      <div className='rounded-3xl bg-sidebar p-8' >
-        <h1 className='text-xl text-foreground font-bold m-2'>Your Tasks</h1>
-        <Separator/>
-        {
-          loading && tasks.length === 0 &&
-          <div className='flex flex-row justify-center p-4 gap-2'>
-            <Spinner/>
-            <h1>Loading tasks...</h1>
-          </div>
-        }
-        {
-          !loading && tasks.length == 0 &&
-          <NoResults text='No tasks could be found'/>                    
-        }
-        {
-          !loading && tasks.length > 0 &&
-          <Table className='text-base'>
-            <TableHeader>
-              <TableCell style={{textAlign: "center"}}>Name    </TableCell>
-              <TableCell style={{textAlign: "center"}}>Type    </TableCell>
-              <TableCell style={{textAlign: "center"}}>Status  </TableCell>
-              <TableCell style={{textAlign: "center"}}>Due  </TableCell>
-              <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
-              <TableCell style={{textAlign: "center"}}>Description</TableCell>
-            </TableHeader> 
-            <TableBody>
-              {
-                tasks.map((task, index) => (
-                  <TableRow key={index} onClick={() => { setCurrentTask(task); setOpen(true); }} className='cursor-pointer'>
-                    <TableCell style={{maxWidth: "150px", overflowX: "hidden", textOverflow: "ellipsis"}}>
-                      {task.template.name}
-                    </TableCell>
-                    <TableCell width={"175px"}>                    
-                      <TaskTypeBadge taskTypeId={task.template.taskTypeId}/>
-                    </TableCell>
-                    <TableCell width={"100px"}>
-                      <TaskStatusBadge status={task.status}/>
-                    </TableCell>
-                    <TableCell width={"50px"}>
-                      <Badge className={`mx-2 py-2 px-4 rounded-full ${dueInColor(-1)}`}>
-                        -1 days
-                      </Badge>
-                    </TableCell>
-                    <TableCell width={"100px"}>
-                      <Badge className='mx-2 py-2 px-4 rounded-full'>
-                        [WORKFLOW NAME]
-                      </Badge>
-                    </TableCell>
-                    <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
-                      {task.template.description}
-                    </TableCell>
-                  </TableRow>
-                ))
-              }        
-            </TableBody>
-          </Table>
-        }
+    <div>
+      <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-1 h-full'>
+          <TaskInstancesTable tasks={openTasks} loading={loading} 
+            handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
+            className='h-[100%] overflow-y-auto'
+            hideCompletedDate={true}
+            noTasksMessage='No open tasks assigned to you'
+            showNewTask={true}
+          />
+          {/* Completed tasks accordian */}
+          <Accordion type="single" collapsible className="w-full flex-2">
+            <AccordionItem value={'item-1'}>
+              <AccordionTrigger className='hover:no-underline cursor-pointer'>
+                <div className='flex flex-col gap-2 w-full'>
+                  <div className='flex flex-row gap-2 justify-left p-[6px] rounded-full items-center hover:bg-muted/50 w-fit'>
+                    <h2 className='text-[16px] font-semibold'>Completed Tasks</h2>
+                    <div className='bg-primary rounded-full text-background w-8 py-[2px] text-center'>{closedTasks.length}</div>
+                  </div>
+                  <Separator/>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <TaskInstancesTable tasks={closedTasks} loading={loading} 
+                  handleTaskClicked={(task: TaskInstanceDTO) => {setCurrentTask(task); setOpen(true);}}
+                  className='h-[100%] overflow-y-auto'
+                  hideDueDate={true}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
       </div>
       {
         currentTask !== null &&
         <TaskDrawer open={open} setOpen={setOpen} task={currentTask} fetchTaskInstances={fetchTaskInstances}/>
+      }
+      {
+        currentTask !== null &&
+        <ReportIssueDialog taskInstance={currentTask} />
       }
     </div>
   )

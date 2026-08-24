@@ -1,12 +1,13 @@
-import Api from '@/api'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ChecklistTaskInstance } from '@/models/tasks/ChecklistTaskInstance'
 import { ChecklistTaskTemplate } from '@/models/tasks/ChecklistTaskTemplate'
+import { FeedbackTaskInstance } from '@/models/tasks/FeedbackTaskInstance'
+import FileUploadTaskInstance from '@/models/tasks/FileUploadTaskInstance'
+import ProjectTaskInstance from '@/models/tasks/ProjectTaskInstance'
+import ReadDocumentTaskInstance from '@/models/tasks/ReadDocumentTaskInstance'
 import { CheckedState } from '@radix-ui/react-checkbox'
 import React, { useEffect, useState } from 'react'
-import { toast } from 'sonner'
 
 interface Props {
   taskInstanceId: string;
@@ -15,6 +16,7 @@ interface Props {
   fetchTaskInstances: () => Promise<void>;
   setCanCompleteTask: React.Dispatch<React.SetStateAction<boolean>>;
   taskStatus: string;
+  updateTaskInstance: (updatedData: ChecklistTaskInstance | FileUploadTaskInstance | ReadDocumentTaskInstance | ProjectTaskInstance | FeedbackTaskInstance | null) => void;  
 }
 
 export default function ChecklistTask(props: Props) {
@@ -33,23 +35,6 @@ export default function ChecklistTask(props: Props) {
       }
     })
     return allCompleted;
-  }
-
-  async function updateChecklistStatus(checklistState: ChecklistTaskInstance) {
-    await Api.updateChecklistTaskState(props.taskInstanceId, checklistState.itemCompletionStatuses)
-    .then((response) => {
-      toast("Successfully updated checklist task's state");
-      if (areAllTasksComplete(checklistState.itemCompletionStatuses)) {
-        props.setCanCompleteTask(true);
-      }
-      else {
-        props.setCanCompleteTask(false);
-      }
-      void props.fetchTaskInstances();
-    })
-    .catch((error) => {
-      toast("Failed to update checklist task's state");
-    })
   }
 
   function updateChecklistItem(index: number, value: boolean) {
@@ -72,17 +57,17 @@ export default function ChecklistTask(props: Props) {
     if (checklistState.id === "") return;
     // exit if state is the same as when loaded
     if (checklistState.itemCompletionStatuses == props.checklistInstance.itemCompletionStatuses) return;
-    void updateChecklistStatus(checklistState);
+    props.updateTaskInstance(checklistState);    
   }, [checklistState.itemCompletionStatuses]);
 
   return (
     <div className='flex flex-col gap-2 p-2'>
       {
         props.checklistTemplate.items.map((item, index) => (
-          <div key={index} className='flex flex-row gap-2 p-4 rounded-full border-1 border-black items-center cursor-pointer' 
+          <div key={index} className='min-h-[60px] flex flex-row gap-2 px-4 rounded-[24px] hover:bg-muted/50 border-2 border-accent items-center cursor-pointer' 
             onClick={() => { updateChecklistItem(index, !checklistState?.itemCompletionStatuses[index])}}
           >
-            <Checkbox className='cursor-pointer' checked={checklistState?.itemCompletionStatuses[index]} onCheckedChange={(checked: CheckedState) => { updateChecklistItem(index, checked as boolean)}}/>
+            <Checkbox className={'cursor-pointer data-[state=checked]:bg-green-500'} checked={checklistState?.itemCompletionStatuses[index]} onCheckedChange={(checked: CheckedState) => { updateChecklistItem(index, checked as boolean)}}/>
             <Label className='font-normal cursor-pointer'>{item}</Label>                    
           </div>
         ))
