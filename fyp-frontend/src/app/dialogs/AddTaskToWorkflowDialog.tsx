@@ -84,7 +84,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
                     </Card>
                   </HoverCardContent>
                 </HoverCard>
-                <Select isMulti className='col-span-3 rounded-lg'
+                <Select isMulti className='col-span-3 rounded-lg' classNamePrefix='react-select'
                   value={taskNodeDependencies.map((dependency) => ({
                     label: dependency.taskTemplate?.name ?? "ERROR",
                     value: dependency.id

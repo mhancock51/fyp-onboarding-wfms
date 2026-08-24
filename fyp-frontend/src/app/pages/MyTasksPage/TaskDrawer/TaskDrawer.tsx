@@ -265,7 +265,7 @@ export default function TaskDrawer(props: Props) {
         <DrawerFooter className='flex flex-col gap-2 w-full p-0'>
           {
             props.task.status === "open" &&
-            <Progress value={progress} className={progress === 100 ? '[&>div]:bg-green-500' : '[&>div]:bg-blue-500'}/>   
+            <Progress value={progress} className={progress === 100 ? '[&>div]:bg-green-500' : '[&>div]:bg-primary'}/>   
           }   
           <HoverButton className='rounded-full mx-r-2 p-2 w-full flex flex-row gap-4 items-center text-md'
             disabled={!canCompleteTask || props.task.status !== "open"} onClick={completeTask}

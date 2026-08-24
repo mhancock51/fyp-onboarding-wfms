@@ -31,7 +31,7 @@ export default function layout() {
       />
       <div className="flex flex-col w-full">
         <Navbar/>
-        <main className='m-4 m-b-0 flex flex-col h-[89vh]'>
+        <main className='p-4 m-b-0 flex flex-col h-[93vh] overflow-y-auto'>
           <Outlet />                  
         </main>
       </div>

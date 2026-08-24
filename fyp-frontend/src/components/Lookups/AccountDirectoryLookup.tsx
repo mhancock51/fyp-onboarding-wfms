@@ -93,6 +93,7 @@ export default function AccountDirectoryLookup(props: Props) {
   return (
     <Select
       className='col-span-3'
+      classNamePrefix='react-select'
       isMulti={props.isMulti}
       options={getSelectOptions()}
       value={getSelectValue()}

@@ -10,8 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import { Building, ClipboardList, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
+import { Building, ClipboardList, Home, MessageSquareWarning, Route as WorkflowRouteIcon } from "lucide-react"
 import SidebarUser from "./SidebarUser"
 import { useLocation, useNavigate } from "react-router"
 import { useSelector } from "react-redux"
@@ -27,6 +28,7 @@ interface Props {
 export function AppSidebar({organisationName, organisationLogoData, organisationLogoMimeType}: Props) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { state } = useSidebar();
 
   const user = useSelector((state: RootState) => state.app.user);
 
@@ -50,9 +52,9 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
 
   const supervisorItems = [
     {
-      title: "Workflows",
-      onClickAction: () => { navigate("/workflows/dashboard"); },
-      matchUrl: "/workflows/dashboard",
+      title: "Workflows Dashboard",
+      onClickAction: () => { navigate("/workflows-dashboard"); },
+      matchUrl: "/workflows-dashboard",
       icon: WorkflowRouteIcon
     },
     {
@@ -65,7 +67,7 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
 
   const isActive = (url: string) => {
     if (url === "/") return pathname === "/";
-    return pathname.startsWith(url);
+    return pathname === url || pathname.startsWith(`${url}/`);
   };
 
   const logoSrc = organisationLogoData && organisationLogoMimeType
@@ -80,7 +82,13 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
             {
               logoSrc !== null
                 ? <img src={logoSrc} alt={`${organisationName} logo`} className="max-h-32 w-auto object-contain" />
-                : <h2 className="text-xl text-center">{organisationName}</h2>
+                : state === "expanded"
+                  ? <h2 className="text-xl text-center">{organisationName}</h2>
+                  : <SidebarMenuButton asChild tooltip="Home" className="min-h-[34px]">
+                      <a onClick={() => navigate("/")} aria-label="Home">
+                        <Home />
+                      </a>
+                    </SidebarMenuButton>
             }
             <SidebarSeparator/>
           </div>
@@ -91,7 +99,7 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
               <SidebarMenu>
                 {mainItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)} className="min-h-[34px]">                    
+                    <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title} className="min-h-[34px]">                    
                       <a onClick={() => {navigate(item.url)}} >
                         <item.icon/>
                         {item.title}
@@ -109,7 +117,7 @@ export function AppSidebar({organisationName, organisationLogoData, organisation
                 <SidebarMenu>
                   {supervisorItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive(item.matchUrl)} className="min-h-[34px]">
+                      <SidebarMenuButton asChild isActive={isActive(item.matchUrl)} tooltip={item.title} className="min-h-[34px]">
                         <a onClick={item.onClickAction}>
                           <item.icon />
                           <span>{item.title}</span>

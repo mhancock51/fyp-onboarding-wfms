@@ -3,7 +3,7 @@ import { Spinner } from '../ui/spinner';
 import NoResults from '../NoResults';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import TaskTypeBadge from '@/app/pages/MyTasksPage/TaskTypeBadge';
-import TaskStatusBadge from '@/app/pages/MyTasksPage/TaskStatusBadge';
+import TaskStatusText from '@/app/pages/MyTasksPage/TaskStatusBadge';
 import { Badge } from '../ui/badge';
 import WorkflowInstanceBadge from '../WorkflowInstanceBadge';
 import clsx from 'clsx';
@@ -24,16 +24,16 @@ interface Props {
 export default function TaskInstancesTable(props: Props) {
   function dueInColor(dueIn: number | null) {
     if (dueIn === null) {
-      return "bg-accent"
+      return "text-muted-foreground"
     }
     if (dueIn < 2) {
-      return "bg-red-600";
+      return "text-destructive";
     }
     else if (dueIn < 4) {
-      return "bg-orange-500";
+      return "text-orange-300";
     }
     else {
-      return "bg-green-600";
+      return "text-green-400";
     }
   }  
 
@@ -74,21 +74,20 @@ export default function TaskInstancesTable(props: Props) {
       }
       {
         !props.loading && props.tasks.length > 0 &&
-        <Table className='text-base h-[100%]'>
+        <Table className='text-base h-[100%] table-fixed'>
           <TableHeader>
-            <TableCell style={{textAlign: "center"}}>Name    </TableCell>
-            <TableCell style={{textAlign: "center"}}>Type    </TableCell>
-            <TableCell style={{textAlign: "center"}}>Status  </TableCell>
+            <TableCell className='w-[22%] text-center'>Name    </TableCell>
+            <TableCell className='text-center'>Type    </TableCell>
+            <TableCell className='text-center'>Workflow</TableCell>
+            <TableCell className='text-center'>Status  </TableCell>
             {
               (props.hideDueDate === undefined || props.hideDueDate === false) &&
-              <TableCell style={{textAlign: "center"}} width={100}>Due  </TableCell>
+              <TableCell className='text-center'>Due  </TableCell>
             }
-            <TableCell style={{textAlign: "center"}}>Workflow</TableCell>
             <TableCell className='text-center'>Assigned</TableCell>
-            <TableCell style={{textAlign: "center"}}>Description</TableCell>
             {
               (props.hideCompletedDate === undefined || props.hideCompletedDate === false) &&
-              <TableCell style={{textAlign: "center"}}>Completed</TableCell>
+              <TableCell className='text-center'>Completed</TableCell>
             }
           </TableHeader> 
           <TableBody>
@@ -97,39 +96,19 @@ export default function TaskInstancesTable(props: Props) {
               .sort((a, b) => (new Date(b.completionTimestamp ?? 0).getTime() - new Date(a.completionTimestamp ?? 0).getTime()))
               .map((task, index) => (
                 <TableRow key={index} onClick={() => {props.handleTaskClicked(task)}} className='cursor-pointer'>
-                  <TableCell className='overflow-x-hidden text-ellipsis flex flex-row gap-2 items-center'>
+                  <TableCell className='overflow-x-hidden text-ellipsis'>
+                    <div className='flex flex-row gap-2 items-center'>
                     {
                       props.showNewTask && index === 0 && Utils.minutesSince(new Date(task.creationTimestamp)) < 5 &&
-                      <Badge className='bg-blue-500 rounded-full p-1 px-2'>NEW</Badge>
+                      <Badge className='bg-primary rounded-full p-1 px-2'>NEW</Badge>
                     }
                     {task.template.name}
+                    </div>
                   </TableCell>
-                  <TableCell width={"175px"}>                    
+                  <TableCell>
                     <TaskTypeBadge taskTypeId={task.template.taskTypeId}/>
                   </TableCell>
-                  <TableCell width={"100px"}>
-                    <TaskStatusBadge status={task.status}/>                      
-                  </TableCell>
-                  {
-                    (props.hideDueDate === undefined || props.hideDueDate === false) &&
-                    <TableCell width={"20px"}>
-                      {
-                        task.dueDate === null || task.status.toLowerCase() === "complete" &&
-                        <div className='text-foreground w-full flex flex-row justify-center text-xs'>
-                          N/A
-                        </div>
-                      }
-                      {
-                        task.dueDate !== null && task.status.toLowerCase() !== "complete" &&
-                        <Badge className={`mx-2 py-2 px-4 rounded-full w-full ${dueInColor(daysUntil(task.dueDate))}`}> 
-                          {
-                            dueDisplayValue(daysUntil(task.dueDate))
-                          }                                      
-                        </Badge>
-                      }
-                    </TableCell>
-                  }
-                  <TableCell width={"100px"}>
+                  <TableCell>
                     {
                       task.workflowInstanceTemplateName === "" &&
                       <div className='text-foreground w-full flex flex-row justify-center'>
@@ -141,11 +120,30 @@ export default function TaskInstancesTable(props: Props) {
                       <WorkflowInstanceBadge workflowInstance={task.workflowInstance}/>
                     }
                   </TableCell>
-                  <TableCell>
-                    {moment(task.creationTimestamp).fromNow()}                    
+                  <TableCell className='text-center'>
+                    {Utils.capitalizeFirstLetter(task.status)}                     
                   </TableCell>
-                  <TableCell style={{maxWidth: "200px", overflowX: "hidden", textOverflow: "ellipsis"}}>
-                    {task.template.description}
+                  {
+                    (props.hideDueDate === undefined || props.hideDueDate === false) &&
+                    <TableCell>
+                      {
+                        task.dueDate === null || task.status.toLowerCase() === "complete" &&
+                        <div className='text-foreground w-full flex flex-row justify-center'>
+                          N/A
+                        </div>
+                      }
+                      {
+                        task.dueDate !== null && task.status.toLowerCase() !== "complete" &&
+                        <div className={`mx-2 py-2 px-4 rounded-full w-full text-center font-medium ${dueInColor(daysUntil(task.dueDate))}`}> 
+                          {
+                            dueDisplayValue(daysUntil(task.dueDate))
+                          }                                      
+                        </div>
+                      }
+                    </TableCell>
+                  }
+                  <TableCell className='text-center'>
+                    {moment(task.creationTimestamp).fromNow()}                    
                   </TableCell>
                   {
                     (props.hideCompletedDate === undefined || props.hideCompletedDate === false) &&

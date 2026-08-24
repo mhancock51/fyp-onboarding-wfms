@@ -49,7 +49,7 @@ export default function UploadDocumentForm(props: Props) {
     <form className='flex flex-col gap-1 my-4 w-full item-center justify-center text-center'
       onSubmit={(event: any) => {event.preventDefault(); void uploadDocument()}}
     >       
-      <Input accept={props.allowedFileExtensions.split(";").join(", ")} type="file" required className='bg-gray-100 px-2 cursor-pointer' onChange={handleFileInputChange}/>
+      <Input accept={props.allowedFileExtensions.split(";").join(", ")} type="file" required className='bg-white dark:bg-input px-2 cursor-pointer' onChange={handleFileInputChange}/>
       <Label className='text-sm'>Allowed document types: {props.allowedFileExtensions.split(";").join(", ")}</Label>
       <Button type='submit'>
         <div className='flex flex-row w-full justify-center gap-2 items-center'>

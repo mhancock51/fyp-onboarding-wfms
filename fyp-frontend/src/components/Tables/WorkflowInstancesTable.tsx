@@ -164,7 +164,7 @@ export default function WorkflowInstancesTable(props: Props) {
         <TableBody>
           {
             workflowInstances.map((instance, index) => (
-              <TableRow key={index} className='cursor-pointer hover:bg-accent hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
+              <TableRow key={index} className='cursor-pointer hover:bg-muted/50 hover:rounded-full' onClick={() => {props.setSelectedWorkflow(instance);}}>
                 <TableCell>{instance.workflowTemplate.name}</TableCell>
                 <TableCell className='text-center'>
                   {Utils.dateToDDMMYYYY(new Date(instance.creationTimestamp))}
@@ -175,12 +175,12 @@ export default function WorkflowInstancesTable(props: Props) {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] w-full text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
+                  <Badge className='bg-primary py-2 px-4 rounded-full text-[12px] w-full text-primary-foreground bg-primary flex flex-row gap-2 items-center justify-center'>
                     {instance.completedTasks} out of {instance.numberOfNodes} Tasks
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className='bg-primary py-2 px-8 rounded-full text-[12px] w-full text-primary-foreground bg-blue-500 flex flex-row gap-2 items-center justify-center'>
+                  <Badge className='bg-primary py-2 px-8 rounded-full text-[12px] w-full text-primary-foreground bg-primary flex flex-row gap-2 items-center justify-center'>
                     {daysSince(instance.creationTimestamp)} Days
                   </Badge>
                 </TableCell>

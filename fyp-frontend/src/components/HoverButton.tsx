@@ -20,7 +20,7 @@ export const HoverButton: React.FC<HoverButtonProps> = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        "relative overflow-hidden px-6 py-3 transition-all duration-300 ease-in-out bg-blue-500 text-white hover:bg-gradient-to-r hover:from-green-400 hover:to-blue-500",
+        "relative overflow-hidden px-6 py-3 transition-all duration-300 ease-in-out bg-primary text-white hover:bg-gradient-to-r hover:from-green-400 hover:to-primary",
         className
       )}
       {...props}

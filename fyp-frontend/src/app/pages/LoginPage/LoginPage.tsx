@@ -50,7 +50,7 @@ export default function LoginPage() {
   return (
     <div className='canvas center-canvas'>
       <div className='m-auto w-96'>
-      <Card className='min-h-[500px]' style={{boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"}}>
+      <Card className='min-h-[500px]'>
         <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         </CardHeader>

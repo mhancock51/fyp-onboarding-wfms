@@ -162,6 +162,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
         <Label htmlFor="name" className="text-right">Support Document Types</Label>
         <Select                   
           className='w-100'
+          classNamePrefix='react-select'
           options={FILE_EXTENSION_OPTIONS} 
           value={FILE_EXTENSION_OPTIONS.filter(o => fileExtensions.includes(o.value))}
           onChange={(options: MultiValue<{ label: string; value: string; }>, actionMeta: ActionMeta<{ label: string; value: string; }>) => {setFileExtensions(options.map((option) => (option.value)));}}          
@@ -172,6 +173,7 @@ export function UploadDocumentTemplateCreationForm(props: { initialTaskData?: Fi
         <Label htmlFor="name">Account Access</Label>
         <Select
           className='w-100'
+          classNamePrefix='react-select'
           options={ACCOUNTS}
           onChange={(options: MultiValue<{ label: string; value: string; }>, actionMeta: ActionMeta<{ label: string; value: string; }>) => {setAccessAccountIds(options.map((option) => (option.value)));}}                    
           isMulti={true}      

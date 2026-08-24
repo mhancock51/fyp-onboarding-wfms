@@ -40,7 +40,7 @@ export default function AccountDirectoryBadge(props: Props) {
           <div className='flex flex-col gap-1 min-w-[250px]'>
             <div className='flex flex-row gap-2 items-center'>
               <h1 className='text-start text-base'>{props.accountDirectory?.displayName}</h1>
-              {props.accountDirectory?.isSupervisor ? <ShieldUser className='text-blue-500' size={20}/> : ""}
+              {props.accountDirectory?.isSupervisor ? <ShieldUser className='text-primary' size={20}/> : ""}
             </div>
             <Separator/>
             {

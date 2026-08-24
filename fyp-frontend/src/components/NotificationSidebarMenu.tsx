@@ -98,12 +98,12 @@ export default function NotificationsSidebarMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="cursor-pointer gap-2 outline-none relative"           
+          className="cursor-pointer gap-2 outline-none relative hover:bg-muted/50"           
         >
           <div className="relative">
-            <Bell className={hasNew ? "animate-pulse text-blue-500" : ""} />
+            <Bell className={hasNew ? "animate-pulse text-primary" : ""} />
           </div>
-          <Badge className="py-[2px] min-w-[24px] bg-blue-500 rounded-full">{unseenCount}</Badge>              
+          <Badge className="py-[2px] min-w-[24px] bg-primary rounded-full">{unseenCount}</Badge>              
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -112,7 +112,7 @@ export default function NotificationsSidebarMenu() {
         {unseenCount > 0 && (
           <>
             <DropdownMenuItem
-              className="cursor-pointer justify-center text-sm text-blue-500 font-medium"
+              className="cursor-pointer justify-center text-sm text-primary font-medium"
               onSelect={(e) => { e.preventDefault(); markAllAsRead(); }}
             >
               <CheckCheck className="size-4" />
@@ -141,25 +141,25 @@ export default function NotificationsSidebarMenu() {
             >
               <div className={[
                 "p-2 flex flex-col w-full relative gap-1 justify-between min-h-[50px] rounded-md transition-colors",
-                notification.status === "unseen" ? "bg-blue-500/10" : ""
+                notification.status === "unseen" ? "bg-primary/10" : ""
               ].join(" ")}>
                 <div
-                  className="p-[4px] rounded-lg absolute top-1 right-1 bg-background hover:bg-accent z-10"
+                  className="p-[4px] rounded-lg absolute top-1 right-1 bg-background hover:bg-muted/50 z-10"
                   onClick={(e) => { e.stopPropagation(); dismissNotification(notification); }}
                 >
                   <X className="size-3" />
                 </div>
                 <div className="flex flex-row w-full justify-start gap-2 items-start pr-6">
                   {notification.status === "unseen" && (
-                    <Badge className="px-2 rounded-full bg-blue-500 text-white text-xs shrink-0">NEW</Badge>
+                    <Badge className="px-2 rounded-full bg-primary text-white text-xs shrink-0">NEW</Badge>
                   )}
                   <span className="text-sm line-clamp-2">{notification.description}</span>
                 </div>    
                 {notification.tags.length > 0 && (
                   <div className="flex flex-row gap-2 justify-start items-center flex-wrap">
                     {notification.tags.map((tag, i) => (
-                      <div key={i} className="bg-background border-blue-400 border rounded-md px-3 py-[1px]">
-                        <span className="text-xs text-blue-500">{tag}</span> 
+                      <div key={i} className="bg-background border-primary/60 border rounded-md px-3 py-[1px]">
+                        <span className="text-xs text-primary">{tag}</span> 
                       </div>
                     ))}
                 <div className="flex flex-row w-full justify-start">
