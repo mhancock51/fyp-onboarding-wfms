@@ -8,6 +8,7 @@ import TaskNode from './Nodes/TaskNode';
 import TaskTemplate from '@/models/tasks/TaskTemplate';
 import AddTaskToWorkflowDialog from '@/app/dialogs/AddTaskToWorkflowDialog';
 import AccountDirectory from '@/models/AccountDirectory';
+import Department from '@/models/Department';
 import WorkflowTemplateNode from '@/models/Workflows/WorkflowTemplateNode';
 import clsx from 'clsx';
 import { toast } from 'sonner';
@@ -197,11 +198,12 @@ export default function WorkflowTemplateBuilder(props: Props) {
     setEdges(edges);
   }
 
-  function addWorkflowNode(taskTemplate: TaskTemplate, assignee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) {
+  function addWorkflowNode(taskTemplate: TaskTemplate, assignee: AccountDirectory | null, department: Department | null, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) {
     const node: WorkflowTemplateNode = {
       id: crypto.randomUUID(),
       taskTemplate: taskTemplate,
-      assignee: assignee,
+      assignee: assignee ?? undefined,
+      department: department ?? undefined,
       taskDependencies: taskDependencies,
       daysUntilDue: daysUntilDue,
       accountsToNotify: accountsToNotifyOnCompletion.map((account) => account.id)    

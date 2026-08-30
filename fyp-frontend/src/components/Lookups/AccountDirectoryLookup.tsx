@@ -13,6 +13,8 @@ interface Props {
   additionalAccounts: AccountDirectory[];
   filter?: (a: AccountDirectory) => boolean;
   isMulti: boolean;
+  disabled?: boolean;
+  clearable?: boolean;
 }
 
 export default function AccountDirectoryLookup(props: Props) {
@@ -95,6 +97,8 @@ export default function AccountDirectoryLookup(props: Props) {
       className='col-span-3'
       classNamePrefix='react-select'
       isMulti={props.isMulti}
+      isDisabled={props.disabled}
+      isClearable={props.clearable}
       options={getSelectOptions()}
       value={getSelectValue()}
       isLoading={loading}

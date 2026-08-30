@@ -4,7 +4,7 @@ import Api from '@/api';
 import Department from '@/models/Department';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_DEPARTMENTS, SET_OPEN_CREATE_DPT_DIALOG, SET_OPEN_INVITE_DIALOG, SET_OPEN_ORGANISATION_DIALOG } from '@/features/appSlice';
 import { RootState } from '@/store';
@@ -12,6 +12,7 @@ import { RootState } from '@/store';
 interface Props {
   department: Department | null;
   setDepartment: React.Dispatch<React.SetStateAction<Department | null>>;
+  disabled?: boolean;
 }
 
 export default function DepartmentLookup(props: Props) {
@@ -42,8 +43,8 @@ export default function DepartmentLookup(props: Props) {
 
   return (
     <div className='flex flex-row gap-2 col-span-3 w-auto'>
-      <Select value={props.department?.id ?? undefined} onValueChange={(value: string) => {props.setDepartment(departments.find(i => i.id === value) ?? null);}}>
-        <SelectTrigger className='w-min-[300px]'>
+      <Select disabled={props.disabled} value={props.department?.id ?? ""} onValueChange={(value: string) => {props.setDepartment(departments.find(i => i.id === value) ?? null);}}>
+        <SelectTrigger disabled={props.disabled} className='w-min-[300px]'>
           <SelectValue placeholder="Select a department" />
         </SelectTrigger>
         <SelectContent>
@@ -66,7 +67,10 @@ export default function DepartmentLookup(props: Props) {
           }
         </SelectContent>
       </Select> 
-      <Button type='button' onClick={() => {
+      {props.department !== null &&
+        <Button type='button' variant={"outline"} onClick={() => props.setDepartment(null)}><X/></Button>
+      }
+      <Button type='button' disabled={props.disabled} onClick={() => {
         dispatch(SET_OPEN_CREATE_DPT_DIALOG(true)); 
         dispatch(SET_OPEN_ORGANISATION_DIALOG(false));
         dispatch(SET_OPEN_INVITE_DIALOG(false));

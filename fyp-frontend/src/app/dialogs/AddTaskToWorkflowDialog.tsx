@@ -13,11 +13,14 @@ import { HoverCardContent } from '@radix-ui/react-hover-card';
 import Select, { MultiValue } from 'react-select';
 import React, { SetStateAction, useState } from 'react'
 import ClearableInput from '@/components/ClearableInput';
+import DepartmentLookup from '@/components/Lookups/DepartmentLookup';
+import Department from '@/models/Department';
+import { Info } from 'lucide-react';
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>
-  onAddTask: (taskTemplate: TaskTemplate, assingee: AccountDirectory, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) => void;
+  onAddTask: (taskTemplate: TaskTemplate, assignee: AccountDirectory | null, department: Department | null, taskDependencies: WorkflowTemplateNode[], daysUntilDue: number | null, accountsToNotifyOnCompletion: AccountDirectory[]) => void;
   isOnboardingWorkflow: boolean;
   existingTaskNodes: WorkflowTemplateNode[];
   section: string;
@@ -27,6 +30,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
   const [step, setStep] = useState<number>(0);
   const [taskTemplate, setTaskTemplate] = useState<TaskTemplate | null>(null);
   const [assignee, setAssignee] = useState<AccountDirectory | null>(null);
+  const [department, setDepartment] = useState<Department | null>(null);
   const [taskNodeDependencies, setTaskNodeDependencies] = useState<WorkflowTemplateNode[]>([]);
 
   const [accountsToNotify, setAccountsToNotify] = useState<AccountDirectory[]>([]);
@@ -37,6 +41,7 @@ export default function AddTaskToWorkflowDialog(props: Props) {
     setStep(0);
     setTaskTemplate(null);
     setAssignee(null);
+    setDepartment(null);
     setTaskNodeDependencies([]);
     setAccountsToNotify([]);
     props.setOpen(false);
@@ -44,8 +49,8 @@ export default function AddTaskToWorkflowDialog(props: Props) {
 
   function addTaskToWorkflow() {
     if (taskTemplate === null) return;
-    if (assignee === null) return;
-    props.onAddTask(taskTemplate, assignee, taskNodeDependencies, daysUntilDue, accountsToNotify);
+    if (assignee === null && department === null) return;
+    props.onAddTask(taskTemplate, assignee, department, taskNodeDependencies, daysUntilDue, accountsToNotify);
     closeAndClear();
   }
 
@@ -53,7 +58,14 @@ export default function AddTaskToWorkflowDialog(props: Props) {
     <Dialog open={props.open} onOpenChange={closeAndClear}>
       <DialogContent style={{minWidth: step === 0 ? "1000px" : "750px"}}>
         <DialogHeader>
-          <DialogTitle>Add Task to Workflow Template</DialogTitle>
+          <DialogTitle>Add Task to Workflow</DialogTitle>
+          {
+            step == 1 &&
+            <div className="flex flex-row items-center gap-2 text-sm text-muted-foreground mt-1">
+              <Info className="h-4 w-4 shrink-0" />
+              <span>Select either an assignee or a department for this task to be assigned to — only one can be chosen.</span>
+            </div>
+          }
         </DialogHeader>
         {
           step === 0 &&
@@ -67,9 +79,15 @@ export default function AddTaskToWorkflowDialog(props: Props) {
           <form className='flex flex-col gap-2 w-full' onSubmit={(event: any) => { event.preventDefault(); addTaskToWorkflow();}}>
             <div className="grid grid-cols-4 gap-4">
               <Label>Assignee</Label>
-              <AccountDirectoryLookup setAccounts={(accounts: AccountDirectory[]) => { setAssignee(accounts[accounts.length - 1] ?? null); } } accounts={assignee !== null ? [assignee] : []}
-                additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []} isMulti={false}             
+              <AccountDirectoryLookup setAccounts={(accounts: AccountDirectory[]) => { setAssignee(accounts[accounts.length - 1] ?? null); setDepartment(null); } } accounts={assignee !== null ? [assignee] : []}
+                additionalAccounts={props.isOnboardingWorkflow ? TEMPLATE_ACCOUNTS : []} isMulti={false}
+                disabled={department !== null}
+                clearable
               />                     
+            </div>  
+            <div className="grid grid-cols-4 gap-4">
+              <Label>Department</Label>
+              <DepartmentLookup department={department} setDepartment={(value: React.SetStateAction<Department | null>) => { setDepartment(value); setAssignee(null); }} disabled={assignee !== null}/>                    
             </div>  
             {
               props.existingTaskNodes.length > 0 &&
@@ -112,8 +130,8 @@ export default function AddTaskToWorkflowDialog(props: Props) {
             </div>
             <div className="grid grid-cols-4 gap-4">
               <Label>Days to complete task</Label>                              
-              <div className='col-span-3 flex flex-row gap-1 items-center'>
-                <ClearableInput inputType={'number'} value={daysUntilDue} setValue={setDaysUntilDue} min={1} className='flex-10'/>
+              <div className='col-span-3 flex flex-row gap-2 items-center'>
+                <ClearableInput inputType={'number'} value={daysUntilDue} setValue={setDaysUntilDue} min={1} className='max-w[100px]'/>
                 <Label>Day(s)</Label>                
               </div>
             </div>
